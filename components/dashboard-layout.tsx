@@ -1,36 +1,48 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Home, List, Shield, Settings, User, Menu, LogOut, Wallet } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Home,
+  List,
+  Shield,
+  Settings,
+  User,
+  Menu,
+  LogOut,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useWallet } from "@/hooks/use-wallet";
+import useGlobalAuthenticationStore from "@/store/wallet.store";
 
 interface DashboardLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const { address } = useGlobalAuthenticationStore();
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Marketplace", href: "/listings", icon: List },
-    { name: "Escrows", href: "/escrows", icon: Shield },
-    { name: "Perfil", href: "/profile", icon: User },
-    { name: "Admin", href: "/admin", icon: Settings },
-  ]
+    { name: "Marketplace", href: "/dashboard/listings", icon: List },
+    { name: "Escrows", href: "/dashboard/escrows", icon: Shield },
+    { name: "Perfil", href: "/dashboard/profile", icon: User },
+    { name: "Admin", href: "/dashboard/admin", icon: Settings },
+  ];
 
   const NavItems = () => (
     <>
       {navigation.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname === item.href;
         return (
           <Link
             key={item.name}
@@ -39,17 +51,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
               isActive
                 ? "bg-primary text-white shadow-lg"
-                : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800",
+                : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
             )}
             onClick={() => setSidebarOpen(false)}
           >
             <item.icon className="w-5 h-5" />
             {item.name}
           </Link>
-        )
+        );
       })}
     </>
-  )
+  );
+  const { handleDisconnect } = useWallet();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -57,19 +70,28 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <div className="lg:hidden">
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="fixed top-4 left-4 z-50 bg-white dark:bg-gray-800 shadow-lg">
+            <Button
+              variant="outline"
+              size="sm"
+              className="fixed top-4 left-4 z-50 bg-white dark:bg-gray-800 shadow-lg"
+            >
               <Menu className="w-4 h-4" />
             </Button>
           </SheetTrigger>
         </div>
-        <SheetContent side="left" className="w-72 p-0 bg-white dark:bg-gray-900">
+        <SheetContent
+          side="left"
+          className="w-72 p-0 bg-white dark:bg-gray-900"
+        >
           <div className="flex flex-col h-full">
             <div className="p-6 border-b dark:border-gray-800">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center">
                   <span className="text-white font-bold text-lg">P</span>
                 </div>
-                <span className="text-2xl font-bold text-gray-900 dark:text-white">Pacto</span>
+                <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Pacto
+                </span>
               </div>
             </div>
             <nav className="flex-1 p-6 space-y-2">
@@ -77,12 +99,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </nav>
             <div className="p-6 border-t dark:border-gray-800">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Tema</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  Tema
+                </span>
                 <ThemeToggle />
               </div>
               <Button
                 variant="outline"
                 className="w-full justify-start bg-transparent border-gray-300 dark:border-gray-600"
+                onClick={handleDisconnect}
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Cerrar Sesión
@@ -100,7 +125,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-lg">P</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">Pacto</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                Pacto
+              </span>
             </div>
           </div>
           <nav className="flex-1 p-6 space-y-2">
@@ -112,17 +139,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Wallet className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">GDXXX...XXXX</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Conectado</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                  {address}
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Tema</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                Tema
+              </span>
               <ThemeToggle />
             </div>
             <Button
               variant="outline"
               className="w-full justify-start bg-transparent border-gray-300 dark:border-gray-600"
+              onClick={handleDisconnect}
             >
               <LogOut className="w-4 h-4 mr-2" />
               Cerrar Sesión
@@ -140,7 +171,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">P</span>
               </div>
-              <span className="font-bold text-gray-900 dark:text-white">Pacto</span>
+              <span className="font-bold text-gray-900 dark:text-white">
+                Pacto
+              </span>
             </div>
             <ThemeToggle />
           </div>
@@ -150,5 +183,5 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <main className="p-6 lg:p-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }
