@@ -4,24 +4,18 @@ import type React from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Clock,
   AlertTriangle,
-  Upload,
   ExternalLink,
-  FileText,
   User,
   Loader2,
   Shield,
@@ -36,8 +30,11 @@ import { getTrustlineName } from "@/utils/getTrustline";
 import { useEscrowsByRoleQuery } from "@/hooks/use-escrows";
 import useGlobalAuthenticationStore from "@/store/wallet.store";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Escrow } from "@/lib/types";
 import { useInitializeTrade } from "@/hooks/use-trades";
+
+//! Using any for now since Escrow type is not properly defined
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Escrow = any;
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -49,6 +46,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useEscrowSelection } from "@/hooks/use-escrow-selection";
+import { formatAmount } from "@/lib/dashboard-utils";
 
 export default function EscrowsPage() {
   const [activeTab, setActiveTab] = useState<"buyer" | "seller">("buyer");
@@ -111,6 +109,7 @@ export default function EscrowsPage() {
             },
           ],
         });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Error al reportar el pago");
       } finally {
@@ -133,6 +132,7 @@ export default function EscrowsPage() {
             },
           ],
         });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Error al confirmar el pago");
       }
@@ -213,10 +213,10 @@ export default function EscrowsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Error al cargar escrows
             </h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               {error instanceof Error ? error.message : "Error desconocido"}
             </p>
           </div>
@@ -227,11 +227,11 @@ export default function EscrowsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Escrow Management</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold text-white">Orders</h1>
+          <p className="text-lg text-muted-foreground mt-2">
             Monitor and manage your active escrow contracts
           </p>
         </div>
@@ -241,13 +241,16 @@ export default function EscrowsPage() {
           onValueChange={(value) => setActiveTab(value as "buyer" | "seller")}
           className="space-y-6"
         >
-          <TabsList className="bg-gray-100 p-1">
-            <TabsTrigger value="buyer" className="data-[state=active]:bg-white">
+          <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1">
+            <TabsTrigger 
+              value="buyer" 
+              className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+            >
               Buyer
             </TabsTrigger>
             <TabsTrigger
               value="seller"
-              className="data-[state=active]:bg-white"
+              className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
               Seller
             </TabsTrigger>
@@ -255,17 +258,17 @@ export default function EscrowsPage() {
         </Tabs>
 
         {/* Escrows List */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {escrows.length === 0 ? (
-            <Card>
+            <Card className="glass-card">
               <CardContent className="p-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-gray-400" />
+                <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl mx-auto mb-4 flex items-center justify-center glow-emerald">
+                  <Shield className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   No escrows found
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   You don't have any active escrow contracts yet.
                 </p>
               </CardContent>
@@ -275,7 +278,7 @@ export default function EscrowsPage() {
               return (
                 <Card
                   key={index}
-                  className="hover:shadow-md transition-shadow cursor-pointer w-"
+                  className="card hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 animate-fade-in cursor-pointer"
                   onClick={() => openEscrowModal(escrow)}
                 >
                   <CardContent className="p-6">
@@ -284,21 +287,21 @@ export default function EscrowsPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div>
-                            <p className="font-semibold text-xl">
+                            <p className="font-semibold text-xl text-foreground">
                               {escrow.title}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-muted-foreground">
                               ID: {escrow.engagementId}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {escrow.flags?.resolved || escrow.flags?.released ? (
-                            <span className="text-lg font-bold text-green-700">
+                            <span className="text-lg font-bold text-emerald-600">
                               Finalizado
                             </span>
                           ) : (
-                            <span className="text-lg font-bold text-gray-700">
+                            <span className="text-lg font-bold text-muted-foreground">
                               En curso
                             </span>
                           )}
@@ -307,27 +310,27 @@ export default function EscrowsPage() {
 
                       {/* Description */}
                       <div className="space-y-2">
-                        <p className="text-sm text-gray-600">Description</p>
-                        <p className="font-medium">{escrow.description}</p>
+                        <p className="text-sm text-muted-foreground">Description</p>
+                        <p className="font-medium text-foreground">{escrow.description}</p>
                       </div>
 
                       {/* Amount and Details */}
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border">
+                      <div className="bg-muted/50 backdrop-blur-sm p-4 rounded-lg border border-border/50">
                         <div className="flex items-center justify-center gap-10">
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">Amount</p>
-                            <p className="text-2xl font-bold text-blue-600">
-                              {escrow.amount}{" "}
+                            <p className="text-sm text-muted-foreground mb-1">Amount</p>
+                            <p className="text-2xl font-bold text-emerald-600">
+                              {formatAmount(escrow.amount)}{" "}
                               {getTrustlineName(escrow.trustline.address)}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">
+                            <p className="text-sm text-muted-foreground mb-1">
                               Balance
                             </p>
-                            <p className="text-2xl font-bold text-blue-600">
-                              {escrow.balance}
+                            <p className="text-2xl font-bold text-emerald-600">
+                              {formatAmount(escrow.balance)}{" "}
                               {getTrustlineName(escrow.trustline.address)}
                             </p>
                           </div>
@@ -335,36 +338,36 @@ export default function EscrowsPage() {
                       </div>
 
                       {/* Key Information */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border/50">
                         <div className="space-y-3">
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">
+                            <p className="text-sm text-muted-foreground mb-1">
                               Seller Address
                             </p>
-                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
-                              <User className="w-4 h-4 text-gray-500" />
-                              <span className="font-mono text-xs text-gray-700">
+                            <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md">
+                              <User className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-mono text-xs text-foreground">
                                 {escrow.roles.approver.slice(0, 8)}...
                                 {escrow.roles.approver.slice(-8)}
                               </span>
                             </div>
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">
+                            <p className="text-sm text-muted-foreground mb-1">
                               Buyer Address
                             </p>
-                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
-                              <User className="w-4 h-4 text-gray-500" />
-                              <span className="font-mono text-xs text-gray-700">
+                            <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md">
+                              <User className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-mono text-xs text-foreground">
                                 {escrow.roles.serviceProvider.slice(0, 8)}...
                                 {escrow.roles.serviceProvider.slice(-8)}
                               </span>
                             </div>
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">Asset</p>
-                            <div className="p-2 bg-gray-50 rounded-md">
-                              <span className="font-mono text-xs text-gray-700">
+                            <p className="text-sm text-muted-foreground mb-1">Asset</p>
+                            <div className="p-2 bg-muted/50 backdrop-blur-sm rounded-md">
+                              <span className="font-mono text-xs text-foreground">
                                 {getTrustlineName(escrow.trustline.address)}
                               </span>
                             </div>
@@ -372,11 +375,11 @@ export default function EscrowsPage() {
                         </div>
                         <div className="space-y-3">
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">
+                            <p className="text-sm text-muted-foreground mb-1">
                               Engagement ID
                             </p>
-                            <div className="p-2 bg-blue-50 rounded-md">
-                              <span className="font-mono text-sm font-medium text-blue-700">
+                            <div className="p-2 bg-emerald-50/80 backdrop-blur-sm rounded-md">
+                              <span className="font-mono text-sm font-medium text-emerald-700">
                                 {escrow.engagementId}
                               </span>
                             </div>
@@ -385,8 +388,8 @@ export default function EscrowsPage() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex gap-2 pt-4 border-t">
-                        <Button variant="outline" size="sm">
+                      <div className="flex gap-2 pt-4 border-t border-border/50">
+                        <Button variant="outline" size="sm" className="btn-emerald-outline">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           View on Stellar
                         </Button>
@@ -409,12 +412,12 @@ export default function EscrowsPage() {
             }
           }}
         >
-          <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="glass-card !max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">
+              <DialogTitle className="text-2xl font-bold text-emerald-gradient">
                 Detalles del Escrow
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-muted-foreground">
                 Información completa y acciones disponibles para este contrato
                 de escrow
               </DialogDescription>
@@ -423,42 +426,42 @@ export default function EscrowsPage() {
             {selectedEscrow && (
               <div className="space-y-6">
                 {/* Header Info */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+                <div className="bg-muted/50 backdrop-blur-sm p-6 rounded-lg border border-border/50">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-2xl font-bold text-blue-600">
-                        {selectedEscrow.amount}{" "}
+                      <h3 className="text-2xl font-bold text-emerald-600">
+                        {formatAmount(selectedEscrow.amount)}{" "}
                         {getTrustlineName(selectedEscrow.trustline.address)}
-                        <span className="text-gray-600 mx-3">
-                          | {selectedEscrow.balance}{" "}
+                        <span className="text-muted-foreground mx-3">
+                          | {formatAmount(selectedEscrow.balance)}{" "}
                           {getTrustlineName(selectedEscrow.trustline.address)}
                         </span>
                       </h3>
-                      <p className="text-gray-600 mt-1">
+                      <p className="text-muted-foreground mt-1">
                         Engagement ID: {selectedEscrow.engagementId}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       {selectedEscrow.flags?.released ? (
-                        <span className="font-semibold text-green-700">
+                        <span className="font-semibold text-emerald-600">
                           Liberado
                         </span>
                       ) : selectedEscrow.flags?.resolved ? (
-                        <span className="font-semibold text-green-700">
+                        <span className="font-semibold text-emerald-600">
                           Resuelto
                         </span>
                       ) : selectedEscrow.flags?.disputed ? (
-                        <span className="font-semibold text-red-700">
+                        <span className="font-semibold text-red-600">
                           Disputado
                         </span>
                       ) : selectedEscrow.milestones[0].status ===
                         "pendingApproval" ? (
-                        <span className="font-semibold text-yellow-700">
+                        <span className="font-semibold text-yellow-600">
                           Pendiente de aprobación
                         </span>
                       ) : selectedEscrow.milestones[0].approved ? (
-                        <span className="font-semibold text-green-700">
+                        <span className="font-semibold text-emerald-600">
                           Confirmado
                         </span>
                       ) : null}
@@ -468,8 +471,8 @@ export default function EscrowsPage() {
 
                 {/* Description */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-lg">Descripción</h4>
-                  <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-lg text-foreground">Descripción</h4>
+                  <p className="text-foreground bg-muted/50 backdrop-blur-sm p-4 rounded-lg">
                     {selectedEscrow.description}
                   </p>
                 </div>
@@ -477,16 +480,16 @@ export default function EscrowsPage() {
                 {/* Detailed Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-lg">
+                    <h4 className="font-semibold text-lg text-foreground">
                       Información del Contrato
                     </h4>
 
                     <div className="space-y-3">
                       <div>
-                        <p className="text-sm text-gray-600 mb-1">Vendedor</p>
-                        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                          <User className="w-4 h-4 text-gray-500" />
-                          <span className="font-mono text-sm text-gray-700">
+                        <p className="text-sm text-muted-foreground mb-1">Vendedor</p>
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-mono text-sm text-foreground">
                             {selectedEscrow.roles.approver.slice(0, 8)}...
                             {selectedEscrow.roles.approver.slice(-8)}
                           </span>
@@ -494,10 +497,10 @@ export default function EscrowsPage() {
                       </div>
 
                       <div>
-                        <p className="text-sm text-gray-600 mb-1">Comprador</p>
-                        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                          <User className="w-4 h-4 text-gray-500" />
-                          <span className="font-mono text-sm text-gray-700">
+                        <p className="text-sm text-muted-foreground mb-1">Comprador</p>
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-mono text-sm text-foreground">
                             {selectedEscrow.roles.serviceProvider.slice(0, 8)}
                             ...
                             {selectedEscrow.roles.serviceProvider.slice(-8)}
@@ -508,13 +511,13 @@ export default function EscrowsPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-lg">Detalles Técnicos</h4>
+                    <h4 className="font-semibold text-lg text-foreground">Detalles Técnicos</h4>
 
                     <div className="space-y-3">
                       <div>
-                        <p className="text-sm text-gray-600 mb-1">Activo</p>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <span className="font-mono text-sm text-gray-700">
+                        <p className="text-sm text-muted-foreground mb-1">Activo</p>
+                        <div className="p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
+                          <span className="font-mono text-sm text-foreground">
                             {getTrustlineName(selectedEscrow.trustline.address)}
                           </span>
                         </div>
@@ -524,8 +527,8 @@ export default function EscrowsPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-4 pt-6 border-t">
-                  <h4 className="font-semibold text-lg">
+                <div className="space-y-4 pt-6 border-t border-border/50">
+                  <h4 className="font-semibold text-lg text-foreground">
                     Acciones Disponibles
                   </h4>
 
@@ -537,7 +540,7 @@ export default function EscrowsPage() {
                       !selectedEscrow.flags?.released && (
                         <Button
                           onClick={() => handleReportPayment(selectedEscrow)}
-                          className="w-full"
+                          className="w-full btn-emerald-outline"
                           variant="outline"
                         >
                           <DollarSign className="w-4 h-4 mr-2" />
@@ -550,7 +553,7 @@ export default function EscrowsPage() {
                         {!selectedEscrow.milestones[0].approved && (
                           <Button
                             onClick={() => handleConfirmPayment(selectedEscrow)}
-                            className="w-full"
+                            className="w-full btn-emerald-outline"
                             variant="outline"
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
@@ -563,7 +566,7 @@ export default function EscrowsPage() {
                           !selectedEscrow.flags?.resolved && (
                             <Button
                               onClick={() => handleDeposit(selectedEscrow)}
-                              className="w-full"
+                              className="w-full btn-emerald-outline"
                               variant="outline"
                             >
                               <Banknote className="w-4 h-4 mr-2" />
@@ -575,7 +578,7 @@ export default function EscrowsPage() {
                           selectedEscrow.balance != 0 && (
                             <Button
                               onClick={() => handleReleaseFunds(selectedEscrow)}
-                              className="w-full"
+                              className="w-full btn-emerald-outline"
                               variant="outline"
                             >
                               <Unlock className="w-4 h-4 mr-2" />
@@ -591,7 +594,7 @@ export default function EscrowsPage() {
                       selectedEscrow.balance != 0 && (
                         <Button
                           onClick={() => handleDisputeEscrow(selectedEscrow)}
-                          className="w-full"
+                          className="w-full btn-emerald-outline"
                           variant="outline"
                         >
                           <XCircle className="w-4 h-4 mr-2" />
@@ -599,7 +602,7 @@ export default function EscrowsPage() {
                         </Button>
                       )}
 
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full btn-emerald-outline">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Ver en Stellar
                     </Button>
@@ -622,10 +625,12 @@ export default function EscrowsPage() {
             }
           }}
         >
-          <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="glass-card !max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">Reportar Pago</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-2xl font-bold text-emerald-gradient">
+                Reportar Pago
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
                 Reporte un pago que no se haya realizado o que no sea el
                 correcto. Proporcione evidencia para la resolución.
               </DialogDescription>
@@ -640,11 +645,12 @@ export default function EscrowsPage() {
                   name="evidence"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Evidencia (Opcional)</FormLabel>
+                      <FormLabel className="text-foreground">Evidencia (Opcional)</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Fotos, videos, documentos, etc. que respalden su reclamo."
                           disabled={isReportPaymentLoading}
+                          className="input-glass"
                           {...field}
                         />
                       </FormControl>
@@ -654,7 +660,7 @@ export default function EscrowsPage() {
                 />
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full btn-emerald"
                   disabled={isReportPaymentLoading}
                 >
                   {isReportPaymentLoading ? (

@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TrustlessWorkProvider } from "@/providers/trustless-work";
 import { EscrowProvider } from "@/lib/contexts/escrow-context";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthGuard } from "@/components/auth-guard";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,17 +23,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <QueryProvider>
             <TrustlessWorkProvider>
-              <EscrowProvider>{children}</EscrowProvider>
+              <EscrowProvider>
+                <AuthGuard>{children}</AuthGuard>
+              </EscrowProvider>
             </TrustlessWorkProvider>
           </QueryProvider>
         </ThemeProvider>

@@ -105,7 +105,7 @@ export default function CreateListingPage() {
                   />
                   <Label
                     htmlFor="sell"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 [&:has([data-state=checked])]:border-emerald-600 cursor-pointer"
                   >
                     <div className="text-center">
                       <div className="text-lg font-semibold mb-2">Sell</div>
@@ -123,7 +123,7 @@ export default function CreateListingPage() {
                   />
                   <Label
                     htmlFor="buy"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 [&:has([data-state=checked])]:border-emerald-600 cursor-pointer"
                   >
                     <div className="text-center">
                       <div className="text-lg font-semibold mb-2">Buy</div>
@@ -352,7 +352,7 @@ export default function CreateListingPage() {
                 Cancel
               </Button>
             </Link>
-            <Button type="submit" className="flex-1" disabled={isLoading}>
+            <Button type="submit" className="flex-1 btn-primary" disabled={isLoading}>
               {isLoading ? "Creating Listing..." : "Create Listing"}
             </Button>
           </div>

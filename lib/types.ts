@@ -16,55 +16,7 @@ export interface User {
   updated_at: string;
 }
 
-export interface Listing {
-  id: string;
-  user_id: string;
-  type: "buy" | "sell";
-  token: string;
-  amount: number;
-  rate: number;
-  fiat_currency: string;
-  payment_method: string;
-  min_amount?: number;
-  max_amount?: number;
-  description?: string;
-  status: "active" | "paused" | "completed" | "cancelled";
-  created_at: string;
-  updated_at: string;
-  user?: User;
-}
 
-interface CreatedAt {
-  _seconds: number;
-  _nanoseconds: number;
-}
-
-type UpdatedAt = CreatedAt;
-
-export interface Escrow {
-  signer?: string;
-  contractId?: string;
-  engagementId: string;
-  title: string;
-  roles: Roles;
-  description: string;
-  amount: number;
-  platformFee: number;
-  balance?: number;
-  milestones: SingleReleaseMilestone[];
-  flags?: Flags;
-  trustline: Trustline & { name: string };
-  receiverMemo?: number;
-  disputeStartedBy?: string;
-  fundedBy?: string;
-  isActive?: boolean;
-  approverFunds?: string;
-  receiverFunds?: string;
-  user: string;
-  createdAt: CreatedAt;
-  updatedAt: UpdatedAt;
-  type: EscrowType;
-}
 
 export interface EscrowMilestone {
   id: string;
@@ -109,4 +61,37 @@ export interface CreateEscrowData {
   amount: number;
   fiat_amount: number;
   fiat_currency: string;
+}
+
+// Dashboard UI Types
+export interface DashboardListing {
+  id: number;
+  type: "sell" | "buy";
+  token: string;
+  amount: number;
+  rate: number;
+  fiatCurrency: string;
+  status: string;
+  created: string;
+}
+
+export interface DashboardEscrow {
+  id: string;
+  type: "sell" | "buy";
+  token: string;
+  amount: number;
+  buyer?: string;
+  seller?: string;
+  status: string;
+  progress: number;
+  created: string;
+}
+
+export type DialogType = "receipt" | "dispute" | null;
+
+export interface TradeCardProps {
+  trade: DashboardListing | DashboardEscrow;
+  variant: "listing" | "escrow";
+  onAction?: (trade: DashboardListing | DashboardEscrow, action: string) => void;
+  onOpenDialog?: (trade: DashboardListing | DashboardEscrow, type: "receipt" | "dispute") => void;
 }

@@ -12,8 +12,8 @@ export function TradeTypeBadge({ type, className }: TradeTypeBadgeProps) {
       className={cn(
         "text-xs font-semibold px-3 py-1",
         type === "sell"
-          ? "bg-red-100 text-red-700 border border-red-200"
-          : "bg-green-100 text-green-700 border border-green-200",
+          ? "glass-effect text-white border-white/30"
+          : "glass-effect text-white border-white/30",
         className,
       )}
     >

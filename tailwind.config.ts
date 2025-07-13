@@ -16,6 +16,20 @@ const config: Config = {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "emerald-gradient": "linear-gradient(135deg, #10b981, #059669)",
+        "emerald-gradient-radial": "radial-gradient(circle, #10b981, #059669)",
+        "glass-gradient": "linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))",
+        "glass-gradient-dark": "linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))",
+        "emerald-pattern": `
+          radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)
+        `,
+        "emerald-pattern-dark": `
+          radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+          radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%)
+        `,
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -34,18 +48,18 @@ const config: Config = {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "#006BE4",
-          foreground: "#FFFFFF",
-          "50": "#E6F7FF",
-          "100": "#BAE7FF",
-          "200": "#91D5FF",
-          "300": "#69C3FF",
-          "400": "#40B1FF",
-          "500": "#006BE4",
-          "600": "#0050B3",
-          "700": "#0050B3",
-          "800": "#003A8C",
-          "900": "#00275C",
+          DEFAULT: "#10b981",
+          foreground: "#ffffff",
+          "50": "#ecfdf5",
+          "100": "#d1fae5",
+          "200": "#a7f3d0",
+          "300": "#6ee7b7",
+          "400": "#34d399",
+          "500": "#10b981",
+          "600": "#059669",
+          "700": "#047857",
+          "800": "#065f46",
+          "900": "#064e3b",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -83,6 +97,29 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Supabase-inspired emerald variations
+        emerald: {
+          "50": "#ecfdf5",
+          "100": "#d1fae5",
+          "200": "#a7f3d0",
+          "300": "#6ee7b7",
+          "400": "#34d399",
+          "500": "#10b981",
+          "600": "#059669",
+          "700": "#047857",
+          "800": "#065f46",
+          "900": "#064e3b",
+          "950": "#022c22",
+        },
+        // Glass effect colors
+        glass: {
+          "light": "rgba(255, 255, 255, 0.1)",
+          "medium": "rgba(255, 255, 255, 0.2)",
+          "strong": "rgba(255, 255, 255, 0.3)",
+          "dark": "rgba(16, 185, 129, 0.1)",
+          "dark-medium": "rgba(16, 185, 129, 0.2)",
+          "dark-strong": "rgba(16, 185, 129, 0.3)",
+        },
       },
       keyframes: {
         "accordion-down": {
@@ -101,19 +138,186 @@ const config: Config = {
             height: "0",
           },
         },
-        "custom-pulse": {
-          "0%, 100%": { transform: "scale(1)", opacity: "1" },
-          "50%": { transform: "scale(1.1)", opacity: "0.8" },
+        "fade-in": {
+          from: {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        "gradient-shift": {
+          "0%, 100%": {
+            "background-position": "0% 50%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+          },
+        },
+        "emerald-pulse": {
+          "0%, 100%": {
+            "box-shadow": "0 0 20px rgba(16, 185, 129, 0.3)",
+          },
+          "50%": {
+            "box-shadow": "0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.3)",
+          },
+        },
+        "glow-pulse": {
+          "0%, 100%": {
+            "box-shadow": "0 0 20px rgba(16, 185, 129, 0.4)",
+            transform: "scale(1)",
+          },
+          "50%": {
+            "box-shadow": "0 0 40px rgba(16, 185, 129, 0.6), 0 0 80px rgba(16, 185, 129, 0.4)",
+            transform: "scale(1.05)",
+          },
+        },
+        "slide-in-left": {
+          from: {
+            transform: "translateX(-100%)",
+            opacity: "0",
+          },
+          to: {
+            transform: "translateX(0)",
+            opacity: "1",
+          },
+        },
+        "slide-in-right": {
+          from: {
+            transform: "translateX(100%)",
+            opacity: "0",
+          },
+          to: {
+            transform: "translateX(0)",
+            opacity: "1",
+          },
+        },
+        "bounce-in": {
+          "0%": {
+            transform: "scale(0.3)",
+            opacity: "0",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+            opacity: "0.8",
+          },
+          "70%": {
+            transform: "scale(0.9)",
+            opacity: "0.9",
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "1",
+          },
+        },
+        "shimmer": {
+          "0%": {
+            transform: "translateX(-100%)",
+          },
+          "100%": {
+            transform: "translateX(100%)",
+          },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "custom-pulse": "custom-pulse 1.5s infinite",
+        "fade-in": "fade-in 0.6s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "gradient-shift": "gradient-shift 4s ease infinite",
+        "emerald-pulse": "emerald-pulse 2s infinite",
+        "glow-pulse": "glow-pulse 2s infinite",
+        "slide-in-left": "slide-in-left 0.5s ease-out",
+        "slide-in-right": "slide-in-right 0.5s ease-out",
+        "bounce-in": "bounce-in 0.6s ease-out",
+        "shimmer": "shimmer 2s infinite",
+      },
+      backdropBlur: {
+        xs: "2px",
+        "3xl": "64px",
+      },
+      boxShadow: {
+        "glow-emerald": "0 0 20px rgba(16, 185, 129, 0.3)",
+        "glow-emerald-strong": "0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.3)",
+        "glass": "0 8px 32px rgba(0, 0, 0, 0.1)",
+        "glass-emerald": "0 8px 32px rgba(16, 185, 129, 0.1)",
+        "inner-glow": "inset 0 0 20px rgba(16, 185, 129, 0.2)",
+        "feature-card": "0 20px 40px rgba(0, 0, 0, 0.1), 0 0 40px rgba(16, 185, 129, 0.1)",
+      },
+      spacing: {
+        "18": "4.5rem",
+        "88": "22rem",
+        "128": "32rem",
+      },
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui"],
+        mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular"],
+      },
+      fontSize: {
+        "2xs": "0.625rem",
+        "3xl": "1.953rem",
+        "4xl": "2.441rem",
+        "5xl": "3.052rem",
+        "6xl": "3.815rem",
+        "7xl": "4.769rem",
+        "8xl": "5.961rem",
+        "9xl": "7.451rem",
+      },
+      zIndex: {
+        "60": "60",
+        "70": "70",
+        "80": "80",
+        "90": "90",
+        "100": "100",
+      },
+      transitionTimingFunction: {
+        "bounce-in": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+        "smooth": "cubic-bezier(0.4, 0, 0.2, 1)",
+      },
+      transitionDuration: {
+        "400": "400ms",
+        "600": "600ms",
+        "800": "800ms",
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+    tailwindcssAnimate,
+    // Custom plugin for glass morphism utilities
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function({ addUtilities }: any) {
+      addUtilities({
+        '.glass-card': {
+          'backdrop-filter': 'blur(16px)',
+          'background': 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+          'border': '1px solid rgba(255, 255, 255, 0.2)',
+          'box-shadow': '0 8px 32px rgba(0, 0, 0, 0.1)',
+        },
+        '.glass-card-dark': {
+          'backdrop-filter': 'blur(16px)',
+          'background': 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))',
+          'border': '1px solid rgba(16, 185, 129, 0.2)',
+          'box-shadow': '0 8px 32px rgba(16, 185, 129, 0.1)',
+        },
+        '.text-glow': {
+          'text-shadow': '0 0 20px rgba(16, 185, 129, 0.5)',
+        },
+        '.text-glow-strong': {
+          'text-shadow': '0 0 30px rgba(16, 185, 129, 0.7), 0 0 60px rgba(16, 185, 129, 0.4)',
+        },
+      })
+    },
+  ],
 }
 
 export default config

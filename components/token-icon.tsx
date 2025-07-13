@@ -1,50 +1,41 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface TokenIconProps {
-  token: string
-  size?: "sm" | "md" | "lg" | "xl"
-  className?: string
+  token: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 export function TokenIcon({ token, size = "md", className }: TokenIconProps) {
   const getTokenColor = (token: string) => {
-    switch (token) {
+    switch (token.toUpperCase()) {
       case "CRCX":
-        return "bg-green-500"
+        return "bg-green-500";
       case "MXNX":
-        return "bg-red-500"
+        return "bg-red-500";
       case "USDC":
-        return "bg-primary"
+        return "bg-emerald-600";
       default:
-        return "bg-gray-500"
+        return "bg-emerald-600";
     }
-  }
+  };
 
-  const getSizeClasses = (size: string) => {
-    switch (size) {
-      case "sm":
-        return "w-8 h-8 text-sm"
-      case "md":
-        return "w-12 h-12 text-lg"
-      case "lg":
-        return "w-16 h-16 text-xl"
-      case "xl":
-        return "w-20 h-20 text-2xl"
-      default:
-        return "w-12 h-12 text-lg"
-    }
-  }
+  const sizeClasses = {
+    sm: "w-6 h-6 text-xs",
+    md: "w-8 h-8 text-sm",
+    lg: "w-12 h-12 text-lg",
+  };
 
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center text-white font-bold",
+        "rounded-full flex items-center justify-center font-bold text-white",
         getTokenColor(token),
-        getSizeClasses(size),
-        className,
+        sizeClasses[size],
+        className
       )}
     >
-      {token}
+      {token.slice(0, 2)}
     </div>
-  )
+  );
 }

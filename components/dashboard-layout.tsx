@@ -29,13 +29,13 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { address } = useGlobalAuthenticationStore();
+  const { address, network, walletType, isConnected } = useGlobalAuthenticationStore();
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Marketplace", href: "/dashboard/listings", icon: List },
-    { name: "Escrows", href: "/dashboard/escrows", icon: Shield },
-    { name: "Perfil", href: "/dashboard/profile", icon: User },
+    { name: "Orders", href: "/dashboard/escrows", icon: Shield },
+    { name: "Profile", href: "/dashboard/profile", icon: User },
     { name: "Admin", href: "/dashboard/admin", icon: Settings },
   ];
 
@@ -50,8 +50,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
               isActive
-                ? "bg-primary text-white shadow-lg"
-                : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                ? "bg-gradient-emerald text-white shadow-emerald-glow"
+                : "text-foreground/70 hover:text-foreground hover:bg-glass-hover nav-card"
             )}
             onClick={() => setSidebarOpen(false)}
           >
@@ -65,7 +65,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { handleDisconnect } = useWallet();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-background bg-pattern">
       {/* Mobile sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <div className="lg:hidden">
@@ -73,7 +73,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <Button
               variant="outline"
               size="sm"
-              className="fixed top-4 left-4 z-50 bg-white dark:bg-gray-800 shadow-lg"
+              className="fixed top-4 left-4 z-50 glass-effect hover:bg-glass-hover"
             >
               <Menu className="w-4 h-4" />
             </Button>
@@ -81,15 +81,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
         <SheetContent
           side="left"
-          className="w-72 p-0 bg-white dark:bg-gray-900"
+          className="w-72 p-0 glass-effect border-r border-glass-border"
         >
           <div className="flex flex-col h-full">
-            <div className="p-6 border-b dark:border-gray-800">
+            <div className="p-6 border-b border-glass-border">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
                   <span className="text-white font-bold text-lg">P</span>
                 </div>
-                <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                <span className="text-2xl font-bold text-foreground">
                   Pacto
                 </span>
               </div>
@@ -97,16 +97,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <nav className="flex-1 p-6 space-y-2">
               <NavItems />
             </nav>
-            <div className="p-6 border-t dark:border-gray-800">
+            <div className="p-6 border-t border-glass-border">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                <span className="text-sm font-medium text-muted-foreground">
                   Tema
                 </span>
                 <ThemeToggle />
               </div>
               <Button
                 variant="outline"
-                className="w-full justify-start bg-transparent border-gray-300 dark:border-gray-600"
+                className="w-full justify-start glass-effect-light hover:bg-glass-hover text-foreground/80"
                 onClick={handleDisconnect}
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -119,13 +119,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white dark:bg-gray-900 shadow-xl">
-          <div className="p-6 border-b dark:border-gray-800">
+        <div className="flex flex-col flex-grow glass-effect shadow-glass border-r border-glass-border">
+          <div className="p-6 border-b border-glass-border">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
                 <span className="text-white font-bold text-lg">P</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              <span className="text-2xl font-bold text-foreground">
                 Pacto
               </span>
             </div>
@@ -133,26 +133,36 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <nav className="flex-1 p-6 space-y-2">
             <NavItems />
           </nav>
-          <div className="p-6 border-t dark:border-gray-800">
-            <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl mb-4">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/20 rounded-xl flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-primary" />
+          <div className="p-6 border-t border-glass-border">
+            <div className="flex items-center gap-3 p-4 nav-card rounded-xl mb-4">
+              <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-emerald-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                  {address}
-                </p>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold text-foreground truncate">
+                    {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not Connected"}
+                  </p>
+                  {isConnected && (
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full glow-emerald"></div>
+                  )}
+                </div>
+                {walletType && (
+                  <p className="text-xs text-muted-foreground">
+                    {walletType} • {network}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+              <span className="text-sm font-medium text-muted-foreground">
                 Tema
               </span>
               <ThemeToggle />
             </div>
             <Button
               variant="outline"
-              className="w-full justify-start bg-transparent border-gray-300 dark:border-gray-600"
+              className="w-full justify-start glass-effect-light hover:bg-glass-hover text-foreground/80"
               onClick={handleDisconnect}
             >
               <LogOut className="w-4 h-4 mr-2" />
@@ -165,13 +175,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-72">
         {/* Top bar for mobile */}
-        <div className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b dark:border-gray-800 lg:hidden">
+        <div className="sticky top-0 z-40 glass-effect backdrop-blur-md border-b border-glass-border lg:hidden">
           <div className="flex items-center justify-between px-16 py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-emerald rounded-lg flex items-center justify-center logo-glow">
                 <span className="text-white font-bold">P</span>
               </div>
-              <span className="font-bold text-gray-900 dark:text-white">
+              <span className="font-bold text-foreground">
                 Pacto
               </span>
             </div>
@@ -180,7 +190,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="p-6 lg:p-8">{children}</main>
+        <main className="p-6 lg:p-8 bg-background min-h-screen">{children}</main>
       </div>
     </div>
   );
