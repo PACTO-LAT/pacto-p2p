@@ -532,7 +532,9 @@ export default function EscrowsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {activeTab === "buyer" &&
                       selectedEscrow.milestones[0].status !==
-                        "pendingApproval" && (
+                        "pendingApproval" &&
+                      !selectedEscrow.flags?.resolved &&
+                      !selectedEscrow.flags?.released && (
                         <Button
                           onClick={() => handleReportPayment(selectedEscrow)}
                           className="w-full"
