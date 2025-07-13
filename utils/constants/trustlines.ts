@@ -1,0 +1,13 @@
+export const TRUSTLINES = [
+  // TESTNET
+  {
+    name: "USDC",
+    address: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+    decimals: 10000000,
+  },
+  {
+    name: "CRCX",
+    address: "CDRLR3MUNKEVY23NQERNJGAH6C6EAFKYKPJECIBHWFO6INJU7CYD3U7H",
+    decimals: 10000000,
+  },
+];
