@@ -1,13 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,128 +12,218 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Clock, CheckCircle, AlertTriangle, Upload, ExternalLink, FileText, User } from "lucide-react"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { TokenIcon } from "@/components/token-icon"
-import { TradeTypeBadge } from "@/components/trade-type-badge"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Clock,
+  AlertTriangle,
+  Upload,
+  ExternalLink,
+  FileText,
+  User,
+  Loader2,
+  Shield,
+  DollarSign,
+  CheckCircle,
+  Banknote,
+  XCircle,
+  Unlock,
+} from "lucide-react";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { getTrustlineName } from "@/utils/getTrustline";
+import { useEscrowsByRoleQuery } from "@/hooks/use-escrows";
+import useGlobalAuthenticationStore from "@/store/wallet.store";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Escrow } from "@/lib/types";
+import { useInitializeTrade } from "@/hooks/use-trades";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { toast } from "sonner";
+import { useEscrowSelection } from "@/hooks/use-escrow-selection";
 
 export default function EscrowsPage() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [disputeReason, setDisputeReason] = useState("")
+  const [activeTab, setActiveTab] = useState<"buyer" | "seller">("buyer");
+  const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
+  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
+    useState(false);
+  const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
+  const { address } = useGlobalAuthenticationStore();
+  const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
+    useEscrowSelection();
+  const {
+    reportPayment,
+    depositFunds,
+    disputeEscrow,
+    releaseFunds,
+    confirmPayment,
+  } = useInitializeTrade();
 
-  const [escrows] = useState([
-    {
-      id: "ESC001",
-      type: "sell",
-      token: "CRCX",
-      amount: 500,
-      fiatAmount: 260250,
-      fiatCurrency: "CRC",
-      counterparty: "0x1234...5678",
-      counterpartyReputation: 4.8,
-      status: "awaiting_payment",
-      progress: 25,
-      created: "2024-01-15T10:30:00Z",
-      milestones: [
-        { id: 1, name: "Escrow Created", status: "completed", date: "2024-01-15T10:30:00Z" },
-        { id: 2, name: "Fiat Payment Sent", status: "pending", date: null },
-        { id: 3, name: "Payment Confirmed", status: "pending", date: null },
-        { id: 4, name: "Tokens Released", status: "pending", date: null },
-      ],
+  // Form for report payment
+  const reportPaymentForm = useForm({
+    defaultValues: {
+      evidence: "",
     },
-    {
-      id: "ESC002",
-      type: "buy",
-      token: "USDC",
-      amount: 250,
-      fiatAmount: 130000,
-      fiatCurrency: "CRC",
-      counterparty: "0x8765...4321",
-      counterpartyReputation: 4.9,
-      status: "payment_confirmed",
-      progress: 75,
-      created: "2024-01-14T15:45:00Z",
-      milestones: [
-        { id: 1, name: "Escrow Created", status: "completed", date: "2024-01-14T15:45:00Z" },
-        { id: 2, name: "Fiat Payment Sent", status: "completed", date: "2024-01-14T16:00:00Z" },
-        { id: 3, name: "Payment Confirmed", status: "completed", date: "2024-01-14T16:30:00Z" },
-        { id: 4, name: "Tokens Released", status: "pending", date: null },
-      ],
-    },
-    {
-      id: "ESC003",
-      type: "sell",
-      token: "MXNX",
-      amount: 1000,
-      fiatAmount: 18500,
-      fiatCurrency: "MXN",
-      counterparty: "0x9876...1234",
-      counterpartyReputation: 4.7,
-      status: "completed",
-      progress: 100,
-      created: "2024-01-13T09:15:00Z",
-      milestones: [
-        { id: 1, name: "Escrow Created", status: "completed", date: "2024-01-13T09:15:00Z" },
-        { id: 2, name: "Fiat Payment Sent", status: "completed", date: "2024-01-13T10:00:00Z" },
-        { id: 3, name: "Payment Confirmed", status: "completed", date: "2024-01-13T10:30:00Z" },
-        { id: 4, name: "Tokens Released", status: "completed", date: "2024-01-13T11:00:00Z" },
-      ],
-    },
-  ])
+  });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "awaiting_payment":
-        return "bg-orange-500"
-      case "payment_confirmed":
-        return "bg-blue-500"
-      case "completed":
-        return "bg-green-500"
-      case "disputed":
-        return "bg-red-500"
-      default:
-        return "bg-gray-500"
+  // Determine role based on active tab
+  const role = activeTab === "seller" ? "approver" : "serviceProvider";
+
+  // Fetch escrows where the user is involved in any role
+  const {
+    data: escrows = [],
+    isLoading,
+    error,
+  } = useEscrowsByRoleQuery({
+    role: role,
+    roleAddress: address,
+    isActive: true,
+    enabled: !!address,
+  });
+
+  const handleReportPayment = (escrow: Escrow) => {
+    selectEscrow(escrow);
+    setIsReportPaymentModalOpen(true);
+  };
+
+  const onSubmitReportPayment = async (data: { evidence: string }) => {
+    if (selectedEscrow) {
+      setIsReportPaymentLoading(true);
+      try {
+        await reportPayment(selectedEscrow, data.evidence);
+        reportPaymentForm.reset();
+        setIsReportPaymentModalOpen(false);
+        selectEscrow({
+          ...selectedEscrow,
+          milestones: [
+            {
+              ...selectedEscrow.milestones[0],
+              status: "pendingApproval",
+              evidence: data.evidence,
+            },
+          ],
+        });
+      } catch (error) {
+        toast.error("Error al reportar el pago");
+      } finally {
+        setIsReportPaymentLoading(false);
+      }
     }
-  }
+  };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "awaiting_payment":
-        return Clock
-      case "payment_confirmed":
-        return CheckCircle
-      case "completed":
-        return CheckCircle
-      case "disputed":
-        return AlertTriangle
-      default:
-        return Clock
+  const handleConfirmPayment = async (escrow: Escrow) => {
+    if (selectedEscrow) {
+      try {
+        await confirmPayment(escrow);
+        selectEscrow({
+          ...selectedEscrow,
+          milestones: [
+            {
+              ...selectedEscrow.milestones[0],
+              status: "approved",
+              approved: true,
+            },
+          ],
+        });
+      } catch (error) {
+        toast.error("Error al confirmar el pago");
+      }
     }
-  }
+  };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
+  const handleDeposit = async (escrow: Escrow) => {
+    if (selectedEscrow) {
+      try {
+        await depositFunds(escrow);
+
+        selectEscrow({
+          ...selectedEscrow,
+          balance: escrow.amount,
+        });
+      } catch (error) {
+        toast.error("Error al depositar fondos");
+      }
     }
+  };
+
+  const handleDisputeEscrow = async (escrow: Escrow) => {
+    if (selectedEscrow) {
+      try {
+        await disputeEscrow(escrow);
+
+        selectEscrow({
+          ...selectedEscrow,
+          flags: {
+            disputed: true,
+          },
+        });
+      } catch (error) {
+        toast.error("Error al disputar el escrow");
+      }
+    }
+  };
+
+  const handleReleaseFunds = async (escrow: Escrow) => {
+    if (selectedEscrow) {
+      try {
+        await releaseFunds(escrow);
+
+        selectEscrow({
+          ...selectedEscrow,
+          flags: {
+            released: true,
+          },
+          balance: 0,
+        });
+      } catch (error) {
+        toast.error("Error al liberar fondos");
+      }
+    }
+  };
+
+  const openEscrowModal = (escrow: Escrow) => {
+    selectEscrow(escrow);
+    setIsEscrowModalOpen(true);
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Cargando escrows...</span>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
   }
 
-  const handleUploadReceipt = (escrowId: string) => {
-    console.log("Uploading receipt for escrow:", escrowId, selectedFile)
-    // Handle receipt upload logic
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Error al cargar escrows
+            </h3>
+            <p className="text-gray-600">
+              {error instanceof Error ? error.message : "Error desconocido"}
+            </p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
   }
-
-  const handleDispute = (escrowId: string) => {
-    console.log("Creating dispute for escrow:", escrowId, disputeReason)
-    // Handle dispute creation logic
-  }
-
-  const activeEscrows = escrows.filter((e) => e.status !== "completed")
-  const completedEscrows = escrows.filter((e) => e.status === "completed")
 
   return (
     <DashboardLayout>
@@ -144,128 +231,156 @@ export default function EscrowsPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold">Escrow Management</h1>
-          <p className="text-gray-600">Monitor and manage your active escrow contracts</p>
+          <p className="text-gray-600">
+            Monitor and manage your active escrow contracts
+          </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Active Escrows</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{activeEscrows.length}</div>
-              <p className="text-sm text-gray-600 mt-1">Currently in progress</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Volume</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$12,450</div>
-              <p className="text-sm text-gray-600 mt-1">Across all escrows</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Success Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">98.5%</div>
-              <p className="text-sm text-gray-600 mt-1">Completed without disputes</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Escrow Tabs */}
-        <Tabs defaultValue="active" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="active">Active ({activeEscrows.length})</TabsTrigger>
-            <TabsTrigger value="completed">Completed ({completedEscrows.length})</TabsTrigger>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "buyer" | "seller")}
+          className="space-y-6"
+        >
+          <TabsList className="bg-gray-100 p-1">
+            <TabsTrigger value="buyer" className="data-[state=active]:bg-white">
+              Buyer
+            </TabsTrigger>
+            <TabsTrigger
+              value="seller"
+              className="data-[state=active]:bg-white"
+            >
+              Seller
+            </TabsTrigger>
           </TabsList>
+        </Tabs>
 
-          <TabsContent value="active" className="space-y-4">
-            {activeEscrows.map((escrow) => {
-              const StatusIcon = getStatusIcon(escrow.status)
+        {/* Escrows List */}
+        <div className="space-y-4">
+          {escrows.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No escrows found
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  You don't have any active escrow contracts yet.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            escrows.map((escrow, index) => {
               return (
-                <Card key={escrow.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={index}
+                  className="hover:shadow-md transition-shadow cursor-pointer w-"
+                  onClick={() => openEscrowModal(escrow)}
+                >
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       {/* Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <TradeTypeBadge type={escrow.type} />
-                          <TokenIcon token={escrow.token} size="md" />
                           <div>
-                            <p className="font-semibold text-lg">
-                              {escrow.amount} {escrow.token}
+                            <p className="font-semibold text-xl">
+                              {escrow.title}
                             </p>
-                            <p className="text-sm text-gray-600">ID: {escrow.id}</p>
+                            <p className="text-sm text-gray-600">
+                              ID: {escrow.engagementId}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${getStatusColor(escrow.status)}`}></div>
-                          <StatusIcon className="w-4 h-4" />
-                          <span className="text-sm capitalize">{escrow.status.replace("_", " ")}</span>
+                          {escrow.flags?.resolved || escrow.flags?.released ? (
+                            <span className="text-lg font-bold text-green-700">
+                              Finalizado
+                            </span>
+                          ) : (
+                            <span className="text-lg font-bold text-gray-700">
+                              En curso
+                            </span>
+                          )}
                         </div>
                       </div>
 
-                      {/* Progress */}
+                      {/* Description */}
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{escrow.progress}%</span>
-                        </div>
-                        <Progress value={escrow.progress} className="h-2" />
+                        <p className="text-sm text-gray-600">Description</p>
+                        <p className="font-medium">{escrow.description}</p>
                       </div>
 
-                      {/* Milestones */}
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {escrow.milestones.map((milestone, index) => (
-                          <div key={milestone.id} className="flex items-center gap-2">
-                            <div
-                              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                milestone.status === "completed"
-                                  ? "bg-green-500 text-white"
-                                  : milestone.status === "pending"
-                                    ? "bg-gray-200 text-gray-600"
-                                    : "bg-yellow-500 text-white"
-                              }`}
-                            >
-                              {index + 1}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">{milestone.name}</p>
-                              {milestone.date && (
-                                <p className="text-xs text-gray-500">{new Date(milestone.date).toLocaleDateString()}</p>
-                              )}
-                            </div>
+                      {/* Amount and Details */}
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border">
+                        <div className="flex items-center justify-center gap-10">
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Amount</p>
+                            <p className="text-2xl font-bold text-blue-600">
+                              {escrow.amount}{" "}
+                              {getTrustlineName(escrow.trustline.address)}
+                            </p>
                           </div>
-                        ))}
+
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              Balance
+                            </p>
+                            <p className="text-2xl font-bold text-blue-600">
+                              {escrow.balance}
+                              {getTrustlineName(escrow.trustline.address)}
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Details */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
-                        <div>
-                          <p className="text-sm text-gray-600">Counterparty</p>
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span className="font-medium">{escrow.counterparty}</span>
-                            <Badge variant="outline" className="text-xs">
-                              ⭐ {escrow.counterpartyReputation}
-                            </Badge>
+                      {/* Key Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              Seller Address
+                            </p>
+                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
+                              <User className="w-4 h-4 text-gray-500" />
+                              <span className="font-mono text-xs text-gray-700">
+                                {escrow.roles.approver.slice(0, 8)}...
+                                {escrow.roles.approver.slice(-8)}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              Buyer Address
+                            </p>
+                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
+                              <User className="w-4 h-4 text-gray-500" />
+                              <span className="font-mono text-xs text-gray-700">
+                                {escrow.roles.serviceProvider.slice(0, 8)}...
+                                {escrow.roles.serviceProvider.slice(-8)}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Asset</p>
+                            <div className="p-2 bg-gray-50 rounded-md">
+                              <span className="font-mono text-xs text-gray-700">
+                                {getTrustlineName(escrow.trustline.address)}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Fiat Amount</p>
-                          <p className="font-medium">
-                            {escrow.fiatAmount.toLocaleString()} {escrow.fiatCurrency}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Created</p>
-                          <p className="font-medium">{new Date(escrow.created).toLocaleDateString()}</p>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              Engagement ID
+                            </p>
+                            <div className="p-2 bg-blue-50 rounded-md">
+                              <span className="font-mono text-sm font-medium text-blue-700">
+                                {escrow.engagementId}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -275,143 +390,283 @@ export default function EscrowsPage() {
                           <ExternalLink className="w-4 h-4 mr-2" />
                           View on Stellar
                         </Button>
-
-                        {escrow.status === "awaiting_payment" && escrow.type === "buy" && (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm">
-                                <Upload className="w-4 h-4 mr-2" />
-                                Upload Receipt
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Upload Payment Receipt</DialogTitle>
-                                <DialogDescription>
-                                  Upload proof of your fiat payment to continue the escrow process
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="receipt">Receipt File</Label>
-                                  <Input id="receipt" type="file" accept="image/*,.pdf" onChange={handleFileUpload} />
-                                </div>
-                                {selectedFile && (
-                                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                                    <FileText className="w-4 h-4" />
-                                    <span className="text-sm">{selectedFile.name}</span>
-                                  </div>
-                                )}
-                                <Button
-                                  onClick={() => handleUploadReceipt(escrow.id)}
-                                  disabled={!selectedFile}
-                                  className="w-full"
-                                >
-                                  Upload Receipt
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        )}
-
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <AlertTriangle className="w-4 h-4 mr-2" />
-                              Dispute
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Create Dispute</DialogTitle>
-                              <DialogDescription>
-                                If there's an issue with this trade, you can create a dispute for resolution
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="reason">Dispute Reason</Label>
-                                <Textarea
-                                  id="reason"
-                                  placeholder="Describe the issue with this trade..."
-                                  value={disputeReason}
-                                  onChange={(e) => setDisputeReason(e.target.value)}
-                                  rows={4}
-                                />
-                              </div>
-                              <Button
-                                onClick={() => handleDispute(escrow.id)}
-                                disabled={!disputeReason.trim()}
-                                className="w-full"
-                                variant="destructive"
-                              >
-                                Create Dispute
-                              </Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              )
-            })}
-          </TabsContent>
+              );
+            })
+          )}
+        </div>
 
-          <TabsContent value="completed" className="space-y-4">
-            {completedEscrows.map((escrow) => (
-              <Card key={escrow.id}>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <TradeTypeBadge type={escrow.type} />
-                        <TokenIcon token={escrow.token} size="md" />
-                        <div>
-                          <p className="font-semibold text-lg">
-                            {escrow.amount} {escrow.token}
-                          </p>
-                          <p className="text-sm text-gray-600">ID: {escrow.id}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <span className="text-sm font-medium text-green-700">Completed</span>
-                      </div>
+        {/* Escrow Details Modal */}
+        <Dialog
+          open={isEscrowModalOpen}
+          onOpenChange={(open) => {
+            setIsEscrowModalOpen(open);
+            if (!open) {
+              clearSelectedEscrow();
+            }
+          }}
+        >
+          <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                Detalles del Escrow
+              </DialogTitle>
+              <DialogDescription>
+                Información completa y acciones disponibles para este contrato
+                de escrow
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedEscrow && (
+              <div className="space-y-6">
+                {/* Header Info */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold text-blue-600">
+                        {selectedEscrow.amount}{" "}
+                        {getTrustlineName(selectedEscrow.trustline.address)}
+                        <span className="text-gray-600 mx-3">
+                          | {selectedEscrow.balance}{" "}
+                          {getTrustlineName(selectedEscrow.trustline.address)}
+                        </span>
+                      </h3>
+                      <p className="text-gray-600 mt-1">
+                        Engagement ID: {selectedEscrow.engagementId}
+                      </p>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      {selectedEscrow.flags?.released ? (
+                        <span className="font-semibold text-green-700">
+                          Liberado
+                        </span>
+                      ) : selectedEscrow.flags?.resolved ? (
+                        <span className="font-semibold text-green-700">
+                          Resuelto
+                        </span>
+                      ) : selectedEscrow.flags?.disputed ? (
+                        <span className="font-semibold text-red-700">
+                          Disputado
+                        </span>
+                      ) : selectedEscrow.milestones[0].status ===
+                        "pendingApproval" ? (
+                        <span className="font-semibold text-yellow-700">
+                          Pendiente de aprobación
+                        </span>
+                      ) : selectedEscrow.milestones[0].approved ? (
+                        <span className="font-semibold text-green-700">
+                          Confirmado
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Description */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-lg">Descripción</h4>
+                  <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">
+                    {selectedEscrow.description}
+                  </p>
+                </div>
+
+                {/* Detailed Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-lg">
+                      Información del Contrato
+                    </h4>
+
+                    <div className="space-y-3">
                       <div>
-                        <p className="text-sm text-gray-600">Counterparty</p>
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          <span className="font-medium">{escrow.counterparty}</span>
+                        <p className="text-sm text-gray-600 mb-1">Vendedor</p>
+                        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                          <User className="w-4 h-4 text-gray-500" />
+                          <span className="font-mono text-sm text-gray-700">
+                            {selectedEscrow.roles.approver.slice(0, 8)}...
+                            {selectedEscrow.roles.approver.slice(-8)}
+                          </span>
                         </div>
                       </div>
+
                       <div>
-                        <p className="text-sm text-gray-600">Fiat Amount</p>
-                        <p className="font-medium">
-                          {escrow.fiatAmount.toLocaleString()} {escrow.fiatCurrency}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Completed</p>
-                        <p className="font-medium">{new Date(escrow.created).toLocaleDateString()}</p>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button variant="outline" size="sm">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          View Details
-                        </Button>
+                        <p className="text-sm text-gray-600 mb-1">Comprador</p>
+                        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                          <User className="w-4 h-4 text-gray-500" />
+                          <span className="font-mono text-sm text-gray-700">
+                            {selectedEscrow.roles.serviceProvider.slice(0, 8)}
+                            ...
+                            {selectedEscrow.roles.serviceProvider.slice(-8)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-        </Tabs>
+
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-lg">Detalles Técnicos</h4>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Activo</p>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <span className="font-mono text-sm text-gray-700">
+                            {getTrustlineName(selectedEscrow.trustline.address)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-4 pt-6 border-t">
+                  <h4 className="font-semibold text-lg">
+                    Acciones Disponibles
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {activeTab === "buyer" &&
+                      selectedEscrow.milestones[0].status !==
+                        "pendingApproval" && (
+                        <Button
+                          onClick={() => handleReportPayment(selectedEscrow)}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          Reportar Pago
+                        </Button>
+                      )}
+
+                    {activeTab === "seller" && (
+                      <>
+                        {!selectedEscrow.milestones[0].approved && (
+                          <Button
+                            onClick={() => handleConfirmPayment(selectedEscrow)}
+                            className="w-full"
+                            variant="outline"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Confirmar Pago
+                          </Button>
+                        )}
+
+                        {selectedEscrow.balance == 0 &&
+                          !selectedEscrow.flags?.released &&
+                          !selectedEscrow.flags?.resolved && (
+                            <Button
+                              onClick={() => handleDeposit(selectedEscrow)}
+                              className="w-full"
+                              variant="outline"
+                            >
+                              <Banknote className="w-4 h-4 mr-2" />
+                              Depositar
+                            </Button>
+                          )}
+
+                        {selectedEscrow.milestones[0].approved &&
+                          selectedEscrow.balance != 0 && (
+                            <Button
+                              onClick={() => handleReleaseFunds(selectedEscrow)}
+                              className="w-full"
+                              variant="outline"
+                            >
+                              <Unlock className="w-4 h-4 mr-2" />
+                              Liberar Fondos
+                            </Button>
+                          )}
+                      </>
+                    )}
+
+                    {!selectedEscrow.flags?.disputed &&
+                      !selectedEscrow.flags?.resolved &&
+                      !selectedEscrow.flags?.released &&
+                      selectedEscrow.balance != 0 && (
+                        <Button
+                          onClick={() => handleDisputeEscrow(selectedEscrow)}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Disputar
+                        </Button>
+                      )}
+
+                    <Button variant="outline" className="w-full">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Ver en Stellar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Report Payment Modal */}
+        <Dialog
+          open={isReportPaymentModalOpen}
+          onOpenChange={(open) => {
+            if (!isReportPaymentLoading) {
+              setIsReportPaymentModalOpen(open);
+              if (!open) {
+                clearSelectedEscrow();
+              }
+            }
+          }}
+        >
+          <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Reportar Pago</DialogTitle>
+              <DialogDescription>
+                Reporte un pago que no se haya realizado o que no sea el
+                correcto. Proporcione evidencia para la resolución.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...reportPaymentForm}>
+              <form
+                onSubmit={reportPaymentForm.handleSubmit(onSubmitReportPayment)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={reportPaymentForm.control}
+                  name="evidence"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Evidencia (Opcional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Fotos, videos, documentos, etc. que respalden su reclamo."
+                          disabled={isReportPaymentLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isReportPaymentLoading}
+                >
+                  {isReportPaymentLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <DollarSign className="w-4 h-4 mr-2" />
+                  )}
+                  Reportar Pago
+                </Button>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
-  )
+  );
 }

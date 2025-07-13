@@ -5,6 +5,8 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TrustlessWorkProvider } from "@/providers/trustless-work";
+import { EscrowProvider } from "@/lib/contexts/escrow-context";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,9 +31,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            <TrustlessWorkProvider>{children}</TrustlessWorkProvider>
+            <TrustlessWorkProvider>
+              <EscrowProvider>{children}</EscrowProvider>
+            </TrustlessWorkProvider>
           </QueryProvider>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );
