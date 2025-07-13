@@ -193,7 +193,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Link href="/listings/create">
+            <Link href="/dashboard/listings/create">
               <Button className="bg-primary hover:bg-primary-600">
                 <Plus className="w-4 h-4 mr-2" />
                 Crear Listing
@@ -288,7 +288,7 @@ export default function DashboardPage() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Listings Activos
               </h2>
-              <Link href="/listings/create">
+              <Link href="/dashboard/listings/create">
                 <Button className="bg-primary hover:bg-primary-600">
                   <Plus className="w-4 h-4 mr-2" />
                   Nuevo Listing
