@@ -634,7 +634,7 @@ export default function EscrowsPage() {
                         variant="outline"
                         className="w-full btn-emerald-outline"
                         onClick={() => {
-                          window.open(`https://viewer.trustlesswork.com/?id=${selectedEscrow.contractId}`, '_blank');
+                          window.open(`https://viewer.trustlesswork.com/${selectedEscrow.contractId}`, '_blank');
                         }}
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
