@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ExternalLink,
@@ -7,41 +7,42 @@ import {
   TrendingDown,
   TrendingUp,
   User,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard-layout';
-import { TokenIcon } from '@/components/token-icon';
-import { TradeTypeBadge } from '@/components/trade-type-badge';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { TokenIcon } from "@/components/token-icon";
+import { TradeTypeBadge } from "@/components/trade-type-badge";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCreateEscrow } from '@/hooks/use-escrows';
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCreateEscrow } from "@/hooks/use-escrows";
 import {
   formatAmount,
   formatCurrency,
   formatDate,
-} from '@/lib/dashboard-utils';
+} from "@/lib/dashboard-utils";
+import useGlobalAuthenticationStore from "@/store/wallet.store";
 
 interface MarketplaceListing {
   id: number;
-  type: 'sell' | 'buy';
+  type: "sell" | "buy";
   token: string;
   amount: number;
   rate: number;
@@ -57,12 +58,13 @@ interface MarketplaceListing {
 }
 
 export default function ListingsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedToken, setSelectedToken] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedToken, setSelectedToken] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [selectedListing, setSelectedListing] =
     useState<MarketplaceListing | null>(null);
   const [open, setOpen] = useState(false);
+  const { address } = useGlobalAuthenticationStore();
 
   const handleCloseModal = () => {
     setOpen(false);
@@ -74,19 +76,19 @@ export default function ListingsPage() {
   const [listings] = useState<MarketplaceListing[]>([
     {
       id: 1,
-      type: 'sell',
-      token: 'CRCX',
+      type: "sell",
+      token: "CRCX",
       amount: 10,
       rate: 520.5,
-      fiatCurrency: 'CRC',
-      paymentMethod: 'SINPE',
-      seller: 'GBVLKFOEIK6A3CUOOH554ETKFTWHDF7TSPJAL4NU7PIB3NOQCEPTSXHO',
-      buyer: 'GBVLKFOEIK6A3CUOOH554ETKFTWHDF7TSPJAL4NU7PIB3NOQCEPTSXHO',
+      fiatCurrency: "CRC",
+      paymentMethod: "SINPE",
+      seller: address,
+      buyer: address,
       reputation: 4.8,
       trades: 23,
-      created: '2024-01-15',
-      status: 'active',
-      description: 'XXXXXXXXXXXXXXXXXXX',
+      created: "2024-01-15",
+      status: "active",
+      description: "XXXXXXXXXXXXXXXXXXX",
     },
   ]);
 
@@ -95,8 +97,8 @@ export default function ListingsPage() {
       listing.token.toLowerCase().includes(searchTerm.toLowerCase()) ||
       listing.fiatCurrency.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesToken =
-      selectedToken === 'all' || listing.token === selectedToken;
-    const matchesType = selectedType === 'all' || listing.type === selectedType;
+      selectedToken === "all" || listing.token === selectedToken;
+    const matchesType = selectedType === "all" || listing.type === selectedType;
 
     return matchesSearch && matchesToken && matchesType;
   });
@@ -175,7 +177,7 @@ export default function ListingsPage() {
                       <p className="text-sm text-muted-foreground">Trader</p>
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-sm text-foreground">
-                          {listing.type === 'sell'
+                          {listing.type === "sell"
                             ? listing.seller
                             : listing.buyer}
                         </span>
@@ -209,7 +211,7 @@ export default function ListingsPage() {
                 onClick={() => handleTrade(listing)}
                 className="btn-emerald px-8 py-2 text-base font-semibold"
               >
-                {listing.type === 'sell' ? 'Comprar Ahora' : 'Vender Ahora'}
+                {listing.type === "sell" ? "Comprar Ahora" : "Vender Ahora"}
               </Button>
             </div>
           </div>
@@ -372,14 +374,14 @@ export default function ListingsPage() {
               className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
               Buy Orders (
-              {filteredListings.filter((l) => l.type === 'buy').length})
+              {filteredListings.filter((l) => l.type === "buy").length})
             </TabsTrigger>
             <TabsTrigger
               value="sell"
               className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
               Sell Orders (
-              {filteredListings.filter((l) => l.type === 'sell').length})
+              {filteredListings.filter((l) => l.type === "sell").length})
             </TabsTrigger>
           </TabsList>
 
@@ -394,7 +396,7 @@ export default function ListingsPage() {
           <TabsContent value="buy" className="space-y-6">
             <div className="grid gap-6">
               {filteredListings
-                .filter((l) => l.type === 'buy')
+                .filter((l) => l.type === "buy")
                 .map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />
                 ))}
@@ -404,7 +406,7 @@ export default function ListingsPage() {
           <TabsContent value="sell" className="space-y-6">
             <div className="grid gap-6">
               {filteredListings
-                .filter((l) => l.type === 'sell')
+                .filter((l) => l.type === "sell")
                 .map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />
                 ))}
@@ -422,8 +424,8 @@ export default function ListingsPage() {
               <DialogDescription className="text-muted-foreground">
                 {selectedListing && (
                   <>
-                    You are about to{' '}
-                    {selectedListing.type === 'sell' ? 'buy' : 'sell'}{' '}
+                    You are about to{" "}
+                    {selectedListing.type === "sell" ? "buy" : "sell"}{" "}
                     {selectedListing.amount} {selectedListing.token}
                   </>
                 )}
@@ -437,15 +439,15 @@ export default function ListingsPage() {
                   </h4>
                   <div className="space-y-1 text-sm">
                     <p className="text-muted-foreground">
-                      Amount: {formatAmount(selectedListing.amount)}{' '}
+                      Amount: {formatAmount(selectedListing.amount)}{" "}
                       {selectedListing.token}
                     </p>
                     <p className="text-muted-foreground">
-                      Rate: {selectedListing.rate}{' '}
+                      Rate: {selectedListing.rate}{" "}
                       {selectedListing.fiatCurrency}/{selectedListing.token}
                     </p>
                     <p className="text-muted-foreground">
-                      Total:{' '}
+                      Total:{" "}
                       {formatCurrency(
                         selectedListing.amount * selectedListing.rate,
                         selectedListing.fiatCurrency
@@ -470,7 +472,7 @@ export default function ListingsPage() {
                     className="flex-1 btn-emerald"
                     disabled={isPending}
                   >
-                    {isPending ? 'Creating Escrow...' : 'Confirm Trade'}
+                    {isPending ? "Creating Escrow..." : "Confirm Trade"}
                   </Button>
                 </div>
               </div>
