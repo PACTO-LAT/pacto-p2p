@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEscrowSelection } from "@/hooks/use-escrow-selection";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Shield, AlertCircle } from "lucide-react";
+import { AlertCircle, Shield } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 
 export function EscrowStatusDisplay() {
   const { selectedEscrow, hasSelectedEscrow } = useEscrowSelection();
@@ -36,8 +36,13 @@ export function EscrowStatusDisplay() {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-foreground">ID del Engagement:</span>
-          <Badge variant="outline" className="font-mono text-xs glass-effect-light">
+          <span className="text-sm font-medium text-foreground">
+            ID del Engagement:
+          </span>
+          <Badge
+            variant="outline"
+            className="font-mono text-xs glass-effect-light"
+          >
             {selectedEscrow?.engagementId}
           </Badge>
         </div>
@@ -53,11 +58,17 @@ export function EscrowStatusDisplay() {
           <span className="text-sm font-medium text-foreground">Estado:</span>
           <div className="flex items-center gap-2">
             {selectedEscrow?.flags?.released ? (
-              <Badge className="glass-effect text-emerald-400 border-emerald-500/30">Liberado</Badge>
+              <Badge className="glass-effect text-emerald-400 border-emerald-500/30">
+                Liberado
+              </Badge>
             ) : selectedEscrow?.flags?.disputed ? (
-              <Badge className="glass-effect text-red-400 border-red-500/30">Disputado</Badge>
+              <Badge className="glass-effect text-red-400 border-red-500/30">
+                Disputado
+              </Badge>
             ) : (
-              <Badge className="glass-effect text-blue-400 border-blue-500/30">Activo</Badge>
+              <Badge className="glass-effect text-blue-400 border-blue-500/30">
+                Activo
+              </Badge>
             )}
           </div>
         </div>

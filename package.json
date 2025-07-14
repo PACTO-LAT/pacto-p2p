@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "biome:check": "biome check .",
+    "biome:format": "biome format . --write",
+    "biome:lint": "biome lint .",
+    "biome:fix": "biome check --write ."
   },
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^1.7.6",
@@ -42,6 +46,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.1.1",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^20",

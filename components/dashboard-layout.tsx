@@ -1,26 +1,25 @@
-"use client";
+'use client';
 
-import type React from "react";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Home,
   List,
-  Shield,
-  Settings,
-  User,
-  Menu,
   LogOut,
+  Menu,
+  Settings,
+  Shield,
+  User,
   Wallet,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { useWallet } from "@/hooks/use-wallet";
-import useGlobalAuthenticationStore from "@/store/wallet.store";
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useWallet } from '@/hooks/use-wallet';
+import { cn } from '@/lib/utils';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -29,14 +28,15 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { address, network, walletType, isConnected } = useGlobalAuthenticationStore();
+  const { address, network, walletType, isConnected } =
+    useGlobalAuthenticationStore();
 
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Marketplace", href: "/dashboard/listings", icon: List },
-    { name: "Orders", href: "/dashboard/escrows", icon: Shield },
-    { name: "Profile", href: "/dashboard/profile", icon: User },
-    { name: "Admin", href: "/dashboard/admin", icon: Settings },
+    { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Marketplace', href: '/dashboard/listings', icon: List },
+    { name: 'Orders', href: '/dashboard/escrows', icon: Shield },
+    { name: 'Profile', href: '/dashboard/profile', icon: User },
+    { name: 'Admin', href: '/dashboard/admin', icon: Settings },
   ];
 
   const NavItems = () => (
@@ -48,10 +48,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             key={item.name}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+              'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
               isActive
-                ? "bg-gradient-emerald text-white shadow-emerald-glow"
-                : "text-foreground/70 hover:text-foreground hover:bg-glass-hover nav-card"
+                ? 'bg-gradient-emerald text-white shadow-emerald-glow'
+                : 'text-foreground/70 hover:text-foreground hover:bg-glass-hover nav-card'
             )}
             onClick={() => setSidebarOpen(false)}
           >
@@ -102,7 +102,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <span className="text-sm font-medium text-muted-foreground">
                   Tema
                 </span>
-                <ThemeToggle />
+                {/* <ThemeToggle /> */}
               </div>
               <Button
                 variant="outline"
@@ -125,9 +125,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="w-10 h-10 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
                 <span className="text-white font-bold text-lg">P</span>
               </div>
-              <span className="text-2xl font-bold text-foreground">
-                Pacto
-              </span>
+              <span className="text-2xl font-bold text-foreground">Pacto</span>
             </div>
           </div>
           <nav className="flex-1 p-6 space-y-2">
@@ -141,7 +139,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm font-semibold text-foreground truncate">
-                    {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not Connected"}
+                    {address
+                      ? `${address.slice(0, 6)}...${address.slice(-4)}`
+                      : 'Not Connected'}
                   </p>
                   {isConnected && (
                     <div className="w-2 h-2 bg-emerald-500 rounded-full glow-emerald"></div>
@@ -158,7 +158,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <span className="text-sm font-medium text-muted-foreground">
                 Tema
               </span>
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
             </div>
             <Button
               variant="outline"
@@ -181,16 +181,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="w-8 h-8 bg-gradient-emerald rounded-lg flex items-center justify-center logo-glow">
                 <span className="text-white font-bold">P</span>
               </div>
-              <span className="font-bold text-foreground">
-                Pacto
-              </span>
+              <span className="font-bold text-foreground">Pacto</span>
             </div>
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
           </div>
         </div>
 
         {/* Page content */}
-        <main className="p-6 lg:p-8 bg-background min-h-screen">{children}</main>
+        <main className="p-6 lg:p-8 bg-background min-h-screen">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,17 +1,18 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FileText } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { FileText } from "lucide-react";
-import { DashboardEscrow } from "@/lib/types";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import type { DashboardEscrow } from '@/lib/types';
 
 interface ReceiptDialogProps {
   open: boolean;
@@ -27,7 +28,12 @@ interface DisputeDialogProps {
   onCreate: (escrow: DashboardEscrow, reason: string) => void;
 }
 
-export function ReceiptDialog({ open, onOpenChange, escrow, onUpload }: ReceiptDialogProps) {
+export function ReceiptDialog({
+  open,
+  onOpenChange,
+  escrow,
+  onUpload,
+}: ReceiptDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,19 +96,24 @@ export function ReceiptDialog({ open, onOpenChange, escrow, onUpload }: ReceiptD
   );
 }
 
-export function DisputeDialog({ open, onOpenChange, escrow, onCreate }: DisputeDialogProps) {
-  const [disputeReason, setDisputeReason] = useState("");
+export function DisputeDialog({
+  open,
+  onOpenChange,
+  escrow,
+  onCreate,
+}: DisputeDialogProps) {
+  const [disputeReason, setDisputeReason] = useState('');
 
   const handleCreate = () => {
     if (escrow && disputeReason.trim()) {
       onCreate(escrow, disputeReason);
-      setDisputeReason("");
+      setDisputeReason('');
     }
   };
 
   const handleClose = () => {
     onOpenChange(false);
-    setDisputeReason("");
+    setDisputeReason('');
   };
 
   return (
@@ -140,4 +151,4 @@ export function DisputeDialog({ open, onOpenChange, escrow, onCreate }: DisputeD
       </DialogContent>
     </Dialog>
   );
-} 
+}

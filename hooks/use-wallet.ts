@@ -1,6 +1,6 @@
-import { ISupportedWallet } from "@creit.tech/stellar-wallets-kit";
-import { kit } from "@/lib/wallet";
-import useGlobalAuthenticationStore from "@/store/wallet.store";
+import type { ISupportedWallet } from '@creit.tech/stellar-wallets-kit';
+import { kit } from '@/lib/wallet';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export const useWallet = () => {
   const { connectWalletStore, disconnectWalletStore, updateConnectionStatus } =
@@ -9,40 +9,40 @@ export const useWallet = () => {
   const connectWallet = async () => {
     try {
       await kit.openModal({
-        modalTitle: "Connect to your favorite wallet",
+        modalTitle: 'Connect to your favorite wallet',
         onWalletSelected: async (option: ISupportedWallet) => {
           try {
             kit.setWallet(option.id);
-            
+
             // Wait for the wallet to be properly set
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
             const { address } = await kit.getAddress();
-            
+
             if (address) {
               // Get additional wallet information
               // Since we're using TESTNET in the kit configuration, we can hardcode this for now
-              const network = "testnet" as const;
+              const network = 'testnet' as const;
               const walletType = option.name || option.id;
               const publicKey = address; // In Stellar, the address is the public key
-              
+
               connectWalletStore(address, network, walletType, publicKey);
               updateConnectionStatus(true);
-              
+
               // Add a small delay to ensure the store is updated
-              await new Promise(resolve => setTimeout(resolve, 200));
+              await new Promise((resolve) => setTimeout(resolve, 200));
             } else {
-              throw new Error("Failed to get wallet address");
+              throw new Error('Failed to get wallet address');
             }
           } catch (error) {
-            console.error("Error in wallet selection:", error);
+            console.error('Error in wallet selection:', error);
             updateConnectionStatus(false);
             throw error;
           }
         },
       });
     } catch (error) {
-      console.error("Error opening wallet modal:", error);
+      console.error('Error opening wallet modal:', error);
       updateConnectionStatus(false);
       throw error;
     }
@@ -54,7 +54,7 @@ export const useWallet = () => {
       disconnectWalletStore();
       updateConnectionStatus(false);
     } catch (error) {
-      console.error("Error disconnecting wallet:", error);
+      console.error('Error disconnecting wallet:', error);
       throw error;
     }
   };
@@ -63,7 +63,7 @@ export const useWallet = () => {
     try {
       await connectWallet();
     } catch (error) {
-      console.error("Error connecting wallet:", error);
+      console.error('Error connecting wallet:', error);
       // You might want to show a toast notification here
     }
   };
@@ -72,7 +72,7 @@ export const useWallet = () => {
     try {
       await disconnectWallet();
     } catch (error) {
-      console.error("Error disconnecting wallet:", error);
+      console.error('Error disconnecting wallet:', error);
       // You might want to show a toast notification here
     }
   };

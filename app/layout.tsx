@@ -1,20 +1,20 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { QueryProvider } from "@/providers/query-provider";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TrustlessWorkProvider } from "@/providers/trustless-work";
-import { EscrowProvider } from "@/lib/contexts/escrow-context";
-import { Toaster } from "@/components/ui/sonner";
-import { AuthGuard } from "@/components/auth-guard";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import type React from 'react';
+import './globals.css';
+import { AuthGuard } from '@/components/auth-guard';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+import { EscrowProvider } from '@/lib/contexts/escrow-context';
+import { QueryProvider } from '@/providers/query-provider';
+import { TrustlessWorkProvider } from '@/providers/trustless-work';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Pacto - Decentralized P2P Trading",
+  title: 'Pacto - Decentralized P2P Trading',
   description:
-    "Trade Stellar-based stablecoins with trustless escrow protection",
+    'Trade Stellar-based stablecoins with trustless escrow protection',
 };
 
 export default function RootLayout({

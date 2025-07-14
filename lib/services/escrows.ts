@@ -1,10 +1,10 @@
-import { supabase } from "@/lib/supabase"
-import type { Escrow, CreateEscrowData } from "@/lib/types"
+import { supabase } from '@/lib/supabase';
+import type { CreateEscrowData, Escrow } from '@/lib/types';
 
 export class EscrowsService {
   static async getUserEscrows(userId: string): Promise<Escrow[]> {
     const { data, error } = await supabase
-      .from("escrows")
+      .from('escrows')
       .select(`
         *,
         buyer:buyer_id(id, email, stellar_address, reputation_score),
@@ -13,18 +13,18 @@ export class EscrowsService {
         milestones:escrow_milestones(*)
       `)
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
-      .order("created_at", { ascending: false })
+      .order('created_at', { ascending: false });
 
-    if (error) throw error
-    return data || []
+    if (error) throw error;
+    return data || [];
   }
 
   static async createEscrow(escrowData: CreateEscrowData): Promise<Escrow> {
     // Generate escrow ID
-    const escrowId = `ESC${Date.now().toString().slice(-6)}`
+    const escrowId = `ESC${Date.now().toString().slice(-6)}`;
 
     const { data, error } = await supabase
-      .from("escrows")
+      .from('escrows')
       .insert({
         id: escrowId,
         ...escrowData,
@@ -35,94 +35,102 @@ export class EscrowsService {
         seller:seller_id(id, email, stellar_address, reputation_score),
         listing:listings(*)
       `)
-      .single()
+      .single();
 
-    if (error) throw error
+    if (error) throw error;
 
     // Create initial milestones
-    await this.createEscrowMilestones(escrowId)
+    await EscrowsService.createEscrowMilestones(escrowId);
 
-    return data
+    return data;
   }
 
-  static async updateEscrowStatus(escrowId: string, status: Escrow["status"]): Promise<Escrow> {
+  static async updateEscrowStatus(
+    escrowId: string,
+    status: Escrow['status']
+  ): Promise<Escrow> {
     const { data, error } = await supabase
-      .from("escrows")
+      .from('escrows')
       .update({
         status,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", escrowId)
+      .eq('id', escrowId)
       .select(`
         *,
         buyer:buyer_id(id, email, stellar_address, reputation_score),
         seller:seller_id(id, email, stellar_address, reputation_score),
         listing:listings(*)
       `)
-      .single()
+      .single();
 
-    if (error) throw error
-    return data
+    if (error) throw error;
+    return data;
   }
 
-  static async uploadPaymentReceipt(escrowId: string, file: File): Promise<string> {
-    const fileName = `receipts/${escrowId}/${Date.now()}-${file.name}`
+  static async uploadPaymentReceipt(
+    escrowId: string,
+    file: File
+  ): Promise<string> {
+    const fileName = `receipts/${escrowId}/${Date.now()}-${file.name}`;
 
-    const { data, error } = await supabase.storage.from("escrow-receipts").upload(fileName, file)
+    const { error } = await supabase.storage
+      .from('escrow-receipts')
+      .upload(fileName, file);
 
-    if (error) throw error
+    if (error) throw error;
 
     const {
       data: { publicUrl },
-    } = supabase.storage.from("escrow-receipts").getPublicUrl(fileName)
+    } = supabase.storage.from('escrow-receipts').getPublicUrl(fileName);
 
     // Update escrow with receipt URL
     await supabase
-      .from("escrows")
+      .from('escrows')
       .update({
         payment_receipt_url: publicUrl,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", escrowId)
+      .eq('id', escrowId);
 
-    return publicUrl
+    return publicUrl;
   }
 
   static async updateMilestone(
     escrowId: string,
     milestoneNumber: number,
-    status: "completed" | "failed",
+    status: 'completed' | 'failed'
   ): Promise<void> {
     const { error } = await supabase
-      .from("escrow_milestones")
+      .from('escrow_milestones')
       .update({
         status,
-        completed_at: status === "completed" ? new Date().toISOString() : null,
+        completed_at: status === 'completed' ? new Date().toISOString() : null,
       })
-      .eq("escrow_id", escrowId)
-      .eq("milestone_number", milestoneNumber)
+      .eq('escrow_id', escrowId)
+      .eq('milestone_number', milestoneNumber);
 
-    if (error) throw error
+    if (error) throw error;
   }
 
   private static async createEscrowMilestones(escrowId: string): Promise<void> {
     const milestones = [
-      { milestone_number: 1, name: "Escrow Created" },
-      { milestone_number: 2, name: "Fiat Payment Sent" },
-      { milestone_number: 3, name: "Payment Confirmed" },
-      { milestone_number: 4, name: "Tokens Released" },
-    ]
+      { milestone_number: 1, name: 'Escrow Created' },
+      { milestone_number: 2, name: 'Fiat Payment Sent' },
+      { milestone_number: 3, name: 'Payment Confirmed' },
+      { milestone_number: 4, name: 'Tokens Released' },
+    ];
 
-    const { error } = await supabase.from("escrow_milestones").insert(
+    const { error } = await supabase.from('escrow_milestones').insert(
       milestones.map((milestone) => ({
         escrow_id: escrowId,
         ...milestone,
-      })),
-    )
+      }))
+    );
 
-    if (error) throw error
+    if (error) throw error;
 
     // Mark first milestone as completed
-    await this.updateMilestone(escrowId, 1, "completed")
+    await EscrowsService.updateMilestone(escrowId, 1, 'completed');
   }
 }

@@ -1,99 +1,106 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { ArrowRight, DollarSign, Globe, Lock, Rocket } from 'lucide-react';
+import Link from 'next/link';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { TokenIcon } from '@/components/token-icon';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Globe, Lock, DollarSign, Rocket } from "lucide-react";
-import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { TokenIcon } from "@/components/token-icon";
+} from '@/components/ui/card';
 
 export default function HomePage() {
   const features = [
     {
       icon: Globe,
-      title: "Local P2P On/Off-Ramps",
+      title: 'Local P2P On/Off-Ramps',
       description:
-        "Easily trade CRCX, MXNX, or USDC using regional payment rails like SINPE or SPEI — directly with other users.",
+        'Easily trade CRCX, MXNX, or USDC using regional payment rails like SINPE or SPEI — directly with other users.',
     },
     {
       icon: Lock,
-      title: "Smart Contract Escrows",
+      title: 'Smart Contract Escrows',
       description:
-        "Every trade is powered by Trustless Work, a Stellar-based escrow engine that holds funds until milestones are met.",
+        'Every trade is powered by Trustless Work, a Stellar-based escrow engine that holds funds until milestones are met.',
     },
     {
       icon: DollarSign,
-      title: "Fair, Transparent OTC Market",
+      title: 'Fair, Transparent OTC Market',
       description:
-        "You choose the price. Compete with other traders in a non-custodial environment.",
+        'You choose the price. Compete with other traders in a non-custodial environment.',
     },
     {
       icon: Rocket,
-      title: "Borderless & Stable",
+      title: 'Borderless & Stable',
       description:
-        "Move value across borders and convert to local fiat on demand. Ideal for freelancers, merchants, and crypto-native LATAM users.",
+        'Move value across borders and convert to local fiat on demand. Ideal for freelancers, merchants, and crypto-native LATAM users.',
     },
   ];
 
   const howItWorks = [
     {
-      step: "1",
-      title: "Browse OTC Listings",
-      description: "Find offers to buy or sell stablecoins like CRCX or USDC.",
+      step: '1',
+      title: 'Browse OTC Listings',
+      description: 'Find offers to buy or sell stablecoins like CRCX or USDC.',
     },
     {
-      step: "2",
-      title: "Enter Escrow Contract",
+      step: '2',
+      title: 'Enter Escrow Contract',
       description:
-        "The crypto is locked in a Stellar-based smart contract. You send fiat off-chain (e.g., via SINPE). The seller confirms.",
+        'The crypto is locked in a Stellar-based smart contract. You send fiat off-chain (e.g., via SINPE). The seller confirms.',
     },
     {
-      step: "3",
-      title: "Receive Your Crypto",
+      step: '3',
+      title: 'Receive Your Crypto',
       description:
-        "Once both sides approve, the smart contract automatically releases the funds.",
+        'Once both sides approve, the smart contract automatically releases the funds.',
     },
   ];
 
   const supportedAssets = [
     {
-      symbol: "CRCX",
-      name: "Costa Rican Colón Token",
-      region: "Costa Rica",
-      paymentMethods: "SINPE",
-      color: "bg-green-500",
+      symbol: 'CRCX',
+      name: 'Costa Rican Colón Token',
+      region: 'Costa Rica',
+      paymentMethods: 'SINPE',
+      color: 'bg-green-500',
     },
     {
-      symbol: "MXNX",
-      name: "Mexican Peso Token",
-      region: "Mexico",
-      paymentMethods: "SPEI, OXXO (coming)",
-      color: "bg-red-500",
+      symbol: 'MXNX',
+      name: 'Mexican Peso Token',
+      region: 'Mexico',
+      paymentMethods: 'SPEI, OXXO (coming)',
+      color: 'bg-red-500',
     },
     {
-      symbol: "USDC",
-      name: "USD Coin",
-      region: "Global",
-      paymentMethods: "Varies",
-      color: "bg-emerald-600",
+      symbol: 'USDC',
+      name: 'USD Coin',
+      region: 'Global',
+      paymentMethods: 'Varies',
+      color: 'bg-emerald-600',
     },
   ];
 
   const techStack = [
-    { name: "Next.js", description: "High-performance frontend" },
-    { name: "Trustless Work", description: "Escrow logic on Stellar" },
     {
-      name: "Supabase",
-      description: "Backend for users, listings, and storage",
+      name: 'Open Source',
+      description: 'Modular frontend powering P2P listings and flows',
     },
-    { name: "TanStack", description: "State and async data handling" },
+    {
+      name: 'Trustless Work',
+      description:
+        'Stellar based escrow engine for stablecoins',
+    },
+    {
+      name: 'Soroban',
+      description:
+        'Stellar native smart contract platform, built to integrate seamlessly with the Stellar network'
+    },
   ];
 
   return (
@@ -106,16 +113,14 @@ export default function HomePage() {
               <span className="text-white font-bold text-lg">P</span>
             </div>
             <div>
-              <span className="text-2xl font-bold text-foreground">
-                Pacto
-              </span>
+              <span className="text-2xl font-bold text-foreground">Pacto</span>
               <p className="text-xs text-muted-foreground">
                 P2P OTC for Stellar Stablecoins
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             <Link href="/auth">
               <Button
                 variant="outline"
@@ -138,11 +143,11 @@ export default function HomePage() {
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold mb-8 hero-title">
-            Trade Stablecoins for Local Fiat — With{" "}
+            Trade Stablecoins for Local Fiat — With{' '}
             <span className="text-emerald-400">Pacto</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto leading-relaxed hero-subtitle">
-            A decentralized OTC platform for Stellar stablecoins like{" "}
+            A decentralized OTC platform for Stellar stablecoins like{' '}
             <span className="text-emerald-400 font-semibold">
               CRCX, MXNX, and USDC
             </span>
@@ -178,10 +183,8 @@ export default function HomePage() {
       <section className="container mx-auto px-6 py-20">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <Card
-              key={index}
-              className="feature-card"
-            >
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            <Card key={index} className="feature-card">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-8 h-8 text-emerald-400" />
@@ -210,10 +213,7 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {howItWorks.map((step, index) => (
-            <Card
-              key={index}
-              className="feature-card relative"
-            >
+            <Card key={index} className="feature-card relative">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-gradient-emerald rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl shadow-emerald-glow">
                   {step.step}
@@ -234,8 +234,11 @@ export default function HomePage() {
         <div className="text-center">
           <p className="text-lg text-muted-foreground mb-2">
             🔗 Escrow logic is fully programmable, trustless, and on-chain —
-            powered by{" "}
-            <span className="font-semibold text-emerald-400">Trustless Work</span>.
+            powered by{' '}
+            <span className="font-semibold text-emerald-400">
+              Trustless Work
+            </span>
+            .
           </p>
         </div>
       </section>
@@ -252,10 +255,7 @@ export default function HomePage() {
           <div className="min-w-full">
             <div className="grid gap-6">
               {supportedAssets.map((asset) => (
-                <Card
-                  key={asset.symbol}
-                  className="feature-card"
-                >
+                <Card key={asset.symbol} className="feature-card">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-6">
@@ -264,9 +264,7 @@ export default function HomePage() {
                           <h3 className="font-bold text-xl text-foreground">
                             {asset.symbol}
                           </h3>
-                          <p className="text-muted-foreground">
-                            {asset.name}
-                          </p>
+                          <p className="text-muted-foreground">{asset.name}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -349,12 +347,9 @@ export default function HomePage() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-6 justify-items-center">
           {techStack.map((tech, index) => (
-            <Card
-              key={index}
-              className="feature-card"
-            >
+            <Card key={tech.id} className="feature-card">
               <CardContent className="p-6 text-center">
                 <h3 className="font-bold text-lg text-foreground mb-2">
                   {tech.name}
@@ -380,10 +375,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/dashboard">
-              <Button
-                size="lg"
-                className="btn-primary text-lg px-8 py-4"
-              >
+              <Button size="lg" className="btn-primary text-lg px-8 py-4">
                 Start Trading Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -485,9 +477,7 @@ export default function HomePage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-6 text-lg text-foreground">
-                Legal
-              </h4>
+              <h4 className="font-bold mb-6 text-lg text-foreground">Legal</h4>
               <ul className="space-y-3 text-muted-foreground">
                 <li>
                   <Link

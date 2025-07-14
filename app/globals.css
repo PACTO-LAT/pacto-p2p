@@ -234,7 +234,8 @@
 .btn-emerald:hover {
   @apply transform scale-105;
   background: linear-gradient(135deg, #059669, #047857);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4),
+  box-shadow:
+    0 8px 25px rgba(16, 185, 129, 0.4),
     0 0 20px rgba(16, 185, 129, 0.3);
 }
 
@@ -271,7 +272,8 @@
 
 .input-glass:focus {
   @apply outline-none border-emerald-500 shadow-lg;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2),
+  box-shadow:
+    0 0 0 3px rgba(16, 185, 129, 0.2),
     0 4px 12px rgba(16, 185, 129, 0.1);
 }
 
@@ -286,7 +288,8 @@
 
 .dark .input-glass:focus {
   @apply border-emerald-400;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3),
+  box-shadow:
+    0 0 0 3px rgba(16, 185, 129, 0.3),
     0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
@@ -311,7 +314,8 @@
 
 /* Background Effects */
 .bg-emerald-pattern {
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 20% 50%,
       rgba(16, 185, 129, 0.1) 0%,
       transparent 50%
@@ -329,7 +333,8 @@
 }
 
 .dark .bg-emerald-pattern {
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 20% 50%,
       rgba(16, 185, 129, 0.15) 0%,
       transparent 50%
@@ -352,7 +357,9 @@
 }
 
 .glow-emerald-strong {
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.3);
+  box-shadow:
+    0 0 30px rgba(16, 185, 129, 0.5),
+    0 0 60px rgba(16, 185, 129, 0.3);
 }
 
 .glow-emerald-pulse {
@@ -365,7 +372,8 @@
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
   }
   50% {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5),
+    box-shadow:
+      0 0 30px rgba(16, 185, 129, 0.5),
       0 0 60px rgba(16, 185, 129, 0.3);
   }
 }

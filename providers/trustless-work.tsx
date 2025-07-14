@@ -1,11 +1,11 @@
-"use client"; // make sure this is a client component
+'use client'; // make sure this is a client component
 
-import React from "react";
 import {
   // development environment = "https://dev.api.trustlesswork.com"
   development,
   TrustlessWorkConfig,
-} from "@trustless-work/escrow";
+} from '@trustless-work/escrow';
+import type React from 'react';
 
 interface TrustlessWorkProviderProps {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ export function TrustlessWorkProvider({
   /**
    * Get the API key from the environment variables
    */
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY || "";
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY || '';
 
   return (
     <TrustlessWorkConfig baseURL={development} apiKey={apiKey}>

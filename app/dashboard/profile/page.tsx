@@ -1,38 +1,38 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { DashboardLayout } from "@/components/dashboard-layout";
-import { Button } from "@/components/ui/button";
+import {
+  AlertCircle,
+  Bell,
+  Camera,
+  CheckCircle,
+  CreditCard,
+  Lock,
+  Settings,
+  Shield,
+  Star,
+  TrendingUp,
+  User,
+} from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { DashboardLayout } from '@/components/dashboard-layout';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  User,
-  Shield,
-  Star,
-  TrendingUp,
-  Settings,
-  Bell,
-  Lock,
-  Camera,
-  CheckCircle,
-  AlertCircle,
-  CreditCard,
-} from "lucide-react";
-import { toast } from "sonner";
-import { WalletInfo } from "@/components/wallet-info";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { WalletInfo } from '@/components/wallet-info';
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -40,20 +40,20 @@ export default function ProfilePage() {
 
   // Mock user data - in real app, this would come from useAuth hook
   const [userData, setUserData] = useState({
-    id: "user_123",
-    email: "user@example.com",
-    full_name: "Juan Pérez",
-    username: "juanperez",
-    bio: "Experienced trader in Stellar ecosystem. Focused on USDC and EURC trading.",
-    avatar_url: "",
-    stellar_address: "GDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    phone: "+1234567890",
-    country: "Mexico",
-    kyc_status: "verified" as "pending" | "verified" | "rejected",
+    id: 'user_123',
+    email: 'user@example.com',
+    full_name: 'Juan Pérez',
+    username: 'juanperez',
+    bio: 'Experienced trader in Stellar ecosystem. Focused on USDC and EURC trading.',
+    avatar_url: '',
+    stellar_address: 'GDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    phone: '+1234567890',
+    country: 'Mexico',
+    kyc_status: 'verified' as 'pending' | 'verified' | 'rejected',
     reputation_score: 4.8,
     total_trades: 127,
     total_volume: 45000,
-    created_at: "2024-01-15",
+    created_at: '2024-01-15',
     notifications: {
       email_trades: true,
       email_escrows: true,
@@ -65,11 +65,11 @@ export default function ProfilePage() {
       login_notifications: true,
     },
     payment_methods: {
-      sinpe_number: "+50612345678",
-      bank_iban: "CR05015202001026284066",
-      bank_name: "Banco Nacional de Costa Rica",
-      bank_account_holder: "Juan Pérez",
-      preferred_method: "sinpe" as "sinpe" | "bank_transfer",
+      sinpe_number: '+50612345678',
+      bank_iban: 'CR05015202001026284066',
+      bank_name: 'Banco Nacional de Costa Rica',
+      bank_account_holder: 'Juan Pérez',
+      preferred_method: 'sinpe' as 'sinpe' | 'bank_transfer',
     },
   });
 
@@ -79,28 +79,26 @@ export default function ProfilePage() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
     setIsEditing(false);
-    toast.success("Perfil actualizado");
+    toast.success('Perfil actualizado');
   };
-
-
 
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
-      case "verified":
+      case 'verified':
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
             <CheckCircle className="w-3 h-3 mr-1" />
             Verificado
           </Badge>
         );
-      case "pending":
+      case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
             <AlertCircle className="w-3 h-3 mr-1" />
             Pendiente
           </Badge>
         );
-      case "rejected":
+      case 'rejected':
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
             <AlertCircle className="w-3 h-3 mr-1" />
@@ -130,7 +128,7 @@ export default function ProfilePage() {
                   Cancelar
                 </Button>
                 <Button onClick={handleSave} disabled={isLoading}>
-                  {isLoading ? "Guardando..." : "Guardar"}
+                  {isLoading ? 'Guardando...' : 'Guardar'}
                 </Button>
               </>
             ) : (
@@ -171,13 +169,13 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-4">
                       <Avatar className="w-20 h-20">
                         <AvatarImage
-                          src={userData.avatar_url || "/placeholder.svg"}
+                          src={userData.avatar_url || '/placeholder.svg'}
                         />
                         <AvatarFallback className="text-lg">
                           {userData.full_name
-                            .split(" ")
+                            .split(' ')
                             .map((n) => n[0])
-                            .join("")}
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
                       {isEditing && (
@@ -255,7 +253,7 @@ export default function ProfilePage() {
                         <Label>Estado KYC</Label>
                         <div className="flex items-center gap-2">
                           {getKycStatusBadge()}
-                          {userData.kyc_status !== "verified" && (
+                          {userData.kyc_status !== 'verified' && (
                             <Button
                               variant="link"
                               size="sm"
@@ -502,7 +500,7 @@ export default function ProfilePage() {
                         name="preferred_method"
                         value="sinpe"
                         checked={
-                          userData.payment_methods.preferred_method === "sinpe"
+                          userData.payment_methods.preferred_method === 'sinpe'
                         }
                         onChange={(e) =>
                           setUserData({
@@ -510,8 +508,8 @@ export default function ProfilePage() {
                             payment_methods: {
                               ...userData.payment_methods,
                               preferred_method: e.target.value as
-                                | "sinpe"
-                                | "bank_transfer",
+                                | 'sinpe'
+                                | 'bank_transfer',
                             },
                           })
                         }
@@ -536,7 +534,7 @@ export default function ProfilePage() {
                         value="bank_transfer"
                         checked={
                           userData.payment_methods.preferred_method ===
-                          "bank_transfer"
+                          'bank_transfer'
                         }
                         onChange={(e) =>
                           setUserData({
@@ -544,8 +542,8 @@ export default function ProfilePage() {
                             payment_methods: {
                               ...userData.payment_methods,
                               preferred_method: e.target.value as
-                                | "sinpe"
-                                | "bank_transfer",
+                                | 'sinpe'
+                                | 'bank_transfer',
                             },
                           })
                         }

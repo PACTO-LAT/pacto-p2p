@@ -1,104 +1,50 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Wallet,
-  Plus,
-  TrendingUp,
-  AlertCircle,
-} from "lucide-react";
-import Link from "next/link";
-import { DashboardLayout } from "@/components/dashboard-layout";
-import { TradeCard } from "@/components/trade-card";
-import { ReceiptDialog, DisputeDialog } from "@/components/dashboard-dialogs";
-import useGlobalAuthenticationStore from "@/store/wallet.store";
-import { useWallet } from "@/hooks/use-wallet";
-import { DashboardListing, DashboardEscrow, DialogType } from "@/lib/types";
+import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
+import Link from 'next/link';
+import { DisputeDialog, ReceiptDialog } from '@/components/dashboard-dialogs';
+import { DashboardLayout } from '@/components/dashboard-layout';
+import { TradeCard } from '@/components/trade-card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useDialog } from '@/hooks/use-dialog';
+import { useWallet } from '@/hooks/use-wallet';
+import { mockEscrows, mockListings } from '@/lib/mock-data';
+import type { DashboardEscrow, DashboardListing } from '@/lib/types';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export default function DashboardPage() {
   const { address } = useGlobalAuthenticationStore();
   const { handleConnect } = useWallet();
+  const { dialogState, openDialog, closeDialog } = useDialog<DashboardEscrow>();
 
-  const [activeListings] = useState<DashboardListing[]>([
-    {
-      id: 1,
-      type: "sell",
-      token: "CRCX",
-      amount: 1000,
-      rate: 520.5,
-      fiatCurrency: "CRC",
-      status: "active",
-      created: "2024-01-15",
-    },
-    {
-      id: 2,
-      type: "buy",
-      token: "USDC",
-      amount: 500,
-      rate: 1.02,
-      fiatCurrency: "CRC",
-      status: "pending",
-      created: "2024-01-14",
-    },
-  ]);
+  const activeListings = mockListings;
+  const activeEscrows = mockEscrows;
 
-  const [activeEscrows] = useState<DashboardEscrow[]>([
-    {
-      id: "ESC001",
-      type: "sell",
-      token: "CRCX",
-      amount: 500,
-      buyer: "0x1234...5678",
-      status: "awaiting_payment",
-      progress: 25,
-      created: "2024-01-15",
-    },
-    {
-      id: "ESC002",
-      type: "buy",
-      token: "USDC",
-      amount: 250,
-      seller: "0x8765...4321",
-      status: "payment_confirmed",
-      progress: 75,
-      created: "2024-01-14",
-    },
-  ]);
-
-  const [selectedEscrow, setSelectedEscrow] = useState<DashboardEscrow | null>(null);
-  const [dialogType, setDialogType] = useState<DialogType>(null);
-
-  const handleTradeAction = (trade: DashboardListing | DashboardEscrow, action: string) => {
+  const handleTradeAction = (
+    trade: DashboardListing | DashboardEscrow,
+    action: string
+  ) => {
     console.log(`${action} action for trade:`, trade.id);
     // Handle different actions (view, manage, etc.)
   };
 
-  const handleOpenDialog = (trade: DashboardListing | DashboardEscrow, type: "receipt" | "dispute") => {
-    if ('progress' in trade) { // Type guard for escrow
-      setSelectedEscrow(trade);
-      setDialogType(type);
+  const handleOpenDialog = (trade: DashboardListing | DashboardEscrow) => {
+    if ('progress' in trade) {
+      // Type guard for escrow
+      openDialog(trade);
     }
   };
 
   const handleUploadReceipt = (escrow: DashboardEscrow, file: File) => {
-    console.log("Uploading receipt for escrow:", escrow.id, file);
-    setDialogType(null);
-    setSelectedEscrow(null);
+    console.log('Uploading receipt for escrow:', escrow.id, file);
+    closeDialog();
   };
 
   const handleCreateDispute = (escrow: DashboardEscrow, reason: string) => {
-    console.log("Creating dispute for escrow:", escrow.id, reason);
-    setDialogType(null);
-    setSelectedEscrow(null);
-  };
-
-  const closeDialogs = () => {
-    setDialogType(null);
-    setSelectedEscrow(null);
+    console.log('Creating dispute for escrow:', escrow.id, reason);
+    closeDialog();
   };
 
   return (
@@ -229,16 +175,16 @@ export default function DashboardPage() {
 
         {/* Dialogs */}
         <ReceiptDialog
-          open={dialogType === "receipt"}
-          onOpenChange={closeDialogs}
-          escrow={selectedEscrow}
+          open={dialogState.isOpen}
+          onOpenChange={closeDialog}
+          escrow={dialogState.selectedItem}
           onUpload={handleUploadReceipt}
         />
 
         <DisputeDialog
-          open={dialogType === "dispute"}
-          onOpenChange={closeDialogs}
-          escrow={selectedEscrow}
+          open={dialogState.isOpen}
+          onOpenChange={closeDialog}
+          escrow={dialogState.selectedItem}
           onCreate={handleCreateDispute}
         />
       </div>
