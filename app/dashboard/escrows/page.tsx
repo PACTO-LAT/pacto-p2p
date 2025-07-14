@@ -396,18 +396,20 @@ export default function EscrowsPage() {
 
                       {/* Actions */}
                       <div className="flex gap-2 pt-4 border-t border-border/50">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="btn-emerald-outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`https://viewer.trustlesswork.com/${escrow.engagementId}`, '_blank');
-                          }}
-                        >
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          View on Escrow Viewer
-                        </Button>
+                        {escrow.contractId && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="btn-emerald-outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`https://viewer.trustlesswork.com/${escrow.contractId}`, '_blank');
+                            }}
+                          >
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            View on Escrow Viewer
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -627,16 +629,18 @@ export default function EscrowsPage() {
                         </Button>
                       )}
 
-                    <Button
-                      variant="outline"
-                      className="w-full btn-emerald-outline"
-                      onClick={() => {
-                        window.open(`https://viewer.trustlesswork.com/?id=${selectedEscrow.contractId}`, '_blank');
-                      }}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Ver en Escrow Viewer
-                    </Button>
+                    {selectedEscrow.contractId && (
+                      <Button
+                        variant="outline"
+                        className="w-full btn-emerald-outline"
+                        onClick={() => {
+                          window.open(`https://viewer.trustlesswork.com/?id=${selectedEscrow.contractId}`, '_blank');
+                        }}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Ver en Escrow Viewer
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
