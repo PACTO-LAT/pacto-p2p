@@ -1,27 +1,29 @@
-import { supabase } from '@/lib/supabase';
-import type { CreateListingData, Listing } from '@/lib/types';
+import { supabase } from "@/lib/supabase";
+import type { CreateListingData, Listing } from "@/lib/types";
 
 export class ListingsService {
   static async getListings(filters?: {
     token?: string;
-    type?: 'buy' | 'sell';
+    type?: "buy" | "sell";
     status?: string;
   }): Promise<Listing[]> {
     let query = supabase
-      .from('listings')
-      .select(`
+      .from("listings")
+      .select(
+        `
         *,
         user:users(*)
-      `)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+      `
+      )
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
 
-    if (filters?.token && filters.token !== 'all') {
-      query = query.eq('token', filters.token);
+    if (filters?.token && filters.token !== "all") {
+      query = query.eq("token", filters.token);
     }
 
-    if (filters?.type && filters.type !== 'all') {
-      query = query.eq('type', filters.type);
+    if (filters?.type && filters.type !== "buy") {
+      query = query.eq("type", filters.type);
     }
 
     const { data, error } = await query;
@@ -32,13 +34,15 @@ export class ListingsService {
 
   static async getUserListings(userId: string): Promise<Listing[]> {
     const { data, error } = await supabase
-      .from('listings')
-      .select(`
+      .from("listings")
+      .select(
+        `
         *,
         user:users(*)
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      `
+      )
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -49,15 +53,17 @@ export class ListingsService {
     listingData: CreateListingData
   ): Promise<Listing> {
     const { data, error } = await supabase
-      .from('listings')
+      .from("listings")
       .insert({
         ...listingData,
         user_id: userId,
       })
-      .select(`
+      .select(
+        `
         *,
         user:users(*)
-      `)
+      `
+      )
       .single();
 
     if (error) throw error;
@@ -69,16 +75,18 @@ export class ListingsService {
     updates: Partial<Listing>
   ): Promise<Listing> {
     const { data, error } = await supabase
-      .from('listings')
+      .from("listings")
       .update({
         ...updates,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', listingId)
-      .select(`
+      .eq("id", listingId)
+      .select(
+        `
         *,
         user:users(*)
-      `)
+      `
+      )
       .single();
 
     if (error) throw error;
@@ -87,25 +95,27 @@ export class ListingsService {
 
   static async deleteListing(listingId: string): Promise<void> {
     const { error } = await supabase
-      .from('listings')
+      .from("listings")
       .delete()
-      .eq('id', listingId);
+      .eq("id", listingId);
 
     if (error) throw error;
   }
 
   static async getListingById(listingId: string): Promise<Listing | null> {
     const { data, error } = await supabase
-      .from('listings')
-      .select(`
+      .from("listings")
+      .select(
+        `
         *,
         user:users(*)
-      `)
-      .eq('id', listingId)
+      `
+      )
+      .eq("id", listingId)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') return null;
+      if (error.code === "PGRST116") return null;
       throw error;
     }
 
