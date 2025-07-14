@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { Escrow } from '@trustless-work/escrow';
-import { createContext, type ReactNode, useContext, useState } from 'react';
+import type { Escrow } from "@/@types/Escrow";
+import { createContext, type ReactNode, useContext, useState } from "react";
 
 interface EscrowContextType {
   selectedEscrow: Escrow | null;
@@ -36,7 +36,7 @@ export function EscrowProvider({ children }: EscrowProviderProps) {
 export function useEscrowContext() {
   const context = useContext(EscrowContext);
   if (context === undefined) {
-    throw new Error('useEscrowContext must be used within an EscrowProvider');
+    throw new Error("useEscrowContext must be used within an EscrowProvider");
   }
   return context;
 }
