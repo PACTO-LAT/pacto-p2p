@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 "use client";
 
 import {
@@ -399,9 +400,13 @@ export default function EscrowsPage() {
                           variant="outline"
                           size="sm"
                           className="btn-emerald-outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://viewer.trustlesswork.com/${escrow.engagementId}`, '_blank');
+                          }}
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
-                          View on Stellar
+                          View on Escrow Viewer
                         </Button>
                       </div>
                     </div>
@@ -625,9 +630,12 @@ export default function EscrowsPage() {
                     <Button
                       variant="outline"
                       className="w-full btn-emerald-outline"
+                      onClick={() => {
+                        window.open(`https://viewer.trustlesswork.com/?id=${selectedEscrow.contractId}`, '_blank');
+                      }}
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
-                      Ver en Stellar
+                      Ver en Escrow Viewer
                     </Button>
                   </div>
                 </div>

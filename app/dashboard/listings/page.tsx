@@ -78,7 +78,7 @@ export default function ListingsPage() {
       id: 1,
       type: "sell",
       token: "CRCX",
-      amount: 5000,
+      amount: 5200,
       rate: 1.05,
       fiatCurrency: "CRC",
       paymentMethod: "SINPE",
