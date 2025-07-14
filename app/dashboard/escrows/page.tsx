@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-'use client';
+"use client";
 
 import {
   AlertTriangle,
@@ -12,31 +12,31 @@ import {
   Unlock,
   User,
   XCircle,
-} from 'lucide-react';
-import { useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+} from "lucide-react";
+import { useState } from "react";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
-import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
-import { useInitializeTrade } from '@/hooks/use-trades';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { getTrustlineName } from '@/utils/getTrustline';
+} from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useEscrowsByRoleQuery } from "@/hooks/use-escrows";
+import { useInitializeTrade } from "@/hooks/use-trades";
+import useGlobalAuthenticationStore from "@/store/wallet.store";
+import { getTrustlineName } from "@/utils/getTrustline";
 
 //! Using any for now since Escrow type is not properly defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Escrow = any;
 
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -44,12 +44,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { useEscrowSelection } from '@/hooks/use-escrow-selection';
-import { formatAmount } from '@/lib/dashboard-utils';
+} from "@/components/ui/form";
+import { useEscrowSelection } from "@/hooks/use-escrow-selection";
+import { formatAmount } from "@/lib/dashboard-utils";
 
 export default function EscrowsPage() {
-  const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
+  const [activeTab, setActiveTab] = useState<"buyer" | "seller">("buyer");
   const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
   const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
     useState(false);
@@ -68,12 +68,12 @@ export default function EscrowsPage() {
   // Form for report payment
   const reportPaymentForm = useForm({
     defaultValues: {
-      evidence: '',
+      evidence: "",
     },
   });
 
   // Determine role based on active tab
-  const role = activeTab === 'seller' ? 'approver' : 'serviceProvider';
+  const role = activeTab === "seller" ? "approver" : "serviceProvider";
 
   // Fetch escrows where the user is involved in any role
   const {
@@ -104,13 +104,13 @@ export default function EscrowsPage() {
           milestones: [
             {
               ...selectedEscrow.milestones[0],
-              status: 'pendingApproval',
+              status: "pendingApproval",
               evidence: data.evidence,
             },
           ],
         });
       } catch (_error) {
-        toast.error('Error al reportar el pago');
+        toast.error("Error al reportar el pago");
       } finally {
         setIsReportPaymentLoading(false);
       }
@@ -126,13 +126,13 @@ export default function EscrowsPage() {
           milestones: [
             {
               ...selectedEscrow.milestones[0],
-              status: 'approved',
+              status: "approved",
               approved: true,
             },
           ],
         });
       } catch (_error) {
-        toast.error('Error al confirmar el pago');
+        toast.error("Error al confirmar el pago");
       }
     }
   };
@@ -147,7 +147,7 @@ export default function EscrowsPage() {
           balance: escrow.amount,
         });
       } catch (_error) {
-        toast.error('Error al depositar fondos');
+        toast.error("Error al depositar fondos");
       }
     }
   };
@@ -164,7 +164,7 @@ export default function EscrowsPage() {
           },
         });
       } catch (_error) {
-        toast.error('Error al disputar el escrow');
+        toast.error("Error al disputar el escrow");
       }
     }
   };
@@ -182,7 +182,7 @@ export default function EscrowsPage() {
           balance: 0,
         });
       } catch (_error) {
-        toast.error('Error al liberar fondos');
+        toast.error("Error al liberar fondos");
       }
     }
   };
@@ -215,7 +215,7 @@ export default function EscrowsPage() {
               Error al cargar escrows
             </h3>
             <p className="text-muted-foreground">
-              {error instanceof Error ? error.message : 'Error desconocido'}
+              {error instanceof Error ? error.message : "Error desconocido"}
             </p>
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function EscrowsPage() {
 
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller')}
+          onValueChange={(value) => setActiveTab(value as "buyer" | "seller")}
           className="space-y-6"
         >
           <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1">
@@ -324,7 +324,7 @@ export default function EscrowsPage() {
                               Amount
                             </p>
                             <p className="text-2xl font-bold text-emerald-600">
-                              {formatAmount(escrow.amount)}{' '}
+                              {formatAmount(escrow.amount)}{" "}
                               {getTrustlineName(escrow.trustline.address)}
                             </p>
                           </div>
@@ -334,7 +334,7 @@ export default function EscrowsPage() {
                               Balance
                             </p>
                             <p className="text-2xl font-bold text-emerald-600">
-                              {formatAmount(escrow.balance)}{' '}
+                              {formatAmount(escrow.balance || 0)}{" "}
                               {getTrustlineName(escrow.trustline.address)}
                             </p>
                           </div>
@@ -440,10 +440,10 @@ export default function EscrowsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-2xl font-bold text-emerald-600">
-                        {formatAmount(selectedEscrow.amount)}{' '}
+                        {formatAmount(selectedEscrow.amount)}{" "}
                         {getTrustlineName(selectedEscrow.trustline.address)}
                         <span className="text-muted-foreground mx-3">
-                          | {formatAmount(selectedEscrow.balance)}{' '}
+                          | {formatAmount(selectedEscrow.balance || 0)}{" "}
                           {getTrustlineName(selectedEscrow.trustline.address)}
                         </span>
                       </h3>
@@ -466,7 +466,7 @@ export default function EscrowsPage() {
                           Disputado
                         </span>
                       ) : selectedEscrow.milestones[0].status ===
-                        'pendingApproval' ? (
+                        "pendingApproval" ? (
                         <span className="font-semibold text-yellow-600">
                           Pendiente de aprobación
                         </span>
@@ -553,9 +553,9 @@ export default function EscrowsPage() {
                   </h4>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {activeTab === 'buyer' &&
+                    {activeTab === "buyer" &&
                       selectedEscrow.milestones[0].status !==
-                        'pendingApproval' &&
+                        "pendingApproval" &&
                       !selectedEscrow.flags?.resolved &&
                       !selectedEscrow.flags?.released && (
                         <Button
@@ -568,7 +568,7 @@ export default function EscrowsPage() {
                         </Button>
                       )}
 
-                    {activeTab === 'seller' && (
+                    {activeTab === "seller" && (
                       <>
                         {!selectedEscrow.milestones[0].approved && (
                           <Button
