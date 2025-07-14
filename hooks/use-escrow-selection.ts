@@ -1,5 +1,5 @@
-import { useEscrowContext } from '@/lib/contexts/escrow-context';
-import type { Escrow } from '@/lib/types';
+import { Escrow } from "@/@types/Escrow";
+import { useEscrowContext } from "@/lib/contexts/escrow-context";
 
 export function useEscrowSelection() {
   const { selectedEscrow, setSelectedEscrow, clearSelectedEscrow } =
