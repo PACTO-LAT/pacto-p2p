@@ -77,7 +77,7 @@ export const useEscrowsByRoleQuery = ({
         title,
         engagementId,
         status,
-        type,
+        type: "single-release",
         validateOnChain: true,
       });
 
@@ -141,7 +141,7 @@ export const useEscrowsBySignerQuery = ({
         title,
         engagementId,
         status,
-        type,
+        type: "single-release",
         validateOnChain: true,
       });
 
