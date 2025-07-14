@@ -22,26 +22,26 @@ export interface EscrowMilestone {
   escrow_id: string;
   milestone_number: number;
   name: string;
-  status: 'pending' | 'completed' | 'failed';
+  status: "pending" | "completed" | "failed";
   completed_at?: string;
   created_at: string;
 }
 
 export interface TokenOperation {
   id: string;
-  operation_type: 'mint' | 'burn';
+  operation_type: "mint" | "burn";
   token: string;
   amount: number;
   stellar_address: string;
   transaction_hash?: string;
   memo?: string;
-  status: 'pending' | 'completed' | 'failed';
+  status: "pending" | "completed" | "failed";
   created_by: string;
   created_at: string;
 }
 
 export interface CreateListingData {
-  type: 'buy' | 'sell';
+  type: "buy" | "sell";
   token: string;
   amount: number;
   rate: number;
@@ -65,7 +65,7 @@ export interface CreateEscrowData {
 // Dashboard UI Types
 export interface DashboardListing {
   id: number;
-  type: 'sell' | 'buy';
+  type: "sell" | "buy";
   token: string;
   amount: number;
   rate: number;
@@ -76,7 +76,7 @@ export interface DashboardListing {
 
 export interface DashboardEscrow {
   id: string;
-  type: 'sell' | 'buy';
+  type: "sell" | "buy";
   token: string;
   amount: number;
   buyer?: string;
@@ -88,7 +88,7 @@ export interface DashboardEscrow {
 
 export interface MarketplaceListing {
   id: number;
-  type: 'sell' | 'buy';
+  type: "sell" | "buy";
   token: string;
   amount: number;
   rate: number;
@@ -103,17 +103,34 @@ export interface MarketplaceListing {
   description: string;
 }
 
-export type DialogType = 'receipt' | 'dispute' | null;
+export type DialogType = "receipt" | "dispute" | null;
 
 export interface TradeCardProps {
   trade: DashboardListing | DashboardEscrow;
-  variant: 'listing' | 'escrow';
+  variant: "listing" | "escrow";
   onAction?: (
     trade: DashboardListing | DashboardEscrow,
     action: string
   ) => void;
   onOpenDialog?: (
     trade: DashboardListing | DashboardEscrow,
-    type: 'receipt' | 'dispute'
+    type: "receipt" | "dispute"
   ) => void;
 }
+
+export type Listing = {
+  id: number;
+  type: "sell" | "buy";
+  token: string;
+  amount: number;
+  rate: number;
+  fiatCurrency: string;
+  paymentMethod: string;
+  seller: string;
+  buyer: string;
+  reputation: number;
+  trades: number;
+  created: string;
+  status: string;
+  description: string;
+};
