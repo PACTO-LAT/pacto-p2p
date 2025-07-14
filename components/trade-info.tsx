@@ -22,11 +22,11 @@ export function TradeInfo({ trade }: TradeInfoProps) {
     return (
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium">Tasa:</span> {trade.rate}{' '}
+          <span className="font-medium">Rate:</span> {trade.rate}{' '}
           {trade.fiatCurrency}/{trade.token}
         </p>
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium">Creado:</span>{' '}
+          <span className="font-medium">Created:</span>{' '}
           {formatDate(trade.created)}
         </p>
       </div>
@@ -41,7 +41,7 @@ export function TradeInfo({ trade }: TradeInfoProps) {
         </p>
         <p className="text-sm text-muted-foreground">
           <span className="font-medium">
-            {trade.type === 'sell' ? 'Comprador' : 'Vendedor'}:
+            {trade.type === 'sell' ? 'Buyer' : 'Seller'}:
           </span>{' '}
           <span className="font-mono text-xs bg-muted/50 backdrop-blur-sm px-2 py-1 rounded">
             {trade.type === 'sell' ? trade.buyer : trade.seller}

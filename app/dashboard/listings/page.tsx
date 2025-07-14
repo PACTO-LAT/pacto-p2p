@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ExternalLink,
   Plus,
   Search,
   TrendingDown,
@@ -151,7 +150,7 @@ export default function ListingsPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground font-medium">
-                        Tasa de Cambio
+                        Exchange Rate
                       </p>
                       <p className="text-foreground font-semibold">
                         {listing.rate} {listing.fiatCurrency}/{listing.token}
@@ -159,7 +158,7 @@ export default function ListingsPage() {
                     </div>
                     <div>
                       <p className="text-muted-foreground font-medium">
-                        Método de Pago
+                        Payment Method
                       </p>
                       <p className="text-foreground font-semibold">
                         {listing.paymentMethod}
@@ -197,7 +196,7 @@ export default function ListingsPage() {
             <div className="flex flex-col items-end gap-4">
               <div className="text-right">
                 <p className="text-sm text-muted-foreground mb-1">
-                  Valor Total
+                  Total Value
                 </p>
                 <p className="text-3xl font-bold text-foreground">
                   {formatAmount(listing.amount * listing.rate)}
@@ -211,7 +210,7 @@ export default function ListingsPage() {
                 onClick={() => handleTrade(listing)}
                 className="btn-emerald px-8 py-2 text-base font-semibold"
               >
-                {listing.type === "sell" ? "Comprar Ahora" : "Vender Ahora"}
+                {listing.type === "sell" ? "Buy Now" : "Sell Now"}
               </Button>
             </div>
           </div>
@@ -222,23 +221,12 @@ export default function ListingsPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <span className="text-sm font-medium text-muted-foreground">
-                    Activo
+                    Active
                   </span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  Publicado: {formatDate(listing.created)}
+                  Published: {formatDate(listing.created)}
                 </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="btn-emerald-outline"
-                >
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Ver en Stellar
-                </Button>
               </div>
             </div>
           </div>
@@ -253,7 +241,7 @@ export default function ListingsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-hero-gradient">
+            <h1 className="text-4xl font-bold text-white">
               Marketplace
             </h1>
             <p className="text-lg text-muted-foreground mt-2">

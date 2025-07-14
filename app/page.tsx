@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, DollarSign, Globe, Lock, Rocket } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { TokenIcon } from "@/components/token-icon";
 import { Badge } from "@/components/ui/badge";
@@ -107,12 +108,16 @@ export default function HomePage() {
       <header className="border-b border-glass-border glass-effect backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
             <div>
-              <span className="text-2xl font-bold text-foreground">Pacto</span>
-              <p className="text-xs text-muted-foreground">
+            <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
+              <Image
+                src="/logo.webp"
+                alt="Pacto Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
+            </div>              <p className="text-xs text-muted-foreground">
                 P2P OTC for Stellar Stablecoins
               </p>
             </div>
@@ -396,19 +401,22 @@ export default function HomePage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
-                <span className="text-white font-bold text-xl">P</span>
+              <div className="w-20 h-12 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
+                <Image
+                  src="/logo.webp"
+                  alt="Pacto Logo"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div>
-                <span className="text-3xl font-bold text-foreground">
-                  Pacto
-                </span>
                 <p className="text-muted-foreground text-sm">
                   Decentralized P2P OTC for Stellar stablecoins — built for
                   LATAM. Open to the world.
                 </p>
               </div>
             </div>
+            <div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">

@@ -11,27 +11,27 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     switch (status.toLowerCase()) {
       case 'pending':
         return {
-          label: 'Pendiente',
+          label: 'Pending',
           classes: 'glass-effect text-yellow-400 border-yellow-500/30',
         };
       case 'active':
         return {
-          label: 'Activo',
+          label: 'Active',
           classes: 'glass-effect text-emerald-400 border-emerald-500/30',
         };
       case 'completed':
         return {
-          label: 'Completado',
+          label: 'Completed',
           classes: 'glass-effect text-blue-400 border-blue-500/30',
         };
       case 'cancelled':
         return {
-          label: 'Cancelado',
+          label: 'Cancelled',
           classes: 'glass-effect text-red-400 border-red-500/30',
         };
       case 'disputed':
         return {
-          label: 'En Disputa',
+          label: 'In Dispute',
           classes: 'glass-effect text-orange-400 border-orange-500/30',
         };
       default:

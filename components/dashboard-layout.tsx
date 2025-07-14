@@ -10,6 +10,7 @@ import {
   User,
   Wallet,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
@@ -85,8 +86,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex flex-col h-full">
             <div className="p-6 border-b border-glass-border">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
-                  <span className="text-white font-bold text-lg">P</span>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
+                  <Image
+                    src="/logo.webp"
+                    alt="Pacto Logo"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="text-2xl font-bold text-foreground">
                   Pacto
@@ -121,10 +128,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col flex-grow glass-effect shadow-glass border-r border-glass-border">
           <div className="p-6 border-b border-glass-border">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-emerald rounded-xl flex items-center justify-center logo-glow">
-                <span className="text-white font-bold text-lg">P</span>
+              <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
+                <Image
+                  src="/logo.webp"
+                  alt="Pacto Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="text-2xl font-bold text-foreground">Pacto</span>
+              {/* <span className="text-2xl font-bold text-foreground">Pacto</span> */}
             </div>
           </div>
           <nav className="flex-1 p-6 space-y-2">
@@ -177,8 +190,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="sticky top-0 z-40 glass-effect backdrop-blur-md border-b border-glass-border lg:hidden">
           <div className="flex items-center justify-between px-16 py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-emerald rounded-lg flex items-center justify-center logo-glow">
-                <span className="text-white font-bold">P</span>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center logo-glow overflow-hidden">
+                <Image
+                  src="/logo.webp"
+                  alt="Pacto Logo"
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="font-bold text-foreground">Pacto</span>
             </div>

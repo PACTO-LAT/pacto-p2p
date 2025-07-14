@@ -48,7 +48,7 @@ export function TradeActions({
           className="btn-emerald"
           onClick={() => onAction?.(trade, 'manage')}
         >
-          Gestionar
+                      Manage
         </Button>
       </div>
     );

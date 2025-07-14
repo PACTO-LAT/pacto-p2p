@@ -9,8 +9,8 @@ export function TradeProgress({ escrow }: TradeProgressProps) {
   return (
     <div className="mb-6">
       <div className="flex justify-between text-sm font-medium mb-2">
-        <span className="text-muted-foreground">Estado del Escrow</span>
-        <span className="text-foreground">{escrow.progress}% Completado</span>
+        <span className="text-muted-foreground">Escrow Status</span>
+        <span className="text-foreground">{escrow.progress}% Completed</span>
       </div>
       <div className="relative">
         <Progress value={escrow.progress} className="h-3" />

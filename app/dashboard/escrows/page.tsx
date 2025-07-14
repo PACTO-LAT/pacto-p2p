@@ -111,7 +111,7 @@ export default function EscrowsPage() {
           ],
         });
       } catch (_error) {
-        toast.error("Error al reportar el pago");
+        toast.error("Error reporting payment");
       } finally {
         setIsReportPaymentLoading(false);
       }
@@ -133,7 +133,7 @@ export default function EscrowsPage() {
           ],
         });
       } catch (_error) {
-        toast.error("Error al confirmar el pago");
+        toast.error("Error confirming payment");
       }
     }
   };
@@ -148,7 +148,7 @@ export default function EscrowsPage() {
           balance: escrow.amount,
         });
       } catch (_error) {
-        toast.error("Error al depositar fondos");
+        toast.error("Error depositing funds");
       }
     }
   };
@@ -165,7 +165,7 @@ export default function EscrowsPage() {
           },
         });
       } catch (_error) {
-        toast.error("Error al disputar el escrow");
+        toast.error("Error disputing escrow");
       }
     }
   };
@@ -183,7 +183,7 @@ export default function EscrowsPage() {
           balance: 0,
         });
       } catch (_error) {
-        toast.error("Error al liberar fondos");
+        toast.error("Error releasing funds");
       }
     }
   };
@@ -199,7 +199,7 @@ export default function EscrowsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex items-center gap-2">
             <Loader2 className="w-6 h-6 animate-spin" />
-            <span>Cargando escrows...</span>
+            <span>Loading escrows...</span>
           </div>
         </div>
       </DashboardLayout>
@@ -213,7 +213,7 @@ export default function EscrowsPage() {
           <div className="text-center">
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Error al cargar escrows
+              Error loading escrows
             </h3>
             <p className="text-muted-foreground">
               {error instanceof Error ? error.message : "Error desconocido"}
@@ -297,11 +297,11 @@ export default function EscrowsPage() {
                         <div className="flex items-center gap-2">
                           {escrow.flags?.resolved || escrow.flags?.released ? (
                             <span className="text-lg font-bold text-emerald-600">
-                              Finalizado
+                              Completed
                             </span>
                           ) : (
                             <span className="text-lg font-bold text-muted-foreground">
-                              En curso
+                              In Progress
                             </span>
                           )}
                         </div>
@@ -432,11 +432,10 @@ export default function EscrowsPage() {
           <DialogContent className="glass-card !max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-emerald-gradient">
-                Detalles del Escrow
+                Escrow Details
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
-                Información completa y acciones disponibles para este contrato
-                de escrow
+                Complete information and available actions for this escrow contract
               </DialogDescription>
             </DialogHeader>
 
@@ -462,24 +461,24 @@ export default function EscrowsPage() {
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       {selectedEscrow.flags?.released ? (
                         <span className="font-semibold text-emerald-600">
-                          Liberado
+                          Released
                         </span>
                       ) : selectedEscrow.flags?.resolved ? (
                         <span className="font-semibold text-emerald-600">
-                          Resuelto
+                          Resolved
                         </span>
                       ) : selectedEscrow.flags?.disputed ? (
                         <span className="font-semibold text-red-600">
-                          Disputado
+                          Disputed
                         </span>
                       ) : selectedEscrow.milestones[0].status ===
                         "pendingApproval" ? (
                         <span className="font-semibold text-yellow-600">
-                          Pendiente de aprobación
+                          Pending Approval
                         </span>
                       ) : selectedEscrow.milestones[0].approved ? (
                         <span className="font-semibold text-emerald-600">
-                          Confirmado
+                          Confirmed
                         </span>
                       ) : null}
                     </div>
@@ -489,7 +488,7 @@ export default function EscrowsPage() {
                 {/* Description */}
                 <div className="space-y-2">
                   <h4 className="font-semibold text-lg text-foreground">
-                    Descripción
+                    Description
                   </h4>
                   <p className="text-foreground bg-muted/50 backdrop-blur-sm p-4 rounded-lg">
                     {selectedEscrow.description}
@@ -500,13 +499,13 @@ export default function EscrowsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <h4 className="font-semibold text-lg text-foreground">
-                      Información del Contrato
+                      Contract Information
                     </h4>
 
                     <div className="space-y-3">
                       <div>
                         <p className="text-sm text-muted-foreground mb-1">
-                          Vendedor
+                          Seller
                         </p>
                         <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
                           <User className="w-4 h-4 text-muted-foreground" />
@@ -519,7 +518,7 @@ export default function EscrowsPage() {
 
                       <div>
                         <p className="text-sm text-muted-foreground mb-1">
-                          Comprador
+                          Buyer
                         </p>
                         <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
                           <User className="w-4 h-4 text-muted-foreground" />
@@ -535,13 +534,13 @@ export default function EscrowsPage() {
 
                   <div className="space-y-4">
                     <h4 className="font-semibold text-lg text-foreground">
-                      Detalles Técnicos
+                      Technical Details
                     </h4>
 
                     <div className="space-y-3">
                       <div>
                         <p className="text-sm text-muted-foreground mb-1">
-                          Activo
+                          Asset
                         </p>
                         <div className="p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
                           <span className="font-mono text-sm text-foreground">
@@ -556,7 +555,7 @@ export default function EscrowsPage() {
                 {/* Action Buttons */}
                 <div className="space-y-4 pt-6 border-t border-border/50">
                   <h4 className="font-semibold text-lg text-foreground">
-                    Acciones Disponibles
+                    Available Actions
                   </h4>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -571,7 +570,7 @@ export default function EscrowsPage() {
                           variant="outline"
                         >
                           <DollarSign className="w-4 h-4 mr-2" />
-                          Reportar Pago
+                          Report Payment
                         </Button>
                       )}
 
@@ -584,7 +583,7 @@ export default function EscrowsPage() {
                             variant="outline"
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
-                            Confirmar Pago
+                            Confirm Payment
                           </Button>
                         )}
 
@@ -597,7 +596,7 @@ export default function EscrowsPage() {
                               variant="outline"
                             >
                               <Banknote className="w-4 h-4 mr-2" />
-                              Depositar
+                              Deposit
                             </Button>
                           )}
 
@@ -609,7 +608,7 @@ export default function EscrowsPage() {
                               variant="outline"
                             >
                               <Unlock className="w-4 h-4 mr-2" />
-                              Liberar Fondos
+                              Release Funds
                             </Button>
                           )}
                       </>
@@ -625,7 +624,7 @@ export default function EscrowsPage() {
                           variant="outline"
                         >
                           <XCircle className="w-4 h-4 mr-2" />
-                          Disputar
+                          Dispute
                         </Button>
                       )}
 
@@ -638,7 +637,7 @@ export default function EscrowsPage() {
                         }}
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        Ver en Escrow Viewer
+                        View on Escrow Viewer
                       </Button>
                     )}
                   </div>
@@ -663,11 +662,10 @@ export default function EscrowsPage() {
           <DialogContent className="glass-card !max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-emerald-gradient">
-                Reportar Pago
+                Report Payment
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
-                Reporte un pago que no se haya realizado o que no sea el
-                correcto. Proporcione evidencia para la resolución.
+                Report a payment that has not been made or is not correct. Provide evidence for resolution.
               </DialogDescription>
             </DialogHeader>
             <Form {...reportPaymentForm}>
@@ -681,11 +679,11 @@ export default function EscrowsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-foreground">
-                        Evidencia (Opcional)
+                        Evidence (Optional)
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Fotos, videos, documentos, etc. que respalden su reclamo."
+                          placeholder="Photos, videos, documents, etc. that support your claim."
                           disabled={isReportPaymentLoading}
                           className="input-glass"
                           {...field}
@@ -705,7 +703,7 @@ export default function EscrowsPage() {
                   ) : (
                     <DollarSign className="w-4 h-4 mr-2" />
                   )}
-                  Reportar Pago
+                  Report Payment
                 </Button>
               </form>
             </Form>

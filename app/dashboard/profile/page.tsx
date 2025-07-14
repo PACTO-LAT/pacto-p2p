@@ -118,7 +118,7 @@ export default function ProfilePage() {
               Mi Perfil
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Gestiona tu información personal y configuración
+              Manage your personal information and settings
             </p>
           </div>
           <div className="flex gap-2">
@@ -250,7 +250,7 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Estado KYC</Label>
+                        <Label>KYC Status</Label>
                         <div className="flex items-center gap-2">
                           {getKycStatusBadge()}
                           {userData.kyc_status !== 'verified' && (
@@ -348,22 +348,22 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5" />
-                  Métodos de Pago
+                  Payment Methods
                 </CardTitle>
                 <CardDescription>
-                  Configura tus métodos de pago para recibir dinero
+                  Configure your payment methods to receive money
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* SINPE Móvil */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold">SINPE Móvil</h3>
+                    <h3 className="text-lg font-semibold">SINPE Mobile</h3>
                     <Badge variant="secondary">Costa Rica</Badge>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="sinpe_number">Número de Teléfono</Label>
+                      <Label htmlFor="sinpe_number">Phone Number</Label>
                       <Input
                         id="sinpe_number"
                         type="tel"
@@ -381,16 +381,16 @@ export default function ProfilePage() {
                         placeholder="+506 1234 5678"
                       />
                       <p className="text-xs text-gray-600 dark:text-gray-300">
-                        Número registrado en SINPE Móvil para recibir
-                        transferencias
+                        Number registered in SINPE Mobile to receive
+                        transfers
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label>Estado</Label>
+                      <Label>Status</Label>
                       <div className="flex items-center gap-2">
                         <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                           <CheckCircle className="w-3 h-3 mr-1" />
-                          Verificado
+                          Verified
                         </Badge>
                       </div>
                     </div>
@@ -403,13 +403,13 @@ export default function ProfilePage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold">
-                      Transferencia Bancaria
+                      Bank Transfer
                     </h3>
-                    <Badge variant="secondary">Internacional</Badge>
+                    <Badge variant="secondary">International</Badge>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="bank_iban">Número IBAN</Label>
+                      <Label htmlFor="bank_iban">IBAN Number</Label>
                       <Input
                         id="bank_iban"
                         value={userData.payment_methods.bank_iban}
@@ -427,11 +427,11 @@ export default function ProfilePage() {
                         className="font-mono"
                       />
                       <p className="text-xs text-gray-600 dark:text-gray-300">
-                        Código IBAN internacional de tu cuenta bancaria
+                        International IBAN code of your bank account
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="bank_name">Nombre del Banco</Label>
+                      <Label htmlFor="bank_name">Bank Name</Label>
                       <Input
                         id="bank_name"
                         value={userData.payment_methods.bank_name}
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="bank_account_holder">
-                        Titular de la Cuenta
+                        Account Holder
                       </Label>
                       <Input
                         id="bank_account_holder"
@@ -468,19 +468,19 @@ export default function ProfilePage() {
                         placeholder="Juan Pérez"
                       />
                       <p className="text-xs text-gray-600 dark:text-gray-300">
-                        Debe coincidir exactamente con el nombre en tu cuenta
-                        bancaria
+                        Must match exactly with the name on your bank
+                        account
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label>Estado</Label>
+                      <Label>Status</Label>
                       <div className="flex items-center gap-2">
                         <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
                           <AlertCircle className="w-3 h-3 mr-1" />
-                          Pendiente
+                          Pending
                         </Badge>
                         <Button variant="link" size="sm" className="p-0 h-auto">
-                          Verificar
+                          Verify
                         </Button>
                       </div>
                     </div>
@@ -491,7 +491,7 @@ export default function ProfilePage() {
 
                 {/* Método Preferido */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Método Preferido</h3>
+                  <h3 className="text-lg font-semibold">Preferred Method</h3>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
                       <input
@@ -520,9 +520,9 @@ export default function ProfilePage() {
                         htmlFor="preferred_sinpe"
                         className="flex items-center gap-2"
                       >
-                        SINPE Móvil
+                        SINPE Mobile
                         <Badge variant="outline" className="text-xs">
-                          Instantáneo
+                          Instant
                         </Badge>
                       </Label>
                     </div>
@@ -554,37 +554,37 @@ export default function ProfilePage() {
                         htmlFor="preferred_bank"
                         className="flex items-center gap-2"
                       >
-                        Transferencia Bancaria
+                        Bank Transfer
                         <Badge variant="outline" className="text-xs">
-                          1-3 días
+                          1-3 days
                         </Badge>
                       </Label>
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Este será el método de pago mostrado por defecto en tus
-                    anuncios
+                    This will be the payment method shown by default in your
+                    listings
                   </p>
                 </div>
 
                 {/* Información Importante */}
                 <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
                   <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                    Información Importante
+                    Important Information
                   </h4>
                   <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                     <li>
-                      • Verifica que toda la información sea correcta antes de
-                      guardar
+                      • Verify that all information is correct before
+                      saving
                     </li>
                     <li>
-                      • Los métodos de pago deben estar a tu nombre para mayor
-                      seguridad
+                      • Payment methods must be in your name for greater
+                      security
                     </li>
-                    <li>• SINPE Móvil solo está disponible en Costa Rica</li>
+                                          <li>• SINPE Mobile is only available in Costa Rica</li>
                     <li>
-                      • Las transferencias bancarias pueden tomar 1-3 días
-                      hábiles
+                      • Bank transfers may take 1-3 days
+                                              business days
                     </li>
                   </ul>
                 </div>
@@ -607,9 +607,9 @@ export default function ProfilePage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Notificaciones de Trades</Label>
+                                          <Label>Trade Notifications</Label>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Recibe emails cuando tengas nuevos trades
+                      Receive emails when you have new trades
                     </p>
                   </div>
                   <Switch
@@ -628,9 +628,9 @@ export default function ProfilePage() {
                 <Separator />
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Notificaciones de Escrow</Label>
+                                          <Label>Escrow Notifications</Label>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Recibe emails sobre el estado de tus escrows
+                      Receive emails about the status of your escrows
                     </p>
                   </div>
                   <Switch
@@ -701,7 +701,7 @@ export default function ProfilePage() {
                   Seguridad
                 </CardTitle>
                 <CardDescription>
-                  Configura las opciones de seguridad de tu cuenta
+                  Configure your account security options
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -709,7 +709,7 @@ export default function ProfilePage() {
                   <div>
                     <Label>Autenticación de Dos Factores</Label>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Añade una capa extra de seguridad a tu cuenta
+                      Add an extra layer of security to your account
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -727,7 +727,7 @@ export default function ProfilePage() {
                     />
                     {userData.security.two_factor_enabled && (
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        Activo
+                        Active
                       </Badge>
                     )}
                   </div>
@@ -737,7 +737,7 @@ export default function ProfilePage() {
                   <div>
                     <Label>Notificaciones de Login</Label>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Recibe notificaciones cuando alguien acceda a tu cuenta
+                      Receive notifications when someone accesses your account
                     </p>
                   </div>
                   <Switch

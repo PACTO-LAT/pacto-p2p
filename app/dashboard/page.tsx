@@ -55,7 +55,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-4xl font-bold text-white">Dashboard</h1>
             <p className="text-lg text-muted-foreground mt-2">
-              Gestiona tus trades OTC y escrows
+              Manage your OTC trades and escrows
             </p>
           </div>
         </div>
@@ -71,16 +71,16 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-orange-900 text-lg">
-                      Conecta tu wallet de Stellar
+                      Connect your Stellar wallet
                     </p>
                     <p className="text-orange-700">
-                      Conecta tu wallet para comenzar a hacer trading
+                      Connect your wallet to start trading
                     </p>
                   </div>
                 </div>
                 <Button onClick={handleConnect} className="btn-emerald">
                   <Wallet className="w-4 h-4 mr-2" />
-                  Conectar Wallet
+                  Connect Wallet
                 </Button>
               </div>
             </CardContent>
@@ -94,31 +94,31 @@ export default function DashboardPage() {
               value="listings"
               className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Mis Listings
+              My Listings
             </TabsTrigger>
             <TabsTrigger
               value="escrows"
               className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Escrows Activos
+              Active Escrows
             </TabsTrigger>
             <TabsTrigger
               value="history"
               className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Historial
+              History
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-emerald-gradient">
-                Listings Activos
+              <h2 className="text-2xl font-bold text-white">
+                Active Listings
               </h2>
               <Link href="/dashboard/listings/create">
                 <Button className="btn-emerald">
                   <Plus className="w-4 h-4 mr-2" />
-                  Nuevo Listing
+                  New Listing
                 </Button>
               </Link>
             </div>
@@ -137,7 +137,7 @@ export default function DashboardPage() {
 
           <TabsContent value="escrows" className="space-y-6">
             <h2 className="text-2xl font-bold text-emerald-gradient">
-              Escrows Activos
+              Active Escrows
             </h2>
 
             <div className="grid gap-6">
@@ -153,20 +153,20 @@ export default function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="history" className="space-y-6">
-            <h2 className="text-2xl font-bold text-emerald-gradient">
-              Historial de Trades
-            </h2>
+                          <h2 className="text-2xl font-bold text-emerald-gradient">
+                Trade History
+              </h2>
             <Card className="card">
               <CardContent className="p-12 text-center">
                 <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 glow-emerald">
                   <TrendingUp className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <p className="text-lg text-muted-foreground mb-2">
-                  No hay trades completados aún
+                  No completed trades yet
                 </p>
                 <p className="text-muted-foreground">
-                  Tu historial de trades aparecerá aquí una vez que completes tu
-                  primera transacción
+                  Your trade history will appear here once you complete your
+                  first transaction
                 </p>
               </CardContent>
             </Card>
