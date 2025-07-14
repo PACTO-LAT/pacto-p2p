@@ -1,46 +1,44 @@
-"use client";
+'use client';
 
-import type React from "react";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Calculator, Info } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
+import { DashboardLayout } from '@/components/dashboard-layout';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Calculator, Info } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/dashboard-layout";
-import { TokenIcon } from "@/components/token-icon";
-import { TRUSTLINES } from "@/utils/constants/trustlines";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { TRUSTLINES } from '@/utils/constants/trustlines';
 
 export default function CreateListingPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    type: "sell",
-    token: "",
-    amount: "",
-    rate: "",
-    fiatCurrency: "",
-    paymentMethod: "",
-    minAmount: "",
-    maxAmount: "",
-    description: "",
+    type: 'sell',
+    token: '',
+    amount: '',
+    rate: '',
+    fiatCurrency: '',
+    paymentMethod: '',
+    minAmount: '',
+    maxAmount: '',
+    description: '',
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,7 +50,7 @@ export default function CreateListingPage() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     setIsLoading(false);
-    router.push("/dashboard");
+    router.push('/dashboard');
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -94,7 +92,7 @@ export default function CreateListingPage() {
             <CardContent>
               <RadioGroup
                 value={formData.type}
-                onValueChange={(value) => handleInputChange("type", value)}
+                onValueChange={(value) => handleInputChange('type', value)}
                 className="grid grid-cols-2 gap-4"
               >
                 <div>
@@ -105,7 +103,7 @@ export default function CreateListingPage() {
                   />
                   <Label
                     htmlFor="sell"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 [&:has([data-state=checked])]:border-emerald-600 cursor-pointer"
                   >
                     <div className="text-center">
                       <div className="text-lg font-semibold mb-2">Sell</div>
@@ -123,7 +121,7 @@ export default function CreateListingPage() {
                   />
                   <Label
                     htmlFor="buy"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 [&:has([data-state=checked])]:border-emerald-600 cursor-pointer"
                   >
                     <div className="text-center">
                       <div className="text-lg font-semibold mb-2">Buy</div>
@@ -151,7 +149,7 @@ export default function CreateListingPage() {
                   <Label htmlFor="token">Stablecoin</Label>
                   <Select
                     value={formData.token}
-                    onValueChange={(value) => handleInputChange("token", value)}
+                    onValueChange={(value) => handleInputChange('token', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select token" />
@@ -176,7 +174,7 @@ export default function CreateListingPage() {
                     placeholder="0.00"
                     value={formData.amount}
                     onChange={(e) =>
-                      handleInputChange("amount", e.target.value)
+                      handleInputChange('amount', e.target.value)
                     }
                   />
                 </div>
@@ -202,7 +200,7 @@ export default function CreateListingPage() {
                     step="0.01"
                     placeholder="0.00"
                     value={formData.rate}
-                    onChange={(e) => handleInputChange("rate", e.target.value)}
+                    onChange={(e) => handleInputChange('rate', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -210,7 +208,7 @@ export default function CreateListingPage() {
                   <Select
                     value={formData.fiatCurrency}
                     onValueChange={(value) =>
-                      handleInputChange("fiatCurrency", value)
+                      handleInputChange('fiatCurrency', value)
                     }
                   >
                     <SelectTrigger>
@@ -257,7 +255,7 @@ export default function CreateListingPage() {
                 <Select
                   value={formData.paymentMethod}
                   onValueChange={(value) =>
-                    handleInputChange("paymentMethod", value)
+                    handleInputChange('paymentMethod', value)
                   }
                 >
                   <SelectTrigger>
@@ -281,7 +279,7 @@ export default function CreateListingPage() {
                     placeholder="0.00"
                     value={formData.minAmount}
                     onChange={(e) =>
-                      handleInputChange("minAmount", e.target.value)
+                      handleInputChange('minAmount', e.target.value)
                     }
                   />
                 </div>
@@ -293,7 +291,7 @@ export default function CreateListingPage() {
                     placeholder="0.00"
                     value={formData.maxAmount}
                     onChange={(e) =>
-                      handleInputChange("maxAmount", e.target.value)
+                      handleInputChange('maxAmount', e.target.value)
                     }
                   />
                 </div>
@@ -317,7 +315,7 @@ export default function CreateListingPage() {
                   placeholder="Add any special instructions or requirements..."
                   value={formData.description}
                   onChange={(e) =>
-                    handleInputChange("description", e.target.value)
+                    handleInputChange('description', e.target.value)
                   }
                   rows={3}
                 />
@@ -352,8 +350,12 @@ export default function CreateListingPage() {
                 Cancel
               </Button>
             </Link>
-            <Button type="submit" className="flex-1" disabled={isLoading}>
-              {isLoading ? "Creating Listing..." : "Create Listing"}
+            <Button
+              type="submit"
+              className="flex-1 btn-primary"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating Listing...' : 'Create Listing'}
             </Button>
           </div>
         </form>

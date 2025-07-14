@@ -1,44 +1,47 @@
-"use client"
+'use client';
 
-import { useState, useCallback } from "react"
-import { useQuery, useMutation } from "@tanstack/react-query"
-import { StellarService } from "@/lib/services/stellar"
-import { useAuth } from "./use-auth"
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
+import { StellarService } from '@/lib/services/stellar';
+import { useAuth } from './use-auth';
 
 export function useStellar() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const { user, updateProfile } = useAuth()
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const { user, updateProfile } = useAuth();
 
   const connectWallet = useCallback(async () => {
     try {
-      const address = await StellarService.connectWallet()
-      setWalletAddress(address)
+      const address = await StellarService.connectWallet();
+      setWalletAddress(address);
 
       // Update user profile with wallet address
       if (user) {
-        await updateProfile({ stellar_address: address })
+        await updateProfile({ stellar_address: address });
       }
 
-      return address
+      return address;
     } catch (error) {
-      console.error("Failed to connect wallet:", error)
-      throw error
+      console.error('Failed to connect wallet:', error);
+      throw error;
     }
-  }, [user, updateProfile])
+  }, [user, updateProfile]);
 
   return {
     walletAddress: walletAddress || user?.stellar_address,
     connectWallet,
-  }
+  };
 }
 
 export function useTokenBalance(address?: string, token?: string) {
   return useQuery({
-    queryKey: ["token-balance", address, token],
-    queryFn: () => (address && token ? StellarService.getBalance(address, token) : Promise.resolve(0)),
+    queryKey: ['token-balance', address, token],
+    queryFn: () =>
+      address && token
+        ? StellarService.getBalance(address, token)
+        : Promise.resolve(0),
     enabled: !!address && !!token,
     refetchInterval: 30000, // Refetch every 30 seconds
-  })
+  });
 }
 
 export function useSendPayment() {
@@ -49,10 +52,10 @@ export function useSendPayment() {
       amount,
       token,
     }: {
-      from: string
-      to: string
-      amount: number
-      token: string
+      from: string;
+      to: string;
+      amount: number;
+      token: string;
     }) => StellarService.sendPayment(from, to, amount, token),
-  })
+  });
 }

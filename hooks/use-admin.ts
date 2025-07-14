@@ -1,25 +1,25 @@
-"use client"
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { AdminService } from "@/lib/services/admin"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AdminService } from '@/lib/services/admin';
 
 export function usePlatformStats() {
   return useQuery({
-    queryKey: ["platform-stats"],
+    queryKey: ['platform-stats'],
     queryFn: AdminService.getPlatformStats,
     refetchInterval: 60000, // Refetch every minute
-  })
+  });
 }
 
 export function useTokenOperations() {
   return useQuery({
-    queryKey: ["token-operations"],
+    queryKey: ['token-operations'],
     queryFn: AdminService.getTokenOperations,
-  })
+  });
 }
 
 export function useMintTokens() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
@@ -29,21 +29,21 @@ export function useMintTokens() {
       memo,
       createdBy,
     }: {
-      token: string
-      amount: number
-      recipient: string
-      memo?: string
-      createdBy?: string
+      token: string;
+      amount: number;
+      recipient: string;
+      memo?: string;
+      createdBy?: string;
     }) => AdminService.mintTokens(token, amount, recipient, memo, createdBy),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["token-operations"] })
-      queryClient.invalidateQueries({ queryKey: ["platform-stats"] })
+      queryClient.invalidateQueries({ queryKey: ['token-operations'] });
+      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
     },
-  })
+  });
 }
 
 export function useBurnTokens() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
@@ -53,15 +53,15 @@ export function useBurnTokens() {
       memo,
       createdBy,
     }: {
-      token: string
-      amount: number
-      address: string
-      memo?: string
-      createdBy?: string
+      token: string;
+      amount: number;
+      address: string;
+      memo?: string;
+      createdBy?: string;
     }) => AdminService.burnTokens(token, amount, address, memo, createdBy),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["token-operations"] })
-      queryClient.invalidateQueries({ queryKey: ["platform-stats"] })
+      queryClient.invalidateQueries({ queryKey: ['token-operations'] });
+      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
     },
-  })
+  });
 }

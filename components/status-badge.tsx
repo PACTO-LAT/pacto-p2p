@@ -1,46 +1,52 @@
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface StatusBadgeProps {
-  status: string
-  className?: string
+  status: string;
+  className?: string;
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return { variant: "default" as const, text: "Activo", classes: "bg-green-100 text-green-800 border-green-200" }
-      case "pending":
+  const getStatusConfig = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
         return {
-          variant: "secondary" as const,
-          text: "Pendiente",
-          classes: "bg-yellow-100 text-yellow-800 border-yellow-200",
-        }
-      case "awaiting_payment":
+          label: 'Pendiente',
+          classes: 'glass-effect text-yellow-400 border-yellow-500/30',
+        };
+      case 'active':
         return {
-          variant: "secondary" as const,
-          text: "Esperando Pago",
-          classes: "bg-orange-100 text-orange-800 border-orange-200",
-        }
-      case "payment_confirmed":
+          label: 'Activo',
+          classes: 'glass-effect text-emerald-400 border-emerald-500/30',
+        };
+      case 'completed':
         return {
-          variant: "default" as const,
-          text: "Pago Confirmado",
-          classes: "bg-primary-100 text-primary-800 border-primary-200",
-        }
-      case "completed":
+          label: 'Completado',
+          classes: 'glass-effect text-blue-400 border-blue-500/30',
+        };
+      case 'cancelled':
         return {
-          variant: "default" as const,
-          text: "Completado",
-          classes: "bg-green-100 text-green-800 border-green-200",
-        }
+          label: 'Cancelado',
+          classes: 'glass-effect text-red-400 border-red-500/30',
+        };
+      case 'disputed':
+        return {
+          label: 'En Disputa',
+          classes: 'glass-effect text-orange-400 border-orange-500/30',
+        };
       default:
-        return { variant: "secondary" as const, text: status, classes: "" }
+        return {
+          label: status,
+          classes: 'glass-effect text-muted-foreground border-glass-border',
+        };
     }
-  }
+  };
 
-  const badgeConfig = getStatusBadge(status)
+  const config = getStatusConfig(status);
 
-  return <Badge className={cn(badgeConfig.classes, className)}>{badgeConfig.text}</Badge>
+  return (
+    <Badge variant="outline" className={cn(config.classes, className)}>
+      {config.label}
+    </Badge>
+  );
 }

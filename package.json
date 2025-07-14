@@ -6,11 +6,16 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "biome:check": "biome check .",
+    "biome:format": "biome format . --write",
+    "biome:lint": "biome lint .",
+    "biome:fix": "biome check --write ."
   },
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^1.7.6",
     "@hookform/resolvers": "^5.1.1",
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-label": "^2.1.7",
@@ -19,6 +24,7 @@
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
     "@supabase/supabase-js": "^2.50.5",
     "@tanstack/react-query": "^5.83.0",
@@ -40,6 +46,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.1.1",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^20",
