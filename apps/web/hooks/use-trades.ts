@@ -14,7 +14,7 @@ import {
   useStartDispute,
 } from "@trustless-work/escrow";
 import type { CreateEscrowData } from "@/lib/types";
-import { Escrow } from "@/@types/Escrow";
+import { Escrow } from "@pacto-p2p/types";
 import { signTransaction } from "@/lib/wallet";
 import useGlobalAuthenticationStore from "@/store/wallet.store";
 import { getTrustline } from "@/utils/getTrustline";

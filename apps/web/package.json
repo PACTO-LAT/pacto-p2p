@@ -1,27 +1,25 @@
 {
-  "name": "pacto-p2p-monorepo",
+  "name": "@pacto-p2p/web",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@10.0.0",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "turbo run dev --filter=@pacto-p2p/web",
-    "build": "turbo run build",
-    "start": "turbo run start --filter=@pacto-p2p/web",
-    "lint": "turbo run lint",
-    "biome:check": "turbo run biome:check",
-    "biome:format": "turbo run biome:format",
-    "biome:lint": "turbo run biome:lint",
-    "biome:fix": "turbo run biome:fix",
-    "clean": "turbo run clean",
-    "type-check": "turbo run type-check"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "biome:check": "biome check .",
+    "biome:format": "biome format . --write",
+    "biome:lint": "biome lint .",
+    "biome:fix": "biome check --write .",
+    "clean": "rm -rf .next",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^1.7.6",
     "@hookform/resolvers": "^5.1.1",
+    "@pacto-p2p/shared": "*",
+    "@pacto-p2p/types": "*",
+    "@pacto-p2p/ui": "*",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
@@ -37,6 +35,7 @@
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-query-devtools": "^5.83.0",
     "@trustless-work/escrow": "^2.0.1",
+    "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
@@ -62,7 +61,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "tailwindcss": "3.4.1",
-    "turbo": "^2.0.0",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5"
   }

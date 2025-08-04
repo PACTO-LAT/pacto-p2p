@@ -1,4 +1,4 @@
-import { Escrow } from "@/@types/Escrow";
+import { Escrow } from "@pacto-p2p/types";
 import { useEscrowContext } from "@/lib/contexts/escrow-context";
 
 export function useEscrowSelection() {

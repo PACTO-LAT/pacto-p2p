@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type GetEscrowsFromIndexerByRoleParams,
   type GetEscrowsFromIndexerBySignerParams,
   useFundEscrow,
   useGetEscrowsFromIndexerByRole,
   useGetEscrowsFromIndexerBySigner,
-} from "@trustless-work/escrow";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import type { CreateEscrowData } from "@/lib/types";
-import useGlobalAuthenticationStore from "@/store/wallet.store";
-import { useInitializeTrade } from "./use-trades";
-import { Escrow } from "@/@types/Escrow";
+} from '@trustless-work/escrow';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import type { CreateEscrowData } from '@/lib/types';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useInitializeTrade } from './use-trades';
+import { Escrow } from '@pacto-p2p/types';
 
 interface UseEscrowsByRoleQueryParams
   extends GetEscrowsFromIndexerByRoleParams {
@@ -46,7 +46,7 @@ export const useEscrowsByRoleQuery = ({
 
   return useQuery({
     queryKey: [
-      "escrows",
+      'escrows',
       roleAddress,
       role,
       isActive,
@@ -77,12 +77,12 @@ export const useEscrowsByRoleQuery = ({
         title,
         engagementId,
         status,
-        type: "single-release",
+        type: 'single-release',
         validateOnChain: true,
       });
 
       if (!escrows) {
-        throw new Error("Failed to fetch escrows");
+        throw new Error('Failed to fetch escrows');
       }
 
       return escrows;
@@ -112,7 +112,7 @@ export const useEscrowsBySignerQuery = ({
 
   return useQuery({
     queryKey: [
-      "escrows",
+      'escrows',
       signer,
       isActive,
       page,
@@ -141,12 +141,12 @@ export const useEscrowsBySignerQuery = ({
         title,
         engagementId,
         status,
-        type: "single-release",
+        type: 'single-release',
         validateOnChain: true,
       });
 
       if (!escrows) {
-        throw new Error("Failed to fetch escrows");
+        throw new Error('Failed to fetch escrows');
       }
 
       return escrows;
@@ -168,9 +168,9 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
       return Promise.all([escrow]);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escrows"] });
-      router.push("/dashboard/escrows");
-      toast.success("Escrow created successfully");
+      queryClient.invalidateQueries({ queryKey: ['escrows'] });
+      router.push('/dashboard/escrows');
+      toast.success('Escrow created successfully');
       // Call the optional callback if provided
       if (onSuccessCallback) {
         onSuccessCallback();
@@ -187,8 +187,8 @@ export function useReportPayment() {
     mutationFn: ({ escrow, evidence }: { escrow: Escrow; evidence: string }) =>
       reportPayment(escrow, evidence),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escrows"] });
-      toast.success("Payment reported successfully");
+      queryClient.invalidateQueries({ queryKey: ['escrows'] });
+      toast.success('Payment reported successfully');
     },
   });
 }
@@ -202,15 +202,15 @@ export function useDepositFunds() {
     mutationFn: ({ escrow }: { escrow: Escrow }) =>
       fundEscrow(
         {
-          contractId: escrow.contractId || "",
+          contractId: escrow.contractId || '',
           amount: escrow.amount,
           signer: address,
         },
-        "single-release"
+        'single-release'
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escrows"] });
-      toast.success("Funds deposited successfully");
+      queryClient.invalidateQueries({ queryKey: ['escrows'] });
+      toast.success('Funds deposited successfully');
     },
   });
 }
@@ -222,8 +222,8 @@ export function useDisputeEscrow() {
   return useMutation({
     mutationFn: ({ escrow }: { escrow: Escrow }) => disputeEscrow(escrow),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escrows"] });
-      toast.success("Escrow disputed successfully");
+      queryClient.invalidateQueries({ queryKey: ['escrows'] });
+      toast.success('Escrow disputed successfully');
     },
   });
 }

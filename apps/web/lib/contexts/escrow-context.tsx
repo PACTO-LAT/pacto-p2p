@@ -1,6 +1,6 @@
 "use client";
 
-import type { Escrow } from "@/@types/Escrow";
+import type { Escrow } from "@pacto-p2p/types";
 import { createContext, type ReactNode, useContext, useState } from "react";
 
 interface EscrowContextType {
