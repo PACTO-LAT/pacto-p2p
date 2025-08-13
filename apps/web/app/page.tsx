@@ -1,123 +1,124 @@
-"use client";
+'use client';
 
-import { ArrowRight, DollarSign, Globe, Lock, Rocket } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { TokenIcon } from "@/components/token-icon";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ArrowRight, DollarSign, Globe, Lock, Rocket } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { TokenIcon } from '@/components/token-icon';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 export default function HomePage() {
   const features = [
     {
       icon: Globe,
-      title: "Local P2P On/Off-Ramps",
+      title: 'Local P2P On/Off-Ramps',
       description:
-        "Easily trade CRCX, MXNX, or USDC using regional payment rails like SINPE or SPEI — directly with other users.",
+        'Easily trade CRCX, MXNX, or USDC using regional payment rails like SINPE or SPEI — directly with other users.',
     },
     {
       icon: Lock,
-      title: "Smart Contract Escrows",
+      title: 'Smart Contract Escrows',
       description:
-        "Every trade is powered by Trustless Work, a Stellar-based escrow engine that holds funds until milestones are met.",
+        'Every trade is powered by Trustless Work, a Stellar-based escrow engine that holds funds until milestones are met.',
     },
     {
       icon: DollarSign,
-      title: "Fair, Transparent OTC Market",
+      title: 'Fair, Transparent OTC Market',
       description:
-        "You choose the price. Compete with other traders in a non-custodial environment.",
+        'You choose the price. Compete with other traders in a non-custodial environment.',
     },
     {
       icon: Rocket,
-      title: "Borderless & Stable",
+      title: 'Borderless & Stable',
       description:
-        "Move value across borders and convert to local fiat on demand. Ideal for freelancers, merchants, and crypto-native LATAM users.",
+        'Move value across borders and convert to local fiat on demand. Ideal for freelancers, merchants, and crypto-native LATAM users.',
     },
   ];
 
   const howItWorks = [
     {
-      step: "1",
-      title: "Browse OTC Listings",
-      description: "Find offers to buy or sell stablecoins like CRCX or USDC.",
+      step: '1',
+      title: 'Browse OTC Listings',
+      description: 'Find offers to buy or sell stablecoins like CRCX or USDC.',
     },
     {
-      step: "2",
-      title: "Enter Escrow Contract",
+      step: '2',
+      title: 'Enter Escrow Contract',
       description:
-        "The crypto is locked in a Stellar-based smart contract. You send fiat off-chain (e.g., via SINPE). The seller confirms.",
+        'The crypto is locked in a Stellar-based smart contract. You send fiat off-chain (e.g., via SINPE). The seller confirms.',
     },
     {
-      step: "3",
-      title: "Receive Your Crypto",
+      step: '3',
+      title: 'Receive Your Crypto',
       description:
-        "Once both sides approve, the smart contract automatically releases the funds.",
+        'Once both sides approve, the smart contract automatically releases the funds.',
     },
   ];
 
   const supportedAssets = [
     {
-      symbol: "CRCX",
-      name: "Costa Rican Colón Token",
-      region: "Costa Rica",
-      paymentMethods: "SINPE",
-      color: "bg-green-500",
+      symbol: 'CRCX',
+      name: 'Costa Rican Colón Token',
+      region: 'Costa Rica',
+      paymentMethods: 'SINPE',
+      color: 'bg-green-500',
     },
     {
-      symbol: "MXNX",
-      name: "Mexican Peso Token",
-      region: "Mexico",
-      paymentMethods: "SPEI, OXXO (coming)",
-      color: "bg-red-500",
+      symbol: 'MXNX',
+      name: 'Mexican Peso Token',
+      region: 'Mexico',
+      paymentMethods: 'SPEI, OXXO (coming)',
+      color: 'bg-red-500',
     },
     {
-      symbol: "USDC",
-      name: "USD Coin",
-      region: "Global",
-      paymentMethods: "Varies",
-      color: "bg-emerald-600",
+      symbol: 'USDC',
+      name: 'USD Coin',
+      region: 'Global',
+      paymentMethods: 'Varies',
+      color: 'bg-emerald-600',
     },
   ];
 
   const techStack = [
     {
-      name: "Open Source",
-      description: "Modular frontend powering P2P listings and flows",
+      name: 'Open Source',
+      description: 'Modular frontend powering P2P listings and flows',
     },
     {
-      name: "Trustless Work",
-      description: "Stellar based escrow engine for stablecoins",
+      name: 'Trustless Work',
+      description: 'Stellar based escrow engine for stablecoins',
     },
     {
-      name: "Soroban",
+      name: 'Soroban',
       description:
-        "Stellar native smart contract platform, built to integrate seamlessly with the Stellar network",
+        'Stellar native smart contract platform, built to integrate seamlessly with the Stellar network',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background bg-pattern">
+    <div className="min-h-screen bg-emerald-pattern">
       {/* Header */}
       <header className="border-b border-white/40 border-glass-border glass-effect backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div>
-            <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
-              <Image
-                src="/logo.webp"
-                alt="Pacto Logo"
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
-              />
-            </div>              <p className="text-xs text-muted-foreground">
+              <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
+                <Image
+                  src="/logo.webp"
+                  alt="Pacto Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              </div>{' '}
+              <p className="text-xs text-muted-foreground">
                 P2P OTC for Stellar Stablecoins
               </p>
             </div>
@@ -146,11 +147,11 @@ export default function HomePage() {
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold mb-8 hero-title">
-            Trade Stablecoins for Local Fiat — With{" "}
+            Trade Stablecoins for Local Fiat — With{' '}
             <span className="text-emerald-400">Pacto</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto leading-relaxed hero-subtitle">
-            A decentralized OTC platform for Stellar stablecoins like{" "}
+            A decentralized OTC platform for Stellar stablecoins like{' '}
             <span className="text-emerald-400 font-semibold">
               CRCX, MXNX, and USDC
             </span>
@@ -237,7 +238,7 @@ export default function HomePage() {
         <div className="text-center">
           <p className="text-lg text-muted-foreground mb-2">
             🔗 Escrow logic is fully programmable, trustless, and on-chain —
-            powered by{" "}
+            powered by{' '}
             <span className="font-semibold text-emerald-400">
               Trustless Work
             </span>
@@ -410,14 +411,13 @@ export default function HomePage() {
                   className="w-full h-full object-cover"
                 />
               </div>
-                <p className="text-muted-foreground text-sm">
-                  Decentralized P2P OTC for Stellar stablecoins — built for
-                  LATAM. Open to the world.
-                </p>
-              </div>
+              <p className="text-muted-foreground text-sm">
+                Decentralized P2P OTC for Stellar stablecoins — built for LATAM.
+                Open to the world.
+              </p>
             </div>
-            <div>
           </div>
+          <div></div>
 
           <div className="grid md:grid-cols-4 gap-8">
             <div>

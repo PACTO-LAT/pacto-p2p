@@ -1,5 +1,6 @@
 'use client';
 
+import type { Escrow } from '@pacto-p2p/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type GetEscrowsFromIndexerByRoleParams,
@@ -13,7 +14,6 @@ import { toast } from 'sonner';
 import type { CreateEscrowData } from '@/lib/types';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
-import { Escrow } from '@pacto-p2p/types';
 
 interface UseEscrowsByRoleQueryParams
   extends GetEscrowsFromIndexerByRoleParams {

@@ -1,5 +1,35 @@
 # Pacto
 
+## Merchant UI (Mock)
+
+A polished mock Merchant UI with public profile, dashboard, and settings. No backend required.
+
+Setup:
+
+1. In `apps/web`, set environment flag:
+
+```
+NEXT_PUBLIC_USE_MOCK=1
+```
+
+2. Run the web app:
+
+```
+cd apps/web
+npm run dev
+```
+
+Routes:
+
+- Public profile: `/m/demo-merchant`
+- Merchant dashboard: `/merchant`
+- Merchant settings: `/merchant/settings`
+
+Notes:
+
+- All data served from local mock API under `/api/mock/*` and fetched via TanStack Query.
+- Swap to real APIs later by providing a real adapter in `apps/web/lib/adapters` and disabling the `NEXT_PUBLIC_USE_MOCK` flag.
+
 A decentralized OTC (Over-The-Counter) platform for Stellar stablecoins, enabling peer-to-peer trading of CRCX, MXNX, and USDC using regional payment rails like SINPE and SPEI.
 
 ## 🌟 Features

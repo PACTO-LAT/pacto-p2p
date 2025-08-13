@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { ArrowLeft, Wallet } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Wallet } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { useWallet } from "@/hooks/use-wallet";
+} from '@/components/ui/card';
+import { useWallet } from '@/hooks/use-wallet';
 
 export default function AuthPage() {
   const { handleConnect } = useWallet();
@@ -24,7 +24,7 @@ export default function AuthPage() {
     try {
       await handleConnect();
     } catch (error) {
-      console.error("Connection failed:", error);
+      console.error('Connection failed:', error);
     } finally {
       setIsConnecting(false);
     }
@@ -67,7 +67,7 @@ export default function AuthPage() {
             >
               <div className="flex items-center">
                 <Wallet className="w-5 h-5 mr-3" />
-                {isConnecting ? "Connecting..." : "Connect Wallet"}
+                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
               </div>
             </Button>
           </CardContent>

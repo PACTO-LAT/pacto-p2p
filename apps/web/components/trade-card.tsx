@@ -44,7 +44,7 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
         <div className="flex flex-col items-end gap-3">
           <StatusBadge status={trade.status} />
           <div className="text-right">
-                            <p className="text-sm text-muted-foreground">Total Value</p>
+            <p className="text-sm text-muted-foreground">Total Value</p>
             <p className="text-xl font-bold text-foreground">
               {formatCurrency(trade.amount * trade.rate, trade.fiatCurrency)}
             </p>
@@ -80,7 +80,7 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
     if (isEscrow(trade)) {
       return (
         <span className="text-sm text-muted-foreground">
-                      Created: {formatDate(trade.created)}
+          Created: {formatDate(trade.created)}
         </span>
       );
     }

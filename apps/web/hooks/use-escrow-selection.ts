@@ -1,5 +1,5 @@
-import { Escrow } from "@pacto-p2p/types";
-import { useEscrowContext } from "@/lib/contexts/escrow-context";
+import type { Escrow } from '@pacto-p2p/types';
+import { useEscrowContext } from '@/lib/contexts/escrow-context';
 
 export function useEscrowSelection() {
   const { selectedEscrow, setSelectedEscrow, clearSelectedEscrow } =

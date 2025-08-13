@@ -60,7 +60,7 @@ export function ReceiptDialog({
       <DialogContent className="glass-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-emerald-gradient">
-                            Upload Payment Receipt
+            Upload Payment Receipt
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Sube la prueba de tu pago fiat para continuar el proceso de escrow

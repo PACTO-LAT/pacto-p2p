@@ -18,9 +18,7 @@ export function EscrowStatusDisplay() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">
-            No escrow selected
-          </p>
+          <p className="text-muted-foreground text-sm">No escrow selected</p>
         </CardContent>
       </Card>
     );
@@ -31,7 +29,7 @@ export function EscrowStatusDisplay() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Shield className="w-5 h-5 text-emerald-400" />
-                      Selected Escrow Status
+          Selected Escrow Status
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">

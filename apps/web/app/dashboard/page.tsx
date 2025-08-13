@@ -112,9 +112,7 @@ export default function DashboardPage() {
 
           <TabsContent value="listings" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-white">
-                Active Listings
-              </h2>
+              <h2 className="text-2xl font-bold text-white">Active Listings</h2>
               <Link href="/dashboard/listings/create">
                 <Button className="btn-emerald">
                   <Plus className="w-4 h-4 mr-2" />
@@ -153,9 +151,9 @@ export default function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="history" className="space-y-6">
-                          <h2 className="text-2xl font-bold text-emerald-gradient">
-                Trade History
-              </h2>
+            <h2 className="text-2xl font-bold text-emerald-gradient">
+              Trade History
+            </h2>
             <Card className="card">
               <CardContent className="p-12 text-center">
                 <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 glow-emerald">

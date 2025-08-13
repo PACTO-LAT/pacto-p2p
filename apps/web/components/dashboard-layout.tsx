@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Home,
@@ -9,17 +9,17 @@ import {
   Shield,
   User,
   Wallet,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type React from "react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useWallet } from "@/hooks/use-wallet";
-import { cn } from "@/lib/utils";
-import useGlobalAuthenticationStore from "@/store/wallet.store";
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useWallet } from '@/hooks/use-wallet';
+import { cn } from '@/lib/utils';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,11 +32,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     useGlobalAuthenticationStore();
 
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Marketplace", href: "/dashboard/listings", icon: List },
-    { name: "Orders", href: "/dashboard/escrows", icon: Shield },
-    { name: "Profile", href: "/dashboard/profile", icon: User },
-    { name: "Admin", href: "/dashboard/admin", icon: Settings },
+    { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Marketplace', href: '/dashboard/listings', icon: List },
+    { name: 'Merchants', href: '/dashboard/merchants', icon: User },
+    { name: 'Orders', href: '/dashboard/escrows', icon: Shield },
+    { name: 'Profile', href: '/dashboard/profile', icon: User },
+    { name: 'Admin', href: '/dashboard/admin', icon: Settings },
   ];
 
   const NavItems = () => (
@@ -48,10 +49,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             key={item.name}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+              'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
               isActive
-                ? "bg-gradient-emerald text-white shadow-emerald-glow"
-                : "text-foreground/70 hover:text-foreground hover:bg-glass-hover nav-card"
+                ? 'bg-gradient-emerald text-white shadow-emerald-glow'
+                : 'text-foreground/70 hover:text-foreground hover:bg-glass-hover nav-card'
             )}
             onClick={() => setSidebarOpen(false)}
           >
@@ -65,7 +66,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { handleDisconnect } = useWallet();
 
   return (
-    <div className="min-h-screen bg-background bg-pattern">
+    <div className="min-h-screen">
       {/* Mobile sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <div className="lg:hidden">
@@ -153,7 +154,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <p className="text-sm font-semibold text-foreground truncate">
                     {address
                       ? `${address.slice(0, 6)}...${address.slice(-4)}`
-                      : "Not Connected"}
+                      : 'Not Connected'}
                   </p>
                   {isConnected && (
                     <div className="w-2 h-2 bg-emerald-500 rounded-full glow-emerald"></div>
@@ -206,9 +207,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="p-6 lg:p-8 bg-background min-h-screen">
-          {children}
-        </main>
+        <main className="p-6 lg:p-8 min-h-screen">{children}</main>
       </div>
     </div>
   );
