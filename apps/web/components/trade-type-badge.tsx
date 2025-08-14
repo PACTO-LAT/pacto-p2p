@@ -12,12 +12,12 @@ export function TradeTypeBadge({ type, className }: TradeTypeBadgeProps) {
       className={cn(
         'text-xs font-semibold px-3 py-1',
         type === 'sell'
-          ? 'glass-effect text-white border-white/30'
-          : 'glass-effect text-white border-white/30',
+          ? 'glass-effect text-black border-black/30'
+          : 'glass-effect text-black border-black/30',
         className
       )}
     >
-      {type === 'sell' ? 'VENDER' : 'COMPRAR'}
+      {type === 'sell' ? 'Sell' : 'Buy'}
     </Badge>
   );
 }

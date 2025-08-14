@@ -28,9 +28,9 @@ export default function MerchantDashboardPage() {
 
   if (me.data === null) {
     return (
-      <div className="container mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
-        <Card className="feature-card-dark rounded-2xl p-4 sm:p-6">
-          <div className="mb-2 text-lg font-semibold">
+      <div className="mx-auto space-y-8 p-4 sm:p-6">
+        <Card className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-4 sm:p-6">
+          <div className="mb-2 text-3xl font-bold text-foreground">
             Create Merchant Profile
           </div>
           <p className="mb-4 text-sm text-muted-foreground">
@@ -43,34 +43,56 @@ export default function MerchantDashboardPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
+    <div className="mx-auto space-y-8 p-4 sm:p-6">
       <div className="flex items-center justify-between">
-        <div className="text-xl font-semibold">Merchant</div>
+        <div className="text-4xl font-bold text-foreground">Merchant</div>
         <div className="flex gap-2">
-          <Link href={me.data ? `/m/${me.data.slug}` : '#'}>
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm">
-                Dashboard
-              </Button>
-            </Link>
-            <Link href="/dashboard/merchants">
-              <Button variant="ghost" size="sm">
-                Browse Merchants
-              </Button>
-            </Link>
-            <Button variant="outline" size="sm">
-              View Public Profile
+          <Link href="/dashboard">
+            <Button variant="ghost" size="sm">
+              Dashboard
             </Button>
           </Link>
+          <Link href="/dashboard/merchants">
+            <Button variant="ghost" size="sm">
+              Browse Merchants
+            </Button>
+          </Link>
+          {me.data && (
+            <Link href={`/m/${me.data.slug}`}>
+              <Button variant="outline" size="sm">
+                View Public Profile
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="create">Create Listing</TabsTrigger>
-          <TabsTrigger value="listings">My Listings</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1 grid w-full grid-cols-4">
+          <TabsTrigger
+            value="overview"
+            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="create"
+            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+          >
+            Create Listing
+          </TabsTrigger>
+          <TabsTrigger
+            value="listings"
+            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+          >
+            My Listings
+          </TabsTrigger>
+          <TabsTrigger
+            value="settings"
+            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+          >
+            Settings
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

@@ -3,7 +3,6 @@
 import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { DisputeDialog, ReceiptDialog } from '@/components/dashboard-dialogs';
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { TradeCard } from '@/components/trade-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -48,7 +47,6 @@ export default function DashboardPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -186,6 +184,5 @@ export default function DashboardPage() {
           onCreate={handleCreateDispute}
         />
       </div>
-    </DashboardLayout>
   );
 }

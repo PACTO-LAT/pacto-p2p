@@ -66,7 +66,7 @@ export function WalletInfo({
   }
 
   return (
-    <Card className={cn('feature-card-dark', className)}>
+    <Card className={cn('feature-card', className)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Wallet className="w-5 h-5 text-emerald-400" />

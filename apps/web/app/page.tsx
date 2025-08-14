@@ -103,9 +103,9 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-emerald-pattern">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-white/40 border-glass-border glass-effect backdrop-blur-md sticky top-0 z-50">
+      <header className="border-glass-border glass-effect backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div>
@@ -113,28 +113,20 @@ export default function HomePage() {
                 <Image
                   src="/logo.webp"
                   alt="Pacto Logo"
-                  width={40}
-                  height={40}
+                  width={100}
+                  height={100}
                   className="w-full h-full object-cover"
                 />
-              </div>{' '}
+              </div>
               <p className="text-xs text-muted-foreground">
                 P2P OTC for Stellar Stablecoins
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            {/* <ThemeToggle /> */}
+             {/* <ThemeToggle /> */}
             <Link href="/auth">
-              <Button
-                variant="outline"
-                className="glass-effect-light hover:bg-glass-hover text-foreground/80"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/dashboard">
-              <Button className="btn-primary">
+              <Button className="btn-primary text-accent">
                 Start Trading
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -164,7 +156,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link href="/dashboard">
-              <Button className="btn-primary text-lg px-8 py-3">
+              <Button className="btn-primary text-lg px-8 py-3 text-accent">
                 Start Trading
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -177,7 +169,7 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <Badge className="glass-effect text-zinc-200 border-glass-border text-base px-6 py-2">
+          <Badge className="glass-effect text-accent border-glass-border text-base px-6 py-2">
             Why Use Pacto?
           </Badge>
         </div>
@@ -217,6 +209,7 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {howItWorks.map((step, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <Card key={index} className="feature-card relative">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-gradient-emerald rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl shadow-emerald-glow">
@@ -336,7 +329,7 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-            <Button className="btn-primary text-lg px-8 py-3">
+            <Button className="btn-primary text-lg px-8 py-3 text-accent">
               👉 Join the Pacto Experience
             </Button>
           </CardContent>
@@ -353,6 +346,7 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-6 justify-items-center">
           {techStack.map((tech, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <Card key={index} className="feature-card">
               <CardContent className="p-6 text-center">
                 <h3 className="font-bold text-lg text-foreground mb-2">
@@ -379,7 +373,10 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/dashboard">
-              <Button size="lg" className="btn-primary text-lg px-8 py-4">
+              <Button
+                size="lg"
+                className="btn-primary text-lg px-8 py-4 text-accent"
+              >
                 Start Trading Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

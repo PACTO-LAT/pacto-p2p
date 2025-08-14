@@ -63,12 +63,12 @@ export function ReceiptDialog({
             Upload Payment Receipt
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Sube la prueba de tu pago fiat para continuar el proceso de escrow
+            Upload proof of your fiat payment to continue the escrow process.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="receipt">Archivo de Recibo</Label>
+            <Label htmlFor="receipt">Receipt File</Label>
             <Input
               id="receipt"
               type="file"
@@ -88,7 +88,7 @@ export function ReceiptDialog({
             disabled={!selectedFile}
             className="w-full btn-emerald"
           >
-            Subir Recibo
+            Upload Receipt
           </Button>
         </div>
       </DialogContent>
@@ -121,19 +121,19 @@ export function DisputeDialog({
       <DialogContent className="glass-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-emerald-gradient">
-            Crear Disputa
+            Create Dispute
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Si hay un problema con este trade, puedes crear una disputa para
-            resolución
+            If there is a problem with this trade, you can create a dispute for
+            resolution.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="reason">Razón de la Disputa</Label>
+            <Label htmlFor="reason">Reason for Dispute</Label>
             <Textarea
               id="reason"
-              placeholder="Describe el problema con este trade..."
+              placeholder="Describe the issue with this trade..."
               value={disputeReason}
               onChange={(e) => setDisputeReason(e.target.value)}
               rows={4}
@@ -145,7 +145,7 @@ export function DisputeDialog({
             disabled={!disputeReason.trim()}
             className="w-full bg-red-600 hover:bg-red-700 text-white border border-red-600 rounded-lg px-6 py-3 font-medium transition-all duration-300 hover:scale-105"
           >
-            Crear Disputa
+            Create Dispute
           </Button>
         </div>
       </DialogContent>

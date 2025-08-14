@@ -3,7 +3,6 @@
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletInfo } from '@/components/wallet-info';
@@ -15,7 +14,7 @@ import {
   ProfileStats,
   SecuritySettings,
 } from '@/components/profile';
-import { UserData } from '@/components/profile/types';
+import type { UserData } from '@/components/profile/types';
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -82,7 +81,6 @@ export default function ProfilePage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -105,7 +103,7 @@ export default function ProfilePage() {
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)}>
+              <Button onClick={() => setIsEditing(true)} variant="secondary">
                 <Settings className="w-4 h-4 mr-2" />
                 Edit Profile
               </Button>
@@ -185,6 +183,5 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
   );
 }

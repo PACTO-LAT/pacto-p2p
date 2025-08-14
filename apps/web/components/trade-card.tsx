@@ -58,7 +58,7 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
         <div className="flex flex-col items-end gap-3">
           <StatusBadge status={trade.status} />
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Progreso</p>
+            <p className="text-sm text-muted-foreground">Progress</p>
             <p className="text-xl font-bold text-foreground">
               {trade.progress}%
             </p>

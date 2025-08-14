@@ -3,7 +3,6 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { useCreateEscrow } from '@/hooks/use-escrows';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
@@ -13,7 +12,7 @@ import {
   MarketStats,
   TradeConfirmationDialog,
 } from '@/components/marketplace';
-import { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
+import type { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
 import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
 
 export default function ListingsPage() {
@@ -79,7 +78,6 @@ export default function ListingsPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -115,6 +113,5 @@ export default function ListingsPage() {
           isPending={isPending}
         />
       </div>
-    </DashboardLayout>
   );
 }

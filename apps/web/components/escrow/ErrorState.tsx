@@ -1,7 +1,6 @@
 'use client';
 
 import { AlertTriangle } from 'lucide-react';
-import { DashboardLayout } from '@/components/dashboard-layout';
 
 interface ErrorStateProps {
   error: Error | unknown;
@@ -9,7 +8,6 @@ interface ErrorStateProps {
 
 export function ErrorState({ error }: ErrorStateProps) {
   return (
-    <DashboardLayout>
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -21,6 +19,5 @@ export function ErrorState({ error }: ErrorStateProps) {
           </p>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

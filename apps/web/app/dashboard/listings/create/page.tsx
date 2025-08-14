@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -64,7 +63,6 @@ export default function CreateListingPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -360,6 +358,5 @@ export default function CreateListingPage() {
           </div>
         </form>
       </div>
-    </DashboardLayout>
   );
 }

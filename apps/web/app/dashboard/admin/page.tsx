@@ -2,7 +2,6 @@
 
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -69,7 +68,6 @@ export default function AdminPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -130,6 +128,5 @@ export default function AdminPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
   );
 }

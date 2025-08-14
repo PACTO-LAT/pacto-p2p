@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard-layout';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
@@ -16,7 +15,7 @@ import {
   ErrorState,
 } from '@/components/escrow';
 import type { Escrow } from '@pacto-p2p/types';
-import { ReportPaymentData } from '@/lib/types/escrow';
+import type { ReportPaymentData } from '@/lib/types/escrow';
 
 export default function EscrowsPage() {
   const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
@@ -93,7 +92,6 @@ export default function EscrowsPage() {
   }
 
   return (
-    <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
         <div>
@@ -172,6 +170,5 @@ export default function EscrowsPage() {
           isLoading={isReportPaymentLoading}
         />
       </div>
-    </DashboardLayout>
   );
 }

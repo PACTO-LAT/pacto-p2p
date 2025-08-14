@@ -23,11 +23,13 @@ export function MerchantSection() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-3">
+        <Link href="/dashboard/merchant">
+          <Button variant="default" className="text-accent">
+            Merchant Dashboard
+          </Button>
+        </Link>
         <Link href="/dashboard/merchants">
           <Button variant="outline">Browse Merchants</Button>
-        </Link>
-        <Link href="/merchant">
-          <Button>Merchant Dashboard</Button>
         </Link>
       </CardContent>
     </Card>
