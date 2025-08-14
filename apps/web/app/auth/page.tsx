@@ -31,7 +31,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-emerald-pattern flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-transparent to-emerald-100/30 dark:from-emerald-950/50 dark:via-transparent dark:to-emerald-900/30"></div>
 

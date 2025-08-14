@@ -4,8 +4,8 @@ import { ArrowRight, DollarSign, Globe, Lock, Rocket } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { TokenIcon } from '@/components/token-icon';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import WaitlistDialog from '@/components/marketing/WaitlistDialog';
 import {
   Card,
   CardContent,
@@ -155,23 +155,14 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/dashboard">
+            <Link href="/auth">
               <Button className="btn-primary text-lg px-8 py-3 text-accent">
                 Start Trading
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button
-              variant="outline"
-              className="btn-secondary text-lg px-8 py-3"
-            >
-              How Pacto Works
-            </Button>
+            <WaitlistDialog />
           </div>
-
-          <Badge className="glass-effect text-accent border-glass-border text-base px-6 py-2">
-            Why Use Pacto?
-          </Badge>
         </div>
       </section>
 
@@ -179,7 +170,7 @@ export default function HomePage() {
       <section className="container mx-auto px-6 py-20">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            // biome-ignore lint/suspicious/noArrayIndexKey: using index for static marketing list
             <Card key={index} className="feature-card">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -209,7 +200,7 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {howItWorks.map((step, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            // biome-ignore lint/suspicious/noArrayIndexKey: using index for static marketing list
             <Card key={index} className="feature-card relative">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-gradient-emerald rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl shadow-emerald-glow">
@@ -346,7 +337,7 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-6 justify-items-center">
           {techStack.map((tech, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            // biome-ignore lint/suspicious/noArrayIndexKey: using index for static marketing list
             <Card key={index} className="feature-card">
               <CardContent className="p-6 text-center">
                 <h3 className="font-bold text-lg text-foreground mb-2">
