@@ -2,8 +2,8 @@
 
 import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
 import Link from 'next/link';
-import { DisputeDialog, ReceiptDialog } from '@/components/dashboard-dialogs';
-import { TradeCard } from '@/components/trade-card';
+import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
+import { TradeCard } from '@/components/shared/TradeCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

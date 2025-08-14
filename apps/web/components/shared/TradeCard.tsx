@@ -1,9 +1,9 @@
-import { StatusBadge } from '@/components/status-badge';
-import { TokenIcon } from '@/components/token-icon';
-import { TradeActions } from '@/components/trade-actions';
-import { TradeInfo } from '@/components/trade-info';
-import { TradeProgress } from '@/components/trade-progress';
-import { TradeTypeBadge } from '@/components/trade-type-badge';
+import { StatusBadge } from '@/components/shared/StatusBadge';
+import { TokenIcon } from '@/components/shared/TokenIcon';
+import { TradeActions } from '@/components/shared/TradeActions';
+import { TradeInfo } from '@/components/shared/TradeInfo';
+import { TradeProgress } from '@/components/shared/TradeProgress';
+import { TradeTypeBadge } from '@/components/shared/TradeTypeBadge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   formatAmount,

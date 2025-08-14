@@ -4,7 +4,7 @@ import { Coins, Settings } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { TokenIcon } from '@/components/token-icon';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Token } from '@/lib/types/admin';
 
 interface TokenCardProps {

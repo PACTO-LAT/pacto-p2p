@@ -4,8 +4,8 @@ import { User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { TokenIcon } from '@/components/token-icon';
-import { TradeTypeBadge } from '@/components/trade-type-badge';
+import { TokenIcon } from '@/components/shared/TokenIcon';
+import { TradeTypeBadge } from '@/components/shared/TradeTypeBadge';
 import { formatAmount, formatDate } from '@/lib/dashboard-utils';
 import { MarketplaceListing } from '@/lib/types/marketplace';
 

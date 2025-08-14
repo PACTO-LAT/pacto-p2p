@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WalletInfo } from '@/components/wallet-info';
+import { WalletInfo } from '@/components/shared/WalletInfo';
 import {
   MerchantSection,
   NotificationSettings,

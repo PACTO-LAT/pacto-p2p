@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { TokenIcon } from '@/components/token-icon';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Token } from '@/lib/types/admin';
 
 interface BurnFormProps {

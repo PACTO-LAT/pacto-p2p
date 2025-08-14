@@ -3,7 +3,7 @@
 import { ArrowRight, DollarSign, Globe, Lock, Rocket } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TokenIcon } from '@/components/token-icon';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Button } from '@/components/ui/button';
 import WaitlistDialog from '@/components/marketing/WaitlistDialog';
 import {
@@ -320,9 +320,6 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-            <Button className="btn-primary text-lg px-8 py-3 text-accent">
-              👉 Join the Pacto Experience
-            </Button>
           </CardContent>
         </Card>
       </section>
@@ -363,7 +360,7 @@ export default function HomePage() {
             with complete trust and transparency.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
+            <Link href="/auth">
               <Button
                 size="lg"
                 className="btn-primary text-lg px-8 py-4 text-accent"
@@ -372,13 +369,13 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/listings">
+            <Link href="/auth">
               <Button
                 size="lg"
                 variant="outline"
                 className="btn-secondary text-lg px-8 py-4"
               >
-                📖 Browse Marketplace
+                📖 Browse Listings
               </Button>
             </Link>
           </div>
