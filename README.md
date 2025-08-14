@@ -1,4 +1,34 @@
-# Pacto DApp
+# Pacto
+
+## Merchant UI (Mock)
+
+A polished mock Merchant UI with public profile, dashboard, and settings. No backend required.
+
+Setup:
+
+1. In `apps/web`, set environment flag:
+
+```
+NEXT_PUBLIC_USE_MOCK=1
+```
+
+2. Run the web app:
+
+```
+cd apps/web
+npm run dev
+```
+
+Routes:
+
+- Public profile: `/m/demo-merchant`
+- Merchant dashboard: `/merchant`
+- Merchant settings: `/merchant/settings`
+
+Notes:
+
+- All data served from local mock API under `/api/mock/*` and fetched via TanStack Query.
+- Swap to real APIs later by providing a real adapter in `apps/web/lib/adapters` and disabling the `NEXT_PUBLIC_USE_MOCK` flag.
 
 A decentralized OTC (Over-The-Counter) platform for Stellar stablecoins, enabling peer-to-peer trading of CRCX, MXNX, and USDC using regional payment rails like SINPE and SPEI.
 
@@ -20,97 +50,6 @@ A decentralized OTC (Over-The-Counter) platform for Stellar stablecoins, enablin
 - **Wallet Integration**: Connect with Stellar wallets
 - **Real-time Updates**: Live status tracking for trades and escrows
 - **Dispute Resolution**: Built-in dispute system for trade conflicts
-
-## 🏗️ Architecture
-
-### Tech Stack
-- **Frontend**: Next.js 14 with App Router
-- **Styling**: Tailwind CSS with custom glass morphism design
-- **State Management**: Zustand for global state, React Query for server state
-- **Blockchain**: Stellar network with Trustless Work escrow contracts
-- **Backend**: Supabase for user management and data storage
-- **Authentication**: Stellar wallet-based authentication
-
-### Project Structure
-```
-pacto-dapp/
-├── app/                    # Next.js App Router pages
-│   ├── auth/              # Authentication pages
-│   ├── dashboard/         # Main dashboard and sub-pages
-│   └── globals.css        # Global styles
-├── components/            # Reusable UI components
-│   ├── ui/               # Base UI components (shadcn/ui)
-│   ├── trade-*.tsx       # Modular trade components
-│   └── dashboard-*.tsx   # Dashboard-specific components
-├── hooks/                # Custom React hooks
-│   ├── use-dialog.ts     # Dialog state management
-│   ├── use-form-state.ts # Form state with validation
-│   └── use-*.ts          # Feature-specific hooks
-├── lib/                  # Utilities and configurations
-│   ├── services/         # API service layer
-│   ├── contexts/         # React contexts
-│   ├── utils.ts          # Common utility functions
-│   ├── mock-data.ts      # Centralized mock data
-│   └── types.ts          # TypeScript type definitions
-├── providers/            # React providers
-├── store/                # Zustand stores
-└── utils/                # Additional utilities
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm, yarn, pnpm, or bun
-- Stellar wallet (Freighter, Albedo, etc.)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd pacto-dapp
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Configure the following variables:
-   ```env
-   # Supabase
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   
-   # Stellar Network (testnet/mainnet)
-   NEXT_PUBLIC_STELLAR_NETWORK=testnet
-   
-   # Trustless Work
-   NEXT_PUBLIC_ROLE_ADDRESS=your_platform_address
-   NEXT_PUBLIC_PLATFORM_FEE=0.01
-   ```
-
-4. **Run the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Usage
 
@@ -140,141 +79,165 @@ pacto-dapp/
    - Upload receipt
    - Wait for confirmation
 
+## 🏗️ Monorepo Structure
+
+```
+pacto-p2p/
+├── apps/
+│   └── web/                 # Next.js web application
+├── packages/
+│   ├── shared/             # Shared utilities and services
+│   ├── ui/                 # Reusable UI components
+│   ├── types/              # TypeScript type definitions
+│   └── config/             # Configuration and scripts
+├── package.json            # Root workspace configuration
+└── README.md              # This file
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm 9+
+
+### Installation
+
+```bash
+# Install all dependencies
+npm install
+
+# Build all packages
+npm run build
+
+# Start development server
+npm run dev
+```
+
+## 📦 Workspaces
+
+### Apps
+
+- **`apps/web`** - Main Next.js web application
+  - Dashboard, authentication, escrow management
+  - Stellar wallet integration
+  - Supabase backend integration
+
+### Packages
+
+- **`packages/shared`** - Common utilities and services
+  - Database services (Supabase)
+  - Stellar wallet utilities
+  - State management (Zustand)
+  - Validation schemas (Zod)
+
+- **`packages/ui`** - Reusable UI components
+  - Radix UI components
+  - Custom themed components
+  - Form components
+  - Layout components
+
+- **`packages/types`** - TypeScript type definitions
+  - Escrow types
+  - API response types
+  - Database schema types
+
+- **`packages/config`** - Configuration and scripts
+  - Database initialization scripts
+  - Environment configurations
+  - Build configurations
+
 ## 🛠️ Development
 
-### Code Quality Features
+### Available Scripts
 
-#### DRY (Don't Repeat Yourself)
-- **Centralized utilities**: Common functions in `lib/utils.ts`
-- **Custom hooks**: Reusable state management patterns
-- **Mock data**: Single source of truth in `lib/mock-data.ts`
-
-#### Modular Components
-- **Single responsibility**: Each component has one clear purpose
-- **Reusability**: Components can be used independently
-- **Composition**: Complex UIs built from simple components
-
-#### Type Safety
-- **TypeScript**: Full type coverage across the application
-- **Interface definitions**: Clear contracts for data structures
-- **Generic hooks**: Type-safe custom hooks with generics
-
-### Key Custom Hooks
-
-#### `useDialog<T>()`
-Manages dialog/modal state with type safety:
-```typescript
-const { dialogState, openDialog, closeDialog } = useDialog<Escrow>();
-```
-
-#### `useFormState<T>(initialState)`
-Comprehensive form management with validation:
-```typescript
-const { formState, updateField, validateField } = useFormState({
-  amount: '',
-  rate: '',
-  description: ''
-});
-```
-
-### Utility Functions
-
-#### Validation
-```typescript
-import { validateRequired, validateEmail, validateAmount } from '@/lib/utils';
-
-// Validate required fields
-const error = validateRequired(value, 'Field Name');
-
-// Validate email format
-const emailError = validateEmail(email);
-
-// Validate numeric amounts
-const amountError = validateAmount(amount);
-```
-
-#### Async Operations
-```typescript
-import { withLoading, handleAsyncError } from '@/lib/utils';
-
-// Handle loading states
-const result = await withLoading(
-  () => apiCall(),
-  setLoading
-);
-
-// Handle errors gracefully
-const errorMessage = handleAsyncError(error, 'Operation failed');
-```
-
-## 🧪 Testing
-
-### Running Tests
 ```bash
-npm run test
-# or
-yarn test
+# Development
+npm run dev              # Start web app in development mode
+npm run build            # Build all packages and apps
+npm run start            # Start web app in production mode
+
+# Code Quality
+npm run lint             # Lint all packages
+npm run biome:check      # Check code with Biome
+npm run biome:format     # Format code with Biome
+npm run biome:fix        # Fix code issues with Biome
+npm run type-check       # Type check all packages
+
+# Maintenance
+npm run clean            # Clean all build artifacts
 ```
 
-### Test Structure
-- **Unit tests**: Utility functions and hooks
-- **Component tests**: UI component behavior
-- **Integration tests**: End-to-end workflows
+### Adding New Packages
 
-## 📦 Deployment
+1. Create a new directory in `packages/`
+2. Add `package.json` with workspace dependencies
+3. Add TypeScript configuration
+4. Update root `package.json` workspaces if needed
 
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Configure environment variables
-3. Deploy automatically on push to main branch
+### Adding New Apps
 
-### Manual Deployment
+1. Create a new directory in `apps/`
+2. Add `package.json` with workspace dependencies
+3. Add necessary configuration files
+4. Update root `package.json` workspaces if needed
+
+## 🔧 Configuration
+
+### TypeScript
+
+- Root `tsconfig.json` provides base configuration
+- Each package extends the root config
+- Path mapping for workspace dependencies
+
+### Biome
+
+- Consistent code formatting and linting
+- Shared configuration across all packages
+- Automatic fixes and formatting
+
+### Workspace Dependencies
+
+Use `workspace:*` for internal dependencies:
+
+```json
+{
+  "dependencies": {
+    "@pacto-p2p/shared": "workspace:*",
+    "@pacto-p2p/ui": "workspace:*"
+  }
+}
+```
+
+## 🚀 Deployment
+
+### Web App
+
 ```bash
+# Build the web app
 npm run build
-npm start
+
+# Start production server
+npm run start
+```
+
+### Packages
+
+```bash
+# Build all packages
+npm run build
+
+# Publish packages (if needed)
+npm publish --workspace=@pacto-p2p/shared
 ```
 
 ## 🤝 Contributing
 
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Follow the established patterns:
-   - Use custom hooks for state management
-   - Leverage utility functions for common operations
-   - Maintain type safety with proper interfaces
-4. Commit your changes: `git commit -m 'Add amazing feature'`
-5. Push to the branch: `git push origin feature/amazing-feature`
-6. Open a Pull Request
+1. Create a feature branch
+2. Make changes in the appropriate workspace
+3. Run tests and linting
+4. Submit a pull request
 
-### Code Standards
-- **TypeScript**: All new code must be typed
-- **ESLint**: Follow the project's linting rules
-- **Prettier**: Maintain consistent code formatting
-- **Component patterns**: Follow established component structure
+## 📝 License
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-### Documentation
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Stellar Documentation](https://developers.stellar.org/)
-- [Trustless Work Documentation](https://docs.trustless.work/)
-
-### Community
-- **Discord**: Join our community for discussions
-- **GitHub Issues**: Report bugs and request features
-- **Discussions**: Ask questions and share ideas
-
-## 🔗 Links
-
-- **Live Demo**: [pacto-dapp.vercel.app](https://pacto-dapp.vercel.app)
-- **Documentation**: [docs.pacto-dapp.com](https://docs.pacto-dapp.com)
-- **API Reference**: [api.pacto-dapp.com](https://api.pacto-dapp.com)
-
----
-
-Built with ❤️ for the Stellar ecosystem
+This project is licensed under the MIT License.
