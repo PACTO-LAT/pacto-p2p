@@ -26,6 +26,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 
 const waitlistSchema = z.object({
@@ -96,7 +103,7 @@ export function WaitlistDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="btn-primary text-lg px-8 py-3 text-accent">
+        <Button className="btn-waitlist text-accent">
           Join the waitlist
         </Button>
       </DialogTrigger>
@@ -159,9 +166,17 @@ export function WaitlistDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your role (optional)" {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your role (optional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="merchant">Merchant</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -233,13 +248,14 @@ export function WaitlistDialog() {
               <Button
                 type="button"
                 variant="outline"
+                className="btn-waitlist text-accent !h-11 !py-1"
                 onClick={() => setOpen(false)}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="btn-primary"
+                className="btn-primary !h-11 !py-1"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? 'Submitting…' : 'Join waitlist'}
