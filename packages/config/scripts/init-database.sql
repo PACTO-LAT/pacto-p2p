@@ -83,3 +83,25 @@ INSERT INTO users (email, stellar_address, reputation_score, total_trades) VALUE
 ('bob@example.com', 'GDYYY9876543210FEDCBA', 4.9, 45),
 ('charlie@example.com', 'GDZZZ5555555555555555', 4.7, 12)
 ON CONFLICT (email) DO NOTHING;
+
+-- Create waitlist_submissions table for marketing waitlist + OTP verification
+CREATE TABLE IF NOT EXISTS waitlist_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  company TEXT,
+  role TEXT,
+  country TEXT,
+  source TEXT,
+  use_case TEXT,
+  notes TEXT,
+  otp VARCHAR(6),
+  otp_expires_at TIMESTAMP WITH TIME ZONE,
+  verified_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Helpful index to prune expired OTP lookups
+CREATE INDEX IF NOT EXISTS idx_waitlist_otp_expires
+  ON waitlist_submissions(otp_expires_at);
