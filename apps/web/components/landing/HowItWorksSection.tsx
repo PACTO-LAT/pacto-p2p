@@ -106,7 +106,7 @@ export function HowItWorksSection() {
             viewport={{ once: true, amount: 0.1 }}
             variants={shouldAnimate ? staggerContainer : {}}
           >
-            {howItWorks.map((step, index) => (
+            {howItWorks.map((step) => (
               <motion.div 
                 key={step.step} 
                 className="group relative"
@@ -144,7 +144,7 @@ export function HowItWorksSection() {
 
         {/* Mobile: Vertical Steps */}
         <div className="lg:hidden space-y-8">
-          {howItWorks.map((step, index) => (
+          {howItWorks.map((step) => (
             <div key={step.step} className="group relative">
               <div className="flex items-start gap-6">
                 {/* Enhanced Step Number */}
