@@ -29,7 +29,7 @@ export function Header() {
         <div className="flex items-center space-x-3">
           <Link href="/auth">
             <Button className="btn-primary text-accent">
-              Start Trading
+              Beta Access
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

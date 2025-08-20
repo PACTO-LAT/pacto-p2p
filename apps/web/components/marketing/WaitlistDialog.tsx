@@ -25,6 +25,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from '@/components/ui/input-otp';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -33,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 
 const waitlistSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -48,8 +54,16 @@ const waitlistSchema = z.object({
 
 type WaitlistFormValues = z.infer<typeof waitlistSchema>;
 
-export function WaitlistDialog() {
+type WaitlistDialogProps = {
+  triggerClassName?: string;
+  triggerText?: string;
+};
+
+export function WaitlistDialog({ triggerClassName, triggerText = 'Join the waitlist' }: WaitlistDialogProps) {
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<'form' | 'otp'>('form');
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const form = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
@@ -66,34 +80,55 @@ export function WaitlistDialog() {
 
   async function onSubmit(values: WaitlistFormValues) {
     try {
-      const { error } = await supabase.from('waitlist_submissions').insert([
-        {
-          name: values.name,
-          email: values.email,
-          company: values.company || null,
-          role: values.role || null,
-          country: values.country || null,
-          source: values.source || null,
-          use_case: values.use_case || null,
-          notes: values.notes || null,
-        },
-      ]);
-
-      if (error) {
+      const res = await fetch('/api/waitlist/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) {
         toast.error('Failed to join waitlist', {
-          description: error.message,
+          description: data?.error || 'Unknown error',
         });
         return;
       }
 
-      toast.success('You are on the waitlist!', {
-        description: 'We will reach out as soon as slots open up.',
+      setPendingEmail(values.email);
+      setStep('otp');
+      toast.success('Check your email for a verification code', {
+        description: 'Enter the 6-digit code to confirm your registration.',
       });
-      // Close dialog after a short delay so user can see the success message
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      toast.error('Unexpected error', { description: message });
+    }
+  }
+
+  async function onVerifyOtp() {
+    if (!pendingEmail || otp.length !== 6) return;
+    try {
+      const res = await fetch('/api/waitlist/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pendingEmail, otp }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error('Invalid or expired code', {
+          description: data?.error || 'Try again or request a new code.',
+        });
+        return;
+      }
+      toast.success('You are on the waitlist!', {
+        description: 'Verification complete. We’ll reach out as slots open up.',
+      });
       setTimeout(() => {
         setOpen(false);
+        setStep('form');
+        setOtp('');
+        setPendingEmail('');
         form.reset();
-      }, 1500);
+      }, 1200);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Unknown error';
       toast.error('Unexpected error', { description: message });
@@ -103,8 +138,8 @@ export function WaitlistDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="btn-waitlist text-accent">
-          Join the waitlist
+        <Button className={cn('btn-waitlist text-accent', triggerClassName)}>
+          {triggerText}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -114,8 +149,9 @@ export function WaitlistDialog() {
             Tell us a bit about you so we can prioritize access.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {step === 'form' ? (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -244,25 +280,69 @@ export function WaitlistDialog() {
                 </FormItem>
               )}
             />
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="btn-waitlist text-accent !h-11 !py-1"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="btn-primary !h-11 !py-1"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? 'Submitting…' : 'Join waitlist'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        ) : (
+          <div className="space-y-6">
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">We sent a 6-digit code to</div>
+              <div className="font-medium">{pendingEmail}</div>
+            </div>
+            <div className="flex justify-center">
+              <InputOTP maxLength={6} value={otp} onChange={setOtp} containerClassName="gap-2">
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                  <InputOTPSlot index={1} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                  <InputOTPSlot index={2} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                  <InputOTPSlot index={4} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                  <InputOTPSlot index={5} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 className="btn-waitlist text-accent !h-11 !py-1"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setStep('form');
+                  setOtp('');
+                }}
               >
-                Cancel
+                Back
               </Button>
               <Button
-                type="submit"
+                type="button"
                 className="btn-primary !h-11 !py-1"
-                disabled={form.formState.isSubmitting}
+                disabled={otp.length !== 6}
+                onClick={onVerifyOtp}
               >
-                {form.formState.isSubmitting ? 'Submitting…' : 'Join waitlist'}
+                Verify
               </Button>
             </DialogFooter>
-          </form>
-        </Form>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
