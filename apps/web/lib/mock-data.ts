@@ -52,7 +52,7 @@ export const mockEscrows: DashboardEscrow[] = [
   },
 ];
 
-// Mock marketplace listings
+//! Mock marketplace listings - @joel And @bran18
 export const mockMarketplaceListings: MarketplaceListing[] = [
   {
     id: 1,
@@ -62,8 +62,8 @@ export const mockMarketplaceListings: MarketplaceListing[] = [
     rate: 520.5,
     fiatCurrency: 'CRC',
     paymentMethod: 'SINPE',
-    seller: 'GBVLKFOEIK6A3CUOOH554ETKFTWHDF7TSPJAL4NU7PIB3NOQCEPTSXHO',
-    buyer: 'GBVLKFOEIK6A3CUOOH554ETKFTWHDF7TSPJAL4NU7PIB3NOQCEPTSXHO',
+    seller: 'GCNN2B23WJT5ZZ25FGK7M6N44SI3S7KUSM6J4GKEHMVN7VDYGC336XPN',
+    buyer: 'GCNN2B23WJT5ZZ25FGK7M6N44SI3S7KUSM6J4GKEHMVN7VDYGC336XPN',
     reputation: 4.8,
     trades: 23,
     created: '2024-01-15',

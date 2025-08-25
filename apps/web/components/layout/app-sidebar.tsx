@@ -37,9 +37,9 @@ import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Marketplace', href: '/dashboard/listings', icon: List },
-  { name: 'Merchants', href: '/dashboard/merchants', icon: Users },
+  { name: 'Listings', href: '/dashboard/listings', icon: List },
   { name: 'Orders', href: '/dashboard/escrows', icon: Shield },
+  { name: 'Merchants', href: '/dashboard/merchants', icon: Users },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
 ] as const;
 
