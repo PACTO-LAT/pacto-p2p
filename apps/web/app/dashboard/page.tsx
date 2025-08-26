@@ -98,7 +98,7 @@ export default function DashboardPage() {
               value="escrows"
               className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Active Escrows
+              Active Orders
             </TabsTrigger>
             <TabsTrigger
               value="history"

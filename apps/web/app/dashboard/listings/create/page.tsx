@@ -343,7 +343,7 @@ export default function CreateListingPage() {
 
           {/* Submit */}
           <div className="flex gap-4">
-            <Link href="/listings" className="flex-1">
+            <Link href="/dashboard/listings" className="flex-1">
               <Button variant="outline" className="w-full bg-transparent">
                 Cancel
               </Button>

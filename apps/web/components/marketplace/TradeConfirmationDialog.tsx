@@ -31,7 +31,7 @@ export function TradeConfirmationDialog({
       <DialogContent className="glass-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-emerald-gradient">
-            Initiate Trade
+            Offer Creation
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
             {selectedListing && (
