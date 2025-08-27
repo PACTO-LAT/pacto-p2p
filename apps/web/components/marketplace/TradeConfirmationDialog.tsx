@@ -77,7 +77,7 @@ export function TradeConfirmationDialog({
             <div className="p-6 border-r border-border/50 lg:col-span-2">
               {(selectedListing.description || getTerms().length > 0) && (
                 <h4 className="text-lg font-semibold text-foreground mb-4">
-                  Advertisers' Terms
+                  Advertisers&apos; Terms
                 </h4>
               )}
               
