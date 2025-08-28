@@ -69,6 +69,52 @@ export class AuthService {
     return data;
   }
 
+  static async getUserByWallet(stellarAddress: string): Promise<User | null> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('stellar_address', stellarAddress)
+      .single();
+
+    if (error) {
+      const e = error as unknown as {
+        code?: string;
+        details?: string;
+        message?: string;
+      };
+      if (e.code === 'PGRST116') return null;
+      // On some PostgREST versions, .single() without rows throws 406 / PGRST116
+      if (e.message?.includes('No rows found')) return null;
+      // If multiple rows, fall back to first
+      if (e.details?.includes('Results contain 0')) return null;
+    }
+    return (data as unknown as User) ?? null;
+  }
+
+  static async ensureUserProfileByWallet(
+    stellarAddress: string
+  ): Promise<User> {
+    // Try to find existing user by wallet
+    const existing = await this.getUserByWallet(stellarAddress);
+    if (existing) return existing;
+
+    // Create a minimal profile; email is synthetic for type compatibility
+    const syntheticEmail = `${stellarAddress}@wallet.local`;
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        email: syntheticEmail,
+        stellar_address: stellarAddress,
+        reputation_score: 0,
+        total_trades: 0,
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data as unknown as User;
+  }
+
   static async updateUserProfile(userId: string, updates: Partial<User>) {
     const { data, error } = await supabase
       .from('users')

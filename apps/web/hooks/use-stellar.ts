@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { StellarService } from '@/lib/services/stellar';
 import { useAuth } from './use-auth';
+import { AuthService } from '@/lib/services/auth';
 
 export function useStellar() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -17,6 +18,9 @@ export function useStellar() {
       // Update user profile with wallet address
       if (user) {
         await updateProfile({ stellar_address: address });
+      } else if (address) {
+        // Wallet-only flow: ensure a user exists in DB for this wallet
+        await AuthService.ensureUserProfileByWallet(address);
       }
 
       return address;

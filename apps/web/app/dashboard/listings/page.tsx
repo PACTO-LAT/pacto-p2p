@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useCreateEscrow } from '@/hooks/use-escrows';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+// import useGlobalAuthenticationStore from '@/store/wallet.store';
 import {
   ListingsTabs,
   MarketplaceFilters,
@@ -14,6 +14,7 @@ import {
 } from '@/components/marketplace';
 import type { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
 import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
+import { useMarketplaceListings } from '@/hooks/use-listings';
 
 export default function ListingsPage() {
   const [filters, setFilters] = useState<ListingFilters>({
@@ -23,33 +24,20 @@ export default function ListingsPage() {
   });
   const [selectedListing, setSelectedListing] = useState<MarketplaceListing | null>(null);
   const [open, setOpen] = useState(false);
-  const { address } = useGlobalAuthenticationStore();
+  // const { address } = useGlobalAuthenticationStore();
 
   const handleCloseModal = () => {
     setOpen(false);
     setSelectedListing(null);
   };
 
-  const { mutate, isPending } = useCreateEscrow(handleCloseModal);
+  const { data: listings = [], isLoading } = useMarketplaceListings({
+    token: filters.selectedToken === 'all' ? undefined : filters.selectedToken,
+    type: filters.selectedType === 'all' ? undefined : (filters.selectedType as 'buy' | 'sell'),
+    status: 'active',
+  });
 
-  const [listings] = useState<MarketplaceListing[]>([
-    {
-      id: 1,
-      type: 'sell',
-      token: 'CRCX',
-      amount: 5200,
-      rate: 1.05,
-      fiatCurrency: 'CRC',
-      paymentMethod: 'SINPE',
-      seller: address,
-      buyer: address,
-      reputation: 4.8,
-      trades: 23,
-      created: '2025-01-15',
-      status: 'active',
-      description: 'I need to buy CRCX',
-    },
-  ]);
+  const { mutate, isPending } = useCreateEscrow(handleCloseModal);
 
   const filteredListings = filterListings(listings, filters);
   const marketStats = getMarketStats(listings);
@@ -102,7 +90,11 @@ export default function ListingsPage() {
         <MarketStats stats={marketStats} />
 
         {/* Listings */}
-        <ListingsTabs listings={filteredListings} onTrade={handleTrade} />
+        {isLoading ? (
+          <div className="text-muted-foreground">Loading listings...</div>
+        ) : (
+          <ListingsTabs listings={filteredListings} onTrade={handleTrade} />
+        )}
 
         {/* Trade Confirmation Dialog */}
         <TradeConfirmationDialog
