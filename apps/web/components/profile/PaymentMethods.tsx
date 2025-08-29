@@ -13,8 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-
-import { PaymentMethodsData } from './types';
+import type { PaymentMethodsData } from './types';
 
 interface PaymentMethodsProps {
   paymentMethods: PaymentMethodsData;
@@ -22,10 +21,10 @@ interface PaymentMethodsProps {
   onPaymentMethodsChange: (data: PaymentMethodsData) => void;
 }
 
-export function PaymentMethods({ 
-  paymentMethods, 
-  isEditing, 
-  onPaymentMethodsChange 
+export function PaymentMethods({
+  paymentMethods,
+  isEditing,
+  onPaymentMethodsChange,
 }: PaymentMethodsProps) {
   return (
     <Card className="feature-card">
@@ -42,12 +41,21 @@ export function PaymentMethods({
         {/* SINPE Mobile */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-foreground">SINPE Mobile</h3>
-            <Badge variant="secondary" className="glass-effect-light">Costa Rica</Badge>
+            <h3 className="text-lg font-semibold text-foreground">
+              SINPE Mobile
+            </h3>
+            <Badge variant="secondary" className="glass-effect-light">
+              Costa Rica
+            </Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="sinpe_number" className="text-sm font-medium text-muted-foreground">Phone Number</Label>
+              <Label
+                htmlFor="sinpe_number"
+                className="text-sm font-medium text-muted-foreground"
+              >
+                Phone Number
+              </Label>
               <Input
                 id="sinpe_number"
                 type="tel"
@@ -67,7 +75,9 @@ export function PaymentMethods({
               </p>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Status
+              </Label>
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   <CheckCircle className="w-3 h-3 mr-1" />
@@ -80,89 +90,162 @@ export function PaymentMethods({
 
         <Separator />
 
-        {/* Bank Transfer */}
+        {/* Bank Transfer - Multiple Accounts */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-foreground">Bank Transfer</h3>
-            <Badge variant="secondary" className="glass-effect-light">International</Badge>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-foreground">
+                Bank Transfer
+              </h3>
+              <Badge variant="secondary" className="glass-effect-light">
+                International
+              </Badge>
+            </div>
+            {isEditing && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  onPaymentMethodsChange({
+                    ...paymentMethods,
+                    bank_accounts: [
+                      ...paymentMethods.bank_accounts,
+                      { bank_iban: '', bank_name: '', bank_account_holder: '' },
+                    ],
+                  })
+                }
+              >
+                Add bank account
+              </Button>
+            )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="bank_iban" className="text-sm font-medium text-muted-foreground">IBAN Number</Label>
-              <Input
-                id="bank_iban"
-                value={paymentMethods.bank_iban}
-                onChange={(e) =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    bank_iban: e.target.value,
-                  })
-                }
-                disabled={!isEditing}
-                placeholder="CR05015202001026284066"
-                className="font-mono glass-effect-light"
-              />
-              <p className="text-xs text-muted-foreground">
-                International IBAN code of your bank account
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="bank_name" className="text-sm font-medium text-muted-foreground">Bank Name</Label>
-              <Input
-                id="bank_name"
-                value={paymentMethods.bank_name}
-                onChange={(e) =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    bank_name: e.target.value,
-                  })
-                }
-                disabled={!isEditing}
-                placeholder="National Bank of Costa Rica"
-                className="glass-effect-light"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="bank_account_holder" className="text-sm font-medium text-muted-foreground">
-                Account Holder
-              </Label>
-              <Input
-                id="bank_account_holder"
-                value={paymentMethods.bank_account_holder}
-                onChange={(e) =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    bank_account_holder: e.target.value,
-                  })
-                }
-                disabled={!isEditing}
-                placeholder="John Doe"
-                className="glass-effect-light"
-              />
-              <p className="text-xs text-muted-foreground">
-                Must match exactly with the name on your bank account
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  Pending
-                </Badge>
-                <Button variant="link" size="sm" className="p-0 h-auto">
-                  Verify
-                </Button>
+
+          {paymentMethods.bank_accounts.map((acct, idx) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              key={idx}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-md p-4"
+            >
+              <div className="space-y-2">
+                <Label
+                  htmlFor={`bank_iban_${idx}`}
+                  className="text-sm font-medium text-muted-foreground"
+                >
+                  IBAN Number
+                </Label>
+                <Input
+                  id={`bank_iban_${idx}`}
+                  value={acct.bank_iban}
+                  onChange={(e) =>
+                    onPaymentMethodsChange({
+                      ...paymentMethods,
+                      bank_accounts: paymentMethods.bank_accounts.map((a, i) =>
+                        i === idx ? { ...a, bank_iban: e.target.value } : a
+                      ),
+                    })
+                  }
+                  disabled={!isEditing}
+                  placeholder="CR05015202001026284066"
+                  className="font-mono glass-effect-light"
+                />
+                <p className="text-xs text-muted-foreground">
+                  International IBAN code of your bank account
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor={`bank_name_${idx}`}
+                  className="text-sm font-medium text-muted-foreground"
+                >
+                  Bank Name
+                </Label>
+                <Input
+                  id={`bank_name_${idx}`}
+                  value={acct.bank_name}
+                  onChange={(e) =>
+                    onPaymentMethodsChange({
+                      ...paymentMethods,
+                      bank_accounts: paymentMethods.bank_accounts.map((a, i) =>
+                        i === idx ? { ...a, bank_name: e.target.value } : a
+                      ),
+                    })
+                  }
+                  disabled={!isEditing}
+                  placeholder="National Bank of Costa Rica"
+                  className="glass-effect-light"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor={`bank_holder_${idx}`}
+                  className="text-sm font-medium text-muted-foreground"
+                >
+                  Account Holder
+                </Label>
+                <Input
+                  id={`bank_holder_${idx}`}
+                  value={acct.bank_account_holder}
+                  onChange={(e) =>
+                    onPaymentMethodsChange({
+                      ...paymentMethods,
+                      bank_accounts: paymentMethods.bank_accounts.map((a, i) =>
+                        i === idx
+                          ? { ...a, bank_account_holder: e.target.value }
+                          : a
+                      ),
+                    })
+                  }
+                  disabled={!isEditing}
+                  placeholder="John Doe"
+                  className="glass-effect-light"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Must match exactly with the name on your bank account
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Status
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      Pending
+                    </Badge>
+                    <Button variant="link" size="sm" className="p-0 h-auto">
+                      Verify
+                    </Button>
+                  </div>
+                </div>
+                {isEditing && paymentMethods.bank_accounts.length > 1 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() =>
+                      onPaymentMethodsChange({
+                        ...paymentMethods,
+                        bank_accounts: paymentMethods.bank_accounts.filter(
+                          (_, i) => i !== idx
+                        ),
+                      })
+                    }
+                  >
+                    Remove
+                  </Button>
+                )}
               </div>
             </div>
-          </div>
+          ))}
         </div>
 
         <Separator />
 
         {/* Preferred Method */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">Preferred Method</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Preferred Method
+          </h3>
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <input
@@ -174,7 +257,9 @@ export function PaymentMethods({
                 onChange={(e) =>
                   onPaymentMethodsChange({
                     ...paymentMethods,
-                    preferred_method: e.target.value as 'sinpe' | 'bank_transfer',
+                    preferred_method: e.target.value as
+                      | 'sinpe'
+                      | 'bank_transfer',
                   })
                 }
                 disabled={!isEditing}
@@ -200,7 +285,9 @@ export function PaymentMethods({
                 onChange={(e) =>
                   onPaymentMethodsChange({
                     ...paymentMethods,
-                    preferred_method: e.target.value as 'sinpe' | 'bank_transfer',
+                    preferred_method: e.target.value as
+                      | 'sinpe'
+                      | 'bank_transfer',
                   })
                 }
                 disabled={!isEditing}
@@ -218,8 +305,7 @@ export function PaymentMethods({
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            This will be the payment method shown by default in your
-            listings
+            This will be the payment method shown by default in your listings
           </p>
         </div>
 
@@ -229,13 +315,8 @@ export function PaymentMethods({
             Important Information
           </h4>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-            <li>
-              • Verify that all information is correct before saving
-            </li>
-            <li>
-              • Payment methods must be in your name for greater
-              security
-            </li>
+            <li>• Verify that all information is correct before saving</li>
+            <li>• Payment methods must be in your name for greater security</li>
             <li>• SINPE Mobile is only available in Costa Rica</li>
             <li>• Bank transfers may take 1-3 days business days</li>
           </ul>

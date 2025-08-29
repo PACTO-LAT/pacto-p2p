@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { ArrowLeft, Calculator, Info } from 'lucide-react';
 import Link from 'next/link';
@@ -25,10 +25,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { useCreateListing } from '@/hooks/use-listings';
+import { useAuth } from '@/hooks/use-auth';
+import { toCreateListingData, type UIListingFormInput } from '@/lib/marketplace-utils';
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UIListingFormInput>({
     type: 'sell',
     token: '',
     amount: '',
@@ -40,16 +43,23 @@ export default function CreateListingPage() {
     description: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const createListing = useCreateListing();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsLoading(false);
-    router.push('/dashboard');
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const listingData = toCreateListingData(formData);
+      await createListing.mutateAsync({ userId: user.id, listingData });
+      router.push('/dashboard/listings');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -154,10 +164,7 @@ export default function CreateListingPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {TRUSTLINES.map((trustline) => (
-                        <SelectItem
-                          key={trustline.address}
-                          value={trustline.address}
-                        >
+                        <SelectItem key={trustline.address} value={trustline.name}>
                           {trustline.name}
                         </SelectItem>
                       ))}

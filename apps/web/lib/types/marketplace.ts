@@ -1,5 +1,5 @@
 export interface MarketplaceListing {
-  id: number;
+  id: string;
   type: 'sell' | 'buy';
   token: string;
   amount: number;

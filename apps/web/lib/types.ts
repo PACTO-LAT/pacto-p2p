@@ -13,6 +13,31 @@ export interface User {
   stellar_address?: string;
   reputation_score: number;
   total_trades: number;
+  total_volume?: number;
+  full_name?: string;
+  username?: string;
+  bio?: string;
+  avatar_url?: string;
+  phone?: string;
+  country?: string;
+  kyc_status?: 'pending' | 'verified' | 'rejected';
+  notifications?: {
+    email_trades: boolean;
+    email_escrows: boolean;
+    push_notifications: boolean;
+    sms_notifications: boolean;
+  };
+  security?: {
+    two_factor_enabled: boolean;
+    login_notifications: boolean;
+  };
+  payment_methods?: {
+    sinpe_number?: string;
+    bank_iban?: string;
+    bank_name?: string;
+    bank_account_holder?: string;
+    preferred_method?: 'sinpe' | 'bank_transfer';
+  };
   created_at: string;
   updated_at: string;
 }

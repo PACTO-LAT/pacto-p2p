@@ -23,7 +23,11 @@ interface ProfileInfoProps {
   onUserDataChange: (data: ProfileData) => void;
 }
 
-export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileInfoProps) {
+export function ProfileInfo({
+  userData,
+  isEditing,
+  onUserDataChange,
+}: ProfileInfoProps) {
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
       case 'verified':
@@ -65,9 +69,7 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
         {/* Avatar */}
         <div className="flex items-center gap-4">
           <Avatar className="w-20 h-20">
-            <AvatarImage
-              src={userData.avatar_url || '/placeholder.svg'}
-            />
+            <AvatarImage src={userData.avatar_url || '/placeholder.svg'} />
             <AvatarFallback className="text-lg">
               {userData.full_name
                 .split(' ')
@@ -85,7 +87,10 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="full_name" className="text-sm font-medium text-muted-foreground">
+            <Label
+              htmlFor="full_name"
+              className="text-sm font-medium text-muted-foreground"
+            >
               Full Name
             </Label>
             <Input
@@ -102,7 +107,10 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username" className="text-sm font-medium text-muted-foreground">
+            <Label
+              htmlFor="username"
+              className="text-sm font-medium text-muted-foreground"
+            >
               Username
             </Label>
             <Input
@@ -119,19 +127,31 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-muted-foreground">
+            <Label
+              htmlFor="email"
+              className="text-sm font-medium text-muted-foreground"
+            >
               Email
             </Label>
             <Input
               id="email"
               type="email"
               value={userData.email}
-              disabled
+              onChange={(e) =>
+                onUserDataChange({
+                  ...userData,
+                  email: e.target.value,
+                })
+              }
+              disabled={!isEditing}
               className="glass-effect-light"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground">
+            <Label
+              htmlFor="phone"
+              className="text-sm font-medium text-muted-foreground"
+            >
               Phone
             </Label>
             <Input
@@ -145,7 +165,10 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="country" className="text-sm font-medium text-muted-foreground">
+            <Label
+              htmlFor="country"
+              className="text-sm font-medium text-muted-foreground"
+            >
               Country
             </Label>
             <Input
@@ -162,15 +185,13 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-muted-foreground">KYC Status</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              KYC Status
+            </Label>
             <div className="flex items-center gap-2">
               {getKycStatusBadge()}
               {userData.kyc_status !== 'verified' && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="p-0 h-auto"
-                >
+                <Button variant="link" size="sm" className="p-0 h-auto">
                   Complete KYC
                 </Button>
               )}
@@ -179,7 +200,10 @@ export function ProfileInfo({ userData, isEditing, onUserDataChange }: ProfileIn
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="bio" className="text-sm font-medium text-muted-foreground">
+          <Label
+            htmlFor="bio"
+            className="text-sm font-medium text-muted-foreground"
+          >
             Biography
           </Label>
           <Textarea
