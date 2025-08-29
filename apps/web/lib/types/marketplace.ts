@@ -12,7 +12,13 @@ export interface MarketplaceListing {
   trades: number;
   created: string;
   status: string;
-  description: string;
+  description?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  terms?: Array<{
+    type: 'positive' | 'negative';
+    text: string;
+  }>;
 }
 
 export interface MarketStats {
