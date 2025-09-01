@@ -25,50 +25,18 @@ export default function ListingsPage() {
   const [selectedListing, setSelectedListing] = useState<MarketplaceListing | null>(null);
   const [open, setOpen] = useState(false);
   // const { address } = useGlobalAuthenticationStore();
-  const { mutate, isPending } = useCreateEscrow(handleCloseModal);
-
   const handleCloseModal = () => {
     setOpen(false);
     setSelectedListing(null);
   };
+
+  const { mutate, isPending } = useCreateEscrow(handleCloseModal);
 
   const { data: listings = [], isLoading } = useMarketplaceListings({
     token: filters.selectedToken === 'all' ? undefined : filters.selectedToken,
     type: filters.selectedType === 'all' ? undefined : (filters.selectedType as 'buy' | 'sell'),
     status: 'active',
   });
-
-  const [listings] = useState<MarketplaceListing[]>([
-    {
-      id: 1,
-      type: 'sell',
-      token: 'CRCX',
-      amount: 5200,
-      rate: 523.00,
-      fiatCurrency: 'CRC',
-      paymentMethod: 'SINPE Móvil, BAC Costa Rica, Transferencia Bancaria',
-      seller: address,
-      buyer: address,
-      reputation: 4.8,
-      trades: 23,
-      created: '2025-01-15',
-      status: 'active',
-      description: 'I need to buy CRCX',
-      minAmount: 100,
-      maxAmount: 5200,
-      terms: [
-        { type: 'positive', text: 'Gracias Por Comerciar conmigo, Un placer. 💯' },
-        { type: 'positive', text: 'Solo Cuentas Personales.' },
-        { type: 'negative', text: 'No Acepto Pagos de Terceros' },
-        { type: 'positive', text: 'Debes estar En Costa Rica para hacer el pago de Colones. Si estás en otro País, Tendrás que hacer una Verifica de Identidad. 🇨🇷' },
-        { type: 'negative', text: 'No Acepto Pagos, desde Fuera de CR.' },
-        { type: 'negative', text: 'NO PAGOS BCR' },
-        { type: 'negative', text: 'NO PAGOS PROMERICA.' },
-        { type: 'positive', text: 'Adjuntar Comprobante con Toda la Informacion Respectiva.' },
-        { type: 'negative', text: 'Toda Transferencia Maliciosa, Sera Reportada al BANCO o a PACTO segun Corresponda ❌' }
-      ],
-    },
-  ]);
 
   const filteredListings = filterListings(listings, filters);
   const marketStats = getMarketStats(listings);

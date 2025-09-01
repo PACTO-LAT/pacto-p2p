@@ -155,7 +155,7 @@ export default function DashboardPage() {
 
           <TabsContent value="escrows" className="space-y-6">
             <h2 className="text-2xl font-bold text-emerald-gradient">
-              Active Escrows
+              Active Orders
             </h2>
 
             <div className="grid gap-6">

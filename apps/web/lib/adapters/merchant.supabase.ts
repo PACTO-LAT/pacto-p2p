@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabase';
+import { AuthService } from '@/lib/services/auth';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 import type { MerchantAdapter } from '@/lib/adapters/merchant';
 import type {
   Merchant,
@@ -185,14 +187,13 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
   },
 
   async getMyMerchant(): Promise<Merchant | null> {
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
+    const userId = await resolveCurrentUserId();
     if (!userId) return null;
     const { data, error } = await supabase
       .from('merchants')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     if (error) {
       const e = error as unknown as { code?: string; details?: string; message?: string };
       if (e.code === 'PGRST116') return null;
@@ -204,15 +205,14 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
   },
 
   async upsertMyMerchantProfile(input) {
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
+    const userId = await resolveCurrentUserId();
     if (!userId) throw new Error('Not authenticated');
 
     const { data: existing } = await supabase
       .from('merchants')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     const desiredSlug = input.slug || input.display_name;
     const finalSlug = existing?.slug
@@ -255,15 +255,14 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
   },
 
   async createMerchantListing(payload) {
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
+    const userId = await resolveCurrentUserId();
     if (!userId) throw new Error('Not authenticated');
 
     const { data: merchant } = await supabase
       .from('merchants')
       .select('id')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     const insert = {
       type: payload.side,
@@ -303,8 +302,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
   },
 
   async getMyListings(): Promise<MerchantListing[]> {
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
+    const userId = await resolveCurrentUserId();
     if (!userId) return [];
 
     const { data, error } = await supabase
@@ -330,3 +328,25 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
     }));
   },
 };
+
+async function resolveCurrentUserId(): Promise<string | null> {
+  try {
+    const { data: auth } = await supabase.auth.getUser();
+    const authId = auth.user?.id;
+    if (authId) return authId;
+  } catch {
+    // ignore and try wallet fallback
+  }
+
+  try {
+    const { address, isConnected } = useGlobalAuthenticationStore.getState();
+    if (isConnected && address) {
+      const profile = await AuthService.ensureUserProfileByWallet(address);
+      return profile.id;
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
