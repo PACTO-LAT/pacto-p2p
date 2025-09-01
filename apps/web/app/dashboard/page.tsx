@@ -9,8 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDialog } from '@/hooks/use-dialog';
 import { useWallet } from '@/hooks/use-wallet';
-import { mockEscrows, mockListings } from '@/lib/mock-data';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
+import { useMarketplaceListings } from '@/hooks/use-listings';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export default function DashboardPage() {
@@ -18,8 +18,20 @@ export default function DashboardPage() {
   const { handleConnect } = useWallet();
   const { dialogState, openDialog, closeDialog } = useDialog<DashboardEscrow>();
 
-  const activeListings = mockListings;
-  const activeEscrows = mockEscrows;
+  const { data: marketplace = [], isLoading } = useMarketplaceListings({ status: 'active' });
+  const activeListings = marketplace.map(
+    (m): DashboardListing => ({
+      id: (m.id as unknown) as number,
+      type: m.type,
+      token: m.token,
+      amount: m.amount,
+      rate: m.rate,
+      fiatCurrency: m.fiatCurrency,
+      status: m.status,
+      created: m.created,
+    })
+  );
+  const activeEscrows: DashboardEscrow[] = [];
 
   const handleTradeAction = (
     trade: DashboardListing | DashboardEscrow,
@@ -47,7 +59,7 @@ export default function DashboardPage() {
   };
 
   return (
-      <div className="space-y-8">
+    <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -120,14 +132,24 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid gap-6">
-              {activeListings.map((listing) => (
-                <TradeCard
-                  key={listing.id}
-                  trade={listing}
-                  onAction={handleTradeAction}
-                  onOpenDialog={handleOpenDialog}
-                />
-              ))}
+              {isLoading ? (
+                <div className="text-muted-foreground">Loading...</div>
+              ) : activeListings.length === 0 ? (
+                <Card className="card">
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    No active listings
+                  </CardContent>
+                </Card>
+              ) : (
+                activeListings.map((listing) => (
+                  <TradeCard
+                    key={listing.id}
+                    trade={listing}
+                    onAction={handleTradeAction}
+                    onOpenDialog={handleOpenDialog}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
 
