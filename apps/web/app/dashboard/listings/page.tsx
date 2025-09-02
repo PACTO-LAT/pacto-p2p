@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -12,7 +12,10 @@ import {
   MarketStats,
   TradeConfirmationDialog,
 } from '@/components/marketplace';
-import type { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
+import type {
+  MarketplaceListing,
+  ListingFilters,
+} from '@/lib/types/marketplace';
 import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
 import { useMarketplaceListings } from '@/hooks/use-listings';
 
@@ -22,7 +25,8 @@ export default function ListingsPage() {
     selectedToken: 'all',
     selectedType: 'all',
   });
-  const [selectedListing, setSelectedListing] = useState<MarketplaceListing | null>(null);
+  const [selectedListing, setSelectedListing] =
+    useState<MarketplaceListing | null>(null);
   const [open, setOpen] = useState(false);
   // const { address } = useGlobalAuthenticationStore();
   const handleCloseModal = () => {
@@ -34,7 +38,10 @@ export default function ListingsPage() {
 
   const { data: listings = [], isLoading } = useMarketplaceListings({
     token: filters.selectedToken === 'all' ? undefined : filters.selectedToken,
-    type: filters.selectedType === 'all' ? undefined : (filters.selectedType as 'buy' | 'sell'),
+    type:
+      filters.selectedType === 'all'
+        ? undefined
+        : (filters.selectedType as 'buy' | 'sell'),
     status: 'active',
   });
 
@@ -56,7 +63,7 @@ export default function ListingsPage() {
         payment_method: selectedListing.paymentMethod,
       },
       amount: selectedListing.amount,
-      buyer_id: selectedListing.buyer, // todo: change it
+      buyer_id: selectedListing.buyer,
       seller_id: selectedListing.seller,
       token: selectedListing.token,
       fiat_amount: selectedListing.amount * selectedListing.rate,
@@ -65,44 +72,44 @@ export default function ListingsPage() {
   };
 
   return (
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-white">Marketplace</h1>
-            <p className="text-lg text-muted-foreground mt-2">
-              Browse and trade Stellar stablecoins
-            </p>
-          </div>
-          <Link href="/dashboard/listings/create">
-            <Button className="btn-emerald">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Listing
-            </Button>
-          </Link>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-white">Listings</h1>
+          <p className="text-lg text-muted-foreground mt-2">
+            Browse and trade stablecoins in stellar network
+          </p>
         </div>
-
-        {/* Filters */}
-        <MarketplaceFilters filters={filters} onFiltersChange={setFilters} />
-
-        {/* Market Stats */}
-        <MarketStats stats={marketStats} />
-
-        {/* Listings */}
-        {isLoading ? (
-          <div className="text-muted-foreground">Loading listings...</div>
-        ) : (
-          <ListingsTabs listings={filteredListings} onTrade={handleTrade} />
-        )}
-
-        {/* Trade Confirmation Dialog */}
-        <TradeConfirmationDialog
-          open={open}
-          onOpenChange={setOpen}
-          selectedListing={selectedListing}
-          onConfirm={confirmTrade}
-          isPending={isPending}
-        />
+        <Link href="/dashboard/listings/create">
+          <Button className="btn-emerald">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Listing
+          </Button>
+        </Link>
       </div>
+
+      {/* Market Stats */}
+      <MarketStats stats={marketStats} />
+
+      {/* Filters */}
+      <MarketplaceFilters filters={filters} onFiltersChange={setFilters} />
+
+      {/* Listings */}
+      {isLoading ? (
+        <div className="text-muted-foreground">Loading listings...</div>
+      ) : (
+        <ListingsTabs listings={filteredListings} onTrade={handleTrade} />
+      )}
+
+      {/* Trade Confirmation Dialog */}
+      <TradeConfirmationDialog
+        open={open}
+        onOpenChange={setOpen}
+        selectedListing={selectedListing}
+        onConfirm={confirmTrade}
+        isPending={isPending}
+      />
+    </div>
   );
 }

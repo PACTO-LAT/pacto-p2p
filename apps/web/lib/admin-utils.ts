@@ -1,4 +1,9 @@
-import { Token, Transaction, PlatformStats, MintFormData } from '@/lib/types/admin';
+import {
+  Token,
+  Transaction,
+  PlatformStats,
+  MintFormData,
+} from '@/lib/types/admin';
 
 export function getDefaultTokens(): Token[] {
   return [
@@ -81,18 +86,18 @@ export function getDefaultMintForm(): MintFormData {
 
 export function validateMintForm(formData: MintFormData): string[] {
   const errors: string[] = [];
-  
+
   if (!formData.token) {
     errors.push('Token is required');
   }
-  
+
   if (!formData.amount || parseFloat(formData.amount) <= 0) {
     errors.push('Amount must be greater than 0');
   }
-  
+
   if (!formData.recipient) {
     errors.push('Recipient address is required');
   }
-  
+
   return errors;
 }

@@ -21,7 +21,13 @@ import { useUpsertMerchantProfile } from '@/hooks/useMerchant';
 import type { Merchant } from '@/lib/types/merchant';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useWallet } from '@/hooks/use-wallet';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { useMemo, useState } from 'react';
@@ -52,8 +58,12 @@ export function MerchantProfileForm({
 }) {
   const { isConnected } = useGlobalAuthenticationStore();
   const { handleConnect } = useWallet();
-  const [avatarPreview, setAvatarPreview] = useState<string>(initial?.avatar_url || '');
-  const [bannerPreview, setBannerPreview] = useState<string>(initial?.banner_url || '');
+  const [avatarPreview, setAvatarPreview] = useState<string>(
+    initial?.avatar_url || ''
+  );
+  const [bannerPreview, setBannerPreview] = useState<string>(
+    initial?.banner_url || ''
+  );
   const form = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: {
@@ -109,7 +119,8 @@ export function MerchantProfileForm({
           <div>
             <div className="font-medium">Wallet not connected</div>
             <div className="text-xs text-muted-foreground">
-              Connect your Stellar wallet to create or update your merchant profile.
+              Connect your Stellar wallet to create or update your merchant
+              profile.
             </div>
           </div>
           <Button type="button" variant="default" onClick={handleConnect}>
@@ -128,10 +139,16 @@ export function MerchantProfileForm({
             <div className="flex items-center gap-3">
               <div className="size-16 overflow-hidden rounded-md border relative">
                 {avatarPreview ? (
-                  <Image src={avatarPreview} alt="Avatar preview" fill sizes="64px" className="object-cover" />
+                  <Image
+                    src={avatarPreview}
+                    alt="Avatar preview"
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
                 ) : (
-                  <div className="h-full w-full bg-muted" />)
-                }
+                  <div className="h-full w-full bg-muted" />
+                )}
               </div>
               <input
                 type="file"
@@ -145,7 +162,9 @@ export function MerchantProfileForm({
                       .from('merchant-media')
                       .upload(path, file, { upsert: true });
                     if (error) throw error;
-                    const { data } = supabase.storage.from('merchant-media').getPublicUrl(path);
+                    const { data } = supabase.storage
+                      .from('merchant-media')
+                      .getPublicUrl(path);
                     form.setValue('avatar_url', data.publicUrl);
                     setAvatarPreview(data.publicUrl);
                     toast.success('Avatar uploaded');
@@ -177,10 +196,16 @@ export function MerchantProfileForm({
             <div className="flex items-center gap-3">
               <div className="h-20 w-64 overflow-hidden rounded-md border relative">
                 {bannerPreview ? (
-                  <Image src={bannerPreview} alt="Banner preview" fill sizes="256px" className="object-cover" />
+                  <Image
+                    src={bannerPreview}
+                    alt="Banner preview"
+                    fill
+                    sizes="256px"
+                    className="object-cover"
+                  />
                 ) : (
-                  <div className="h-full w-full bg-muted" />)
-                }
+                  <div className="h-full w-full bg-muted" />
+                )}
               </div>
               <input
                 type="file"
@@ -194,7 +219,9 @@ export function MerchantProfileForm({
                       .from('merchant-media')
                       .upload(path, file, { upsert: true });
                     if (error) throw error;
-                    const { data } = supabase.storage.from('merchant-media').getPublicUrl(path);
+                    const { data } = supabase.storage
+                      .from('merchant-media')
+                      .getPublicUrl(path);
                     form.setValue('banner_url', data.publicUrl);
                     setBannerPreview(data.publicUrl);
                     toast.success('Banner uploaded');
@@ -421,7 +448,13 @@ function TagsInput({
   placeholder?: string;
 }) {
   const tags = useMemo(
-    () => (value ? value.split(',').map((t) => t.trim()).filter(Boolean) : []),
+    () =>
+      value
+        ? value
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [],
     [value]
   );
 
@@ -439,7 +472,10 @@ function TagsInput({
     <div>
       <div className="flex flex-wrap gap-2">
         {tags.map((t) => (
-          <span key={t} className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs">
+          <span
+            key={t}
+            className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs"
+          >
             {t}
             <button
               type="button"

@@ -53,11 +53,19 @@ export class ListingsService {
     userId: string,
     listingData: CreateListingData
   ): Promise<DbListing> {
+    // Resolve merchant for this user to set merchant_id
+    const { data: merchant } = await supabase
+      .from('merchants')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
     const { data, error } = await supabase
       .from('listings')
       .insert({
         ...listingData,
         user_id: userId,
+        merchant_id: merchant?.id ?? null,
       })
       .select(
         `

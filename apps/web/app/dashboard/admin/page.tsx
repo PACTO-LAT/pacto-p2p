@@ -30,7 +30,7 @@ export default function AdminPage() {
 
   const handleMint = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const errors = validateMintForm(mintForm);
     if (errors.length > 0) {
       console.error('Validation errors:', errors);
@@ -68,65 +68,65 @@ export default function AdminPage() {
   };
 
   return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Admin Panel</h1>
-            <p className="text-gray-600">
-              Manage stablecoins and platform operations
-            </p>
-          </div>
-          <Badge
-            variant="outline"
-            className="bg-red-50 text-red-700 border-red-200"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Admin Access
-          </Badge>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Admin Panel</h1>
+          <p className="text-gray-600">
+            Manage stablecoins and platform operations
+          </p>
         </div>
-
-        {/* Platform Stats */}
-        <PlatformStats stats={platformStats} />
-
-        {/* Main Admin Tabs */}
-        <Tabs defaultValue="tokens" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="tokens">Token Management</TabsTrigger>
-            <TabsTrigger value="mint">Mint/Burn</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="tokens">
-            <TokenManagement
-              tokens={tokens}
-              onAddToken={handleAddToken}
-              onTokenSettings={handleTokenSettings}
-              onTokenMint={handleTokenMint}
-            />
-          </TabsContent>
-
-          <TabsContent value="mint">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MintForm
-                formData={mintForm}
-                onFormChange={setMintForm}
-                onSubmit={handleMint}
-                isLoading={isLoading}
-              />
-              <BurnForm tokens={tokens} onBurn={handleBurn} />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="transactions">
-            <TransactionList transactions={recentTransactions} />
-          </TabsContent>
-
-          <TabsContent value="users">
-            <UserManagement />
-          </TabsContent>
-        </Tabs>
+        <Badge
+          variant="outline"
+          className="bg-red-50 text-red-700 border-red-200"
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Admin Access
+        </Badge>
       </div>
+
+      {/* Platform Stats */}
+      <PlatformStats stats={platformStats} />
+
+      {/* Main Admin Tabs */}
+      <Tabs defaultValue="tokens" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="tokens">Token Management</TabsTrigger>
+          <TabsTrigger value="mint">Mint/Burn</TabsTrigger>
+          <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          <TabsTrigger value="users">User Management</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tokens">
+          <TokenManagement
+            tokens={tokens}
+            onAddToken={handleAddToken}
+            onTokenSettings={handleTokenSettings}
+            onTokenMint={handleTokenMint}
+          />
+        </TabsContent>
+
+        <TabsContent value="mint">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <MintForm
+              formData={mintForm}
+              onFormChange={setMintForm}
+              onSubmit={handleMint}
+              isLoading={isLoading}
+            />
+            <BurnForm tokens={tokens} onBurn={handleBurn} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="transactions">
+          <TransactionList transactions={recentTransactions} />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

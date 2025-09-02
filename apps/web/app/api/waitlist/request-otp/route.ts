@@ -29,14 +29,21 @@ export async function POST(req: Request) {
     }
 
     if (!existing) {
-      return NextResponse.json({ error: 'Email not found. Please join the waitlist.' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Email not found. Please join the waitlist.' },
+        { status: 404 }
+      );
     }
 
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
     const { error: updateError } = await supabase
       .from('waitlist_submissions')
-      .update({ otp, otp_expires_at: expiresAt.toISOString(), updated_at: new Date().toISOString() })
+      .update({
+        otp,
+        otp_expires_at: expiresAt.toISOString(),
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', existing.id);
 
     if (updateError) {
@@ -45,7 +52,11 @@ export async function POST(req: Request) {
 
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ ok: true, notice: 'Email not sent: RESEND_API_KEY not configured', otpSent: false });
+      return NextResponse.json({
+        ok: true,
+        notice: 'Email not sent: RESEND_API_KEY not configured',
+        otpSent: false,
+      });
     }
 
     const resend = new Resend(apiKey);
@@ -62,5 +73,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
-
-

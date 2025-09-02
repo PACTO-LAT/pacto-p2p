@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ListingsService } from '@/lib/services/listings';
@@ -13,7 +13,7 @@ export function useListings(filters?: {
   status?: string;
 }) {
   return useQuery({
-    queryKey: ["listings", filters],
+    queryKey: ['listings', filters],
     queryFn: () => ListingsService.getListings(filters),
   });
 }
@@ -24,7 +24,7 @@ export function useMarketplaceListings(filters?: {
   status?: string;
 }) {
   return useQuery<MarketplaceListing[]>({
-    queryKey: ["marketplace-listings", filters],
+    queryKey: ['marketplace-listings', filters],
     queryFn: async () => {
       const rows = await ListingsService.getListings(filters);
       return (rows as DbListing[]).map(mapDbListingToMarketplace);
@@ -34,7 +34,7 @@ export function useMarketplaceListings(filters?: {
 
 export function useUserListings(userId?: string) {
   return useQuery({
-    queryKey: ["user-listings", userId],
+    queryKey: ['user-listings', userId],
     queryFn: () =>
       userId ? ListingsService.getUserListings(userId) : Promise.resolve([]),
     enabled: !!userId,
@@ -53,9 +53,9 @@ export function useCreateListing() {
       listingData: CreateListingData;
     }) => ListingsService.createListing(userId, listingData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
-      queryClient.invalidateQueries({ queryKey: ["user-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["marketplace-listings"] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: ['user-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
     },
   });
 }
@@ -72,9 +72,9 @@ export function useUpdateListing() {
       updates: Partial<DbListing>;
     }) => ListingsService.updateListing(listingId, updates),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
-      queryClient.invalidateQueries({ queryKey: ["user-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["marketplace-listings"] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: ['user-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
     },
   });
 }
@@ -85,9 +85,9 @@ export function useDeleteListing() {
   return useMutation({
     mutationFn: (listingId: string) => ListingsService.deleteListing(listingId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
-      queryClient.invalidateQueries({ queryKey: ["user-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["marketplace-listings"] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: ['user-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
     },
   });
 }

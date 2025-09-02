@@ -20,10 +20,12 @@ import type { ReportPaymentData } from '@/lib/types/escrow';
 export default function EscrowsPage() {
   const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
   const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
-  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] = useState(false);
-  
+  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
+    useState(false);
+
   const { address } = useGlobalAuthenticationStore();
-  const { selectedEscrow, selectEscrow, clearSelectedEscrow } = useEscrowSelection();
+  const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
+    useEscrowSelection();
   const {
     isReportPaymentLoading,
     handleReportPayment,
@@ -92,83 +94,83 @@ export default function EscrowsPage() {
   }
 
   return (
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold text-white">Orders</h1>
-          <p className="text-lg text-muted-foreground mt-2">
-            Monitor and manage your active escrow contracts
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-4xl font-bold text-white">Orders</h1>
+        <p className="text-lg text-muted-foreground mt-2">
+          Monitor and manage your active escrow contracts
+        </p>
+      </div>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller')}
-          className="space-y-6"
-        >
-          <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1">
-            <TabsTrigger
-              value="buyer"
-              className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-            >
-              Buyer
-            </TabsTrigger>
-            <TabsTrigger
-              value="seller"
-              className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-            >
-              Seller
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller')}
+        className="space-y-6"
+      >
+        <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1">
+          <TabsTrigger
+            value="buyer"
+            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+          >
+            Buyer
+          </TabsTrigger>
+          <TabsTrigger
+            value="seller"
+            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+          >
+            Seller
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-        {/* Escrows List */}
-        <div className="space-y-6">
-          {escrows.length === 0 ? (
-            <EmptyState />
-          ) : (
-            escrows.map((escrow) => (
-              <EscrowCard
-                key={escrow.engagementId}
-                escrow={escrow}
-                onClick={openEscrowModal}
-              />
-            ))
-          )}
-        </div>
+      {/* Escrows List */}
+      <div className="space-y-6">
+        {escrows.length === 0 ? (
+          <EmptyState />
+        ) : (
+          escrows.map((escrow) => (
+            <EscrowCard
+              key={escrow.engagementId}
+              escrow={escrow}
+              onClick={openEscrowModal}
+            />
+          ))
+        )}
+      </div>
 
-        {/* Escrow Details Modal */}
-        <EscrowDetailsModal
-          open={isEscrowModalOpen}
-          onOpenChange={(open) => {
-            setIsEscrowModalOpen(open);
+      {/* Escrow Details Modal */}
+      <EscrowDetailsModal
+        open={isEscrowModalOpen}
+        onOpenChange={(open) => {
+          setIsEscrowModalOpen(open);
+          if (!open) {
+            clearSelectedEscrow();
+          }
+        }}
+        escrow={selectedEscrow}
+        activeTab={activeTab}
+        onReportPayment={onReportPayment}
+        onConfirmPayment={onConfirmPayment}
+        onDeposit={onDeposit}
+        onDisputeEscrow={onDisputeEscrow}
+        onReleaseFunds={onReleaseFunds}
+      />
+
+      {/* Report Payment Modal */}
+      <ReportPaymentModal
+        open={isReportPaymentModalOpen}
+        onOpenChange={(open) => {
+          if (!isReportPaymentLoading) {
+            setIsReportPaymentModalOpen(open);
             if (!open) {
               clearSelectedEscrow();
             }
-          }}
-          escrow={selectedEscrow}
-          activeTab={activeTab}
-          onReportPayment={onReportPayment}
-          onConfirmPayment={onConfirmPayment}
-          onDeposit={onDeposit}
-          onDisputeEscrow={onDisputeEscrow}
-          onReleaseFunds={onReleaseFunds}
-        />
-
-        {/* Report Payment Modal */}
-        <ReportPaymentModal
-          open={isReportPaymentModalOpen}
-          onOpenChange={(open) => {
-            if (!isReportPaymentLoading) {
-              setIsReportPaymentModalOpen(open);
-              if (!open) {
-                clearSelectedEscrow();
-              }
-            }
-          }}
-          onSubmit={onSubmitReportPayment}
-          isLoading={isReportPaymentLoading}
-        />
-      </div>
+          }
+        }}
+        onSubmit={onSubmitReportPayment}
+        isLoading={isReportPaymentLoading}
+      />
+    </div>
   );
 }

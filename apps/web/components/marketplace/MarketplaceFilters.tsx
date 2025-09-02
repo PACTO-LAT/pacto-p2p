@@ -17,7 +17,10 @@ interface MarketplaceFiltersProps {
   onFiltersChange: (filters: ListingFilters) => void;
 }
 
-export function MarketplaceFilters({ filters, onFiltersChange }: MarketplaceFiltersProps) {
+export function MarketplaceFilters({
+  filters,
+  onFiltersChange,
+}: MarketplaceFiltersProps) {
   const handleSearchChange = (searchTerm: string) => {
     onFiltersChange({ ...filters, searchTerm });
   };
@@ -36,7 +39,7 @@ export function MarketplaceFilters({ filters, onFiltersChange }: MarketplaceFilt
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search by token or currency..."
                 value={filters.searchTerm}
@@ -45,7 +48,10 @@ export function MarketplaceFilters({ filters, onFiltersChange }: MarketplaceFilt
               />
             </div>
           </div>
-          <Select value={filters.selectedToken} onValueChange={handleTokenChange}>
+          <Select
+            value={filters.selectedToken}
+            onValueChange={handleTokenChange}
+          >
             <SelectTrigger className="w-full sm:w-40 input-glass">
               <SelectValue placeholder="Token" />
             </SelectTrigger>

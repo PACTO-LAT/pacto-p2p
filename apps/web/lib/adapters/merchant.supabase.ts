@@ -46,12 +46,16 @@ function mapRowToMerchant(row: MerchantRow): Merchant {
     slug: row.slug ?? '',
     display_name: row.display_name,
     is_public: row.is_public ?? true,
-    verification_status: toVerificationStatus(row.verification_status ?? 'pending'),
+    verification_status: toVerificationStatus(
+      row.verification_status ?? 'pending'
+    ),
     bio: row.bio ?? undefined,
     avatar_url: row.avatar_url ?? undefined,
     banner_url: row.banner_url ?? undefined,
     location: row.location ?? undefined,
-    languages: Array.isArray(row.languages) ? (row.languages as string[]) : undefined,
+    languages: Array.isArray(row.languages)
+      ? (row.languages as string[])
+      : undefined,
     socials: (row.socials as Merchant['socials']) ?? undefined,
     rating: Number(row.rating ?? 0),
     total_trades: Number(row.total_trades ?? 0),
@@ -103,7 +107,11 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .eq('is_public', true)
       .single();
     if (error) {
-      const e = error as unknown as { code?: string; details?: string; message?: string };
+      const e = error as unknown as {
+        code?: string;
+        details?: string;
+        message?: string;
+      };
       if (e.code === 'PGRST116') return null;
       if (e.details?.includes('Results contain 0')) return null;
       if (e.message?.includes('No rows')) return null;
@@ -195,7 +203,11 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .eq('user_id', userId)
       .maybeSingle();
     if (error) {
-      const e = error as unknown as { code?: string; details?: string; message?: string };
+      const e = error as unknown as {
+        code?: string;
+        details?: string;
+        message?: string;
+      };
       if (e.code === 'PGRST116') return null;
       if (e.details?.includes('Results contain 0')) return null;
       if (e.message?.includes('No rows')) return null;
@@ -218,8 +230,8 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
     const finalSlug = existing?.slug
       ? existing.slug
       : desiredSlug
-      ? await ensureUniqueSlug(desiredSlug)
-      : null;
+        ? await ensureUniqueSlug(desiredSlug)
+        : null;
 
     const payload = {
       user_id: userId,

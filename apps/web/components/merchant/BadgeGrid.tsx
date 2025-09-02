@@ -23,7 +23,9 @@ export function BadgeGrid({ badges }: { badges: MerchantBadge[] }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Card className="feature-card-dark rounded-2xl p-4 transition-transform hover:scale-[1.01]">
-                  <div className="text-sm font-medium text-foreground">{b.title}</div>
+                  <div className="text-sm font-medium text-foreground">
+                    {b.title}
+                  </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {b.code}
                   </div>

@@ -17,5 +17,3 @@ export interface DbListing {
   updated_at: string;
   user?: User | null;
 }
-
-

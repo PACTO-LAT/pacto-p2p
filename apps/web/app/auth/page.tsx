@@ -45,7 +45,9 @@ export default function AuthPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error('Invalid code', { description: data?.error || 'Try again.' });
+        toast.error('Invalid code', {
+          description: data?.error || 'Try again.',
+        });
         return;
       }
       toast.success('Access verified');
@@ -95,10 +97,17 @@ export default function AuthPage() {
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <div className="flex gap-3 items-stretch">
-                  <Button className="btn-emerald flex-1 !h-12" onClick={verifyCode} disabled={!code}>
+                  <Button
+                    className="btn-emerald flex-1 !h-12"
+                    onClick={verifyCode}
+                    disabled={!code}
+                  >
                     Verify Code
                   </Button>
-                  <WaitlistDialog triggerText="Join waitlist" triggerClassName="flex-1 !h-11" />
+                  <WaitlistDialog
+                    triggerText="Join waitlist"
+                    triggerClassName="flex-1 !h-11"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -113,7 +122,8 @@ export default function AuthPage() {
                 Connect Your Wallet
               </CardTitle>
               <CardDescription className="text-muted-foreground text-base">
-                Connect your Stellar wallet to start trading stablecoins securely
+                Connect your Stellar wallet to start trading stablecoins
+                securely
               </CardDescription>
             </CardHeader>
             <CardContent className="pb-8">

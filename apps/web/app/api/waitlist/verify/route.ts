@@ -27,7 +27,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid code' }, { status: 400 });
     }
 
-    const expiresAt = data.otp_expires_at ? new Date(data.otp_expires_at as unknown as string) : null;
+    const expiresAt = data.otp_expires_at
+      ? new Date(data.otp_expires_at as unknown as string)
+      : null;
     if (!expiresAt || expiresAt.getTime() < Date.now()) {
       return NextResponse.json({ error: 'Code expired' }, { status: 400 });
     }
@@ -52,5 +54,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
-
-

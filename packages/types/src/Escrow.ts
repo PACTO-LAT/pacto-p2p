@@ -4,7 +4,7 @@ import {
   Roles,
   SingleReleaseMilestone,
   Trustline,
-} from "@trustless-work/escrow";
+} from '@trustless-work/escrow';
 
 interface CreatedAt {
   _seconds: number;

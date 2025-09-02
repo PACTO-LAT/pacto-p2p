@@ -211,17 +211,16 @@ export function EscrowDetailsModal({
                       </Button>
                     )}
 
-                  {escrow.milestones[0].approved &&
-                    escrow.balance !== 0 && (
-                      <Button
-                        onClick={() => onReleaseFunds(escrow)}
-                        className="w-full btn-emerald-outline"
-                        variant="outline"
-                      >
-                        <Unlock className="w-4 h-4 mr-2" />
-                        Release Funds
-                      </Button>
-                    )}
+                  {escrow.milestones[0].approved && escrow.balance !== 0 && (
+                    <Button
+                      onClick={() => onReleaseFunds(escrow)}
+                      className="w-full btn-emerald-outline"
+                      variant="outline"
+                    >
+                      <Unlock className="w-4 h-4 mr-2" />
+                      Release Funds
+                    </Button>
+                  )}
                 </>
               )}
 

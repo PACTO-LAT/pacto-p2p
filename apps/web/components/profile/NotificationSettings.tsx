@@ -19,9 +19,9 @@ interface NotificationSettingsProps {
   onNotificationsChange: (data: NotificationSettingsData) => void;
 }
 
-export function NotificationSettings({ 
-  notifications, 
-  onNotificationsChange 
+export function NotificationSettings({
+  notifications,
+  onNotificationsChange,
 }: NotificationSettingsProps) {
   return (
     <Card className="feature-card">
@@ -37,7 +37,9 @@ export function NotificationSettings({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Trade Notifications</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Trade Notifications
+            </Label>
             <p className="text-sm text-muted-foreground">
               Receive emails when you have new trades
             </p>
@@ -55,7 +57,9 @@ export function NotificationSettings({
         <Separator />
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Escrow Notifications</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Escrow Notifications
+            </Label>
             <p className="text-sm text-muted-foreground">
               Receive emails about the status of your escrows
             </p>
@@ -73,7 +77,9 @@ export function NotificationSettings({
         <Separator />
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Push Notifications</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Push Notifications
+            </Label>
             <p className="text-sm text-muted-foreground">
               Receive push notifications in your browser
             </p>
@@ -91,7 +97,9 @@ export function NotificationSettings({
         <Separator />
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">SMS Notifications</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              SMS Notifications
+            </Label>
             <p className="text-sm text-muted-foreground">
               Receive SMS for important events
             </p>

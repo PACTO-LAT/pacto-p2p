@@ -36,7 +36,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Code is inactive' }, { status: 400 });
     }
 
-    const expiresAt = (data as AccessCode).expires_at ? new Date((data as AccessCode).expires_at as string) : null;
+    const expiresAt = (data as AccessCode).expires_at
+      ? new Date((data as AccessCode).expires_at as string)
+      : null;
     if (expiresAt && expiresAt.getTime() < Date.now()) {
       return NextResponse.json({ error: 'Code expired' }, { status: 400 });
     }
@@ -44,7 +46,10 @@ export async function POST(req: Request) {
     const maxUses = (data as AccessCode).max_uses as number | null;
     const usedCount = (data as AccessCode).used_count as number | null;
     if (maxUses != null && usedCount != null && usedCount >= maxUses) {
-      return NextResponse.json({ error: 'Code usage limit reached' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Code usage limit reached' },
+        { status: 400 }
+      );
     }
 
     // Increment usage counter if applicable
@@ -54,7 +59,10 @@ export async function POST(req: Request) {
         .update({ used_count: (usedCount ?? 0) + 1 })
         .eq('id', (data as AccessCode).id);
       if (updateError) {
-        return NextResponse.json({ error: updateError.message }, { status: 400 });
+        return NextResponse.json(
+          { error: updateError.message },
+          { status: 400 }
+        );
       }
     }
 
@@ -64,5 +72,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
-
-

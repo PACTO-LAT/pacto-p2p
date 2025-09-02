@@ -5,4 +5,4 @@ export const databaseConfig = {
 
 export const initDatabase = async () => {
   // Database initialization logic
-}; 
+};

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Settings } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
@@ -24,45 +24,54 @@ export default function ProfilePage() {
   const { user, updateProfile } = useAuth();
 
   const [userData, setUserData] = useState<UserData | null>(null);
-  const mapUserToUserData = useCallback((u: User | null, local: UserData | null): UserData | null => {
-    if (!u && !local) return null;
-    const baseUser = u ?? null;
-    const localOverrides = local ?? null;
-    const normalizedEmail = (() => {
-      // Prefer local edits over base user email (to allow typing)
-      const e = (localOverrides?.email?.length ? localOverrides.email : (baseUser?.email || '')) || '';
-      // Hide synthetic wallet-local email in UI to allow user to set a real one
-      return e.endsWith('@wallet.local') ? '' : e;
-    })();
-    return {
-      id: baseUser?.id || localOverrides?.id || '',
-      email: normalizedEmail,
-      full_name: baseUser?.full_name || localOverrides?.full_name || '',
-      username: baseUser?.username || localOverrides?.username || '',
-      bio: baseUser?.bio || localOverrides?.bio || '',
-      avatar_url: baseUser?.avatar_url || localOverrides?.avatar_url || '',
-      stellar_address: baseUser?.stellar_address || localOverrides?.stellar_address || '',
-      phone: baseUser?.phone || localOverrides?.phone || '',
-      country: baseUser?.country || localOverrides?.country || '',
-      kyc_status: baseUser?.kyc_status || localOverrides?.kyc_status || 'pending',
-      reputation_score: baseUser?.reputation_score ?? localOverrides?.reputation_score ?? 0,
-      total_trades: baseUser?.total_trades ?? localOverrides?.total_trades ?? 0,
-      total_volume: baseUser?.total_volume ?? localOverrides?.total_volume ?? 0,
-      created_at: baseUser?.created_at || localOverrides?.created_at || new Date().toISOString(),
-      notifications:
-        localOverrides?.notifications ?? {
+  const mapUserToUserData = useCallback(
+    (u: User | null, local: UserData | null): UserData | null => {
+      if (!u && !local) return null;
+      const baseUser = u ?? null;
+      const localOverrides = local ?? null;
+      const normalizedEmail = (() => {
+        // Prefer local edits over base user email (to allow typing)
+        const e =
+          (localOverrides?.email?.length
+            ? localOverrides.email
+            : baseUser?.email || '') || '';
+        // Hide synthetic wallet-local email in UI to allow user to set a real one
+        return e.endsWith('@wallet.local') ? '' : e;
+      })();
+      return {
+        id: baseUser?.id || localOverrides?.id || '',
+        email: normalizedEmail,
+        full_name: baseUser?.full_name || localOverrides?.full_name || '',
+        username: baseUser?.username || localOverrides?.username || '',
+        bio: baseUser?.bio || localOverrides?.bio || '',
+        avatar_url: baseUser?.avatar_url || localOverrides?.avatar_url || '',
+        stellar_address:
+          baseUser?.stellar_address || localOverrides?.stellar_address || '',
+        phone: baseUser?.phone || localOverrides?.phone || '',
+        country: baseUser?.country || localOverrides?.country || '',
+        kyc_status:
+          baseUser?.kyc_status || localOverrides?.kyc_status || 'pending',
+        reputation_score:
+          baseUser?.reputation_score ?? localOverrides?.reputation_score ?? 0,
+        total_trades:
+          baseUser?.total_trades ?? localOverrides?.total_trades ?? 0,
+        total_volume:
+          baseUser?.total_volume ?? localOverrides?.total_volume ?? 0,
+        created_at:
+          baseUser?.created_at ||
+          localOverrides?.created_at ||
+          new Date().toISOString(),
+        notifications: localOverrides?.notifications ?? {
           email_trades: true,
           email_escrows: true,
           push_notifications: true,
           sms_notifications: false,
         },
-      security:
-        localOverrides?.security ?? {
+        security: localOverrides?.security ?? {
           two_factor_enabled: true,
           login_notifications: true,
         },
-      payment_methods:
-        localOverrides?.payment_methods ?? {
+        payment_methods: localOverrides?.payment_methods ?? {
           sinpe_number: '',
           preferred_method: 'sinpe',
           bank_accounts: [
@@ -73,10 +82,15 @@ export default function ProfilePage() {
             },
           ],
         },
-    };
-  }, []);
+      };
+    },
+    []
+  );
 
-  const hydratedUserData = useMemo<UserData | null>(() => mapUserToUserData(user, userData), [user, userData, mapUserToUserData]);
+  const hydratedUserData = useMemo<UserData | null>(
+    () => mapUserToUserData(user, userData),
+    [user, userData, mapUserToUserData]
+  );
 
   const handleSave = async () => {
     if (!hydratedUserData) return;
@@ -84,7 +98,8 @@ export default function ProfilePage() {
     try {
       const payload = {
         // Only persist email if user provided a non-empty value
-        ...(hydratedUserData.email && !hydratedUserData.email.endsWith('@wallet.local')
+        ...(hydratedUserData.email &&
+        !hydratedUserData.email.endsWith('@wallet.local')
           ? { email: hydratedUserData.email }
           : {}),
         full_name: hydratedUserData.full_name,
@@ -113,7 +128,9 @@ export default function ProfilePage() {
     setUserData({ ...(hydratedUserData as UserData), ...newData });
   };
 
-  const handleNotificationsChange = (notifications: UserData['notifications']) => {
+  const handleNotificationsChange = (
+    notifications: UserData['notifications']
+  ) => {
     setUserData({ ...(hydratedUserData as UserData), notifications });
   };
 
@@ -121,52 +138,54 @@ export default function ProfilePage() {
     setUserData({ ...(hydratedUserData as UserData), security });
   };
 
-  const handlePaymentMethodsChange = (payment_methods: UserData['payment_methods']) => {
+  const handlePaymentMethodsChange = (
+    payment_methods: UserData['payment_methods']
+  ) => {
     setUserData({ ...(hydratedUserData as UserData), payment_methods });
   };
 
   return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              My Profile
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your personal information and settings
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} disabled={isLoading}>
-                  {isLoading ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </>
-            ) : (
-              <Button onClick={() => setIsEditing(true)} variant="secondary">
-                <Settings className="w-4 h-4 mr-2" />
-                Edit Profile
-              </Button>
-            )}
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
+          <p className="text-muted-foreground">
+            Manage your personal information and settings
+          </p>
         </div>
+        <div className="flex gap-2">
+          {isEditing ? (
+            <>
+              <Button variant="outline" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={isLoading}>
+                {isLoading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => setIsEditing(true)} variant="secondary">
+              <Settings className="w-4 h-4 mr-2" />
+              Edit Profile
+            </Button>
+          )}
+        </div>
+      </div>
 
-        {!hydratedUserData ? (
-          <div className="text-muted-foreground">Connect your wallet or sign in to manage your profile.</div>
-        ) : (
-          <Tabs defaultValue="profile" className="space-y-6">
+      {!hydratedUserData ? (
+        <div className="text-muted-foreground">
+          Connect your wallet or sign in to manage your profile.
+        </div>
+      ) : (
+        <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="wallet">Wallet</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
             <TabsTrigger value="merchant">Merchant</TabsTrigger>
+            <TabsTrigger value="settings">Notifications</TabsTrigger>
+            {/* <TabsTrigger value="security">Security</TabsTrigger> */}
           </TabsList>
 
           {/* Profile Tab */}
@@ -230,7 +249,7 @@ export default function ProfilePage() {
             <MerchantSection />
           </TabsContent>
         </Tabs>
-        )}
-      </div>
+      )}
+    </div>
   );
 }

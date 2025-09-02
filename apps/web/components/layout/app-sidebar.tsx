@@ -30,7 +30,11 @@ import {
   SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useWallet } from '@/hooks/use-wallet';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
@@ -96,7 +100,9 @@ export function AppSidebar() {
                       aria-current={pathname === item.href ? 'page' : undefined}
                     >
                       <item.icon className="w-5 h-5 group-data-[collapsible=icon]:w-5 group-data-[collapsible=icon]:h-5" />
-                      <span className="group-data-[collapsible=icon]:hidden">{item.name}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        {item.name}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -123,7 +129,9 @@ export function AppSidebar() {
                       }
                     >
                       <Settings className="w-5 h-5 group-data-[collapsible=icon]:w-5 group-data-[collapsible=icon]:h-5" />
-                      <span className="group-data-[collapsible=icon]:hidden">Admin</span>
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        Admin
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -162,7 +170,12 @@ export function AppSidebar() {
                 </div>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="right" align="center" hidden={!isCollapsed} className="text-accent">
+            <TooltipContent
+              side="right"
+              align="center"
+              hidden={!isCollapsed}
+              className="text-accent"
+            >
               <span className="text-xs">
                 {isConnected
                   ? `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -182,7 +195,9 @@ export function AppSidebar() {
                   aria-label="Disconnect wallet"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="ml-2 group-data-[collapsible=icon]:hidden">Disconnect</span>
+                  <span className="ml-2 group-data-[collapsible=icon]:hidden">
+                    Disconnect
+                  </span>
                 </Button>
               </TooltipTrigger>
             </Tooltip>
@@ -198,10 +213,17 @@ export function AppSidebar() {
                   aria-label="Connect wallet"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span className="ml-2 group-data-[collapsible=icon]:hidden">Connect Wallet</span>
+                  <span className="ml-2 group-data-[collapsible=icon]:hidden">
+                    Connect Wallet
+                  </span>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right" align="center" hidden={!isCollapsed} className="text-accent">
+              <TooltipContent
+                side="right"
+                align="center"
+                hidden={!isCollapsed}
+                className="text-accent"
+              >
                 Connect Wallet
               </TooltipContent>
             </Tooltip>
