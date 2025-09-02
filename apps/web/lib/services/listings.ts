@@ -1,12 +1,13 @@
 import { supabase } from '@/lib/supabase';
-import type { CreateListingData, Listing } from '@/lib/types';
+import type { CreateListingData } from '@/lib/types';
+import type { DbListing } from '@/lib/types/db';
 
 export class ListingsService {
   static async getListings(filters?: {
     token?: string;
     type?: 'buy' | 'sell';
     status?: string;
-  }): Promise<Listing[]> {
+  }): Promise<DbListing[]> {
     let query = supabase
       .from('listings')
       .select(
@@ -29,10 +30,10 @@ export class ListingsService {
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    return (data as unknown as DbListing[]) || [];
   }
 
-  static async getUserListings(userId: string): Promise<Listing[]> {
+  static async getUserListings(userId: string): Promise<DbListing[]> {
     const { data, error } = await supabase
       .from('listings')
       .select(
@@ -45,18 +46,26 @@ export class ListingsService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as unknown as DbListing[]) || [];
   }
 
   static async createListing(
     userId: string,
     listingData: CreateListingData
-  ): Promise<Listing> {
+  ): Promise<DbListing> {
+    // Resolve merchant for this user to set merchant_id
+    const { data: merchant } = await supabase
+      .from('merchants')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
     const { data, error } = await supabase
       .from('listings')
       .insert({
         ...listingData,
         user_id: userId,
+        merchant_id: merchant?.id ?? null,
       })
       .select(
         `
@@ -67,13 +76,13 @@ export class ListingsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as DbListing;
   }
 
   static async updateListing(
     listingId: string,
-    updates: Partial<Listing>
-  ): Promise<Listing> {
+    updates: Partial<DbListing>
+  ): Promise<DbListing> {
     const { data, error } = await supabase
       .from('listings')
       .update({
@@ -90,7 +99,7 @@ export class ListingsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as DbListing;
   }
 
   static async deleteListing(listingId: string): Promise<void> {
@@ -102,7 +111,7 @@ export class ListingsService {
     if (error) throw error;
   }
 
-  static async getListingById(listingId: string): Promise<Listing | null> {
+  static async getListingById(listingId: string): Promise<DbListing | null> {
     const { data, error } = await supabase
       .from('listings')
       .select(
@@ -119,6 +128,6 @@ export class ListingsService {
       throw error;
     }
 
-    return data;
+    return (data as unknown as DbListing) ?? null;
   }
 }

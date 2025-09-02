@@ -62,9 +62,7 @@ export function MintForm({
                 <SelectItem value="CRCX">
                   CRCX - Costa Rican Colón Token
                 </SelectItem>
-                <SelectItem value="MXNX">
-                  MXNX - Mexican Peso Token
-                </SelectItem>
+                <SelectItem value="MXNX">MXNX - Mexican Peso Token</SelectItem>
               </SelectContent>
             </Select>
           </div>

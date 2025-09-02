@@ -18,8 +18,7 @@ export function MerchantSection() {
           Merchant
         </CardTitle>
         <CardDescription>
-          Manage your merchant profile, or become a merchant to list
-          offers.
+          Manage your merchant profile, or become a merchant to list offers.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-3">

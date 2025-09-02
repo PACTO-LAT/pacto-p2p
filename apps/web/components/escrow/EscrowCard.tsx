@@ -51,9 +51,7 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
           {/* Description */}
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Description</p>
-            <p className="font-medium text-foreground">
-              {escrow.description}
-            </p>
+            <p className="font-medium text-foreground">{escrow.description}</p>
           </div>
 
           {/* Amount and Details */}

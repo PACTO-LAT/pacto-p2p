@@ -50,13 +50,19 @@ export default function MerchantsPage() {
         <div className="flex min-h-[200px] items-center justify-center">
           <div className="text-center text-muted-foreground">
             <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-red-500" />
-            <p className="font-medium text-foreground">Failed to load merchants</p>
-            <p className="text-sm">{error instanceof Error ? error.message : 'Something went wrong.'}</p>
+            <p className="font-medium text-foreground">
+              Failed to load merchants
+            </p>
+            <p className="text-sm">
+              {error instanceof Error ? error.message : 'Something went wrong.'}
+            </p>
           </div>
         </div>
       ) : merchants && merchants.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border py-12 text-center">
-          <p className="text-sm text-muted-foreground">No merchants found yet.</p>
+          <p className="text-sm text-muted-foreground">
+            No merchants found yet.
+          </p>
           <Link href="/dashboard/merchant">
             <Button>Create your merchant profile</Button>
           </Link>

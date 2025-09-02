@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm, type Resolver } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -16,103 +16,93 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useCreateMerchantListing } from '@/hooks/useMerchant';
-import type { MerchantListing } from '@/lib/types/merchant';
+import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { useCreateListing } from '@/hooks/use-listings';
+import { useAuth } from '@/hooks/use-auth';
+import {
+  toCreateListingData,
+  type UIListingFormInput,
+} from '@/lib/marketplace-utils';
 
 const schema = z
   .object({
-    side: z.enum(['buy', 'sell']),
-    asset_code: z.string().min(1),
-    price_rate: z.coerce.number().positive(),
-    quote_currency: z.string().min(1),
-    amount: z.coerce.number().positive(),
-    min_amount: z.coerce.number().positive().optional(),
-    max_amount: z.coerce.number().positive().optional(),
+    type: z.enum(['buy', 'sell']),
+    token: z.string().min(1, 'Select a token'),
+    amount: z.string().min(1, 'Enter an amount'),
+    rate: z.string().min(1, 'Enter a rate'),
+    fiatCurrency: z.string().min(1, 'Select a currency'),
+    paymentMethod: z.string().min(1, 'Select a payment method'),
+    minAmount: z.string().optional(),
+    maxAmount: z.string().optional(),
     description: z.string().optional(),
-    payment_methods: z
-      .array(
-        z.object({
-          method: z.string().min(1),
-          details: z
-            .string()
-            .optional()
-            .transform((v) => (v ? v.trim() : undefined)),
-        })
-      )
-      .default([]),
   })
   .refine(
-    (data) =>
-      data.min_amount && data.max_amount
-        ? data.min_amount <= data.max_amount
-        : true,
+    (data) => {
+      const min = data.minAmount
+        ? Number.parseFloat(data.minAmount)
+        : undefined;
+      const max = data.maxAmount
+        ? Number.parseFloat(data.maxAmount)
+        : undefined;
+      return min && max ? min <= max : true;
+    },
     {
       message: 'Min amount must be less than or equal to max amount',
-      path: ['min_amount'],
+      path: ['minAmount'],
     }
   );
 
 type FormValues = z.infer<typeof schema>;
 
-export function CreateListingForm({
-  onCreated,
-}: {
-  onCreated?: (l: MerchantListing) => void;
-}) {
+export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: {
-      side: 'sell',
-      asset_code: '',
-      price_rate: 1,
-      quote_currency: '',
-      amount: 0,
-      min_amount: undefined,
-      max_amount: undefined,
+      type: 'sell',
+      token: '',
+      amount: '',
+      rate: '',
+      fiatCurrency: '',
+      paymentMethod: '',
+      minAmount: '',
+      maxAmount: '',
       description: '',
-      payment_methods: [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'payment_methods',
-  });
-  const mutation = useCreateMerchantListing();
+  const createListing = useCreateListing();
+  const { user } = useAuth();
 
   async function onSubmit(values: FormValues) {
-    const payload = {
-      side: values.side,
-      asset_code: values.asset_code,
-      price_rate: values.price_rate,
-      quote_currency: values.quote_currency,
-      amount: values.amount,
-      min_amount: values.min_amount,
-      max_amount: values.max_amount,
-      description: values.description?.trim() || undefined,
-      payment_methods: values.payment_methods.map((pm) => ({
-        method: pm.method,
-        details: pm.details ? safeParseJson(pm.details) : undefined,
-      })),
-    } satisfies Omit<MerchantListing, 'id' | 'status' | 'created_at'>;
-
-    const created = await mutation.mutateAsync(payload);
+    if (!user?.id) {
+      toast.error('Connect your wallet first');
+      return;
+    }
+    const listingData = toCreateListingData(values as UIListingFormInput);
+    await createListing.mutateAsync({ userId: user.id, listingData });
     toast.success('Listing created');
     form.reset();
-    onCreated?.(created);
+    onCreated?.();
   }
 
   return (
-          <Card className="feature-card-dark rounded-2xl p-4 sm:p-6">
+    <Card className="feature-card-dark rounded-2xl p-4 sm:p-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
           <FormField
             control={form.control}
-            name="side"
+            name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Side</FormLabel>
+                <FormLabel>Trade Type</FormLabel>
                 <FormControl>
                   <RadioGroup
                     className="flex gap-3"
@@ -120,12 +110,12 @@ export function CreateListingForm({
                     onValueChange={field.onChange}
                   >
                     <div className="flex items-center gap-2">
-                      <RadioGroupItem value="buy" id="side-buy" />
-                      <label htmlFor="side-buy">Buy</label>
+                      <RadioGroupItem value="sell" id="type-sell" />
+                      <label htmlFor="type-sell">Sell</label>
                     </div>
                     <div className="flex items-center gap-2">
-                      <RadioGroupItem value="sell" id="side-sell" />
-                      <label htmlFor="side-sell">Sell</label>
+                      <RadioGroupItem value="buy" id="type-buy" />
+                      <label htmlFor="type-buy">Buy</label>
                     </div>
                   </RadioGroup>
                 </FormControl>
@@ -134,49 +124,31 @@ export function CreateListingForm({
             )}
           />
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="asset_code"
+              name="token"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Asset code</FormLabel>
+                  <FormLabel>Stablecoin</FormLabel>
                   <FormControl>
-                    <Input placeholder="USDC" {...field} />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select token" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TRUSTLINES.map((t) => (
+                          <SelectItem key={t.address} value={t.name}>
+                            {t.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="quote_currency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Quote currency</FormLabel>
-                  <FormControl>
-                    <Input placeholder="USD, MXN, CRC" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="price_rate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.0001" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
             <FormField
               control={form.control}
               name="amount"
@@ -184,7 +156,28 @@ export function CreateListingForm({
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" step="1" {...field} />
+                    <Input type="number" placeholder="0.00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="rate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rate per Token</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -192,12 +185,65 @@ export function CreateListingForm({
             />
             <FormField
               control={form.control}
-              name="min_amount"
+              name="fiatCurrency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Min</FormLabel>
+                  <FormLabel>Fiat Currency</FormLabel>
                   <FormControl>
-                    <Input type="number" step="1" {...field} />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="CRC">
+                          CRC - Costa Rican Colón
+                        </SelectItem>
+                        <SelectItem value="MXN">MXN - Mexican Peso</SelectItem>
+                        <SelectItem value="USD">USD - US Dollar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="paymentMethod"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Payment Method</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SINPE">SINPE (Costa Rica)</SelectItem>
+                      <SelectItem value="SPEI">SPEI (Mexico)</SelectItem>
+                      <SelectItem value="Bank Transfer">
+                        Bank Transfer
+                      </SelectItem>
+                      <SelectItem value="Cash Deposit">Cash Deposit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Amount (Optional)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -205,12 +251,12 @@ export function CreateListingForm({
             />
             <FormField
               control={form.control}
-              name="max_amount"
+              name="maxAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Max</FormLabel>
+                  <FormLabel>Max Amount (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="1" {...field} />
+                    <Input type="number" placeholder="0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -223,11 +269,11 @@ export function CreateListingForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Description (Optional)</FormLabel>
                 <FormControl>
                   <Textarea
                     rows={3}
-                    placeholder="Notes, release time, restrictions"
+                    placeholder="Add any special instructions or requirements..."
                     {...field}
                   />
                 </FormControl>
@@ -236,82 +282,13 @@ export function CreateListingForm({
             )}
           />
 
-          <div className="rounded-2xl border p-4">
-            <div className="mb-3 text-sm font-medium">Payment methods</div>
-            <div className="space-y-3">
-              {fields.map((f, idx) => (
-                <div key={f.id} className="grid gap-3 sm:grid-cols-3">
-                  <FormField
-                    control={form.control}
-                    name={`payment_methods.${idx}.method` as const}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Method</FormLabel>
-                        <FormControl>
-                          <Input placeholder="ACH, SPEI, SINPE" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`payment_methods.${idx}.details` as const}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
-                        <FormLabel>Details (JSON optional)</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            rows={2}
-                            placeholder='{"account": "..."}'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="sm:col-span-3 flex justify-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => remove(idx)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => append({ method: '', details: '' })}
-              >
-                Add method
-              </Button>
-            </div>
-          </div>
-
           <div className="flex justify-end">
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Creating...' : 'Create Listing'}
+            <Button type="submit" disabled={createListing.isPending}>
+              {createListing.isPending ? 'Creating...' : 'Create Listing'}
             </Button>
           </div>
         </form>
       </Form>
     </Card>
   );
-}
-
-function safeParseJson(s?: string) {
-  if (!s) return undefined;
-  try {
-    return JSON.parse(s);
-  } catch {
-    return undefined;
-  }
 }

@@ -14,10 +14,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
 
       <div className="space-y-3">
         {transactions.map((transaction) => (
-          <TransactionCard
-            key={transaction.id}
-            transaction={transaction}
-          />
+          <TransactionCard key={transaction.id} transaction={transaction} />
         ))}
       </div>
     </div>

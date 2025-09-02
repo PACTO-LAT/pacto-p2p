@@ -6,4 +6,4 @@ export const ESCROW_STATUSES = {
   ACTIVE: 'active',
   COMPLETED: 'completed',
   DISPUTED: 'disputed',
-} as const; 
+} as const;

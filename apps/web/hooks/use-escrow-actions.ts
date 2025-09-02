@@ -18,7 +18,10 @@ export function useEscrowActions() {
     confirmPayment,
   } = useInitializeTrade();
 
-  const handleReportPayment = async (escrow: Escrow, data: ReportPaymentData) => {
+  const handleReportPayment = async (
+    escrow: Escrow,
+    data: ReportPaymentData
+  ) => {
     setIsReportPaymentLoading(true);
     try {
       await reportPayment(escrow, data.evidence);
@@ -117,7 +120,7 @@ export function useEscrowActions() {
   return {
     // State
     isReportPaymentLoading,
-    
+
     // Actions
     handleReportPayment,
     handleConfirmPayment,

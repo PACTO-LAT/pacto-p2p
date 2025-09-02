@@ -19,10 +19,12 @@ export interface ProfileStatsData {
 
 export interface PaymentMethodsData {
   sinpe_number: string;
-  bank_iban: string;
-  bank_name: string;
-  bank_account_holder: string;
   preferred_method: 'sinpe' | 'bank_transfer';
+  bank_accounts: Array<{
+    bank_iban: string;
+    bank_name: string;
+    bank_account_holder: string;
+  }>;
 }
 
 export interface NotificationSettingsData {

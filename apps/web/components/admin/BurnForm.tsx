@@ -27,18 +27,14 @@ export function BurnForm({ tokens, onBurn }: BurnFormProps) {
           <Trash2 className="w-5 h-5" />
           Burn Tokens
         </CardTitle>
-        <CardDescription>
-          Remove tokens from circulation
-        </CardDescription>
+        <CardDescription>Remove tokens from circulation</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="w-4 h-4 text-yellow-600" />
-              <span className="font-medium text-yellow-900">
-                Burn Tokens
-              </span>
+              <span className="font-medium text-yellow-900">Burn Tokens</span>
             </div>
             <p className="text-sm text-yellow-700">
               Burning tokens permanently removes them from circulation. This

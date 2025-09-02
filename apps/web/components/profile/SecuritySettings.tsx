@@ -21,9 +21,9 @@ interface SecuritySettingsProps {
   onSecurityChange: (data: SecuritySettingsData) => void;
 }
 
-export function SecuritySettings({ 
-  security, 
-  onSecurityChange 
+export function SecuritySettings({
+  security,
+  onSecurityChange,
 }: SecuritySettingsProps) {
   return (
     <Card className="feature-card">
@@ -39,7 +39,9 @@ export function SecuritySettings({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Two-Factor Authentication</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Two-Factor Authentication
+            </Label>
             <p className="text-sm text-muted-foreground">
               Add an extra layer of security to your account
             </p>
@@ -64,7 +66,9 @@ export function SecuritySettings({
         <Separator />
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Login Notifications</Label>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Login Notifications
+            </Label>
             <p className="text-sm text-muted-foreground">
               Receive notifications when someone accesses your account
             </p>
@@ -81,7 +85,9 @@ export function SecuritySettings({
         </div>
         <Separator />
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-muted-foreground">Change Password</Label>
+          <Label className="text-sm font-medium text-muted-foreground">
+            Change Password
+          </Label>
           <Button variant="outline">
             <Lock className="w-4 h-4 mr-2" />
             Update Password

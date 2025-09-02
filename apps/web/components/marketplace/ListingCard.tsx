@@ -42,7 +42,8 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                         Exchange Rate
                       </p>
                       <p className="text-foreground font-semibold">
-                        {Number(listing.rate).toFixed(2)} {listing.fiatCurrency}/{listing.token}
+                        {Number(listing.rate).toFixed(2)} {listing.fiatCurrency}
+                        /{listing.token}
                       </p>
                     </div>
                     <div>

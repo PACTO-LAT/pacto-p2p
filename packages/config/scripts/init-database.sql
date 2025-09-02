@@ -13,12 +13,13 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS listings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  merchant_id UUID REFERENCES merchants(id) ON DELETE SET NULL,
   type VARCHAR(10) NOT NULL CHECK (type IN ('buy', 'sell')),
   token VARCHAR(10) NOT NULL,
   amount DECIMAL(20,7) NOT NULL,
   rate DECIMAL(20,7) NOT NULL,
   fiat_currency VARCHAR(3) NOT NULL,
-  payment_method VARCHAR(50) NOT NULL,
+  payment_method VARCHAR(50),
   min_amount DECIMAL(20,7),
   max_amount DECIMAL(20,7),
   description TEXT,
@@ -76,6 +77,31 @@ CREATE INDEX IF NOT EXISTS idx_listings_status ON listings(status);
 CREATE INDEX IF NOT EXISTS idx_escrows_status ON escrows(status);
 CREATE INDEX IF NOT EXISTS idx_escrows_buyer ON escrows(buyer_id);
 CREATE INDEX IF NOT EXISTS idx_escrows_seller ON escrows(seller_id);
+
+-- Create merchants table
+CREATE TABLE IF NOT EXISTS merchants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  slug TEXT UNIQUE,
+  display_name TEXT NOT NULL,
+  is_public BOOLEAN DEFAULT TRUE,
+  verification_status TEXT DEFAULT 'pending' CHECK (verification_status IN ('pending','verified','rejected','revoked')),
+  bio TEXT,
+  avatar_url TEXT,
+  banner_url TEXT,
+  location TEXT,
+  languages TEXT[],
+  socials JSONB,
+  rating NUMERIC DEFAULT 0,
+  total_trades INTEGER DEFAULT 0,
+  volume_traded NUMERIC DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_merchants_user ON merchants(user_id);
+CREATE INDEX IF NOT EXISTS idx_merchants_public ON merchants(is_public);
+CREATE INDEX IF NOT EXISTS idx_listings_merchant ON listings(merchant_id);
 
 -- Insert sample data
 INSERT INTO users (email, stellar_address, reputation_score, total_trades) VALUES

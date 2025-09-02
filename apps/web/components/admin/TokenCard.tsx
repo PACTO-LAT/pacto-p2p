@@ -46,9 +46,7 @@ export function TokenCard({ token, onSettings, onMint }: TokenCardProps) {
             <div>
               <p className="text-sm text-gray-600">Status</p>
               <Badge
-                variant={
-                  token.status === 'active' ? 'default' : 'secondary'
-                }
+                variant={token.status === 'active' ? 'default' : 'secondary'}
               >
                 {token.status}
               </Badge>
@@ -66,11 +64,7 @@ export function TokenCard({ token, onSettings, onMint }: TokenCardProps) {
               </Button>
             )}
             {token.issuer !== 'External' && onMint && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onMint(token)}
-              >
+              <Button variant="outline" size="sm" onClick={() => onMint(token)}>
                 <Coins className="w-4 h-4" />
               </Button>
             )}
