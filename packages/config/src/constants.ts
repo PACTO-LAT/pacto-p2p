@@ -9,4 +9,4 @@ export const NETWORK_CONFIG = {
     testnet: 'https://horizon-testnet.stellar.org',
     mainnet: 'https://horizon.stellar.org',
   },
-}; 
+};

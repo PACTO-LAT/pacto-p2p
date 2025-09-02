@@ -14,7 +14,9 @@ import type { SpeedBucket } from '@/lib/types/merchant';
 export function SpeedHistogram({ data }: { data: SpeedBucket[] }) {
   return (
     <Card className="feature-card-dark rounded-2xl p-4">
-      <div className="mb-3 text-sm font-medium text-foreground">Release Speed</div>
+      <div className="mb-3 text-sm font-medium text-foreground">
+        Release Speed
+      </div>
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

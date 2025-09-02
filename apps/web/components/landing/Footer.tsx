@@ -10,15 +10,15 @@ export function Footer() {
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
-        duration: 0.6, 
-        ease: "easeOut",
-        staggerChildren: 0.1
-      }
-    }
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut',
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const staggerContainer = {
@@ -27,36 +27,36 @@ export function Footer() {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   };
 
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" }
-    }
+      transition: { duration: 0.5, ease: 'easeOut' },
+    },
   };
 
   const shouldAnimate = !reducedMotion;
 
   return (
     <footer className="bg-transparent text-foreground py-16">
-      <motion.div 
+      <motion.div
         className="container mx-auto px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
         variants={shouldAnimate ? fadeInUp : {}}
       >
-        <motion.div 
+        <motion.div
           className="text-center mb-12"
           variants={shouldAnimate ? itemAnimation : {}}
         >
-          <motion.div 
+          <motion.div
             className="flex items-center justify-center space-x-3 mb-6"
             variants={shouldAnimate ? itemAnimation : {}}
           >
@@ -77,14 +77,12 @@ export function Footer() {
         </motion.div>
         <div></div>
 
-        <motion.div 
+        <motion.div
           className="grid md:grid-cols-4 gap-8 ml-40"
           variants={shouldAnimate ? staggerContainer : {}}
         >
           <motion.div variants={shouldAnimate ? itemAnimation : {}}>
-            <h4 className="font-bold mb-6 text-lg text-foreground">
-              Platform
-            </h4>
+            <h4 className="font-bold mb-6 text-lg text-foreground">Platform</h4>
             <ul className="space-y-3 text-muted-foreground">
               <li>
                 <Link
@@ -165,9 +163,7 @@ export function Footer() {
             </ul>
           </motion.div>
           <motion.div variants={shouldAnimate ? itemAnimation : {}}>
-            <h4 className="font-bold mb-6 text-lg text-foreground">
-              Support
-            </h4>
+            <h4 className="font-bold mb-6 text-lg text-foreground">Support</h4>
             <ul className="space-y-3 text-muted-foreground">
               <li>
                 <Link
@@ -188,7 +184,7 @@ export function Footer() {
             </ul>
           </motion.div>
         </motion.div>
-        <motion.div 
+        <motion.div
           className="border-t border-glass-border mt-12 pt-8 text-center text-muted-foreground"
           variants={shouldAnimate ? itemAnimation : {}}
         >

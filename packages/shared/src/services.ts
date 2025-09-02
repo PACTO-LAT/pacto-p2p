@@ -5,4 +5,4 @@ export const supabaseClient = {
 
 export const stellarService = {
   // Stellar wallet service
-}; 
+};

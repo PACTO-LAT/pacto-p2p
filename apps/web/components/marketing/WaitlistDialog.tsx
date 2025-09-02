@@ -59,7 +59,10 @@ type WaitlistDialogProps = {
   triggerText?: string;
 };
 
-export function WaitlistDialog({ triggerClassName, triggerText = 'Join the waitlist' }: WaitlistDialogProps) {
+export function WaitlistDialog({
+  triggerClassName,
+  triggerText = 'Join the waitlist',
+}: WaitlistDialogProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'form' | 'otp'>('form');
   const [pendingEmail, setPendingEmail] = useState('');
@@ -152,93 +155,133 @@ export function WaitlistDialog({ triggerClassName, triggerText = 'Join the waitl
         {step === 'form' ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your full name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="you@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="company"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Company name (optional)" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your role (optional)" />
-                        </SelectTrigger>
+                        <Input placeholder="Your full name" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="merchant">Merchant</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="company"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Company name (optional)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your role (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="merchant">Merchant</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Where are you based?" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="source"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>How did you hear about us?</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. Twitter, Friend, Search"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="use_case"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Primary use case</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="What would you use Pacto for?"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name="country"
+                name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <Input placeholder="Where are you based?" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="source"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>How did you hear about us?</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. Twitter, Friend, Search"
+                      <Textarea
+                        placeholder="Anything else you'd like to add?"
+                        rows={4}
                         {...field}
                       />
                     </FormControl>
@@ -246,40 +289,6 @@ export function WaitlistDialog({ triggerClassName, triggerText = 'Join the waitl
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="use_case"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Primary use case</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="What would you use Pacto for?"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Anything else you'd like to add?"
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
               <DialogFooter>
                 <Button
                   type="button"
@@ -294,7 +303,9 @@ export function WaitlistDialog({ triggerClassName, triggerText = 'Join the waitl
                   className="btn-primary !h-11 !py-1"
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? 'Submitting…' : 'Join waitlist'}
+                  {form.formState.isSubmitting
+                    ? 'Submitting…'
+                    : 'Join waitlist'}
                 </Button>
               </DialogFooter>
             </form>
@@ -302,21 +313,46 @@ export function WaitlistDialog({ triggerClassName, triggerText = 'Join the waitl
         ) : (
           <div className="space-y-6">
             <div>
-              <div className="text-sm text-muted-foreground mb-2">We sent a 6-digit code to</div>
+              <div className="text-sm text-muted-foreground mb-2">
+                We sent a 6-digit code to
+              </div>
               <div className="font-medium">{pendingEmail}</div>
             </div>
             <div className="flex justify-center">
-              <InputOTP maxLength={6} value={otp} onChange={setOtp} containerClassName="gap-2">
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={setOtp}
+                containerClassName="gap-2"
+              >
                 <InputOTPGroup>
-                  <InputOTPSlot index={0} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
-                  <InputOTPSlot index={1} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
-                  <InputOTPSlot index={2} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                  <InputOTPSlot
+                    index={0}
+                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
+                  />
+                  <InputOTPSlot
+                    index={1}
+                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
+                  />
+                  <InputOTPSlot
+                    index={2}
+                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
+                  />
                 </InputOTPGroup>
                 <InputOTPSeparator />
                 <InputOTPGroup>
-                  <InputOTPSlot index={3} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
-                  <InputOTPSlot index={4} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
-                  <InputOTPSlot index={5} className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl" />
+                  <InputOTPSlot
+                    index={3}
+                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
+                  />
+                  <InputOTPSlot
+                    index={4}
+                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
+                  />
+                  <InputOTPSlot
+                    index={5}
+                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
+                  />
                 </InputOTPGroup>
               </InputOTP>
             </div>

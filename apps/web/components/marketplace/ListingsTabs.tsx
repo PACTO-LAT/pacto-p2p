@@ -1,8 +1,8 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { MarketplaceListing } from '@/lib/types/marketplace';
 import { ListingCard } from './ListingCard';
-import { MarketplaceListing } from '@/lib/types/marketplace';
 
 interface ListingsTabsProps {
   listings: MarketplaceListing[];

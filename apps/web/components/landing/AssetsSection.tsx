@@ -1,7 +1,15 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { ChevronDown, ChevronLeft, ChevronRight, Copy, ExternalLink, Globe2, Search } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  ExternalLink,
+  Globe2,
+  Search,
+} from 'lucide-react';
 
 import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,15 +44,15 @@ export function AssetsSection() {
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
-        duration: 0.6, 
-        ease: "easeOut",
-        staggerChildren: 0.1
-      }
-    }
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut',
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const staggerContainer = {
@@ -53,32 +61,35 @@ export function AssetsSection() {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   };
 
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" }
-    }
+      transition: { duration: 0.5, ease: 'easeOut' },
+    },
   };
 
   const shouldAnimate = !reducedMotion;
 
   return (
-    <section className="container mx-auto px-6 py-24" aria-label="Supported assets and countries">
-      <motion.div 
+    <section
+      className="container mx-auto px-6 py-24"
+      aria-label="Supported assets and countries"
+    >
+      <motion.div
         className="text-center mb-16"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
         variants={shouldAnimate ? fadeInUp : {}}
       >
-        <motion.div 
+        <motion.div
           className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20 mb-6"
           variants={shouldAnimate ? itemAnimation : {}}
         >
@@ -87,13 +98,13 @@ export function AssetsSection() {
             Global Coverage
           </span>
         </motion.div>
-        <motion.h2 
+        <motion.h2
           className="text-4xl md:text-5xl font-bold mb-6 text-foreground"
           variants={shouldAnimate ? itemAnimation : {}}
         >
           Assets & Countries
         </motion.h2>
-        <motion.p 
+        <motion.p
           className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           variants={shouldAnimate ? itemAnimation : {}}
         >
@@ -103,7 +114,7 @@ export function AssetsSection() {
 
       <div className="max-w-7xl mx-auto">
         {/* Enhanced Controls Row */}
-        <motion.div 
+        <motion.div
           className="flex flex-col lg:flex-row gap-4 mb-8"
           initial="hidden"
           whileInView="visible"
@@ -135,38 +146,44 @@ export function AssetsSection() {
         </motion.div>
 
         {/* Stats Row */}
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={shouldAnimate ? staggerContainer : {}}
         >
-          <motion.div 
+          <motion.div
             className="bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{supportedAssets.length}</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {supportedAssets.length}
+            </div>
             <div className="text-sm text-muted-foreground">Total Assets</div>
           </motion.div>
-          <motion.div 
+          <motion.div
             className="bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">3</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              3
+            </div>
             <div className="text-sm text-muted-foreground">Regions</div>
           </motion.div>
-          <motion.div 
+          <motion.div
             className="bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">100%</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              100%
+            </div>
             <div className="text-sm text-muted-foreground">Live Status</div>
           </motion.div>
         </motion.div>
 
         {/* Enhanced Desktop Table */}
-        <motion.div 
+        <motion.div
           className="hidden lg:block"
           initial="hidden"
           whileInView="visible"
@@ -190,14 +207,23 @@ export function AssetsSection() {
                         <ChevronDown className="w-3 h-3" />
                       </div>
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Payment Methods</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Actions</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                      Payment Methods
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 dark:divide-emerald-600/40">
                   {supportedAssets.map((asset) => (
-                    <tr key={asset.symbol} className="group hover:bg-white/5 dark:hover:bg-emerald-800/30 transition-all duration-300">
+                    <tr
+                      key={asset.symbol}
+                      className="group hover:bg-white/5 dark:hover:bg-emerald-800/30 transition-all duration-300"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="relative">
@@ -205,8 +231,12 @@ export function AssetsSection() {
                             <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-emerald-800"></div>
                           </div>
                           <div>
-                            <h3 className="font-bold text-lg text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">{asset.symbol}</h3>
-                            <p className="text-sm text-muted-foreground">{asset.name}</p>
+                            <h3 className="font-bold text-lg text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
+                              {asset.symbol}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {asset.name}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -215,13 +245,18 @@ export function AssetsSection() {
                           <div className="w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
                             <Globe2 className="w-4 h-4 text-emerald-500" />
                           </div>
-                          <span className="text-foreground font-medium">{asset.region}</span>
+                          <span className="text-foreground font-medium">
+                            {asset.region}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-2">
                           {asset.paymentMethods.split(', ').map((method) => (
-                            <span key={method} className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors duration-300">
+                            <span
+                              key={method}
+                              className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors duration-300"
+                            >
                               {method}
                             </span>
                           ))}
@@ -237,10 +272,16 @@ export function AssetsSection() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <button type="button" className="p-2 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all duration-300">
+                          <button
+                            type="button"
+                            className="p-2 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all duration-300"
+                          >
                             <Copy className="w-4 h-4" />
                           </button>
-                          <button type="button" className="p-2 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all duration-300">
+                          <button
+                            type="button"
+                            className="p-2 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all duration-300"
+                          >
                             <ExternalLink className="w-4 h-4" />
                           </button>
                         </div>
@@ -254,7 +295,7 @@ export function AssetsSection() {
         </motion.div>
 
         {/* Enhanced Mobile Cards */}
-        <motion.div 
+        <motion.div
           className="lg:hidden space-y-4"
           initial="hidden"
           whileInView="visible"
@@ -275,7 +316,9 @@ export function AssetsSection() {
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-emerald-800"></div>
                       </div>
                       <div>
-                        <h3 className="font-bold text-xl text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">{asset.symbol}</h3>
+                        <h3 className="font-bold text-xl text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
+                          {asset.symbol}
+                        </h3>
                         <p className="text-muted-foreground">{asset.name}</p>
                       </div>
                     </div>
@@ -286,20 +329,27 @@ export function AssetsSection() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
                         <Globe2 className="w-4 h-4 text-emerald-500" />
                       </div>
-                      <span className="text-foreground font-medium">{asset.region}</span>
+                      <span className="text-foreground font-medium">
+                        {asset.region}
+                      </span>
                     </div>
-                    
+
                     <div>
-                      <p className="text-sm text-muted-foreground font-medium mb-3">Payment Methods</p>
+                      <p className="text-sm text-muted-foreground font-medium mb-3">
+                        Payment Methods
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {asset.paymentMethods.split(', ').map((method) => (
-                          <span key={method} className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors duration-300">
+                          <span
+                            key={method}
+                            className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors duration-300"
+                          >
                             {method}
                           </span>
                         ))}
@@ -307,11 +357,17 @@ export function AssetsSection() {
                     </div>
 
                     <div className="flex items-center gap-2 pt-2 border-t border-white/5 dark:border-emerald-600/40">
-                      <button type="button" className="flex-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        className="flex-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                      >
                         <Copy className="w-3 h-3" />
                         Copy Symbol
                       </button>
-                      <button type="button" className="flex-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        className="flex-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                      >
                         <ExternalLink className="w-3 h-3" />
                         View Details
                       </button>
@@ -326,17 +382,34 @@ export function AssetsSection() {
         {/* Enhanced Pagination */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">1-{supportedAssets.length}</span> of <span className="font-medium text-foreground">{supportedAssets.length}</span> assets
+            Showing{' '}
+            <span className="font-medium text-foreground">
+              1-{supportedAssets.length}
+            </span>{' '}
+            of{' '}
+            <span className="font-medium text-foreground">
+              {supportedAssets.length}
+            </span>{' '}
+            assets
           </p>
           <div className="flex gap-2">
-            <button type="button" className="px-4 py-2 bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-lg text-foreground hover:bg-white/5 transition-all duration-300 flex items-center gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-lg text-foreground hover:bg-white/5 transition-all duration-300 flex items-center gap-2"
+            >
               <ChevronLeft className="w-4 h-4" />
               Previous
             </button>
-            <button type="button" className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all duration-300">
+            <button
+              type="button"
+              className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all duration-300"
+            >
               1
             </button>
-            <button type="button" className="px-4 py-2 bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-lg text-foreground hover:bg-white/5 transition-all duration-300 flex items-center gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-lg text-foreground hover:bg-white/5 transition-all duration-300 flex items-center gap-2"
+            >
               Next
               <ChevronRight className="w-4 h-4" />
             </button>

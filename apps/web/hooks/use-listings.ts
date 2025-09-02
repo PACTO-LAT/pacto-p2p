@@ -2,7 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ListingsService } from '@/lib/services/listings';
-import type { CreateListingData, Listing } from '@/lib/types';
+import type { CreateListingData } from '@/lib/types';
+import type { DbListing } from '@/lib/types/db';
+import { mapDbListingToMarketplace } from '@/lib/marketplace-utils';
+import type { MarketplaceListing } from '@/lib/types/marketplace';
 
 export function useListings(filters?: {
   token?: string;
@@ -12,6 +15,20 @@ export function useListings(filters?: {
   return useQuery({
     queryKey: ['listings', filters],
     queryFn: () => ListingsService.getListings(filters),
+  });
+}
+
+export function useMarketplaceListings(filters?: {
+  token?: string;
+  type?: 'buy' | 'sell';
+  status?: string;
+}) {
+  return useQuery<MarketplaceListing[]>({
+    queryKey: ['marketplace-listings', filters],
+    queryFn: async () => {
+      const rows = await ListingsService.getListings(filters);
+      return (rows as DbListing[]).map(mapDbListingToMarketplace);
+    },
   });
 }
 
@@ -38,6 +55,7 @@ export function useCreateListing() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       queryClient.invalidateQueries({ queryKey: ['user-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
     },
   });
 }
@@ -51,11 +69,12 @@ export function useUpdateListing() {
       updates,
     }: {
       listingId: string;
-      updates: Partial<Listing>;
+      updates: Partial<DbListing>;
     }) => ListingsService.updateListing(listingId, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       queryClient.invalidateQueries({ queryKey: ['user-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
     },
   });
 }
@@ -68,6 +87,7 @@ export function useDeleteListing() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       queryClient.invalidateQueries({ queryKey: ['user-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
     },
   });
 }

@@ -21,19 +21,24 @@ export function MarketStats({ stats }: MarketStatsProps) {
           <div className="text-3xl font-bold text-foreground mb-1">
             {stats.activeListings}
           </div>
-          <p className={`text-sm flex items-center ${
-            stats.activeListingsChange >= 0 ? 'text-emerald-600' : 'text-red-600'
-          }`}>
+          <p
+            className={`text-sm flex items-center ${
+              stats.activeListingsChange >= 0
+                ? 'text-emerald-600'
+                : 'text-red-600'
+            }`}
+          >
             {stats.activeListingsChange >= 0 ? (
               <TrendingUp className="w-4 h-4 mr-1" />
             ) : (
               <TrendingDown className="w-4 h-4 mr-1" />
             )}
-            {stats.activeListingsChange >= 0 ? '+' : ''}{stats.activeListingsChange}% from last week
+            {stats.activeListingsChange >= 0 ? '+' : ''}
+            {stats.activeListingsChange}% from last week
           </p>
         </CardContent>
       </Card>
-      
+
       <Card className="glass-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
@@ -44,19 +49,22 @@ export function MarketStats({ stats }: MarketStatsProps) {
           <div className="text-3xl font-bold text-foreground mb-1">
             ${stats.totalVolume24h.toLocaleString()}
           </div>
-          <p className={`text-sm flex items-center ${
-            stats.volumeChange >= 0 ? 'text-emerald-600' : 'text-red-600'
-          }`}>
+          <p
+            className={`text-sm flex items-center ${
+              stats.volumeChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+            }`}
+          >
             {stats.volumeChange >= 0 ? (
               <TrendingUp className="w-4 h-4 mr-1" />
             ) : (
               <TrendingDown className="w-4 h-4 mr-1" />
             )}
-            {stats.volumeChange >= 0 ? '+' : ''}{stats.volumeChange}% from yesterday
+            {stats.volumeChange >= 0 ? '+' : ''}
+            {stats.volumeChange}% from yesterday
           </p>
         </CardContent>
       </Card>
-      
+
       <Card className="glass-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
@@ -67,15 +75,18 @@ export function MarketStats({ stats }: MarketStatsProps) {
           <div className="text-3xl font-bold text-foreground mb-1">
             ${stats.avgTradeSize.toLocaleString()}
           </div>
-          <p className={`text-sm flex items-center ${
-            stats.tradeSizeChange >= 0 ? 'text-emerald-600' : 'text-red-600'
-          }`}>
+          <p
+            className={`text-sm flex items-center ${
+              stats.tradeSizeChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+            }`}
+          >
             {stats.tradeSizeChange >= 0 ? (
               <TrendingUp className="w-4 h-4 mr-1" />
             ) : (
               <TrendingDown className="w-4 h-4 mr-1" />
             )}
-            {stats.tradeSizeChange >= 0 ? '+' : ''}{stats.tradeSizeChange}% from last week
+            {stats.tradeSizeChange >= 0 ? '+' : ''}
+            {stats.tradeSizeChange}% from last week
           </p>
         </CardContent>
       </Card>

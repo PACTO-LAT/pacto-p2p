@@ -28,7 +28,9 @@ export function KpiCards({ kpis }: { kpis: MerchantKpis }) {
         >
           <Card className="feature-card-dark rounded-2xl p-4">
             <div className="text-xs text-muted-foreground">{it.label}</div>
-            <div className="mt-2 text-lg font-semibold text-foreground">{it.value}</div>
+            <div className="mt-2 text-lg font-semibold text-foreground">
+              {it.value}
+            </div>
           </Card>
         </motion.div>
       ))}

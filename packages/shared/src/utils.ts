@@ -8,4 +8,4 @@ export const formatCurrency = (amount: number, currency: string) => {
 
 export const validateEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}; 
+};

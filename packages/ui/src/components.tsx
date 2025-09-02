@@ -7,4 +7,4 @@ export const Button = ({ children, ...props }: any) => {
 
 export const Card = ({ children, ...props }: any) => {
   return <div {...props}>{children}</div>;
-}; 
+};

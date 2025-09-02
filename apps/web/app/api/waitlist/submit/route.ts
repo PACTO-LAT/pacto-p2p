@@ -28,8 +28,8 @@ export async function POST(req: Request) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const supabase = createServerClient();
-    const { error } = await supabase.from('waitlist_submissions')
-      .upsert({
+    const { error } = await supabase.from('waitlist_submissions').upsert(
+      {
         name: input.name,
         email: input.email,
         company: input.company ?? null,
@@ -41,7 +41,9 @@ export async function POST(req: Request) {
         otp,
         otp_expires_at: expiresAt.toISOString(),
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'email' });
+      },
+      { onConflict: 'email' }
+    );
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -50,7 +52,11 @@ export async function POST(req: Request) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
       // Still return 200, but warn in payload if missing API key
-      return NextResponse.json({ ok: true, notice: 'Email not sent: RESEND_API_KEY not configured', otpSent: false });
+      return NextResponse.json({
+        ok: true,
+        notice: 'Email not sent: RESEND_API_KEY not configured',
+        otpSent: false,
+      });
     }
 
     const resend = new Resend(apiKey);
@@ -67,5 +73,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
-
-
