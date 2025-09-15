@@ -7,6 +7,8 @@ type State = {
   walletType: string;
   isConnected: boolean;
   publicKey: string;
+  passkeyContractId?: string;
+  passkeyKeyId?: string;
 };
 
 interface AuthenticationStore extends State {
@@ -18,6 +20,7 @@ interface AuthenticationStore extends State {
   ) => void;
   disconnectWalletStore: () => void;
   updateConnectionStatus: (isConnected: boolean) => void;
+  setPasskeyConnection: (data: { contractId: string; keyId: string }) => void;
 }
 
 const useGlobalAuthenticationStore = create<AuthenticationStore>()(
@@ -28,6 +31,8 @@ const useGlobalAuthenticationStore = create<AuthenticationStore>()(
       walletType: '',
       isConnected: false,
       publicKey: '',
+      passkeyContractId: undefined,
+      passkeyKeyId: undefined,
       connectWalletStore: (
         address: string,
         network: 'testnet' | 'mainnet',
@@ -48,8 +53,12 @@ const useGlobalAuthenticationStore = create<AuthenticationStore>()(
           walletType: '',
           publicKey: '',
           isConnected: false,
+          passkeyContractId: undefined,
+          passkeyKeyId: undefined,
         }),
       updateConnectionStatus: (isConnected: boolean) => set({ isConnected }),
+      setPasskeyConnection: ({ contractId, keyId }) =>
+        set({ passkeyContractId: contractId, passkeyKeyId: keyId }),
     }),
     {
       name: 'auth-storage',

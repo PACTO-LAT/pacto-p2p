@@ -12,6 +12,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { getLaunchtubeCredits } from '@/lib/passkey-actions';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface WalletInfoProps {
@@ -23,8 +25,26 @@ export function WalletInfo({
   showDetails = true,
   className = '',
 }: WalletInfoProps) {
-  const { address, network, walletType, isConnected, publicKey } =
+  const { address, network, walletType, isConnected, publicKey, passkeyContractId } =
     useGlobalAuthenticationStore();
+  const [credits, setCredits] = useState<string | null>(null);
+  const [loadingCredits, setLoadingCredits] = useState(false);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        setLoadingCredits(true);
+        const { credits } = await getLaunchtubeCredits();
+        setCredits(credits);
+      } catch {
+        setCredits(null);
+      } finally {
+        setLoadingCredits(false);
+      }
+    };
+
+    fetchCredits();
+  }, []);
 
   const copyAddress = () => {
     if (address) {
@@ -140,6 +160,24 @@ export function WalletInfo({
             </div>
           </div>
         </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">
+            Launchtube Credits
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {loadingCredits ? 'Loading…' : credits ?? '—'}
+          </span>
+        </div>
+
+        {passkeyContractId && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              Passkey Contract
+            </span>
+            <code className="text-xs font-mono text-foreground">{passkeyContractId}</code>
+          </div>
+        )}
 
         {/* Public Key (same as address in Stellar) */}
         {showDetails && (

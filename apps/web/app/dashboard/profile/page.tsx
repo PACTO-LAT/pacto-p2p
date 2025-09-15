@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletInfo } from '@/components/shared/WalletInfo';
+import { PasskeyManager } from '@/components/shared/PasskeyManager';
 import {
   MerchantSection,
   NotificationSettings,
@@ -217,6 +218,7 @@ export default function ProfilePage() {
           {/* Wallet Tab */}
           <TabsContent value="wallet" className="space-y-6">
             <WalletInfo showDetails={true} />
+            <PasskeyManager />
           </TabsContent>
 
           {/* Payments Tab */}

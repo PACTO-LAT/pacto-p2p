@@ -15,12 +15,38 @@ import { useWallet } from '@/hooks/use-wallet';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { WaitlistDialog } from '@/components/marketing/WaitlistDialog';
+import { usePasskeyWallet } from '@/hooks/use-passkey-wallet';
 
 export default function AuthPage() {
   const { handleConnect } = useWallet();
   const [isConnecting, setIsConnecting] = useState(false);
   const [step, setStep] = useState<'code' | 'ready'>('code');
   const [code, setCode] = useState('');
+  const { isConfigured: isPasskeyConfigured, busy: passkeyBusy, createPasskey, connectPasskey } = usePasskeyWallet();
+
+  const handleCreatePasskey = async () => {
+    try {
+      const res = await createPasskey('anonymous');
+      toast.success('Passkey created', {
+        description: typeof res === 'object' ? 'Passkey registered successfully.' : undefined,
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      toast.error('Failed to create passkey', { description: message });
+    }
+  };
+
+  const handlePasskeySignIn = async () => {
+    try {
+      const res = await connectPasskey();
+      toast.success('Authenticated with passkey', {
+        description: typeof res === 'object' ? 'You can now connect your wallet.' : undefined,
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      toast.error('Passkey sign-in failed', { description: message });
+    }
+  };
 
   const handleWalletConnect = async () => {
     if (isConnecting) return; // Prevent multiple clicks
@@ -126,7 +152,31 @@ export default function AuthPage() {
                 securely
               </CardDescription>
             </CardHeader>
-            <CardContent className="pb-8">
+            <CardContent className="pb-8 space-y-4">
+              {isPasskeyConfigured ? (
+                <div className="grid grid-cols-1 gap-3">
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    disabled={passkeyBusy}
+                    onClick={handleCreatePasskey}
+                  >
+                    {passkeyBusy ? 'Working…' : 'Create Passkey'}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    disabled={passkeyBusy}
+                    onClick={handlePasskeySignIn}
+                  >
+                    {passkeyBusy ? 'Working…' : 'Sign in with Passkey'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  Passkeys are not configured. Set NEXT_PUBLIC_rpcUrl, NEXT_PUBLIC_networkPassphrase, and NEXT_PUBLIC_walletWasmHash.
+                </div>
+              )}
               <Button
                 className="w-full btn-emerald"
                 onClick={handleWalletConnect}

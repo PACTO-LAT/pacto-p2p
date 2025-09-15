@@ -11,6 +11,8 @@ export interface User {
   id: string;
   email: string;
   stellar_address?: string;
+  passkey_contract_id?: string;
+  passkey_key_id?: string;
   reputation_score: number;
   total_trades: number;
   total_volume?: number;
