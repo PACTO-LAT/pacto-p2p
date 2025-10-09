@@ -89,7 +89,7 @@ export interface CreateEscrowData {
 
 // Dashboard UI Types
 export interface DashboardListing {
-  id: number;
+  id: string;
   type: 'sell' | 'buy';
   token: string;
   amount: number;
@@ -97,6 +97,10 @@ export interface DashboardListing {
   fiatCurrency: string;
   status: string;
   created: string;
+  seller?: string;
+  buyer?: string;
+  description?: string;
+  paymentMethod?: string;
 }
 
 export interface DashboardEscrow {

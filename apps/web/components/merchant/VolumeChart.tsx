@@ -13,9 +13,12 @@ import type { VolumePoint } from '@/lib/types/merchant';
 
 export function VolumeChart({ data }: { data: VolumePoint[] }) {
   return (
-    <Card className="feature-card-dark rounded-2xl p-4">
-      <div className="mb-3 text-sm font-medium text-foreground">30d Volume</div>
-      <div className="h-56 w-full">
+    <Card className="rounded-2xl p-4 bg-gradient-to-b from-background to-muted/40 border border-border/50">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="text-sm font-medium text-foreground">30d Volume</div>
+        <div className="text-xs text-muted-foreground">USD</div>
+      </div>
+      <div className="h-56 w-full sm:h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
@@ -23,8 +26,8 @@ export function VolumeChart({ data }: { data: VolumePoint[] }) {
           >
             <defs>
               <linearGradient id="vgrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.45} />
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis dataKey="d" hide />
@@ -36,7 +39,7 @@ export function VolumeChart({ data }: { data: VolumePoint[] }) {
             <Area
               type="monotone"
               dataKey="volume"
-              stroke="#22c55e"
+              stroke="#10b981"
               fill="url(#vgrad)"
               strokeWidth={2}
             />

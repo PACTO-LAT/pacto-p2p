@@ -7,7 +7,7 @@ import type {
 // Mock listings data
 export const mockListings: DashboardListing[] = [
   {
-    id: 1,
+    id: '1',
     type: 'sell',
     token: 'CRCX',
     amount: 1000,
@@ -17,7 +17,7 @@ export const mockListings: DashboardListing[] = [
     created: '2024-01-15',
   },
   {
-    id: 2,
+    id: '2',
     type: 'buy',
     token: 'USDC',
     amount: 500,
@@ -55,7 +55,7 @@ export const mockEscrows: DashboardEscrow[] = [
 //! Mock marketplace listings - @joel And @bran18
 export const mockMarketplaceListings: MarketplaceListing[] = [
   {
-    id: 1,
+    id: 1, // MarketplaceListing expects a number id
     type: 'sell',
     token: 'CRCX',
     amount: 10,

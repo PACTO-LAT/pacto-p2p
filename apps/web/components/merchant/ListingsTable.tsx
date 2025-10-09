@@ -4,6 +4,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { MerchantListing } from '@/lib/types/merchant';
 
 type SortKey = keyof Pick<
@@ -43,10 +44,74 @@ export function ListingsTable({
   }
 
   return (
-    <Card className="feature-card-dark rounded-2xl p-0">
-      <div className="overflow-x-auto">
+    <Card className="rounded-2xl p-0 bg-gradient-to-b from-background to-muted/40 border border-border/50">
+      {/* Mobile Cards */}
+      <div className="grid gap-3 p-3 sm:hidden">
+        {sorted.map((l) => (
+          <div key={l.id} className="rounded-xl border p-4 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+            <div className="flex items-center justify-between gap-3">
+              <div className="font-medium capitalize">
+                {l.side}
+                <span className="mx-2 text-muted-foreground">•</span>
+                <span className="text-muted-foreground">{l.asset_code}</span>
+              </div>
+              <Button size="sm" className="btn-secondary" type="button">
+                {ctaLabel}
+              </Button>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <div className="text-muted-foreground">Asset</div>
+                <div>{l.asset_code}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Price</div>
+                <div>
+                  {l.price_rate} {l.quote_currency}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Amount</div>
+                <div>{l.amount.toLocaleString()}</div>
+              </div>
+              {showStatus ? (
+                <div>
+                  <div className="text-muted-foreground">Status</div>
+                  <div>
+                    <Badge variant={l.status === 'active' ? 'secondary' : 'outline'} className="capitalize">
+                      {l.status}
+                    </Badge>
+                  </div>
+                </div>
+              ) : null}
+              <div className="col-span-2">
+                <div className="text-muted-foreground">Min–Max</div>
+                <div>
+                  {l.min_amount ? l.min_amount.toLocaleString() : '—'} –{' '}
+                  {l.max_amount ? l.max_amount.toLocaleString() : '—'}
+                </div>
+              </div>
+              <div className="col-span-2">
+                <div className="text-muted-foreground">Payment Methods</div>
+                {l.payment_methods?.length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {l.payment_methods.map((pm) => (
+                      <Badge key={pm.method} variant="outline" className="text-[11px]">
+                        {pm.method}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <div>—</div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="overflow-x-auto hidden sm:block">
         <table className="w-full text-sm">
-          <thead className="text-left">
+          <thead className="text-left sticky top-0 z-10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <tr className="border-b">
               {(
                 [
@@ -70,7 +135,7 @@ export function ListingsTable({
                   ) : (
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1"
+                      className="inline-flex items-center gap-1 hover:text-foreground"
                       onClick={() => onSort(k as SortKey)}
                     >
                       {label}
@@ -84,14 +149,17 @@ export function ListingsTable({
           </thead>
           <tbody>
             {sorted.map((l) => (
-              <tr key={l.id} className="border-b/50">
-                <td className="px-4 py-3 font-medium capitalize">{l.side}</td>
-                <td className="px-4 py-3">{l.asset_code}</td>
-                <td className="px-4 py-3">
+              <tr
+                key={l.id}
+                className="border-b/50 transition-colors hover:bg-emerald-500/5"
+              >
+                <td className="px-4 py-3 font-medium capitalize whitespace-nowrap">{l.side}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{l.asset_code}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
                   {l.price_rate} {l.quote_currency}
                 </td>
-                <td className="px-4 py-3">{l.amount.toLocaleString()}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 whitespace-nowrap">{l.amount.toLocaleString()}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
                   {new Date(l.created_at).toLocaleString()}
                 </td>
                 <td className="px-4 py-3">
@@ -99,15 +167,27 @@ export function ListingsTable({
                   {l.max_amount ? l.max_amount.toLocaleString() : '—'}
                 </td>
                 <td className="px-4 py-3">
-                  {l.payment_methods?.length
-                    ? l.payment_methods.map((pm) => pm.method).join(', ')
-                    : '—'}
+                  {l.payment_methods?.length ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {l.payment_methods.map((pm) => (
+                        <Badge key={pm.method} variant="outline" className="text-[11px]">
+                          {pm.method}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    '—'
+                  )}
                 </td>
                 {showStatus ? (
-                  <td className="px-4 py-3 capitalize">{l.status}</td>
+                  <td className="px-4 py-3">
+                    <Badge variant={l.status === 'active' ? 'secondary' : 'outline'} className="capitalize">
+                      {l.status}
+                    </Badge>
+                  </td>
                 ) : null}
                 <td className="px-4 py-3 text-right">
-                  <Button size="sm" variant="default" type="button">
+                  <Button size="sm" className="btn-secondary" type="button">
                     {ctaLabel}
                   </Button>
                 </td>

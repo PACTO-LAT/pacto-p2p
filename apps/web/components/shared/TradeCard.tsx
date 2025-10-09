@@ -12,6 +12,7 @@ import {
   getStatusColor,
 } from '@/lib/dashboard-utils';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface TradeCardProps {
   trade: DashboardListing | DashboardEscrow;
@@ -38,6 +39,7 @@ const isEscrow = (
 };
 
 export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
+  const { address } = useGlobalAuthenticationStore();
   const renderRightSection = () => {
     if (isListing(trade)) {
       return (
@@ -137,6 +139,9 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
                 trade={trade}
                 onAction={onAction}
                 onOpenDialog={onOpenDialog}
+                showManage={
+                  isListing(trade) && !!trade.seller && trade.seller === address
+                }
               />
             </div>
           </div>
