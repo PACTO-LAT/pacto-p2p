@@ -7,8 +7,14 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'static.wikia.nocookie.net' },
       {
         protocol: 'https',
-        hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL as string)
-          .hostname,
+        hostname: (() => {
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          try {
+            return url ? new URL(url).hostname : 'localhost';
+          } catch {
+            return 'localhost';
+          }
+        })(),
       },
     ],
   },
