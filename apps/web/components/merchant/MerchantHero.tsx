@@ -48,23 +48,24 @@ function StatusPill({ status }: { status: Merchant['verification_status'] }) {
 export function MerchantHero({ merchant }: { merchant: Merchant }) {
   return (
     <section className="w-full">
-      <div className="relative h-40 w-full rounded-2xl overflow-hidden sm:h-56">
+      <div className="relative h-44 w-full rounded-2xl overflow-hidden sm:h-64 lg:h-72">
         <Image
           src={merchant.banner_url || '/window.svg'}
           alt="banner"
           fill
-          className="object-cover opacity-80"
+          className="object-cover"
           priority
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-transparent to-background/80" />
       </div>
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        <Card className="feature-card-dark -mt-10 rounded-2xl p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border">
+        <Card className="feature-card -mt-12 sm:-mt-16 rounded-2xl p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-2xl border ring-2 ring-background ring-offset-2 ring-offset-background">
               {merchant.avatar_url ? (
                 <Image
                   src={merchant.avatar_url}
@@ -80,7 +81,7 @@ export function MerchantHero({ merchant }: { merchant: Merchant }) {
             </div>
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-semibold sm:text-2xl">
+                <h1 className="text-2xl font-bold sm:text-3xl text-hero-gradient">
                   {merchant.display_name}
                 </h1>
                 <StatusPill status={merchant.verification_status} />
@@ -90,22 +91,20 @@ export function MerchantHero({ merchant }: { merchant: Merchant }) {
                   <Badge variant="outline">Private</Badge>
                 )}
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 {merchant.location && (
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1">
                     <MapPin className="h-4 w-4" />
                     {merchant.location}
                   </span>
                 )}
                 {merchant.languages?.length ? (
-                  <span>{merchant.languages.join(', ')}</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1">
+                    {merchant.languages.join(', ')}
+                  </span>
                 ) : null}
                 {merchant.socials?.website && (
-                  <Link
-                    href={merchant.socials.website}
-                    target="_blank"
-                    className="inline-flex items-center gap-1.5 hover:text-foreground"
-                  >
+                  <Link href={merchant.socials.website} target="_blank" className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 hover:text-foreground">
                     <Globe className="h-4 w-4" /> Website
                   </Link>
                 )}

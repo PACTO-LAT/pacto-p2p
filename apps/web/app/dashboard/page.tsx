@@ -2,10 +2,9 @@
 
 import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
 import Link from 'next/link';
-import {
-  DisputeDialog,
-  ReceiptDialog,
-} from '@/components/shared/DashboardDialogs';
+import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
+import { ListingDetailsDialog } from '@/components/shared/ListingDetailsDialog';
+import { ListingEditDialog } from '@/components/shared/ListingEditDialog';
 import { TradeCard } from '@/components/shared/TradeCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,13 +19,24 @@ export default function DashboardPage() {
   const { address } = useGlobalAuthenticationStore();
   const { handleConnect } = useWallet();
   const { dialogState, openDialog, closeDialog } = useDialog<DashboardEscrow>();
+  const {
+    dialogState: listingDialogState,
+    openDialog: openListingDialog,
+    closeDialog: closeListingDialog,
+  } = useDialog<DashboardListing>();
+  const {
+    dialogState: listingEditState,
+    openDialog: openListingEditDialog,
+    closeDialog: closeListingEditDialog,
+    setSelectedItem: setEditListing,
+  } = useDialog<DashboardListing>();
 
   const { data: marketplace = [], isLoading } = useMarketplaceListings({
     status: 'active',
   });
   const activeListings = marketplace.map(
     (m): DashboardListing => ({
-      id: m.id as unknown as number,
+      id: String(m.id),
       type: m.type,
       token: m.token,
       amount: m.amount,
@@ -34,6 +44,10 @@ export default function DashboardPage() {
       fiatCurrency: m.fiatCurrency,
       status: m.status,
       created: m.created,
+      seller: m.seller,
+      buyer: m.buyer,
+      description: m.description,
+      paymentMethod: m.paymentMethod,
     })
   );
   const activeEscrows: DashboardEscrow[] = [];
@@ -42,8 +56,21 @@ export default function DashboardPage() {
     trade: DashboardListing | DashboardEscrow,
     action: string
   ) => {
+    const isListing = (t: DashboardListing | DashboardEscrow): t is DashboardListing =>
+      'rate' in t && 'fiatCurrency' in t;
+
+    if (action === 'view' && isListing(trade)) {
+      openListingDialog(trade);
+      return;
+    }
+
+    if (action === 'manage' && isListing(trade)) {
+      setEditListing(trade);
+      openListingEditDialog(trade);
+      return;
+    }
+
     console.log(`${action} action for trade:`, trade.id);
-    // Handle different actions (view, manage, etc.)
   };
 
   const handleOpenDialog = (trade: DashboardListing | DashboardEscrow) => {
@@ -197,6 +224,17 @@ export default function DashboardPage() {
       </Tabs>
 
       {/* Dialogs */}
+      <ListingDetailsDialog
+        open={listingDialogState.isOpen}
+        onOpenChange={closeListingDialog}
+        listing={listingDialogState.selectedItem}
+      />
+      <ListingEditDialog
+        open={listingEditState.isOpen}
+        onOpenChange={closeListingEditDialog}
+        listing={listingEditState.selectedItem}
+      />
+
       <ReceiptDialog
         open={dialogState.isOpen}
         onOpenChange={closeDialog}

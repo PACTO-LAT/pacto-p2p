@@ -12,6 +12,7 @@ interface TradeActionsProps {
     trade: DashboardListing | DashboardEscrow,
     type: 'receipt' | 'dispute'
   ) => void;
+  showManage?: boolean;
 }
 
 const isListing = (
@@ -30,6 +31,7 @@ export function TradeActions({
   trade,
   onAction,
   onOpenDialog,
+  showManage,
 }: TradeActionsProps) {
   if (isListing(trade)) {
     return (
@@ -41,15 +43,17 @@ export function TradeActions({
           onClick={() => onAction?.(trade, 'view')}
         >
           <ExternalLink className="w-4 h-4 mr-1" />
-          Ver
+          Details
         </Button>
-        <Button
-          size="sm"
-          className="btn-emerald"
-          onClick={() => onAction?.(trade, 'manage')}
-        >
-          Manage
-        </Button>
+        {showManage && (
+          <Button
+            size="sm"
+            className="btn-emerald"
+            onClick={() => onAction?.(trade, 'manage')}
+          >
+            Manage
+          </Button>
+        )}
       </div>
     );
   }
@@ -63,7 +67,8 @@ export function TradeActions({
           className="btn-emerald-outline"
           onClick={() => onAction?.(trade, 'view')}
         >
-          Ver Detalles
+          <ExternalLink className="w-4 h-4 mr-1" />
+          Details
         </Button>
         {trade.status === 'awaiting_payment' && trade.type === 'buy' && (
           <Button
@@ -72,7 +77,7 @@ export function TradeActions({
             onClick={() => onOpenDialog?.(trade, 'receipt')}
           >
             <Upload className="w-4 h-4 mr-1" />
-            Subir Recibo
+            Upload Receipt
           </Button>
         )}
         <Button
@@ -82,7 +87,7 @@ export function TradeActions({
           onClick={() => onOpenDialog?.(trade, 'dispute')}
         >
           <AlertTriangle className="w-4 h-4 mr-1" />
-          Disputa
+          Dispute
         </Button>
       </div>
     );

@@ -17,7 +17,7 @@ export function TrustlessWorkProvider({
   /**
    * Get the API key from the environment variables
    */
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY || '';
+  const apiKey = process.env.NEXT_PUBLIC_TLW_API_KEY || '';
 
   return (
     <TrustlessWorkConfig baseURL={development} apiKey={apiKey}>
