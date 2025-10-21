@@ -80,7 +80,7 @@ export function HowItWorksSection() {
           </span>
         </motion.div>
         <motion.h2
-          className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent"
+          className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-white  to-slate-300 bg-clip-text text-transparent"
           variants={shouldAnimate ? itemAnimation : {}}
         >
           How Pacto Works
@@ -120,16 +120,16 @@ export function HowItWorksSection() {
                   </div>
                 </div>
 
-                {/* Enhanced Content Card */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50/50 to-emerald-100/30 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-2xl p-8 border border-emerald-200/50 dark:border-emerald-700/30 shadow-lg group-hover:shadow-xl group-hover:shadow-emerald-500/10 transition-all duration-300 group-hover:-translate-y-2">
-                  {/* Top accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/50 via-emerald-400/50 to-emerald-600/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                {/* Enhanced Content Card - Glassmorphism Style */}
+                <div className="glass-card-landing relative overflow-hidden rounded-2xl p-8">
+                  {/* Top accent line - White/Glass style */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/30 via-white/50 to-white/30 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
 
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Glass overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   <div className="relative z-10">
-                    <h3 className="text-xl font-bold text-foreground mb-4 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
+                    <h3 className="text-xl font-bold text-foreground mb-4 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors duration-300">
                       {step.title}
                     </h3>
                     <p className="text-muted-foreground leading-relaxed">
@@ -155,13 +155,13 @@ export function HowItWorksSection() {
                   </div>
                 </div>
 
-                {/* Enhanced Content */}
-                <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-emerald-50/50 to-emerald-100/30 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-700/30 shadow-lg group-hover:shadow-xl group-hover:shadow-emerald-500/10 transition-all duration-300 group-hover:-translate-y-1">
-                  {/* Top accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/50 via-emerald-400/50 to-emerald-600/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                {/* Enhanced Content - Glassmorphism Style */}
+                <div className="glass-card-landing flex-1 relative overflow-hidden rounded-xl p-6">
+                  {/* Top accent line - White/Glass style */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/30 via-white/50 to-white/30 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
 
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Glass overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   <div className="relative z-10">
                     <h3 className="text-lg font-bold text-foreground mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">

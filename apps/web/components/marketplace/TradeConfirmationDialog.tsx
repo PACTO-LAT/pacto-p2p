@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { formatAmount, formatCurrency } from '@/lib/dashboard-utils';
 import type { MarketplaceListing } from '@/lib/types/marketplace';
 import { cn } from '@/lib/utils';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 
 interface TradeConfirmationDialogProps {
   open: boolean;
@@ -193,11 +194,13 @@ export function TradeConfirmationDialog({
                       <span className="text-sm font-medium text-muted-foreground">
                         You Receive
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="grid grid-cols-2 items-center justify-items-end">
                         <span className="text-sm font-medium text-foreground">
                           {selectedListing.token}
                         </span>
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full"></div>
+                        <div className="w-7 h-7 mt-3 justify-self-end">
+                          <TokenIcon token={selectedListing.token} size="sm" />
+                        </div>
                       </div>
                     </div>
                     <div className="text-3xl font-bold text-foreground">

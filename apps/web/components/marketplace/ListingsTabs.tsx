@@ -14,14 +14,8 @@ export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
   const sellListings = listings.filter((l) => l.type === 'sell');
 
   return (
-    <Tabs defaultValue="all" className="space-y-6">
+    <Tabs defaultValue="buy" className="space-y-6">
       <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1">
-        <TabsTrigger
-          value="all"
-          className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-        >
-          All Listings ({listings.length})
-        </TabsTrigger>
         <TabsTrigger
           value="buy"
           className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"

@@ -39,7 +39,7 @@ export function TradeActions({
         <Button
           size="sm"
           variant="outline"
-          className="btn-emerald-outline"
+          className="btn-details-glass"
           onClick={() => onAction?.(trade, 'view')}
         >
           <ExternalLink className="w-4 h-4 mr-1" />

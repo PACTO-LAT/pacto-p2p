@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export function EmptyState() {
   return (
-    <Card className="glass-card">
+    <Card className="card">
       <CardContent className="p-12 text-center">
         <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl mx-auto mb-4 flex items-center justify-center glow-emerald">
           <Shield className="w-8 h-8 text-muted-foreground" />

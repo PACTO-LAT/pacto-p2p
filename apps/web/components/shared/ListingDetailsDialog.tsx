@@ -27,7 +27,7 @@ export function ListingDetailsDialog({ open, onOpenChange, listing }: ListingDet
 
         {listing && (
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-3">
               <div>
                 <p className="text-xs text-muted-foreground">Listing ID</p>
                 <p className="font-medium">{listing.id}</p>
@@ -66,8 +66,8 @@ export function ListingDetailsDialog({ open, onOpenChange, listing }: ListingDet
 
             {creatorAddress && (
               <div>
-                <p className="text-xs text-muted-foreground">Created by</p>
-                <p className="font-mono text-xs bg-muted/50 backdrop-blur-sm px-2 py-1 rounded break-all">{creatorAddress}</p>
+                <p className="text-xs text-muted-foreground mb-2">Created by</p>
+                <p className="font-mono text-xs bg-muted/50 backdrop-blur-sm px-2 py-1 rounded break-all inline-block max-w-fit">{creatorAddress}</p>
               </div>
             )}
 

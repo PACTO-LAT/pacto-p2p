@@ -134,19 +134,6 @@ export interface MarketplaceListing {
 
 export type DialogType = 'receipt' | 'dispute' | null;
 
-export interface TradeCardProps {
-  trade: DashboardListing | DashboardEscrow;
-  variant: 'listing' | 'escrow';
-  onAction?: (
-    trade: DashboardListing | DashboardEscrow,
-    action: string
-  ) => void;
-  onOpenDialog?: (
-    trade: DashboardListing | DashboardEscrow,
-    type: 'receipt' | 'dispute'
-  ) => void;
-}
-
 export type Listing = {
   id: number;
   type: 'sell' | 'buy';

@@ -79,24 +79,24 @@ export default function CreateListingPage() {
     <div className="mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/listings">
-          <Button variant="outline" size="sm">
+        <Link href="/dashboard">
+          <Button variant="outline" size="sm" className="glass-button">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Create Listing</h1>
-          <p className="text-gray-600">Create a new OTC trade listing</p>
+          <h1 className="text-3xl font-bold text-emerald-gradient">Create Listing</h1>
+          <p className="text-muted-foreground">Create a new OTC trade listing</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Trade Type */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>Trade Type</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Choose whether you want to buy or sell stablecoins
             </CardDescription>
           </CardHeader>
@@ -114,11 +114,11 @@ export default function CreateListingPage() {
                 />
                 <Label
                   htmlFor="sell"
-                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 [&:has([data-state=checked])]:border-emerald-600 cursor-pointer"
+                  className="flex flex-col items-center justify-between rounded-xl border-2 border-glass-border bg-glass-card p-6 hover:bg-glass-hover hover:text-accent-foreground peer-data-[state=checked]:border-emerald-500 peer-data-[state=checked]:bg-emerald-500/10 [&:has([data-state=checked])]:border-emerald-500 [&:has([data-state=checked])]:bg-emerald-500/10 cursor-pointer transition-all duration-300"
                 >
                   <div className="text-center">
-                    <div className="text-lg font-semibold mb-2">Sell</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-lg font-semibold mb-2 text-foreground">Sell</div>
+                    <div className="text-sm text-muted-foreground">
                       I want to sell my stablecoins for fiat
                     </div>
                   </div>
@@ -128,11 +128,11 @@ export default function CreateListingPage() {
                 <RadioGroupItem value="buy" id="buy" className="peer sr-only" />
                 <Label
                   htmlFor="buy"
-                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 [&:has([data-state=checked])]:border-emerald-600 cursor-pointer"
+                  className="flex flex-col items-center justify-between rounded-xl border-2 border-glass-border bg-glass-card p-6 hover:bg-glass-hover hover:text-accent-foreground peer-data-[state=checked]:border-emerald-500 peer-data-[state=checked]:bg-emerald-500/10 [&:has([data-state=checked])]:border-emerald-500 [&:has([data-state=checked])]:bg-emerald-500/10 cursor-pointer transition-all duration-300"
                 >
                   <div className="text-center">
-                    <div className="text-lg font-semibold mb-2">Buy</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-lg font-semibold mb-2 text-foreground">Buy</div>
+                    <div className="text-sm text-muted-foreground">
                       I want to buy stablecoins with fiat
                     </div>
                   </div>
@@ -143,29 +143,30 @@ export default function CreateListingPage() {
         </Card>
 
         {/* Token Selection */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>Stablecoin Details</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Select the stablecoin and amount you want to trade
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="token">Stablecoin</Label>
+                <Label htmlFor="token" className="text-foreground font-medium">Stablecoin</Label>
                 <Select
                   value={formData.token}
                   onValueChange={(value) => handleInputChange('token', value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="glass-input">
                     <SelectValue placeholder="Select token" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-card">
                     {TRUSTLINES.map((trustline) => (
                       <SelectItem
                         key={trustline.address}
                         value={trustline.name}
+                        className="hover:bg-glass-hover"
                       >
                         {trustline.name}
                       </SelectItem>
@@ -174,13 +175,14 @@ export default function CreateListingPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
+                <Label htmlFor="amount" className="text-foreground font-medium">Amount</Label>
                 <Input
                   id="amount"
                   type="number"
                   placeholder="0.00"
                   value={formData.amount}
                   onChange={(e) => handleInputChange('amount', e.target.value)}
+                  className="glass-input"
                 />
               </div>
             </div>
@@ -188,17 +190,17 @@ export default function CreateListingPage() {
         </Card>
 
         {/* Exchange Rate */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>Exchange Rate</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Set your exchange rate and fiat currency
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="rate">Rate per Token</Label>
+                <Label htmlFor="rate" className="text-foreground font-medium">Rate per Token</Label>
                 <Input
                   id="rate"
                   type="number"
@@ -206,35 +208,36 @@ export default function CreateListingPage() {
                   placeholder="0.00"
                   value={formData.rate}
                   onChange={(e) => handleInputChange('rate', e.target.value)}
+                  className="glass-input"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fiatCurrency">Fiat Currency</Label>
+                <Label htmlFor="fiatCurrency" className="text-foreground font-medium">Fiat Currency</Label>
                 <Select
                   value={formData.fiatCurrency}
                   onValueChange={(value) =>
                     handleInputChange('fiatCurrency', value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="glass-input">
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CRC">CRC - Costa Rican Colón</SelectItem>
-                    <SelectItem value="MXN">MXN - Mexican Peso</SelectItem>
-                    <SelectItem value="USD">USD - US Dollar</SelectItem>
+                  <SelectContent className="glass-card">
+                    <SelectItem value="CRC" className="hover:bg-glass-hover">CRC - Costa Rican Colón</SelectItem>
+                    <SelectItem value="MXN" className="hover:bg-glass-hover">MXN - Mexican Peso</SelectItem>
+                    <SelectItem value="USD" className="hover:bg-glass-hover">USD - US Dollar</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             {formData.amount && formData.rate && (
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="glass-card bg-emerald-500/10 border-emerald-500/20 p-4 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <Calculator className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">Total Value</span>
+                  <Calculator className="w-4 h-4 text-emerald-500" />
+                  <span className="font-medium text-emerald-600">Total Value</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-emerald-600">
                   {calculateTotal()} {formData.fiatCurrency}
                 </p>
               </div>
@@ -243,37 +246,37 @@ export default function CreateListingPage() {
         </Card>
 
         {/* Payment Method */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>Payment Method</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Choose your preferred fiat payment method
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="paymentMethod">Payment Method</Label>
+              <Label htmlFor="paymentMethod" className="text-foreground font-medium">Payment Method</Label>
               <Select
                 value={formData.paymentMethod}
                 onValueChange={(value) =>
                   handleInputChange('paymentMethod', value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="glass-input">
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SINPE">SINPE (Costa Rica)</SelectItem>
-                  <SelectItem value="SPEI">SPEI (Mexico)</SelectItem>
-                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="Cash Deposit">Cash Deposit</SelectItem>
+                <SelectContent className="glass-card">
+                  <SelectItem value="SINPE" className="hover:bg-glass-hover">SINPE (Costa Rica)</SelectItem>
+                  <SelectItem value="SPEI" className="hover:bg-glass-hover">SPEI (Mexico)</SelectItem>
+                  <SelectItem value="Bank Transfer" className="hover:bg-glass-hover">Bank Transfer</SelectItem>
+                  <SelectItem value="Cash Deposit" className="hover:bg-glass-hover">Cash Deposit</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="minAmount">Min Amount (Optional)</Label>
+                <Label htmlFor="minAmount" className="text-foreground font-medium">Min Amount (Optional)</Label>
                 <Input
                   id="minAmount"
                   type="number"
@@ -282,10 +285,11 @@ export default function CreateListingPage() {
                   onChange={(e) =>
                     handleInputChange('minAmount', e.target.value)
                   }
+                  className="glass-input"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="maxAmount">Max Amount (Optional)</Label>
+                <Label htmlFor="maxAmount" className="text-foreground font-medium">Max Amount (Optional)</Label>
                 <Input
                   id="maxAmount"
                   type="number"
@@ -294,6 +298,7 @@ export default function CreateListingPage() {
                   onChange={(e) =>
                     handleInputChange('maxAmount', e.target.value)
                   }
+                  className="glass-input"
                 />
               </div>
             </div>
@@ -301,16 +306,16 @@ export default function CreateListingPage() {
         </Card>
 
         {/* Additional Details */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>Additional Details</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Add any additional information for traders
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-foreground font-medium">Description (Optional)</Label>
               <Textarea
                 id="description"
                 placeholder="Add any special instructions or requirements..."
@@ -319,6 +324,7 @@ export default function CreateListingPage() {
                   handleInputChange('description', e.target.value)
                 }
                 rows={3}
+                className="glass-input"
               />
             </div>
           </CardContent>
@@ -330,7 +336,7 @@ export default function CreateListingPage() {
             <div className="flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <h4 className="font-medium text-blue-900 mb-1">
+                <h4 className="font-medium text-blue-900 mb-2">
                   Trustless Work Escrow
                 </h4>
                 <p className="text-sm text-blue-700">
@@ -346,13 +352,13 @@ export default function CreateListingPage() {
         {/* Submit */}
         <div className="flex gap-4">
           <Link href="/dashboard/listings" className="flex-1">
-            <Button variant="outline" className="w-full bg-transparent">
+            <Button variant="outline" className="w-full glass-button">
               Cancel
             </Button>
           </Link>
           <Button
             type="submit"
-            className="flex-1 btn-primary"
+            className="flex-1 btn-emerald"
             disabled={isLoading}
           >
             {isLoading ? 'Creating Listing...' : 'Create Listing'}

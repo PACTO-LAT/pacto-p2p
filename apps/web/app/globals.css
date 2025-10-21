@@ -820,6 +820,643 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
+/* Details Button Glass Style */
+.btn-details-glass {
+  position: relative;
+  padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease-out;
+  font-family: "Plus Jakarta Sans", "Clash Display", sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow:
+    0 4px 12px rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.btn-details-glass::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transition: left 0.8s ease;
+}
+
+.btn-details-glass:hover::after {
+  left: 100%;
+}
+
+.btn-details-glass:hover {
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 6px 20px rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 20px rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.btn-details-glass:active {
+  transform: translateY(0) !important;
+  box-shadow:
+    0 2px 8px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Glass Card - Generic (for general use) */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow:
+    0 6px 20px rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease-out;
+}
+
+/* Glass Card - Auth (darker version) */
+.glass-card-auth {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.263) !important;
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease-out;
+}
+
+/* Landing How It Works Cards */
+.glass-card-landing {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow:
+    0 6px 20px rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease-out;
+}
+
+.glass-card-landing:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 8px 25px rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 30px rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Sidebar Glass Morphism Styles - Black Base with Green Accents */
+.sidebar-glass-morphism {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(5, 5, 5, 0.9) 25%,
+      rgba(0, 0, 0, 0.85) 50%,
+      rgba(5, 5, 5, 0.9) 75%,
+      rgba(0, 0, 0, 0.95) 100%
+    ) !important;
+  backdrop-filter: 
+    blur(24px) 
+    saturate(180%) 
+    contrast(120%) 
+    brightness(80%);
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(16, 185, 129, 0.1),
+    inset 0 1px 0 rgba(16, 185, 129, 0.1),
+    0 0 20px rgba(16, 185, 129, 0.05),
+    /* Chromatic aberration effect */
+    2px 0 0 rgba(16, 185, 129, 0.15),
+    -2px 0 0 rgba(16, 185, 129, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-glass-morphism::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(16, 185, 129, 0.08) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(16, 185, 129, 0.06) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dark .sidebar-glass-morphism {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(2, 2, 2, 0.95) 25%,
+      rgba(0, 0, 0, 0.9) 50%,
+      rgba(2, 2, 2, 0.95) 75%,
+      rgba(0, 0, 0, 0.98) 100%
+    ) !important;
+  backdrop-filter: 
+    blur(32px) 
+    saturate(200%) 
+    contrast(130%) 
+    brightness(75%);
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(16, 185, 129, 0.15),
+    inset 0 1px 0 rgba(16, 185, 129, 0.15),
+    0 0 30px rgba(16, 185, 129, 0.08),
+    /* Enhanced chromatic aberration for dark mode */
+    3px 0 0 rgba(16, 185, 129, 0.2),
+    -3px 0 0 rgba(16, 185, 129, 0.1);
+}
+
+.sidebar-gradient {
+  background: 
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(16, 185, 129, 0.12) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(16, 185, 129, 0.08) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 40% 80%,
+      rgba(16, 185, 129, 0.06) 0%,
+      transparent 80%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(2, 2, 2, 0.9) 25%,
+      rgba(0, 0, 0, 0.85) 50%,
+      rgba(2, 2, 2, 0.9) 75%,
+      rgba(0, 0, 0, 0.95) 100%
+    ) !important;
+}
+
+.dark .sidebar-gradient {
+  background: 
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(16, 185, 129, 0.15) 0%,
+      transparent 80%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(16, 185, 129, 0.12) 0%,
+      transparent 80%
+    ),
+    radial-gradient(
+      circle at 40% 80%,
+      rgba(16, 185, 129, 0.08) 0%,
+      transparent 90%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(1, 1, 1, 0.95) 25%,
+      rgba(0, 0, 0, 0.9) 50%,
+      rgba(1, 1, 1, 0.95) 75%,
+      rgba(0, 0, 0, 0.98) 100%
+    ) !important;
+}
+
+.sidebar-header-glass {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(2, 2, 2, 0.7) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    ) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2) !important;
+  position: relative;
+}
+
+.sidebar-header-glass::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(16, 185, 129, 0.3),
+    transparent
+  );
+}
+
+.dark .sidebar-header-glass {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(1, 1, 1, 0.8) 50%,
+      rgba(0, 0, 0, 0.9) 100%
+    ) !important;
+  backdrop-filter: blur(24px) saturate(200%);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.sidebar-nav-item {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(2, 2, 2, 0.5) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.15) !important;
+  backdrop-filter: 
+    blur(20px) 
+    saturate(180%) 
+    contrast(110%) 
+    brightness(85%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-nav-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(16, 185, 129, 0.04) 0%,
+      transparent 70%
+    );
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.sidebar-nav-item:hover::before {
+  opacity: 1;
+}
+
+.sidebar-nav-item:hover {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(2, 2, 2, 0.6) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    ) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  transform: translateX(2px) scale(1.02);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(16, 185, 129, 0.15),
+    /* Chromatic aberration on hover */
+    1px 0 0 rgba(16, 185, 129, 0.15),
+    -1px 0 0 rgba(16, 185, 129, 0.08);
+}
+
+.dark .sidebar-nav-item {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(1, 1, 1, 0.6) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.dark .sidebar-nav-item:hover {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(1, 1, 1, 0.7) 50%,
+      rgba(0, 0, 0, 0.9) 100%
+    ) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(16, 185, 129, 0.2),
+    /* Enhanced chromatic aberration for dark mode */
+    2px 0 0 rgba(16, 185, 129, 0.2),
+    -2px 0 0 rgba(16, 185, 129, 0.1);
+}
+
+.sidebar-nav-active {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.25),
+      rgba(16, 185, 129, 0.15)
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(16, 185, 129, 0.1) 0%,
+      transparent 70%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  backdrop-filter: 
+    blur(24px) 
+    saturate(200%) 
+    contrast(120%) 
+    brightness(90%);
+  box-shadow:
+    0 4px 16px rgba(16, 185, 129, 0.3),
+    0 0 0 1px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(16, 185, 129, 0.2),
+    /* Chromatic aberration for active state */
+    2px 0 0 rgba(16, 185, 129, 0.3),
+    -2px 0 0 rgba(16, 185, 129, 0.15);
+  position: relative;
+  transform: translateX(1px) scale(1.01);
+}
+
+.sidebar-nav-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    rgba(16, 185, 129, 0.9),
+    rgba(16, 185, 129, 0.6)
+  );
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.sidebar-nav-active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(16, 185, 129, 0.05),
+      transparent
+    );
+  transform: translateX(-100%);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.sidebar-nav-active:hover::after {
+  transform: translateX(100%);
+}
+
+.dark .sidebar-nav-active {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.3),
+      rgba(16, 185, 129, 0.2)
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(16, 185, 129, 0.15) 0%,
+      transparent 70%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  box-shadow:
+    0 4px 16px rgba(16, 185, 129, 0.4),
+    0 0 0 1px rgba(16, 185, 129, 0.25),
+    inset 0 1px 0 rgba(16, 185, 129, 0.25),
+    /* Enhanced chromatic aberration for dark mode */
+    3px 0 0 rgba(16, 185, 129, 0.35),
+    -3px 0 0 rgba(16, 185, 129, 0.18);
+}
+
+.sidebar-wallet-card {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(2, 2, 2, 0.6) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  backdrop-filter: 
+    blur(22px) 
+    saturate(190%) 
+    contrast(115%) 
+    brightness(80%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-wallet-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), transparent),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(16, 185, 129, 0.03) 0%,
+      transparent 70%
+    );
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.sidebar-wallet-card:hover::before {
+  opacity: 1;
+}
+
+.sidebar-wallet-card:hover {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(2, 2, 2, 0.7) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    ) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(16, 185, 129, 0.15),
+    /* Chromatic aberration on hover */
+    1px 0 0 rgba(16, 185, 129, 0.15),
+    -1px 0 0 rgba(16, 185, 129, 0.08);
+}
+
+.dark .sidebar-wallet-card {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(1, 1, 1, 0.7) 50%,
+      rgba(0, 0, 0, 0.9) 100%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.dark .sidebar-wallet-card:hover {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(1, 1, 1, 0.8) 50%,
+      rgba(0, 0, 0, 0.95) 100%
+    ) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(16, 185, 129, 0.2),
+    /* Enhanced chromatic aberration for dark mode */
+    2px 0 0 rgba(16, 185, 129, 0.2),
+    -2px 0 0 rgba(16, 185, 129, 0.1);
+}
+
+.sidebar-button-glass {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(2, 2, 2, 0.5) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.18) !important;
+  backdrop-filter: 
+    blur(18px) 
+    saturate(180%) 
+    contrast(110%) 
+    brightness(85%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-button-glass::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(16, 185, 129, 0.02) 0%,
+      transparent 70%
+    );
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.sidebar-button-glass:hover::before {
+  opacity: 1;
+}
+
+.sidebar-button-glass:hover {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(2, 2, 2, 0.6) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    ) !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(16, 185, 129, 0.12),
+    /* Chromatic aberration on hover */
+    1px 0 0 rgba(16, 185, 129, 0.12),
+    -1px 0 0 rgba(16, 185, 129, 0.06);
+}
+
+.dark .sidebar-button-glass {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(1, 1, 1, 0.6) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    ) !important;
+  border: 1px solid rgba(16, 185, 129, 0.22) !important;
+}
+
+.dark .sidebar-button-glass:hover {
+  background: 
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(1, 1, 1, 0.7) 50%,
+      rgba(0, 0, 0, 0.9) 100%
+    ) !important;
+  border-color: rgba(16, 185, 129, 0.32) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(16, 185, 129, 0.18),
+    /* Enhanced chromatic aberration for dark mode */
+    2px 0 0 rgba(16, 185, 129, 0.18),
+    -2px 0 0 rgba(16, 185, 129, 0.09);
+}
+
 /* Hide scrollbar for specific elements */
 .scrollbar-hide {
   -ms-overflow-style: none;

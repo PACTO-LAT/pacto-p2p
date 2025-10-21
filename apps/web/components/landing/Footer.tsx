@@ -117,7 +117,9 @@ export function Footer() {
             <ul className="space-y-3 text-muted-foreground">
               <li>
                 <Link
-                  href="/docs"
+                  href="https://pacto.gitbook.io/pacto-docs/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
                 >
                   Docs
@@ -125,7 +127,9 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="https://twitter.com"
+                  href="https://x.com/Pactop2p"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
                 >
                   Twitter
@@ -133,7 +137,9 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="https://github.com"
+                  href="https://github.com/PACTO-LAT"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
                 >
                   GitHub

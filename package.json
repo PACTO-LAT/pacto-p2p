@@ -25,6 +25,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@trustless-work/escrow": "^2.0.9"
+    "@trustless-work/escrow": "^2.0.9",
+    "liquid-glass-react": "^1.1.1"
   }
 }

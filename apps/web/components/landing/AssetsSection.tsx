@@ -157,7 +157,7 @@ export function AssetsSection() {
             className="bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="text-2xl font-bold text-white">
               {supportedAssets.length}
             </div>
             <div className="text-sm text-muted-foreground">Total Assets</div>
@@ -166,7 +166,7 @@ export function AssetsSection() {
             className="bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="text-2xl font-bold text-white">
               3
             </div>
             <div className="text-sm text-muted-foreground">Regions</div>
@@ -175,7 +175,7 @@ export function AssetsSection() {
             className="bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="text-2xl font-bold text-white">
               100%
             </div>
             <div className="text-sm text-muted-foreground">Live Status</div>

@@ -17,7 +17,8 @@ export const useWallet = () => {
             // Wait for the wallet to be properly set
             await new Promise((resolve) => setTimeout(resolve, 100));
 
-            const { address } = await kit.getAddress();
+            // Get the address directly from the kit
+            const address = await kit.getPublicKey();
 
             if (address) {
               // Get additional wallet information
@@ -50,7 +51,6 @@ export const useWallet = () => {
 
   const disconnectWallet = async () => {
     try {
-      await kit.disconnect();
       disconnectWalletStore();
       updateConnectionStatus(false);
     } catch (error) {

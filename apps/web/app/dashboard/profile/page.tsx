@@ -165,7 +165,10 @@ export default function ProfilePage() {
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsEditing(true)} variant="secondary">
+            <Button 
+              onClick={() => setIsEditing(true)} 
+              className="btn-details-glass"
+            >
               <Settings className="w-4 h-4 mr-2" />
               Edit Profile
             </Button>
@@ -178,18 +181,71 @@ export default function ProfilePage() {
           Connect your wallet or sign in to manage your profile.
         </div>
       ) : (
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="wallet">Wallet</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="merchant">Merchant</TabsTrigger>
-            <TabsTrigger value="settings">Notifications</TabsTrigger>
+        <Tabs defaultValue="profile" className="space-y-8">
+          <TabsList className="glass-card bg-transparent backdrop-blur-sm border border-white/20 p-3 py-5 rounded-xl shadow-lg">
+            <TabsTrigger 
+              value="profile"
+              className="relative px-5 py-3.5 rounded-lg font-medium text-sm transition-all duration-300 ease-out
+                       data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg
+                       data-[state=active]:shadow-emerald-500/25 data-[state=active]:scale-105
+                       hover:bg-emerald-500/10 hover:text-emerald-600 hover:scale-102
+                       data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
+                       data-[state=inactive]:bg-transparent"
+            >
+              Profile
+            </TabsTrigger>
+            <TabsTrigger 
+              value="wallet"
+              className="relative px-5 py-3.5 rounded-lg font-medium text-sm transition-all duration-300 ease-out
+                       data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg
+                       data-[state=active]:shadow-emerald-500/25 data-[state=active]:scale-105
+                       hover:bg-emerald-500/10 hover:text-emerald-600 hover:scale-102
+                       data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
+                       data-[state=inactive]:bg-transparent"
+            >
+              Wallet
+            </TabsTrigger>
+            <TabsTrigger 
+              value="payments"
+              className="relative px-4 py-3.5 rounded-lg font-medium text-sm transition-all duration-300 ease-out
+                       data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg
+                       data-[state=active]:shadow-emerald-500/25 data-[state=active]:scale-105
+                       hover:bg-emerald-500/10 hover:text-emerald-600 hover:scale-102
+                       data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
+                       data-[state=inactive]:bg-transparent"
+            >
+              Payments
+            </TabsTrigger>
+            <TabsTrigger 
+              value="merchant"
+              className="relative px-4 py-3.5 rounded-lg font-medium text-sm transition-all duration-300 ease-out
+                       data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg
+                       data-[state=active]:shadow-emerald-500/25 data-[state=active]:scale-105
+                       hover:bg-emerald-500/10 hover:text-emerald-600 hover:scale-102
+                       data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
+                       data-[state=inactive]:bg-transparent"
+            >
+              Merchant
+            </TabsTrigger>
+            <TabsTrigger 
+              value="settings"
+              className="relative px-4 py-3.5 rounded-lg font-medium text-sm transition-all duration-300 ease-out
+                       data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg
+                       data-[state=active]:shadow-emerald-500/25 data-[state=active]:scale-105
+                       hover:bg-emerald-500/10 hover:text-emerald-600 hover:scale-102
+                       data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
+                       data-[state=inactive]:bg-transparent"
+            >
+              Notifications
+            </TabsTrigger>
             {/* <TabsTrigger value="security">Security</TabsTrigger> */}
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
+          <TabsContent 
+            value="profile" 
+            className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Info */}
               <div className="lg:col-span-2">
@@ -215,12 +271,18 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Wallet Tab */}
-          <TabsContent value="wallet" className="space-y-6">
+          <TabsContent 
+            value="wallet" 
+            className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+          >
             <WalletInfo showDetails={true} />
           </TabsContent>
 
           {/* Payments Tab */}
-          <TabsContent value="payments" className="space-y-6">
+          <TabsContent 
+            value="payments" 
+            className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+          >
             <PaymentMethods
               paymentMethods={hydratedUserData.payment_methods}
               isEditing={isEditing}
@@ -229,7 +291,10 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
+          <TabsContent 
+            value="settings" 
+            className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+          >
             <NotificationSettings
               notifications={hydratedUserData.notifications}
               onNotificationsChange={handleNotificationsChange}
@@ -237,7 +302,10 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Security Tab */}
-          <TabsContent value="security" className="space-y-6">
+          <TabsContent 
+            value="security" 
+            className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+          >
             <SecuritySettings
               security={hydratedUserData.security}
               onSecurityChange={handleSecurityChange}
@@ -245,7 +313,10 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Merchant Tab */}
-          <TabsContent value="merchant" className="space-y-6">
+          <TabsContent 
+            value="merchant" 
+            className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+          >
             <MerchantSection />
           </TabsContent>
         </Tabs>

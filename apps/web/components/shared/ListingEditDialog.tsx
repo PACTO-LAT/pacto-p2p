@@ -54,25 +54,25 @@ export function ListingEditDialog({ open, onOpenChange, listing }: ListingEditDi
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="amount">Amount ({listing.token})</Label>
-                <Input id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Label className="mb-3" htmlFor="amount">Amount ({listing.token})</Label>
+                <Input className="border border-white/20" id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
               </div>
               <div>
-                <Label htmlFor="rate">Rate ({listing.fiatCurrency}/{listing.token})</Label>
-                <Input id="rate" value={rate} onChange={(e) => setRate(e.target.value)} />
+                <Label className="mb-3"htmlFor="rate">Rate ({listing.fiatCurrency}/{listing.token})</Label>
+                <Input className="border border-white/20" id="rate" value={rate} onChange={(e) => setRate(e.target.value)} />
               </div>
             </div>
             <div>
-              <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Input id="paymentMethod" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} />
+              <Label className="mb-3" htmlFor="paymentMethod">Payment Method</Label>
+              <Input className="border border-white/20" id="paymentMethod" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
-              <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+              <Label className="mb-3"htmlFor="description">Description</Label>
+              <Input className="border border-white/20 mb-7" id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
 
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button className="btn-details-glass" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button className="btn-emerald" onClick={handleSave} disabled={isPending}>Save</Button>
             </div>
           </div>

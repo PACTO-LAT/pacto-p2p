@@ -154,7 +154,7 @@ export default function DashboardPage() {
 
         <TabsContent value="listings" className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-white">Active Listings</h2>
+            <h2 className="text-2xl font-bold text-emerald-gradient">Active Listings</h2>
             <Link href="/dashboard/listings/create">
               <Button className="btn-emerald">
                 <Plus className="w-4 h-4 mr-2" />
