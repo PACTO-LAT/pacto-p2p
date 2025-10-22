@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: Service class with static methods */
 import { CROSSMINT_CONFIG } from '@/lib/crossmint';
 
 export interface CrossmintWalletInfo {
@@ -178,6 +178,45 @@ export class CrossmintService {
       };
     } catch (error) {
       console.error('Error sending Stellar transaction:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send escrow transaction using Crossmint wallet
+   * This method handles the XDR transaction from TrustlessWork API
+   */
+  static async sendEscrowTransaction(
+    wallet: any,
+    unsignedTransaction: string,
+    method: string
+  ): Promise<{ hash: string; explorerLink: string }> {
+    try {
+      if (!wallet) {
+        throw new Error('Crossmint wallet not available');
+      }
+
+      const { StellarWallet } = await import('@crossmint/client-sdk-react-ui');
+      const stellarWallet = StellarWallet.from(wallet);
+      
+      // The unsignedTransaction is an XDR that needs to be signed and submitted
+      // We'll use sendTransaction with the XDR as contractId
+      const result = await stellarWallet.sendTransaction({
+        contractId: unsignedTransaction,
+        method,
+        args: {}
+      });
+
+      if (!result.hash) {
+        throw new Error('Transaction failed to send');
+      }
+
+      return {
+        hash: result.hash,
+        explorerLink: result.explorerLink,
+      };
+    } catch (error) {
+      console.error('Error sending escrow transaction:', error);
       throw error;
     }
   }

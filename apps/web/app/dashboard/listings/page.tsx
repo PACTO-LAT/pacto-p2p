@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useCreateEscrow } from '@/hooks/use-escrows';
-// import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useCrossmint } from '@/hooks/use-crossmint';
 import {
   ListingsTabs,
   MarketplaceFilters,
@@ -35,6 +35,7 @@ export default function ListingsPage() {
   };
 
   const { mutate, isPending } = useCreateEscrow(handleCloseModal);
+  const { walletAddress } = useCrossmint();
 
   const { data: listings = [], isLoading } = useMarketplaceListings({
     token: filters.selectedToken === 'all' ? undefined : filters.selectedToken,
@@ -56,14 +57,18 @@ export default function ListingsPage() {
   const confirmTrade = () => {
     if (!selectedListing) return;
 
+    console.log('🎯 confirmTrade button clicked');
+    console.log('📝 Selected listing:', selectedListing);
+    console.log('👤 Current wallet address:', walletAddress);
+
     mutate({
       listing: {
         ...selectedListing,
-        fiat_currency: selectedListing.fiatCurrency,
-        payment_method: selectedListing.paymentMethod,
+        fiatCurrency: selectedListing.fiatCurrency,
+        paymentMethod: selectedListing.paymentMethod,
       },
       amount: selectedListing.amount,
-      buyer_id: selectedListing.buyer,
+      buyer_id: walletAddress || '', // Use current user as buyer
       seller_id: selectedListing.seller,
       token: selectedListing.token,
       fiat_amount: selectedListing.amount * selectedListing.rate,

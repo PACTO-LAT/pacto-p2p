@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useCrossmint } from '@/hooks/use-crossmint';
 
 interface WalletInfoProps {
   showDetails?: boolean;
@@ -23,8 +23,12 @@ export function WalletInfo({
   showDetails = true,
   className = '',
 }: WalletInfoProps) {
-  const { address, network, walletType, isConnected, publicKey } =
-    useGlobalAuthenticationStore();
+  const { walletAddress: address, isWalletConnected: isConnected } = useCrossmint();
+  
+  // Crossmint specific values
+  const network = 'stellar'; // Crossmint uses Stellar
+  const walletType = 'Crossmint';
+  const publicKey = address; // In Stellar, address is the public key
 
   const copyAddress = () => {
     if (address) {
@@ -35,10 +39,8 @@ export function WalletInfo({
 
   const openExplorer = () => {
     if (address) {
-      const explorerUrl =
-        network === 'testnet'
-          ? `https://laboratory.stellar.org/#explorer?resource=account&values=${address}`
-          : `https://stellar.expert/explorer/public/account/${address}`;
+      // Crossmint uses Stellar mainnet by default
+      const explorerUrl = `https://stellar.expert/explorer/public/account/${address}`;
       window.open(explorerUrl, '_blank');
     }
   };
@@ -104,7 +106,7 @@ export function WalletInfo({
             Network
           </span>
           <Badge
-            variant={network === 'testnet' ? 'destructive' : 'default'}
+            variant="default"
             className="glass-effect"
           >
             {network.toUpperCase()}

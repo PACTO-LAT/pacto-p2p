@@ -62,9 +62,12 @@ export function CrossmintAuthButton() {
   }
 
   return (
-    <Button onClick={handleLogin}>
+    <Button 
+      onClick={handleLogin}
+      className="w-full btn-emerald h-12"
+    >
       <Wallet className="mr-2 h-4 w-4" />
-      Connect Crossmint Wallet
+      Conectar con Crossmint
     </Button>
   );
 }

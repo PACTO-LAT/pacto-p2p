@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useCrossmint } from '@/hooks/use-crossmint';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import { useEscrowActions } from '@/hooks/use-escrow-actions';
 import {
@@ -23,7 +23,7 @@ export default function EscrowsPage() {
   const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
     useState(false);
 
-  const { address } = useGlobalAuthenticationStore();
+  const { walletAddress } = useCrossmint();
   const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
     useEscrowSelection();
   const {
@@ -45,9 +45,9 @@ export default function EscrowsPage() {
     error,
   } = useEscrowsByRoleQuery({
     role: role,
-    roleAddress: address,
+    roleAddress: walletAddress || '',
     isActive: true,
-    enabled: !!address,
+    enabled: !!walletAddress,
   });
 
   const onReportPayment = (escrow: Escrow) => {

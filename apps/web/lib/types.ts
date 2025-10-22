@@ -70,8 +70,8 @@ export interface CreateListingData {
   token: string;
   amount: number;
   rate: number;
-  fiat_currency: string;
-  payment_method: string;
+  fiatCurrency: string;
+  paymentMethod: string;
   min_amount?: number;
   max_amount?: number;
   description?: string;
@@ -116,7 +116,7 @@ export interface DashboardEscrow {
 }
 
 export interface MarketplaceListing {
-  id: number;
+  id: string;
   type: 'sell' | 'buy';
   token: string;
   amount: number;
@@ -134,8 +134,13 @@ export interface MarketplaceListing {
 
 export type DialogType = 'receipt' | 'dispute' | null;
 
+// Token types
+export type MarketplaceToken = 'USDC' | 'USDT' | 'XLM';
+
+export type MarketplaceListingType = 'buy' | 'sell';
+
 export type Listing = {
-  id: number;
+  id: string;
   type: 'sell' | 'buy';
   token: string;
   amount: number;

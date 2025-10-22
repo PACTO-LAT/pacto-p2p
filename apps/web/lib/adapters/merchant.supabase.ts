@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { AuthService } from '@/lib/services/auth';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+// import { AuthService } from '@/lib/services/auth'; // Temporarily disabled
 import type { MerchantAdapter } from '@/lib/adapters/merchant';
 import type {
   Merchant,
@@ -348,16 +347,6 @@ async function resolveCurrentUserId(): Promise<string | null> {
     if (authId) return authId;
   } catch {
     // ignore and try wallet fallback
-  }
-
-  try {
-    const { address, isConnected } = useGlobalAuthenticationStore.getState();
-    if (isConnected && address) {
-      const profile = await AuthService.ensureUserProfileByWallet(address);
-      return profile.id;
-    }
-  } catch {
-    // ignore
   }
 
   return null;

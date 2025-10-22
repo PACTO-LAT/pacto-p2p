@@ -1,18 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/types';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useCrossmint } from './use-crossmint';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const { address, isConnected } = useGlobalAuthenticationStore();
+  const { walletAddress, isWalletConnected, wallet, isAuthenticated } = useCrossmint();
 
   useEffect(() => {
     let unsub: { unsubscribe: () => void } | null = null;
@@ -26,9 +26,9 @@ export function useAuth() {
           if (profile) {
             setUser(profile);
           }
-        } else if (isConnected && address) {
-          //* Wallet-only flow: ensure a profile exists keyed by wallet
-          const profile = await AuthService.ensureUserProfileByWallet(address);
+        } else if (isWalletConnected && walletAddress) {
+          //* Crossmint wallet flow: ensure a profile exists keyed by wallet
+          const profile = await AuthService.ensureUserProfileByWallet(walletAddress);
           setUser(profile);
         } else {
           setUser(null);
@@ -44,8 +44,8 @@ export function useAuth() {
         if (session?.user) {
           const profile = await AuthService.getUserProfile(session.user.id);
           setUser(profile);
-        } else if (isConnected && address) {
-          const profile = await AuthService.ensureUserProfileByWallet(address);
+        } else if (isWalletConnected && walletAddress) {
+          const profile = await AuthService.ensureUserProfileByWallet(walletAddress);
           setUser(profile);
         } else {
           setUser(null);
@@ -60,7 +60,7 @@ export function useAuth() {
     return () => {
       if (unsub) unsub.unsubscribe();
     };
-  }, [address, isConnected]);
+  }, [walletAddress, isWalletConnected]);
 
   const signIn = async (email: string, password: string) => {
     const data = await AuthService.signIn(email, password);
@@ -83,12 +83,40 @@ export function useAuth() {
     router.push('/');
   };
 
-  const updateProfile = async (updates: Partial<User>) => {
+  const updateProfile = useCallback(async (updates: Partial<User>) => {
     if (!user) throw new Error('No user logged in');
     const updatedUser = await AuthService.updateUserProfile(user.id, updates);
     setUser(updatedUser);
     return updatedUser;
-  };
+  }, [user]);
+
+  // Sync Crossmint wallet with user profile
+  useEffect(() => {
+    const syncWalletWithProfile = async () => {
+      if (
+        wallet?.address && 
+        user && 
+        !user.stellar_address && 
+        isAuthenticated && 
+        isWalletConnected
+      ) {
+        try {
+          console.log('Syncing Crossmint wallet with user profile:', wallet.address);
+          
+          // Update user profile with the new wallet address
+          await updateProfile({
+            stellar_address: wallet.address,
+          });
+          
+          console.log('User profile updated with Crossmint wallet address:', wallet.address);
+        } catch (error) {
+          console.error('Error updating user profile with wallet address:', error);
+        }
+      }
+    };
+
+    syncWalletWithProfile();
+  }, [wallet?.address, user, isAuthenticated, isWalletConnected, updateProfile]);
 
   return {
     user,

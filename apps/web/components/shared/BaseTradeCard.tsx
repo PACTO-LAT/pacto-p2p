@@ -13,7 +13,7 @@ import { TradeProgress } from '@/components/shared/TradeProgress';
 import { formatAmount, formatDate, getStatusColor } from '@/lib/dashboard-utils';
 import type { MarketplaceListing } from '@/lib/types/marketplace';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useCrossmint } from '@/hooks/use-crossmint';
 
 // Union type for all possible trade data
 type TradeData = MarketplaceListing | DashboardListing | DashboardEscrow;
@@ -56,7 +56,7 @@ export function BaseTradeCard({
   showActions = true,
   showProgress = true,
 }: BaseTradeCardProps) {
-  const { address } = useGlobalAuthenticationStore();
+  const { walletAddress: address } = useCrossmint();
 
   const renderTraderInfo = () => {
     if (isMarketplaceListing(trade)) {

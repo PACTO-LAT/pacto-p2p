@@ -84,9 +84,9 @@ export class AuthService {
         message?: string;
       };
       if (e.code === 'PGRST116') return null;
-      // On some PostgREST versions, .single() without rows throws 406 / PGRST116
+
       if (e.message?.includes('No rows found')) return null;
-      // If multiple rows, fall back to first
+      
       if (e.details?.includes('Results contain 0')) return null;
     }
     return (data as unknown as User) ?? null;

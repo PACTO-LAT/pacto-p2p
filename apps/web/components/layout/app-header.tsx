@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
-import { useWallet } from '@/hooks/use-wallet';
+import { useCrossmint } from '@/hooks/use-crossmint';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useAuth();
-  const { handleDisconnect } = useWallet();
+  const { logout: handleDisconnect } = useCrossmint();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -63,7 +63,7 @@ export function AppHeader() {
             </div>
           </div>
 
-          {/* Desktop Navigation (centered) */}
+          {/* Desktop Navigation */}
           <div className="flex justify-center">
             <nav className="hidden md:flex items-center space-x-1">
               {navigation.map((item) => (

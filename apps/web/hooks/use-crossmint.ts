@@ -1,38 +1,11 @@
 'use client';
 
 import { useAuth, useWallet } from '@crossmint/client-sdk-react-ui';
-import { useAuth as useAppAuth } from './use-auth';
-import { useEffect, useState } from 'react';
+import { useMemo, useEffect } from 'react';
 
 export function useCrossmint() {
   const { login: crossmintLogin, logout: crossmintLogout, jwt } = useAuth();
   const { wallet, status: walletStatus } = useWallet();
-  const { user: appUser, updateProfile } = useAppAuth();
-  const [isInitializing, setIsInitializing] = useState(false);
-
-  // Handle wallet creation and user profile updates
-  useEffect(() => {
-    const handleWalletCreation = async () => {
-      if (wallet?.address && appUser && !appUser.stellar_address) {
-        try {
-          setIsInitializing(true);
-          
-          // Update user profile with the new wallet address
-          await updateProfile({
-            stellar_address: wallet.address,
-          });
-          
-          console.log('User profile updated with Crossmint wallet address:', wallet.address);
-        } catch (error) {
-          console.error('Error updating user profile with wallet address:', error);
-        } finally {
-          setIsInitializing(false);
-        }
-      }
-    };
-
-    handleWalletCreation();
-  }, [wallet, appUser, updateProfile]);
 
   const login = async () => {
     try {
@@ -52,36 +25,49 @@ export function useCrossmint() {
     }
   };
 
-  const getWalletAddress = () => {
+  // Memoize computed values to prevent unnecessary re-renders
+  const walletAddress = useMemo(() => {
     return wallet?.address || null;
-  };
+  }, [wallet?.address]);
 
-  const isWalletConnected = () => {
+  const isWalletConnected = useMemo(() => {
     return walletStatus === 'loaded' && !!wallet;
-  };
+  }, [walletStatus, wallet]);
 
-  const isWalletLoading = () => {
-    return walletStatus === 'in-progress' || isInitializing;
-  };
+  const isWalletLoading = useMemo(() => {
+    return walletStatus === 'in-progress';
+  }, [walletStatus]);
+
+  const isAuthenticated = useMemo(() => {
+    return !!jwt;
+  }, [jwt]);
+
+  // Handle persistence
+  useEffect(() => {
+    // Save authentication state to localStorage
+    if (isAuthenticated && isWalletConnected && walletAddress) {
+      localStorage.setItem('crossmint_authenticated', 'true');
+      localStorage.setItem('crossmint_wallet_address', walletAddress);
+    } else if (!isAuthenticated || !isWalletConnected) {
+      localStorage.removeItem('crossmint_authenticated');
+      localStorage.removeItem('crossmint_wallet_address');
+    }
+  }, [isAuthenticated, isWalletConnected, walletAddress]);
 
   return {
     // Crossmint auth state
     jwt,
-    isAuthenticated: !!jwt,
+    isAuthenticated,
     
     // Wallet state
     wallet,
-    walletAddress: getWalletAddress(),
-    isWalletConnected: isWalletConnected(),
-    isWalletLoading: isWalletLoading(),
+    walletAddress,
+    isWalletConnected,
+    isWalletLoading,
     walletStatus,
     
     // Actions
     login,
     logout,
-    
-    // App user integration
-    appUser,
-    isInitializing,
   };
 }

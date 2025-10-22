@@ -19,8 +19,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useUpsertMerchantProfile } from '@/hooks/useMerchant';
 import type { Merchant } from '@/lib/types/merchant';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { useWallet } from '@/hooks/use-wallet';
+import { useCrossmint } from '@/hooks/use-crossmint';
 import {
   Select,
   SelectContent,
@@ -56,8 +55,7 @@ export function MerchantProfileForm({
 }: {
   initial?: Partial<Merchant>;
 }) {
-  const { isConnected } = useGlobalAuthenticationStore();
-  const { handleConnect } = useWallet();
+  const { isWalletConnected: isConnected, login: handleConnect } = useCrossmint();
   const [avatarPreview, setAvatarPreview] = useState<string>(
     initial?.avatar_url || ''
   );

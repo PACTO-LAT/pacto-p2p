@@ -11,12 +11,11 @@ import {
   useFundEscrow,
   useInitializeEscrow,
   useReleaseFunds,
-  useSendTransaction,
   useStartDispute,
 } from '@trustless-work/escrow';
 import type { CreateEscrowData } from '@/lib/types';
-import { signTransaction } from '@/lib/wallet';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useCrossmint } from './use-crossmint';
+import { CrossmintService } from '@/lib/services/crossmint';
 import { getTrustline } from '@/utils/getTrustline';
 
 export const useInitializeTrade = () => {
@@ -26,47 +25,109 @@ export const useInitializeTrade = () => {
   const { startDispute } = useStartDispute();
   const { approveMilestone } = useApproveMilestone();
   const { releaseFunds: releaseFundsEscrow } = useReleaseFunds();
-  const { sendTransaction } = useSendTransaction();
-  const { address } = useGlobalAuthenticationStore();
+  const { walletAddress: address, wallet } = useCrossmint();
 
   const initializeTrade = async (payload: CreateEscrowData) => {
     const trustline = getTrustline(payload.listing.token);
 
-    // todo: get seller and buyer wallet
-    const seller = payload.seller_id;
-    const buyer = payload.buyer_id;
+    // Validate required environment variables
+    if (!process.env.NEXT_PUBLIC_ROLE_ADDRESS) {
+      throw new Error('NEXT_PUBLIC_ROLE_ADDRESS environment variable is required');
+    }
+
+    // Validate trustline
+    if (!trustline?.address) {
+      throw new Error('Trustline address is required');
+    }
+
+    // Get seller and buyer addresses
+    const seller = payload.seller_id || address; // Use current user as seller if not specified
+    const buyer = payload.buyer_id; // Buyer must be specified
+    
+    if (!seller) {
+      throw new Error('Seller address is required');
+    }
+    
+    if (!buyer) {
+      throw new Error('Buyer address is required - cannot create escrow with same person as seller and buyer');
+    }
+    
+    if (seller === buyer) {
+      throw new Error('Seller and buyer cannot be the same person');
+    }
+
+    // Validate platform address
+    const platformAddress = process.env.NEXT_PUBLIC_ROLE_ADDRESS;
+    if (!platformAddress) {
+      throw new Error('Platform address is required');
+    }
 
     const finalPayload: InitializeSingleReleaseEscrowPayload = {
-      signer: address,
-      engagementId: payload.listing.token,
-      description: payload.listing.description || '',
+      signer: address || '',
+      engagementId: `escrow-${Math.random().toString(36).substr(2, 9)}`,
+      description: 'Payment milestone',
       trustline: {
         address: trustline?.address || '',
-        decimals: trustline?.decimals || 0,
       },
-      title: payload.listing.token,
+      title: 'Escrow Transaction',
       roles: {
-        approver: seller, // seller
-        releaseSigner: seller, // seller
-        serviceProvider: buyer, // buyer
-        receiver: buyer, // buyer
-        platformAddress: process.env.NEXT_PUBLIC_ROLE_ADDRESS || '', // p2p
-        disputeResolver: process.env.NEXT_PUBLIC_ROLE_ADDRESS || '', // p2p
+        approver: buyer, // Buyer requires the service
+        releaseSigner: seller, // Seller releases the funds
+        serviceProvider: seller, // Seller provides the service
+        receiver: buyer, // Buyer receives the funds
+        platformAddress: platformAddress,
+        disputeResolver: platformAddress,
       },
-      platformFee: Number(process.env.NEXT_PUBLIC_PLATFORM_FEE),
+      platformFee: (Number(process.env.NEXT_PUBLIC_PLATFORM_FEE) || 2) / 100, // Convert to decimal
       amount: payload.amount,
       milestones: [
         {
-          description: payload.listing.description || '',
+          description: 'Payment milestone',
         },
       ],
       receiverMemo: 0,
     };
 
-    const { unsignedTransaction } = await deployEscrow(
-      finalPayload,
-      'single-release'
-    );
+    console.log('Environment variables:', {
+      NEXT_PUBLIC_ROLE_ADDRESS: process.env.NEXT_PUBLIC_ROLE_ADDRESS,
+      NEXT_PUBLIC_PLATFORM_FEE: process.env.NEXT_PUBLIC_PLATFORM_FEE,
+    });
+    console.log('Role assignments:', {
+      seller,
+      buyer,
+      platformAddress,
+      signer: address,
+    });
+    console.log('Platform fee calculation:', {
+      envValue: process.env.NEXT_PUBLIC_PLATFORM_FEE,
+      finalValue: (Number(process.env.NEXT_PUBLIC_PLATFORM_FEE) || 2) / 100,
+    });
+    console.log('Trustline details:', {
+      address: trustline?.address,
+    });
+    console.log('Deploying escrow with payload:', JSON.stringify(finalPayload, null, 2));
+    console.log('API Key present:', !!process.env.NEXT_PUBLIC_TLW_API_KEY);
+    console.log('Environment:', process.env.NODE_ENV);
+    
+    let unsignedTransaction: string | undefined;
+    try {
+      const response = await deployEscrow(
+        finalPayload,
+        'single-release'
+      );
+      
+      unsignedTransaction = response.unsignedTransaction;
+      console.log('Deploy response:', response);
+    } catch (error: unknown) {
+      console.error('Deploy escrow error:', error);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorWithResponse = error as { response: { data: unknown; status: number; headers: unknown } };
+        console.error('Error response:', errorWithResponse.response.data);
+        console.error('Error status:', errorWithResponse.response.status);
+        console.error('Error headers:', errorWithResponse.response.headers);
+      }
+      throw error;
+    }
 
     if (!unsignedTransaction) {
       throw new Error(
@@ -74,20 +135,7 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const signedTxXdr = await signTransaction({
-      unsignedTransaction,
-      address,
-    });
-
-    if (!signedTxXdr) {
-      throw new Error('Signed transaction is missing.');
-    }
-
-    const response = await sendTransaction(signedTxXdr);
-
-    if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
-    }
+    await CrossmintService.sendEscrowTransaction(wallet, unsignedTransaction, 'deploy');
   };
 
   const reportPayment = async (escrow: Escrow, evidence: string) => {
@@ -110,27 +158,14 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const signedTxXdr = await signTransaction({
-      unsignedTransaction,
-      address,
-    });
-
-    if (!signedTxXdr) {
-      throw new Error('Signed transaction is missing.');
-    }
-
-    const response = await sendTransaction(signedTxXdr);
-
-    if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
-    }
+    await CrossmintService.sendEscrowTransaction(wallet, unsignedTransaction, 'changeMilestoneStatus');
   };
 
   const depositFunds = async (escrow: Escrow) => {
     const finalPayload: FundEscrowPayload = {
       contractId: escrow.contractId || '',
       amount: escrow.amount,
-      signer: address,
+      signer: address || '',
     };
 
     const { unsignedTransaction } = await fundEscrow(
@@ -144,26 +179,13 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const signedTxXdr = await signTransaction({
-      unsignedTransaction,
-      address,
-    });
-
-    if (!signedTxXdr) {
-      throw new Error('Signed transaction is missing.');
-    }
-
-    const response = await sendTransaction(signedTxXdr);
-
-    if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
-    }
+    await CrossmintService.sendEscrowTransaction(wallet, unsignedTransaction, 'fund');
   };
 
   const disputeEscrow = async (escrow: Escrow) => {
     const finalPayload: SingleReleaseStartDisputePayload = {
       contractId: escrow.contractId || '',
-      signer: address,
+      signer: address || '',
     };
 
     const { unsignedTransaction } = await startDispute(
@@ -177,20 +199,7 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const signedTxXdr = await signTransaction({
-      unsignedTransaction,
-      address,
-    });
-
-    if (!signedTxXdr) {
-      throw new Error('Signed transaction is missing.');
-    }
-
-    const response = await sendTransaction(signedTxXdr);
-
-    if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
-    }
+    await CrossmintService.sendEscrowTransaction(wallet, unsignedTransaction, 'startDispute');
   };
 
   const releaseFunds = async (escrow: Escrow) => {
@@ -210,27 +219,13 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const signedTxXdr = await signTransaction({
-      unsignedTransaction,
-      address,
-    });
-
-    if (!signedTxXdr) {
-      throw new Error('Signed transaction is missing.');
-    }
-
-    const response = await sendTransaction(signedTxXdr);
-
-    if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
-    }
+    await CrossmintService.sendEscrowTransaction(wallet, unsignedTransaction, 'releaseFunds');
   };
 
   const confirmPayment = async (escrow: Escrow) => {
     const finalPayload: ApproveMilestonePayload = {
       contractId: escrow.contractId || '',
       milestoneIndex: '0',
-      newFlag: true,
       approver: escrow.roles.approver,
     };
 
@@ -245,20 +240,7 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const signedTxXdr = await signTransaction({
-      unsignedTransaction,
-      address,
-    });
-
-    if (!signedTxXdr) {
-      throw new Error('Signed transaction is missing.');
-    }
-
-    const response = await sendTransaction(signedTxXdr);
-
-    if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
-    }
+    await CrossmintService.sendEscrowTransaction(wallet, unsignedTransaction, 'approveMilestone');
   };
 
   return {

@@ -33,15 +33,15 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <QueryProvider>
-            <TrustlessWorkProvider>
-              <CrossmintProviders>
-                <EscrowProvider>
-                  <AuthGuard>{children}</AuthGuard>
-                </EscrowProvider>
-              </CrossmintProviders>
-            </TrustlessWorkProvider>
-          </QueryProvider>
+                  <QueryProvider>
+                    <TrustlessWorkProvider>
+                      <CrossmintProviders>
+                        <EscrowProvider>
+                          <AuthGuard>{children}</AuthGuard>
+                        </EscrowProvider>
+                      </CrossmintProviders>
+                    </TrustlessWorkProvider>
+                  </QueryProvider>
         </ThemeProvider>
         <Toaster />
       </body>

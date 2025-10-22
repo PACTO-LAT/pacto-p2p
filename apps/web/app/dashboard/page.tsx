@@ -10,14 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDialog } from '@/hooks/use-dialog';
-import { useWallet } from '@/hooks/use-wallet';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { useMarketplaceListings } from '@/hooks/use-listings';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export default function DashboardPage() {
-  const { address } = useGlobalAuthenticationStore();
-  const { handleConnect } = useWallet();
   const { dialogState, openDialog, closeDialog } = useDialog<DashboardEscrow>();
   const {
     dialogState: listingDialogState,
@@ -101,33 +97,6 @@ export default function DashboardPage() {
           </p>
         </div>
       </div>
-
-      {/* Wallet Connection */}
-      {!address && (
-        <Card className="glass-card border-orange-200/30 bg-orange-50/80 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-100/80 backdrop-blur-sm rounded-xl flex items-center justify-center glow-emerald">
-                  <AlertCircle className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="font-semibold text-orange-900 text-lg">
-                    Connect your Stellar wallet
-                  </p>
-                  <p className="text-orange-700">
-                    Connect your wallet to start trading
-                  </p>
-                </div>
-              </div>
-              <Button onClick={handleConnect} className="btn-emerald">
-                <Wallet className="w-4 h-4 mr-2" />
-                Connect Wallet
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="listings" className="space-y-6">
