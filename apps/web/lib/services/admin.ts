@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase';
 import type { TokenOperation } from '@/lib/types';
 import { StellarService } from './stellar';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class AdminService {
   static async mintTokens(
     token: string,

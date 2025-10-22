@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class StellarService {
   static async connectWallet(): Promise<string> {
     // Mock wallet connection

@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/types';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class AuthService {
   static async signUp(email: string, password: string) {
     const { data, error } = await supabase.auth.signUp({

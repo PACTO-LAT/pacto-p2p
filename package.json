@@ -25,6 +25,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@crossmint/client-sdk-react-ui": "^2.5.9",
     "@trustless-work/escrow": "^2.0.9"
   }
 }
