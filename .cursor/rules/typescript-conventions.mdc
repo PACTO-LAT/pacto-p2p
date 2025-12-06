@@ -1,0 +1,27 @@
+---
+description: TypeScript and code style conventions
+alwaysApply: true
+---
+
+# TypeScript Conventions
+
+## Type Safety
+
+- Use TypeScript strictly - avoid `any` types
+- Import types from `@pacto-p2p/types` when available
+- Define types in `packages/types` for shared types
+- Use proper type definitions for all functions and components
+
+## Code Style
+
+- Use Biome for formatting and linting (not ESLint)
+- Run `npm run biome:format` before committing
+- Follow existing code patterns in the codebase
+- Use consistent naming: camelCase for variables/functions, PascalCase for components/types
+
+## File Organization
+
+- Keep related code together
+- Use index.ts files for clean exports
+- Follow the existing directory structure patterns
+- Separate concerns: components, hooks, services, types

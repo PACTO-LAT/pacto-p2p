@@ -1,0 +1,35 @@
+---
+description: Monorepo structure and workspace conventions
+alwaysApply: true
+---
+
+# Monorepo Structure Rules
+
+This is a Turborepo monorepo with npm workspaces. Follow these conventions:
+
+## Package Organization
+
+- **`apps/web`**: Next.js web application (main app)
+- **`packages/shared`**: Business logic, services, and utilities
+- **`packages/ui`**: Reusable UI components (Radix UI based)
+- **`packages/types`**: TypeScript type definitions
+- **`packages/config`**: Configuration and scripts
+
+## Workspace Dependencies
+
+- Always use `workspace:*` for internal package dependencies
+- Import from workspace packages using `@pacto-p2p/<package-name>`
+- Example: `import { Button } from '@pacto-p2p/ui'`
+
+## Code Organization
+
+- Keep packages focused on single responsibilities
+- Share code through workspace packages, not by copying files
+- Use TypeScript for all packages
+- Follow the existing package structure patterns
+
+## Building
+
+- Use `npm run build` to build all packages
+- Use `npm run dev` to start development
+- Turbo handles caching and parallel execution automatically

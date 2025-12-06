@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.5",
-    "@trustless-work/escrow": "^2.0.1",
+    "@trustless-work/escrow": "^2.0.9",
     "zod": "^4.0.5",
     "zustand": "^5.0.6",
     "@pacto-p2p/types": "*"

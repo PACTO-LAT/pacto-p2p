@@ -30,19 +30,44 @@ export const useInitializeTrade = () => {
   const { address } = useGlobalAuthenticationStore();
 
   const initializeTrade = async (payload: CreateEscrowData) => {
-    const trustline = getTrustline(payload.listing.token);
+    if (!address) {
+      throw new Error('Wallet address is required. Please connect your wallet.');
+    }
 
-    // todo: get seller and buyer wallet
+    const trustline = getTrustline(payload.listing.token);
+    if (!trustline || !trustline.address) {
+      throw new Error(
+        `Trustline not found for token: ${payload.listing.token}. Please ensure the token is supported.`
+      );
+    }
+
     const seller = payload.seller_id;
     const buyer = payload.buyer_id;
+
+    if (!seller || !buyer) {
+      throw new Error('Seller and buyer addresses are required.');
+    }
+
+    const platformAddress = process.env.NEXT_PUBLIC_ROLE_ADDRESS;
+    if (!platformAddress) {
+      throw new Error(
+        'Platform address is not configured. Set NEXT_PUBLIC_ROLE_ADDRESS environment variable.'
+      );
+    }
+
+    const platformFee = Number(process.env.NEXT_PUBLIC_PLATFORM_FEE);
+    if (Number.isNaN(platformFee) || platformFee < 0) {
+      throw new Error(
+        'Platform fee is not configured correctly. Set NEXT_PUBLIC_PLATFORM_FEE environment variable.'
+      );
+    }
 
     const finalPayload: InitializeSingleReleaseEscrowPayload = {
       signer: address,
       engagementId: payload.listing.token,
       description: payload.listing.description || '',
       trustline: {
-        address: trustline?.address || '',
-        decimals: trustline?.decimals || 0,
+        address: trustline.address,
       },
       title: payload.listing.token,
       roles: {
@@ -50,10 +75,10 @@ export const useInitializeTrade = () => {
         releaseSigner: seller, // seller
         serviceProvider: buyer, // buyer
         receiver: buyer, // buyer
-        platformAddress: process.env.NEXT_PUBLIC_ROLE_ADDRESS || '', // p2p
-        disputeResolver: process.env.NEXT_PUBLIC_ROLE_ADDRESS || '', // p2p
+        platformAddress, // p2p
+        disputeResolver: platformAddress, // p2p
       },
-      platformFee: Number(process.env.NEXT_PUBLIC_PLATFORM_FEE),
+      platformFee,
       amount: payload.amount,
       milestones: [
         {
@@ -91,8 +116,20 @@ export const useInitializeTrade = () => {
   };
 
   const reportPayment = async (escrow: Escrow, evidence: string) => {
+    if (!address) {
+      throw new Error('Wallet address is required. Please connect your wallet.');
+    }
+
+    if (!escrow.contractId) {
+      throw new Error('Escrow contract ID is required.');
+    }
+
+    if (!escrow.roles.serviceProvider) {
+      throw new Error('Service provider address is required.');
+    }
+
     const finalPayload: ChangeMilestoneStatusPayload = {
-      contractId: escrow.contractId || '',
+      contractId: escrow.contractId,
       milestoneIndex: '0',
       newStatus: 'pendingApproval',
       serviceProvider: escrow.roles.serviceProvider,
@@ -127,8 +164,20 @@ export const useInitializeTrade = () => {
   };
 
   const depositFunds = async (escrow: Escrow) => {
+    if (!address) {
+      throw new Error('Wallet address is required. Please connect your wallet.');
+    }
+
+    if (!escrow.contractId) {
+      throw new Error('Escrow contract ID is required.');
+    }
+
+    if (!escrow.amount || escrow.amount <= 0) {
+      throw new Error('Invalid escrow amount.');
+    }
+
     const finalPayload: FundEscrowPayload = {
-      contractId: escrow.contractId || '',
+      contractId: escrow.contractId,
       amount: escrow.amount,
       signer: address,
     };
@@ -161,8 +210,16 @@ export const useInitializeTrade = () => {
   };
 
   const disputeEscrow = async (escrow: Escrow) => {
+    if (!address) {
+      throw new Error('Wallet address is required. Please connect your wallet.');
+    }
+
+    if (!escrow.contractId) {
+      throw new Error('Escrow contract ID is required.');
+    }
+
     const finalPayload: SingleReleaseStartDisputePayload = {
-      contractId: escrow.contractId || '',
+      contractId: escrow.contractId,
       signer: address,
     };
 
@@ -194,8 +251,20 @@ export const useInitializeTrade = () => {
   };
 
   const releaseFunds = async (escrow: Escrow) => {
+    if (!address) {
+      throw new Error('Wallet address is required. Please connect your wallet.');
+    }
+
+    if (!escrow.contractId) {
+      throw new Error('Escrow contract ID is required.');
+    }
+
+    if (!escrow.roles.releaseSigner) {
+      throw new Error('Release signer address is required.');
+    }
+
     const finalPayload: SingleReleaseReleaseFundsPayload = {
-      contractId: escrow.contractId || '',
+      contractId: escrow.contractId,
       releaseSigner: escrow.roles.releaseSigner,
     };
 
@@ -227,10 +296,21 @@ export const useInitializeTrade = () => {
   };
 
   const confirmPayment = async (escrow: Escrow) => {
+    if (!address) {
+      throw new Error('Wallet address is required. Please connect your wallet.');
+    }
+
+    if (!escrow.contractId) {
+      throw new Error('Escrow contract ID is required.');
+    }
+
+    if (!escrow.roles.approver) {
+      throw new Error('Approver address is required.');
+    }
+
     const finalPayload: ApproveMilestonePayload = {
-      contractId: escrow.contractId || '',
+      contractId: escrow.contractId,
       milestoneIndex: '0',
-      newFlag: true,
       approver: escrow.roles.approver,
     };
 

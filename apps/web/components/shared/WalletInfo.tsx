@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircle, Copy, ExternalLink, Wallet, XCircle } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,18 +14,27 @@ import {
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useWallet } from '@/hooks/use-wallet';
+import { useAuth } from '@/hooks/use-auth';
+import { AuthService } from '@/lib/services/auth';
 
 interface WalletInfoProps {
   showDetails?: boolean;
   className?: string;
+  onWalletLinked?: () => void;
 }
 
 export function WalletInfo({
   showDetails = true,
   className = '',
+  onWalletLinked,
 }: WalletInfoProps) {
   const { address, network, walletType, isConnected, publicKey } =
     useGlobalAuthenticationStore();
+  const { handleConnect } = useWallet();
+  const { user, updateProfile } = useAuth();
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
 
   const copyAddress = () => {
     if (address) {
@@ -43,6 +53,62 @@ export function WalletInfo({
     }
   };
 
+  const handleConnectAndLink = async () => {
+    if (!user) {
+      toast.error('Please sign in to link your wallet');
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      // Connect wallet
+      await handleConnect();
+      
+      // Wait a bit for wallet state to update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      // Get the connected address
+      const connectedAddress = useGlobalAuthenticationStore.getState().address;
+      
+      if (!connectedAddress) {
+        throw new Error('Failed to get wallet address');
+      }
+
+      // Link wallet to user profile
+      setIsLinking(true);
+      await AuthService.linkWalletToUser(user.id, connectedAddress);
+      
+      // Update local profile state
+      await updateProfile({ stellar_address: connectedAddress });
+      
+      toast.success('Wallet linked successfully!');
+      onWalletLinked?.();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to connect wallet';
+      toast.error(message);
+    } finally {
+      setIsConnecting(false);
+      setIsLinking(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      const { disconnectWalletStore } = useGlobalAuthenticationStore.getState();
+      disconnectWalletStore();
+      
+      // Optionally unlink wallet from profile (or keep it linked for future reconnection)
+      // Uncomment if you want to unlink on disconnect:
+      // if (user) {
+      //   await updateProfile({ stellar_address: null });
+      // }
+      
+      toast.success('Wallet disconnected');
+    } catch (error) {
+      toast.error('Failed to disconnect wallet');
+    }
+  };
+
   if (!address || !isConnected) {
     return (
       <Card className={cn('feature-card-dark', className)}>
@@ -52,14 +118,29 @@ export function WalletInfo({
             Wallet Status
           </CardTitle>
           <CardDescription>
-            Connect your Stellar wallet to start trading
+            {user
+              ? 'Connect your Stellar wallet to link it to your account'
+              : 'Connect your Stellar wallet to start trading'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center gap-2 text-red-400">
             <XCircle className="w-4 h-4" />
             <span className="text-sm font-medium">Not Connected</span>
           </div>
+          {user && (
+            <Button
+              className="w-full btn-emerald"
+              onClick={handleConnectAndLink}
+              disabled={isConnecting || isLinking}
+            >
+              {isConnecting
+                ? 'Connecting...'
+                : isLinking
+                  ? 'Linking...'
+                  : 'Connect & Link Wallet'}
+            </Button>
+          )}
         </CardContent>
       </Card>
     );
@@ -155,6 +236,40 @@ export function WalletInfo({
             <p className="text-xs text-muted-foreground">
               In Stellar, the public key is the same as the account address
             </p>
+          </div>
+        )}
+
+        {/* Link/Unlink Wallet Actions */}
+        {user && (
+          <div className="pt-4 border-t border-border">
+            {user.stellar_address === address ? (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Wallet linked to your account
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnect}
+                  className="text-xs"
+                >
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <Button
+                className="w-full btn-emerald"
+                onClick={handleConnectAndLink}
+                disabled={isConnecting || isLinking}
+                size="sm"
+              >
+                {isConnecting
+                  ? 'Connecting...'
+                  : isLinking
+                    ? 'Linking...'
+                    : 'Link This Wallet'}
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

@@ -8,7 +8,6 @@ import { Toaster } from '@/components/ui/sonner';
 import { EscrowProvider } from '@/lib/contexts/escrow-context';
 import { QueryProvider } from '@/providers/query-provider';
 import { TrustlessWorkProvider } from '@/providers/trustless-work';
-import { CrossmintProviders } from '@/providers/crossmint-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -35,11 +34,9 @@ export default function RootLayout({
         >
           <QueryProvider>
             <TrustlessWorkProvider>
-              <CrossmintProviders>
-                <EscrowProvider>
-                  <AuthGuard>{children}</AuthGuard>
-                </EscrowProvider>
-              </CrossmintProviders>
+              <EscrowProvider>
+                <AuthGuard>{children}</AuthGuard>
+              </EscrowProvider>
             </TrustlessWorkProvider>
           </QueryProvider>
         </ThemeProvider>
