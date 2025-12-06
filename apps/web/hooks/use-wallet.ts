@@ -7,6 +7,11 @@ export const useWallet = () => {
     useGlobalAuthenticationStore();
 
   const connectWallet = async () => {
+    // Ensure we're on the client side
+    if (typeof window === 'undefined') {
+      throw new Error('Wallet connection can only be used on the client side');
+    }
+    
     try {
       await kit.openModal({
         modalTitle: 'Connect to your favorite wallet',
@@ -49,6 +54,11 @@ export const useWallet = () => {
   };
 
   const disconnectWallet = async () => {
+    // Ensure we're on the client side
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     try {
       await kit.disconnect();
       disconnectWalletStore();

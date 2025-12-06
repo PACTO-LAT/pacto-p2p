@@ -10,4 +10,9 @@ export const TRUSTLINES = [
     address: 'CBHVGAEPRUH3JNJGEYI3N52LCA33SA7M4VY2AX4I4SLEOYA7QVYATPJ4',
     decimals: 100,
   },
+  {
+    name: 'MXNX',
+    address: '', // TODO: Add MXNX testnet trustline address when available
+    decimals: 100,
+  },
 ];

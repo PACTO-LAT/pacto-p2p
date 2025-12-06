@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import type { CreateListingData } from '@/lib/types';
 import type { DbListing } from '@/lib/types/db';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ListingsService {
   static async getListings(filters?: {
     token?: string;

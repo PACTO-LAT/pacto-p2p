@@ -1,0 +1,34 @@
+---
+description: Stellar blockchain and escrow integration patterns
+globs: ['**/*stellar*.ts', '**/*escrow*.ts', '**/*wallet*.ts']
+alwaysApply: false
+---
+
+# Stellar Integration Rules
+
+## Stellar Wallet Integration
+
+- Use the `@trustless-work/escrow` package for escrow functionality
+- Wallet operations should go through `packages/shared` services
+- Store wallet state in Zustand store (`apps/web/store/wallet.store.ts`)
+- Use hooks from `apps/web/hooks/use-stellar.ts` and `apps/web/hooks/use-wallet.ts`
+
+## Escrow Management
+
+- Escrows are managed via Trustless Work contracts on Stellar
+- Use escrow types from `packages/types/src/Escrow.ts`
+- Follow the escrow lifecycle: created → funded → milestone updates → released/resolved
+- Handle dispute resolution through the escrow contract
+
+## Token Support
+
+- Supported tokens: CRCX, MXNX, USDC
+- Trustlines must be established before receiving tokens
+- Use trustline utilities from `apps/web/utils/getTrustline.ts`
+
+## Best Practices
+
+- Always handle Stellar transaction errors gracefully
+- Show clear loading states during blockchain operations
+- Provide user feedback for all wallet interactions
+- Validate addresses and amounts before submitting transactions

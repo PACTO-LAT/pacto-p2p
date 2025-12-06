@@ -1,0 +1,41 @@
+---
+description: Next.js app router patterns and conventions
+globs: ['apps/web/**/*.tsx', 'apps/web/**/*.ts']
+alwaysApply: false
+---
+
+# Next.js App Router Patterns
+
+## File Structure
+
+- Use App Router (`app/` directory) not Pages Router
+- Route files: `page.tsx` for pages, `layout.tsx` for layouts
+- API routes: `route.ts` in `app/api/` directories
+- Components: `components/` directory at app root
+
+## Data Fetching
+
+- Use TanStack Query (React Query) for data fetching
+- Provider is in `apps/web/providers/query-provider.tsx`
+- Use hooks pattern: `use-*.ts` files in `hooks/` directory
+- Mock API available via `NEXT_PUBLIC_USE_MOCK=1` flag
+
+## State Management
+
+- Use Zustand for global state (see `apps/web/store/`)
+- Use React Context for component tree state
+- Prefer server components when possible
+- Use client components (`'use client'`) only when needed
+
+## UI Components
+
+- Use Radix UI components from `@pacto-p2p/ui` package
+- Follow shadcn/ui patterns for component structure
+- Use Tailwind CSS for styling
+- Theme provider in `apps/web/components/theme-provider.tsx`
+
+## Authentication
+
+- Stellar wallet-based authentication
+- Auth guard component: `apps/web/components/auth-guard.tsx`
+- Auth hooks: `apps/web/hooks/use-auth.ts`

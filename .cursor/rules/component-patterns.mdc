@@ -1,0 +1,42 @@
+---
+description: React component patterns and UI conventions
+globs: ['**/*.tsx', 'packages/ui/**/*.ts']
+alwaysApply: false
+---
+
+# Component Patterns
+
+## Component Structure
+
+- Use functional components with TypeScript
+- Export components from index files for clean imports
+- Keep components focused and composable
+- Separate presentational and container components
+
+## UI Package (`packages/ui`)
+
+- All reusable UI components go in `packages/ui`
+- Use Radix UI primitives as base
+- Follow shadcn/ui component patterns
+- Export from `packages/ui/src/index.ts`
+
+## Component Organization
+
+- Group related components in subdirectories
+- Use descriptive component names
+- Keep component files focused (one main component per file)
+- Co-locate related components (e.g., `_components/` folders)
+
+## Props and Types
+
+- Define prop types with TypeScript interfaces
+- Use shared types from `@pacto-p2p/types` when possible
+- Make props optional with sensible defaults
+- Document complex props with JSDoc comments
+
+## Styling
+
+- Use Tailwind CSS utility classes
+- Support dark mode via theme provider
+- Use CSS variables for theme colors
+- Keep styles co-located with components

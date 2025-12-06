@@ -2,22 +2,23 @@
 
 import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
 import { ListingDetailsDialog } from '@/components/shared/ListingDetailsDialog';
 import { ListingEditDialog } from '@/components/shared/ListingEditDialog';
 import { TradeCard } from '@/components/shared/TradeCard';
+import { WalletConnectionPrompt } from '@/components/shared/WalletConnectionPrompt';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDialog } from '@/hooks/use-dialog';
-import { useWallet } from '@/hooks/use-wallet';
+import { useAuth } from '@/hooks/use-auth';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { useMarketplaceListings } from '@/hooks/use-listings';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export default function DashboardPage() {
-  const { address } = useGlobalAuthenticationStore();
-  const { handleConnect } = useWallet();
+  const { user, loading: authLoading } = useAuth();
+  const [showWalletPrompt, setShowWalletPrompt] = useState(false);
   const { dialogState, openDialog, closeDialog } = useDialog<DashboardEscrow>();
   const {
     dialogState: listingDialogState,
@@ -90,6 +91,17 @@ export default function DashboardPage() {
     closeDialog();
   };
 
+  // Show wallet connection prompt if user is logged in but doesn't have wallet linked
+  useEffect(() => {
+    if (!authLoading && user && !user.stellar_address && !showWalletPrompt) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        setShowWalletPrompt(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, authLoading, showWalletPrompt]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -102,8 +114,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Wallet Connection */}
-      {!address && (
+      {/* Wallet Connection Banner */}
+      {user && !user.stellar_address && (
         <Card className="glass-card border-orange-200/30 bg-orange-50/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -113,14 +125,17 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-orange-900 text-lg">
-                    Connect your Stellar wallet
+                    Link your Stellar wallet
                   </p>
                   <p className="text-orange-700">
-                    Connect your wallet to start trading
+                    Connect your wallet to your account to start trading
                   </p>
                 </div>
               </div>
-              <Button onClick={handleConnect} className="btn-emerald">
+              <Button
+                onClick={() => setShowWalletPrompt(true)}
+                className="btn-emerald"
+              >
                 <Wallet className="w-4 h-4 mr-2" />
                 Connect Wallet
               </Button>
@@ -247,6 +262,12 @@ export default function DashboardPage() {
         onOpenChange={closeDialog}
         escrow={dialogState.selectedItem}
         onCreate={handleCreateDispute}
+      />
+
+      {/* Wallet Connection Prompt */}
+      <WalletConnectionPrompt
+        open={showWalletPrompt}
+        onOpenChange={setShowWalletPrompt}
       />
     </div>
   );
