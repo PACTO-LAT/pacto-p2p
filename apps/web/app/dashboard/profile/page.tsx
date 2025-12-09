@@ -145,27 +145,41 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+            My Profile
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Manage your personal information and settings
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditing(false)}
+                className="w-full sm:w-auto text-sm sm:text-base"
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={isLoading}>
+              <Button
+                onClick={handleSave}
+                disabled={isLoading}
+                className="w-full sm:w-auto text-sm sm:text-base"
+              >
                 {isLoading ? 'Saving...' : 'Save Changes'}
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsEditing(true)} variant="secondary">
+            <Button
+              onClick={() => setIsEditing(true)}
+              variant="secondary"
+              className="w-full sm:w-auto text-sm sm:text-base"
+            >
               <Settings className="w-4 h-4 mr-2" />
               Edit Profile
             </Button>
@@ -174,23 +188,47 @@ export default function ProfilePage() {
       </div>
 
       {!hydratedUserData ? (
-        <div className="text-muted-foreground">
+        <div className="text-sm sm:text-base text-muted-foreground p-4 sm:p-6 text-center">
           Connect your wallet or sign in to manage your profile.
         </div>
       ) : (
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="wallet">Wallet</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="merchant">Merchant</TabsTrigger>
-            <TabsTrigger value="settings">Notifications</TabsTrigger>
-            {/* <TabsTrigger value="security">Security</TabsTrigger> */}
+        <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
+          <TabsList className="flex flex-col sm:flex-row h-auto p-1.5 sm:p-1.5 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-2 w-full sm:w-auto">
+            <TabsTrigger
+              value="profile"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
+            >
+              Profile
+            </TabsTrigger>
+            <TabsTrigger
+              value="wallet"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
+            >
+              Wallet
+            </TabsTrigger>
+            <TabsTrigger
+              value="payments"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
+            >
+              Payments
+            </TabsTrigger>
+            <TabsTrigger
+              value="merchant"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
+            >
+              Merchant
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
+            >
+              Notifications
+            </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <TabsContent value="profile" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Profile Info */}
               <div className="lg:col-span-2">
                 <ProfileInfo
@@ -215,12 +253,12 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Wallet Tab */}
-          <TabsContent value="wallet" className="space-y-6">
+          <TabsContent value="wallet" className="space-y-4 sm:space-y-6">
             <WalletInfo showDetails={true} />
           </TabsContent>
 
           {/* Payments Tab */}
-          <TabsContent value="payments" className="space-y-6">
+          <TabsContent value="payments" className="space-y-4 sm:space-y-6">
             <PaymentMethods
               paymentMethods={hydratedUserData.payment_methods}
               isEditing={isEditing}
@@ -229,7 +267,7 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
+          <TabsContent value="settings" className="space-y-4 sm:space-y-6">
             <NotificationSettings
               notifications={hydratedUserData.notifications}
               onNotificationsChange={handleNotificationsChange}
@@ -237,7 +275,7 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Security Tab */}
-          <TabsContent value="security" className="space-y-6">
+          <TabsContent value="security" className="space-y-4 sm:space-y-6">
             <SecuritySettings
               security={hydratedUserData.security}
               onSecurityChange={handleSecurityChange}
@@ -245,7 +283,7 @@ export default function ProfilePage() {
           </TabsContent>
 
           {/* Merchant Tab */}
-          <TabsContent value="merchant" className="space-y-6">
+          <TabsContent value="merchant" className="space-y-4 sm:space-y-6">
             <MerchantSection />
           </TabsContent>
         </Tabs>

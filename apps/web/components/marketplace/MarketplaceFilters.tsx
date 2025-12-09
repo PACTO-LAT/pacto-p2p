@@ -36,8 +36,8 @@ export function MarketplaceFilters({
   return (
     <Card className="glass-card">
       <CardContent className="p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+          <div className="flex-1 min-w-[220px]">
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
@@ -52,7 +52,7 @@ export function MarketplaceFilters({
             value={filters.selectedToken}
             onValueChange={handleTokenChange}
           >
-            <SelectTrigger className="w-full sm:w-40 input-glass">
+            <SelectTrigger className="w-full sm:w-48 input-glass">
               <SelectValue placeholder="Token" />
             </SelectTrigger>
             <SelectContent>
@@ -63,7 +63,7 @@ export function MarketplaceFilters({
             </SelectContent>
           </Select>
           <Select value={filters.selectedType} onValueChange={handleTypeChange}>
-            <SelectTrigger className="w-full sm:w-40 input-glass">
+            <SelectTrigger className="w-full sm:w-48 input-glass">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>

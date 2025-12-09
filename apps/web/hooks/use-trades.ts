@@ -35,7 +35,7 @@ export const useInitializeTrade = () => {
     }
 
     const trustline = getTrustline(payload.listing.token);
-    if (!trustline || !trustline.address) {
+    if (!trustline || !trustline.address || !trustline.symbol) {
       throw new Error(
         `Trustline not found for token: ${payload.listing.token}. Please ensure the token is supported.`
       );
@@ -62,12 +62,13 @@ export const useInitializeTrade = () => {
       );
     }
 
-    const finalPayload: InitializeSingleReleaseEscrowPayload = {
+    const finalPayload = {
       signer: address,
       engagementId: payload.listing.token,
       description: payload.listing.description || '',
       trustline: {
-        address: trustline.address,
+        address: trustline.address, // Issuer address (G...)
+        symbol: trustline.symbol, // Token symbol (e.g., "USDC")
       },
       title: payload.listing.token,
       roles: {
@@ -85,7 +86,6 @@ export const useInitializeTrade = () => {
           description: payload.listing.description || '',
         },
       ],
-      receiverMemo: 0,
     };
 
     const { unsignedTransaction } = await deployEscrow(

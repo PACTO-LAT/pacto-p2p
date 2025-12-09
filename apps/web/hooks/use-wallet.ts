@@ -1,51 +1,88 @@
-import type { ISupportedWallet } from '@creit.tech/stellar-wallets-kit';
-import { kit } from '@/lib/wallet';
+import { useEffect } from 'react';
+import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
+import { KitEventType } from '@creit-tech/stellar-wallets-kit/types';
+import { initializeWalletKit } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export const useWallet = () => {
   const { connectWalletStore, disconnectWalletStore, updateConnectionStatus } =
     useGlobalAuthenticationStore();
 
+  // Initialize kit and set up event listeners on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // Initialize the kit
+    initializeWalletKit();
+
+    // Listen to state updates
+    const unsubscribeState = StellarWalletsKit.on(
+      KitEventType.STATE_UPDATED,
+      (event) => {
+        const { address, networkPassphrase } = event.payload;
+        
+        if (address) {
+          const network = networkPassphrase.includes('TESTNET') ? 'testnet' : 'mainnet';
+          // Try to get wallet info, but if not available, use defaults
+          const walletType = 'Connected Wallet'; // Default, can be improved later
+          const publicKey = address;
+
+          connectWalletStore(address, network, walletType, publicKey);
+          updateConnectionStatus(true);
+        } else {
+          disconnectWalletStore();
+          updateConnectionStatus(false);
+        }
+      }
+    );
+
+    // Listen to disconnect events
+    const unsubscribeDisconnect = StellarWalletsKit.on(
+      KitEventType.DISCONNECT,
+      () => {
+        disconnectWalletStore();
+        updateConnectionStatus(false);
+      }
+    );
+
+    // Try to get current address if already connected
+    const checkExistingConnection = async () => {
+      try {
+        const { address } = await StellarWalletsKit.getAddress();
+        if (address) {
+          const network = 'testnet'; // Default to testnet for now
+          const walletType = 'Connected Wallet';
+          const publicKey = address;
+          connectWalletStore(address, network, walletType, publicKey);
+          updateConnectionStatus(true);
+        }
+      } catch {
+        // No active connection, that's fine
+      }
+    };
+
+    checkExistingConnection();
+
+    return () => {
+      unsubscribeState();
+      unsubscribeDisconnect();
+    };
+  }, [connectWalletStore, disconnectWalletStore, updateConnectionStatus]);
+
   const connectWallet = async () => {
     // Ensure we're on the client side
     if (typeof window === 'undefined') {
       throw new Error('Wallet connection can only be used on the client side');
     }
-    
+
     try {
-      await kit.openModal({
-        modalTitle: 'Connect to your favorite wallet',
-        onWalletSelected: async (option: ISupportedWallet) => {
-          try {
-            kit.setWallet(option.id);
+      // Initialize if not already done
+      initializeWalletKit();
 
-            // Wait for the wallet to be properly set
-            await new Promise((resolve) => setTimeout(resolve, 100));
-
-            const { address } = await kit.getAddress();
-
-            if (address) {
-              // Get additional wallet information
-              // Since we're using TESTNET in the kit configuration, we can hardcode this for now
-              const network = 'testnet' as const;
-              const walletType = option.name || option.id;
-              const publicKey = address; // In Stellar, the address is the public key
-
-              connectWalletStore(address, network, walletType, publicKey);
-              updateConnectionStatus(true);
-
-              // Add a small delay to ensure the store is updated
-              await new Promise((resolve) => setTimeout(resolve, 200));
-            } else {
-              throw new Error('Failed to get wallet address');
-            }
-          } catch (error) {
-            console.error('Error in wallet selection:', error);
-            updateConnectionStatus(false);
-            throw error;
-          }
-        },
-      });
+      // Open auth modal - this will trigger STATE_UPDATED event when wallet is connected
+      await StellarWalletsKit.authModal();
     } catch (error) {
       console.error('Error opening wallet modal:', error);
       updateConnectionStatus(false);
@@ -58,11 +95,10 @@ export const useWallet = () => {
     if (typeof window === 'undefined') {
       return;
     }
-    
+
     try {
-      await kit.disconnect();
-      disconnectWalletStore();
-      updateConnectionStatus(false);
+      await StellarWalletsKit.disconnect();
+      // The DISCONNECT event will handle updating the store
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
       throw error;

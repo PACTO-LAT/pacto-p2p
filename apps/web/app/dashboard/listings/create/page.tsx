@@ -31,6 +31,7 @@ import {
   toCreateListingData,
   type UIListingFormInput,
 } from '@/lib/marketplace-utils';
+import { toast } from 'sonner';
 
 export default function CreateListingPage() {
   const router = useRouter();
@@ -55,11 +56,36 @@ export default function CreateListingPage() {
       setIsLoading(false);
       return;
     }
+
+    // Validate required fields
+    if (!formData.token || !formData.amount || !formData.rate || !formData.fiatCurrency || !formData.paymentMethod) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Validate numeric values
+    const amount = Number.parseFloat(formData.amount);
+    const rate = Number.parseFloat(formData.rate);
+
+    if (Number.isNaN(amount) || amount <= 0) {
+      toast.error('Amount must be greater than 0');
+      return;
+    }
+
+    if (Number.isNaN(rate) || rate <= 0) {
+      toast.error('Rate must be greater than 0');
+      return;
+    }
+
     try {
       setIsLoading(true);
       const listingData = toCreateListingData(formData);
       await createListing.mutateAsync({ userId: user.id, listingData });
+      toast.success('Listing created successfully');
       router.push('/dashboard/listings');
+    } catch (error) {
+      console.error('Error creating listing:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create listing. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -78,9 +104,10 @@ export default function CreateListingPage() {
   return (
     <div className="mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
         <Link href="/dashboard/listings">
-          <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
@@ -88,6 +115,7 @@ export default function CreateListingPage() {
         <div>
           <h1 className="text-3xl font-bold">Create Listing</h1>
           <p className="text-gray-600">Create a new OTC trade listing</p>
+          </div>
         </div>
       </div>
 
@@ -104,7 +132,7 @@ export default function CreateListingPage() {
             <RadioGroup
               value={formData.type}
               onValueChange={(value) => handleInputChange('type', value)}
-              className="grid grid-cols-2 gap-4"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2"
             >
               <div>
                 <RadioGroupItem
@@ -151,7 +179,7 @@ export default function CreateListingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="token">Stablecoin</Label>
                 <Select
@@ -196,7 +224,7 @@ export default function CreateListingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="rate">Rate per Token</Label>
                 <Input
@@ -271,7 +299,7 @@ export default function CreateListingPage() {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="minAmount">Min Amount (Optional)</Label>
                 <Input
@@ -344,15 +372,15 @@ export default function CreateListingPage() {
         </Card>
 
         {/* Submit */}
-        <div className="flex gap-4">
-          <Link href="/dashboard/listings" className="flex-1">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link href="/dashboard/listings" className="sm:flex-1">
             <Button variant="outline" className="w-full bg-transparent">
               Cancel
             </Button>
           </Link>
           <Button
             type="submit"
-            className="flex-1 btn-primary"
+            className="btn-primary w-full sm:flex-1"
             disabled={isLoading}
           >
             {isLoading ? 'Creating Listing...' : 'Create Listing'}

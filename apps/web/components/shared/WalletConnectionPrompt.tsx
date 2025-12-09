@@ -1,7 +1,7 @@
 'use client';
 
 import { Wallet } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
@@ -21,8 +21,16 @@ export function WalletConnectionPrompt({
 }: WalletConnectionPromptProps) {
   const { user, updateProfile } = useAuth();
   const { handleConnect } = useWallet();
+  const { address, isConnected } = useGlobalAuthenticationStore();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
+
+  // Close dialog if wallet is already connected and linked
+  useEffect(() => {
+    if (open && (isConnected && address) && user?.stellar_address === address) {
+      onOpenChange(false);
+    }
+  }, [open, isConnected, address, user?.stellar_address, onOpenChange]);
 
   const handleConnectAndLink = async () => {
     if (!user) {
