@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 export function Header() {
   return (
     <header className="border-glass-border glass-effect backdrop-blur-md sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+      <div className="container mx-auto flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="flex items-center gap-3">
           <div>
             <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
               <Image
@@ -26,9 +26,9 @@ export function Header() {
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex w-full items-center gap-3 sm:w-auto sm:justify-end">
           <Link href="/auth">
-            <Button className="btn-primary text-accent">
+            <Button className="btn-primary text-accent w-full justify-center sm:w-auto">
               Beta Access
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

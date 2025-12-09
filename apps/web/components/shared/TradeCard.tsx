@@ -43,11 +43,11 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
   const renderRightSection = () => {
     if (isListing(trade)) {
       return (
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex flex-col items-start gap-2 sm:gap-3 text-left lg:items-end lg:text-right w-full lg:w-auto">
           <StatusBadge status={trade.status} />
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Value</p>
-            <p className="text-xl font-bold text-foreground">
+          <div className="text-left lg:text-right">
+            <p className="text-xs sm:text-sm text-muted-foreground">Total Value</p>
+            <p className="text-lg sm:text-xl font-bold text-foreground leading-tight">
               {formatCurrency(trade.amount * trade.rate, trade.fiatCurrency)}
             </p>
           </div>
@@ -57,11 +57,11 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
 
     if (isEscrow(trade)) {
       return (
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex flex-col items-start gap-2 sm:gap-3 text-left lg:items-end lg:text-right w-full lg:w-auto">
           <StatusBadge status={trade.status} />
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Progress</p>
-            <p className="text-xl font-bold text-foreground">
+          <div className="text-left lg:text-right">
+            <p className="text-xs sm:text-sm text-muted-foreground">Progress</p>
+            <p className="text-lg sm:text-xl font-bold text-foreground leading-tight">
               {trade.progress}%
             </p>
           </div>
@@ -91,24 +91,24 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
   };
 
   return (
-    <Card className="card hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 animate-fade-in">
+    <Card className="card hover:shadow-2xl hover:scale-[1.01] sm:hover:scale-[1.02] transition-all duration-300 animate-fade-in">
       <CardContent className="p-0">
-        <div className="p-6">
+        <div className="p-4 sm:p-5 lg:p-6">
           <div
-            className={`flex items-start justify-between ${isEscrow(trade) ? 'mb-6' : 'mb-4'}`}
+            className={`flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between ${isEscrow(trade) ? 'mb-4 sm:mb-6' : 'mb-3 sm:mb-4'}`}
           >
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center">
-                <TradeTypeBadge type={trade.type} className="mb-3" />
+            <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
+              <div className="flex flex-col items-center flex-shrink-0">
+                <TradeTypeBadge type={trade.type} className="mb-2 sm:mb-3" />
                 <TokenIcon token={trade.token} size="lg" />
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-baseline gap-2 mb-1">
-                  <h3 className="text-2xl font-bold text-foreground">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-2 mb-1.5 sm:mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-foreground leading-tight break-words">
                     {formatAmount(trade.amount)}
                   </h3>
-                  <span className="text-lg font-semibold text-muted-foreground">
+                  <span className="text-base sm:text-lg font-semibold text-muted-foreground">
                     {trade.token}
                   </span>
                 </div>
@@ -116,23 +116,27 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
               </div>
             </div>
 
-            {renderRightSection()}
+            <div className="flex w-full flex-col gap-3 rounded-lg bg-muted/30 p-3 sm:p-4 lg:w-auto lg:items-end lg:bg-transparent lg:p-0 border-t border-border/30 lg:border-0 pt-4 lg:pt-0">
+              {renderRightSection()}
+            </div>
           </div>
 
           {isEscrow(trade) && <TradeProgress escrow={trade} />}
 
-          <div className="border-t border-border/50 pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+          <div className="border-t border-border/50 pt-3 sm:pt-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 min-w-0">
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-3 h-3 rounded-full ${getStatusColor(trade.status)}`}
+                    className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${getStatusColor(trade.status)}`}
                   ></div>
-                  <span className="text-sm font-medium text-muted-foreground capitalize">
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground capitalize truncate">
                     {trade.status.replace('_', ' ')}
                   </span>
                 </div>
-                {renderFooterInfo()}
+                <div className="text-xs sm:text-sm text-muted-foreground/80 truncate">
+                  {renderFooterInfo()}
+                </div>
               </div>
 
               <TradeActions

@@ -69,8 +69,8 @@ export function EscrowDetailsModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass-card !max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-emerald-gradient">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl font-bold text-emerald-gradient leading-tight">
             Escrow Details
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -81,21 +81,21 @@ export function EscrowDetailsModal({
         <div className="space-y-6">
           {/* Header Info */}
           <div className="bg-muted/50 backdrop-blur-sm p-6 rounded-lg border border-border/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold text-emerald-600">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold text-emerald-600 leading-snug">
                   {formatAmount(escrow.amount)}{' '}
                   {getTrustlineName(escrow.trustline.address)}
-                  <span className="text-muted-foreground mx-3">
-                    | {formatAmount(escrow.balance || 0)}{' '}
+                  <span className="text-muted-foreground block text-base font-semibold">
+                    Balance: {formatAmount(escrow.balance || 0)}{' '}
                     {getTrustlineName(escrow.trustline.address)}
                   </span>
                 </h3>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 break-all">
                   Engagement ID: {escrow.engagementId}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:justify-end">
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 <span className={`font-semibold ${status.color}`}>
                   {status.text}
@@ -124,7 +124,7 @@ export function EscrowDetailsModal({
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Seller</p>
-                  <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
+                  <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-all">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="font-mono text-sm text-foreground">
                       {escrow.roles.approver.slice(0, 8)}...
@@ -135,7 +135,7 @@ export function EscrowDetailsModal({
 
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Buyer</p>
-                  <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
+                  <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-all">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="font-mono text-sm text-foreground">
                       {escrow.roles.serviceProvider.slice(0, 8)}...
@@ -154,8 +154,8 @@ export function EscrowDetailsModal({
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Asset</p>
-                  <div className="p-3 bg-muted/50 backdrop-blur-sm rounded-lg">
-                    <span className="font-mono text-sm text-foreground">
+                  <div className="p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-words">
+                    <span className="font-mono text-sm text-foreground leading-relaxed">
                       {getTrustlineName(escrow.trustline.address)}
                     </span>
                   </div>

@@ -17,10 +17,12 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="sticky top-0 z-40 glass-effect backdrop-blur-md border-b border-glass-border lg:hidden px-4 py-2">
+        <div className="sticky top-0 z-40 glass-effect backdrop-blur-md border-b border-glass-border lg:hidden px-3 sm:px-4 py-2">
           <SidebarTrigger />
         </div>
-        <main className="p-6 lg:p-8 min-h-screen">{children}</main>
+        <main className="p-4 sm:p-5 md:p-6 lg:p-8 min-h-screen max-w-full overflow-x-hidden">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

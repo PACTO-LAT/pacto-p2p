@@ -1,4 +1,4 @@
-import { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
+import type { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
 import type { DbListing } from '@/lib/types/db';
 import type { User } from '@/lib/types';
 
@@ -75,11 +75,22 @@ export type UIListingFormInput = {
 };
 
 export function toCreateListingData(input: UIListingFormInput) {
+  const amount = Number.parseFloat(input.amount || '0');
+  const rate = Number.parseFloat(input.rate || '0');
+
+  if (amount <= 0) {
+    throw new Error('Amount must be greater than 0');
+  }
+
+  if (rate <= 0) {
+    throw new Error('Rate must be greater than 0');
+  }
+
   return {
     type: input.type,
     token: input.token,
-    amount: Number.parseFloat(input.amount || '0'),
-    rate: Number.parseFloat(input.rate || '0'),
+    amount,
+    rate,
     fiat_currency: input.fiatCurrency,
     payment_method: input.paymentMethod,
     min_amount: input.minAmount

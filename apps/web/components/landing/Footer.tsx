@@ -78,7 +78,7 @@ export function Footer() {
         <div></div>
 
         <motion.div
-          className="grid md:grid-cols-4 gap-8 ml-40"
+          className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4"
           variants={shouldAnimate ? staggerContainer : {}}
         >
           <motion.div variants={shouldAnimate ? itemAnimation : {}}>

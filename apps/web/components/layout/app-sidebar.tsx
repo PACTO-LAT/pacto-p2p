@@ -36,8 +36,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useWallet } from '@/hooks/use-wallet';
+import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { toast } from 'sonner';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -52,9 +54,51 @@ export function AppSidebar() {
   const { handleDisconnect, handleConnect } = useWallet();
   const { address, network, walletType, isConnected } =
     useGlobalAuthenticationStore();
+  const { user, signOut } = useAuth();
   const canSeeAdmin = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
   const { state, isMobile } = useSidebar();
   const isCollapsed = state === 'collapsed' && !isMobile;
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (user?.full_name) return user.full_name;
+    if (user?.username) return user.username;
+    if (user?.email) return user.email.split('@')[0];
+    if (address) return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    return 'Guest';
+  };
+
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    const name = getUserDisplayName();
+    if (name.includes('...')) return name.slice(0, 2).toUpperCase();
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  // Handle sign out with wallet disconnection
+  const handleSignOut = async () => {
+    try {
+      // Disconnect wallet if connected
+      if (isConnected) {
+        try {
+          await handleDisconnect();
+        } catch (error) {
+          console.error('Error disconnecting wallet:', error);
+          // Continue with sign out even if wallet disconnect fails
+        }
+      }
+      // Sign out from auth
+      await signOut();
+      toast.success('Signed out successfully');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast.error('Failed to sign out. Please try again.');
+    }
+  };
 
   return (
     <Sidebar
@@ -143,71 +187,148 @@ export function AppSidebar() {
 
       <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
 
-      <SidebarFooter className="p-6 group-data-[collapsible=icon]:p-2">
-        <div className="space-y-3">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-3 p-3 nav-card rounded-xl group-data-[collapsible=icon]:hidden">
-                <div className="w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                  <Wallet className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {address
-                        ? `${address.slice(0, 6)}...${address.slice(-4)}`
-                        : 'Not Connected'}
-                    </p>
-                    {isConnected && (
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full glow-emerald group-data-[collapsible=icon]:hidden"></div>
-                    )}
+      <SidebarFooter className="p-4 sm:p-6 group-data-[collapsible=icon]:p-2 space-y-3">
+        {/* User Profile Section */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center gap-3 p-3 nav-card rounded-xl group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:justify-center">
+              {/* User Avatar */}
+              <div className="relative flex-shrink-0">
+                {user?.avatar_url ? (
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-500/30 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
+                    <Image
+                      src={user.avatar_url}
+                      alt={getUserDisplayName()}
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  {walletType && (
+                ) : (
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center border-2 border-emerald-500/30 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
+                    <span className="text-white font-semibold text-sm sm:text-base group-data-[collapsible=icon]:text-sm">
+                      {getUserInitials()}
+                    </span>
+                  </div>
+                )}
+                {isConnected && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-emerald-500 rounded-full border-2 border-background group-data-[collapsible=icon]:w-2.5 group-data-[collapsible=icon]:h-2.5">
+                    <div className="w-full h-full bg-emerald-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </div>
+
+              {/* User Info */}
+              <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm sm:text-base font-semibold text-foreground truncate">
+                    {getUserDisplayName()}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isConnected && address ? (
+                    <>
+                      <Wallet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-500 flex-shrink-0" />
+                      <p className="text-xs text-muted-foreground truncate font-mono">
+                        {address.slice(0, 6)}...{address.slice(-4)}
+                      </p>
+                    </>
+                  ) : (
                     <p className="text-xs text-muted-foreground">
-                      {walletType} • {network}
+                      Not connected
                     </p>
                   )}
                 </div>
+                {walletType && isConnected && (
+                  <p className="text-xs text-muted-foreground/70 mt-0.5 truncate">
+                    {walletType} • {network}
+                  </p>
+                )}
               </div>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              align="center"
-              hidden={!isCollapsed}
-              className="text-accent"
-            >
-              <span className="text-xs">
-                {isConnected
-                  ? `${address.slice(0, 6)}...${address.slice(-4)}`
-                  : 'Not Connected'}
-              </span>
-            </TooltipContent>
-          </Tooltip>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent
+            side="right"
+            align="center"
+            hidden={!isCollapsed}
+            className="text-accent"
+          >
+            <div className="text-xs space-y-1">
+              <p className="font-semibold">{getUserDisplayName()}</p>
+              {isConnected && address && (
+                <p className="font-mono">{address.slice(0, 8)}...{address.slice(-6)}</p>
+              )}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 group-data-[collapsible=icon]:gap-1">
           {isConnected ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    'justify-start glass-effect-light hover:bg-glass-hover text-foreground/80 w-full group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center'
-                  )}
-                  onClick={handleDisconnect}
-                  aria-label="Disconnect wallet"
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      'justify-start glass-effect-light hover:bg-glass-hover text-foreground/80 w-full group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center text-xs sm:text-sm'
+                    )}
+                    onClick={handleDisconnect}
+                    aria-label="Disconnect wallet"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="ml-2 group-data-[collapsible=icon]:hidden">
+                      Disconnect Wallet
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  align="center"
+                  hidden={!isCollapsed}
+                  className="text-accent"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="ml-2 group-data-[collapsible=icon]:hidden">
-                    Disconnect
-                  </span>
-                </Button>
-              </TooltipTrigger>
-            </Tooltip>
+                  Disconnect Wallet
+                </TooltipContent>
+              </Tooltip>
+              {user && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        'justify-start glass-effect-light hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30 text-foreground/80 w-full group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center text-xs sm:text-sm'
+                      )}
+                      onClick={handleSignOut}
+                      aria-label="Sign out"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="ml-2 group-data-[collapsible=icon]:hidden">
+                        Sign Out
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    align="center"
+                    hidden={!isCollapsed}
+                    className="text-accent"
+                  >
+                    Sign Out
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
+                  size="sm"
                   className={cn(
-                    'justify-start glass-effect-light hover:bg-glass-hover text-foreground/80 w-full group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center'
+                    'justify-start glass-effect-light hover:bg-glass-hover text-foreground/80 w-full group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center text-xs sm:text-sm btn-emerald-outline'
                   )}
                   onClick={handleConnect}
                   aria-label="Connect wallet"
