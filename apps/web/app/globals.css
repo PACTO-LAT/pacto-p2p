@@ -930,7 +930,7 @@ body.stellar-wallets-kit-modal-open [role="tabpanel"] {
   div[class*="modal"] {
     max-height: 95vh !important;
   }
-  
+
   div[role="dialog"] > div,
   div[class*="modal"] > div {
     max-height: 95vh !important;
