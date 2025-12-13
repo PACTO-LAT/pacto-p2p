@@ -50,7 +50,7 @@ export function WalletConnectionPrompt({
       const connectedAddress = useGlobalAuthenticationStore.getState().address;
       
       if (!connectedAddress) {
-        throw new Error('Failed to get wallet address');
+        throw new Error('Failed to get wallet address. Please try connecting again.');
       }
 
       // Link wallet to user profile
@@ -63,7 +63,22 @@ export function WalletConnectionPrompt({
       toast.success('Wallet linked successfully!');
       onOpenChange(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to connect wallet';
+      // Extract error message with better error handling
+      let message = 'Failed to connect wallet';
+      if (error instanceof Error) {
+        message = error.message || message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        message = String(error.message);
+      }
+      
+      console.error('Wallet connection error:', {
+        error,
+        message,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+      });
+      
       toast.error(message);
     } finally {
       setIsConnecting(false);
