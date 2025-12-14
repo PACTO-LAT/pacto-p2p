@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import WaitlistDialog from '@/components/marketing/WaitlistDialog';
 import { Button } from '@/components/ui/button';
+import RotatingText from '@/components/RotatingText';
 
 export function HeroSection() {
   const reducedMotion = useReducedMotion();
@@ -58,9 +59,19 @@ export function HeroSection() {
           variants={shouldAnimate ? itemAnimation : {}}
         >
           A decentralized OTC platform for Stellar stablecoins like{' '}
-          <span className="text-emerald-400 font-semibold">
-            CRCX, MXNX, and USDC
-          </span>
+          <RotatingText
+            texts={['CRCX', 'MXNX', 'USDC']}
+            mainClassName="inline-flex items-center text-white font-semibold"
+            staggerFrom="last"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '-120%', opacity: 0 }}
+            staggerDuration={0.025}
+            splitLevelClassName="overflow-hidden inline-flex"
+            elementLevelClassName="inline-block"
+            transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+            rotationInterval={2000}
+          />
           .
         </motion.p>
         <motion.p

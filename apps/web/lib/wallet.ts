@@ -4,9 +4,10 @@ import { Networks } from '@stellar/stellar-sdk';
 
 // Initialize flag to prevent multiple initializations
 let isInitialized = false;
+let initializationError: Error | null = null;
 
 // Initialize the kit (should be called once on client-side)
-export function initializeWalletKit() {
+export function initializeWalletKit(): void {
   if (typeof window === 'undefined') {
     return; // Skip on server-side
   }
@@ -18,10 +19,30 @@ export function initializeWalletKit() {
         network: Networks.TESTNET,
       });
       isInitialized = true;
+      initializationError = null;
     } catch (error) {
-      console.error('Failed to initialize StellarWalletsKit:', error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Failed to initialize StellarWalletsKit';
+      initializationError = new Error(errorMessage);
+      console.error('Failed to initialize StellarWalletsKit:', {
+        error,
+        message: errorMessage,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+      });
+      throw initializationError;
     }
   }
+}
+
+// Check if the kit is initialized
+export function isWalletKitInitialized(): boolean {
+  return isInitialized;
+}
+
+// Get initialization error if any
+export function getInitializationError(): Error | null {
+  return initializationError;
 }
 
 // Get the kit instance (for backward compatibility if needed)
@@ -61,3 +82,5 @@ export const signTransaction = async ({
 
   return signedTxXdr;
 };
+
+

@@ -93,24 +93,51 @@ export default function DashboardPage() {
   };
 
   const { address, isConnected } = useGlobalAuthenticationStore();
+  const [hasShownWalletPrompt, setHasShownWalletPrompt] = useState(false);
+  const [userDismissedPrompt, setUserDismissedPrompt] = useState(false);
+
+  // Reset dismissed flag when wallet gets connected and linked
+  useEffect(() => {
+    if (isConnected && address && user?.stellar_address === address) {
+      setUserDismissedPrompt(false);
+      setHasShownWalletPrompt(false);
+    }
+  }, [isConnected, address, user?.stellar_address]);
 
   // Show wallet connection prompt if user is logged in but doesn't have wallet linked
   // AND wallet is not already connected
   useEffect(() => {
+    if (userDismissedPrompt || showWalletPrompt) {
+      return;
+    }
+    
+    if (isConnected && address && user?.stellar_address === address) {
+      return;
+    }
+    
     if (
       !authLoading &&
       user &&
       !user.stellar_address &&
-      !showWalletPrompt &&
+      !hasShownWalletPrompt &&
       !(isConnected && address)
     ) {
       // Small delay to let the page render first
       const timer = setTimeout(() => {
         setShowWalletPrompt(true);
+        setHasShownWalletPrompt(true);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, authLoading, showWalletPrompt, isConnected, address]);
+  }, [user, authLoading, showWalletPrompt, isConnected, address, hasShownWalletPrompt, userDismissedPrompt]);
+
+  // Handle when user closes the prompt
+  const handleWalletPromptChange = (open: boolean) => {
+    setShowWalletPrompt(open);
+    if (!open && (!isConnected || !address || user?.stellar_address !== address)) {
+      setUserDismissedPrompt(true);
+    }
+  };
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
@@ -157,7 +184,7 @@ export default function DashboardPage() {
       )}
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="listings" className="space-y-4 sm:space-y-6">
+      <Tabs id="dashboard-tabs" defaultValue="listings" className="space-y-4 sm:space-y-6">
         <TabsList className="flex flex-col sm:flex-row h-auto p-1.5 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-2 w-full sm:w-auto">
           <TabsTrigger
             value="listings"
@@ -305,7 +332,7 @@ export default function DashboardPage() {
       {/* Wallet Connection Prompt */}
       <WalletConnectionPrompt
         open={showWalletPrompt}
-        onOpenChange={setShowWalletPrompt}
+        onOpenChange={handleWalletPromptChange}
       />
     </div>
   );
