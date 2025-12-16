@@ -1,12 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { AppSidebar } from '@/components/layout/app-sidebar';
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { DashboardHeader } from '@/components/layout/dashboard-header';
 
 export default function DashboardLayout({
   children,
@@ -14,16 +9,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <div className="sticky top-0 z-40 glass-effect backdrop-blur-md border-b border-glass-border lg:hidden px-3 sm:px-4 py-2">
-          <SidebarTrigger />
-        </div>
-        <main className="p-4 sm:p-5 md:p-6 lg:p-8 min-h-screen max-w-full overflow-x-hidden">
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="min-h-screen flex flex-col">
+      <DashboardHeader />
+      <main className="flex-1 p-4 sm:p-5 md:p-6 lg:p-8 max-w-full overflow-x-hidden">
+        {children}
+      </main>
+    </div>
   );
 }
