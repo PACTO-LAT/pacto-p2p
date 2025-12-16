@@ -838,3 +838,101 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* StellarWalletsKit Modal Fixes */
+/* Target any modal/dialog that might be from StellarWalletsKit */
+/* Use very high z-index to ensure it's above all dashboard content */
+div[role="dialog"]:not([data-slot]),
+div[class*="modal"]:not([data-slot]),
+div[class*="Modal"]:not([data-slot]),
+div[id*="stellar"],
+div[id*="wallet"],
+/* More specific selectors for StellarWalletsKit */
+body > div[role="dialog"],
+body > div[class*="modal"],
+/* Target portal containers that might contain the modal */
+#root > div[role="dialog"],
+#__next > div[role="dialog"],
+body > div:last-child[role="dialog"] {
+  z-index: 99999 !important;
+  position: fixed !important;
+  isolation: isolate !important;
+}
+
+/* Fix scrolling in modal content - target common modal structures */
+div[role="dialog"]:not([data-slot]) > div,
+div[class*="modal"]:not([data-slot]) > div,
+div[class*="Modal"]:not([data-slot]) > div {
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  z-index: 99999 !important;
+  position: relative !important;
+}
+
+/* Fix for wallet list/options containers */
+div[role="dialog"]:not([data-slot]) ul,
+div[role="dialog"]:not([data-slot]) [class*="list"],
+div[role="dialog"]:not([data-slot]) [class*="options"],
+div[class*="modal"]:not([data-slot]) ul,
+div[class*="modal"]:not([data-slot]) [class*="list"] {
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Ensure all buttons in modal are clickable */
+div[role="dialog"]:not([data-slot]) button,
+div[class*="modal"]:not([data-slot]) button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 100000 !important;
+  position: relative !important;
+}
+
+/* Ensure modal overlay/backdrop has proper z-index */
+div[class*="overlay"]:not([data-slot]),
+div[class*="backdrop"]:not([data-slot]),
+div[class*="Overlay"]:not([data-slot]),
+body > div[class*="overlay"],
+body > div[class*="backdrop"],
+/* Target any backdrop that might be from StellarWalletsKit */
+body > div[class*="overlay"]:last-child,
+body > div[class*="backdrop"]:last-child {
+  z-index: 99998 !important;
+  position: fixed !important;
+  isolation: isolate !important;
+}
+
+/* Prevent body scroll when modal is open */
+body.stellar-wallets-kit-modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure dashboard content stays below modal */
+body.stellar-wallets-kit-modal-open [data-slot],
+body.stellar-wallets-kit-modal-open .tabs,
+body.stellar-wallets-kit-modal-open [role="tablist"],
+body.stellar-wallets-kit-modal-open [role="tabpanel"] {
+  z-index: 1 !important;
+  position: relative !important;
+}
+
+/* Additional fix for mobile devices */
+@media (max-width: 768px) {
+  div[role="dialog"],
+  div[class*="modal"] {
+    max-height: 95vh !important;
+  }
+
+  div[role="dialog"] > div,
+  div[class*="modal"] > div {
+    max-height: 95vh !important;
+  }
+}

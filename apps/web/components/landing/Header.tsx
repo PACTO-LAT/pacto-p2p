@@ -3,12 +3,32 @@
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="border-glass-border glass-effect backdrop-blur-md sticky top-0 z-50">
+    <header
+      className={cn(
+        'sticky top-0 z-50 transition-all duration-300',
+        isScrolled
+          ? 'border-glass-border glass-effect backdrop-blur-md'
+          : 'bg-transparent'
+      )}
+    >
       <div className="container mx-auto flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <div className="flex items-center gap-3">
           <div>
