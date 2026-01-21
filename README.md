@@ -1,98 +1,37 @@
-# Pacto
+# Pacto P2P
 
-## Merchant UI (Mock)
+<div align="center">
 
-A polished mock Merchant UI with public profile, dashboard, and settings. No backend required.
+**A decentralized OTC (Over-The-Counter) platform for Stellar stablecoins**
 
-Setup:
+Enabling peer-to-peer trading of CRCX, MXNX, and USDC using regional payment rails like SINPE and SPEI.
 
-1. In `apps/web`, set environment flag:
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.2+-black.svg)](https://nextjs.org/)
 
-```
-NEXT_PUBLIC_USE_MOCK=1
-```
+</div>
 
-2. Run the web app:
+---
 
-```
-cd apps/web
-npm run dev
-```
+## 🌟 Overview
 
-Routes:
+Pacto P2P is a non-custodial trading platform that connects buyers and sellers of Stellar stablecoins through secure, blockchain-backed escrows. Every trade is secured by Trustless Work smart contracts on the Stellar blockchain, ensuring transparency and security without requiring a trusted intermediary.
 
-- Public profile: `/m/demo-merchant`
-- Merchant dashboard: `/merchant`
-- Merchant settings: `/merchant/settings`
+### Key Features
 
-Notes:
-
-- All data served from local mock API under `/api/mock/*` and fetched via TanStack Query.
-- Swap to real APIs later by providing a real adapter in `apps/web/lib/adapters` and disabling the `NEXT_PUBLIC_USE_MOCK` flag.
-
-A decentralized OTC (Over-The-Counter) platform for Stellar stablecoins, enabling peer-to-peer trading of CRCX, MXNX, and USDC using regional payment rails like SINPE and SPEI.
-
-## 🌟 Features
-
-### Core Functionality
-- **Local P2P On/Off-Ramps**: Trade stablecoins using regional payment methods
-- **Smart Contract Escrows**: Every trade secured by Trustless Work on Stellar
-- **Fair OTC Market**: Non-custodial environment with transparent pricing
-- **Borderless Trading**: Move value across borders with local fiat conversion
+- **🔒 Non-Custodial Trading**: Your funds are secured by smart contracts, not held by us
+- **🌍 Borderless Payments**: Trade using regional payment methods (SINPE, SPEI, etc.)
+- **⚡ Fast Settlements**: Stellar blockchain enables near-instant transactions
+- **🛡️ Dispute Resolution**: Built-in dispute system for trade conflicts
+- **💼 Merchant Profiles**: Verified merchant accounts with public profiles
+- **📊 Real-time Tracking**: Live status updates for trades and escrows
 
 ### Supported Assets
-- **CRCX**: Costa Rican Colón Token
-- **MXNX**: Mexican Peso Token
-- **USDC**: USD Coin (Global, various payment methods)
 
-### User Features
-- **Dashboard**: Manage listings, escrows, and trade history
-- **Wallet Integration**: Connect with Stellar wallets
-- **Real-time Updates**: Live status tracking for trades and escrows
-- **Dispute Resolution**: Built-in dispute system for trade conflicts
-
-## 🎯 Usage
-
-### Connecting Your Wallet
-1. Click "Sign In" on the homepage
-2. Choose your preferred Stellar wallet
-3. Approve the connection in your wallet
-4. You'll be redirected to the dashboard
-
-### Creating a Listing
-1. Navigate to "Listings" in the dashboard
-2. Click "New Listing"
-3. Fill in the trade details:
-   - Token type (CRCX, MXNX, USDC)
-   - Amount and rate
-   - Payment method
-   - Description
-4. Submit the listing
-
-### Making a Trade
-1. Browse available listings
-2. Click on a listing to view details
-3. Click "Trade" to initiate an escrow
-4. Follow the escrow process:
-   - Deposit funds
-   - Send fiat payment
-   - Upload receipt
-   - Wait for confirmation
-
-## 🏗️ Monorepo Structure
-
-```
-pacto-p2p/
-├── apps/
-│   └── web/                 # Next.js web application
-├── packages/
-│   ├── shared/             # Shared utilities and services
-│   ├── ui/                 # Reusable UI components
-│   ├── types/              # TypeScript type definitions
-│   └── config/             # Configuration and scripts
-├── package.json            # Root workspace configuration
-└── README.md              # This file
-```
+- **CRCX** - Costa Rican Colón Token
+- **MXNX** - Mexican Peso Token
+- **USDC** - USD Coin (Global, various payment methods)
 
 ## 🚀 Quick Start
 
@@ -104,6 +43,10 @@ pacto-p2p/
 ### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/pacto-p2p.git
+cd pacto-p2p
+
 # Install all dependencies
 npm install
 
@@ -114,25 +57,85 @@ npm run build
 npm run dev
 ```
 
+The application will be available at `http://localhost:3000`
+
+### Environment Setup
+
+Create a `.env.local` file in `apps/web` with the following variables:
+
+```env
+# Stellar & Trustless Work
+NEXT_PUBLIC_TLW_API_KEY=your_trustless_work_api_key
+NEXT_PUBLIC_ROLE_ADDRESS=your_stellar_role_address
+NEXT_PUBLIC_PLATFORM_FEE=0.01
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Optional: Mock Mode
+NEXT_PUBLIC_USE_MOCK=0
+```
+
+## 🏗️ Architecture
+
+### Monorepo Structure
+
+```
+pacto-p2p/
+├── apps/
+│   └── web/                 # Next.js web application
+│       ├── app/             # Next.js App Router pages
+│       ├── components/      # React components
+│       ├── hooks/           # Custom React hooks
+│       ├── lib/             # Utilities and services
+│       └── providers/       # React context providers
+│
+├── packages/
+│   ├── shared/              # Shared utilities and services
+│   ├── ui/                  # Reusable UI components (Radix UI)
+│   ├── types/               # TypeScript type definitions
+│   └── config/              # Configuration and scripts
+│
+├── docs/                    # Documentation
+│   ├── DEVELOPMENT.md       # Development guide
+│   └── DATABASE_SCHEMA.md   # Database schema
+│
+├── scripts/                 # Utility scripts
+├── CONTRIBUTING.md          # Contribution guidelines
+└── README.md                # This file
+```
+
+### Technology Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: TailwindCSS, Shadcn UI, Radix UI
+- **State Management**: Zustand, TanStack Query
+- **Blockchain**: Stellar, Trustless Work
+- **Database**: Supabase (PostgreSQL)
+- **Code Quality**: Biome, TypeScript
+- **Build System**: Turborepo, npm workspaces
+
 ## 📦 Workspaces
 
 ### Apps
 
 - **`apps/web`** - Main Next.js web application
-  - Dashboard, authentication, escrow management
-  - Stellar wallet integration
+  - Dashboard for managing listings, escrows, and trades
+  - Stellar wallet integration via Trustless Work
   - Supabase backend integration
+  - Merchant profiles and public pages
 
 ### Packages
 
 - **`packages/shared`** - Common utilities and services
-  - Database services (Supabase)
+  - Database services (Supabase client)
   - Stellar wallet utilities
-  - State management (Zustand)
+  - State management (Zustand stores)
   - Validation schemas (Zod)
 
 - **`packages/ui`** - Reusable UI components
-  - Radix UI components
+  - Radix UI primitives
   - Custom themed components
   - Form components
   - Layout components
@@ -146,6 +149,38 @@ npm run dev
   - Database initialization scripts
   - Environment configurations
   - Build configurations
+
+## 🎯 Usage
+
+### Connecting Your Wallet
+
+1. Click "Sign In" on the homepage
+2. Choose your preferred Stellar wallet (Freighter, WalletConnect, etc.)
+3. Approve the connection in your wallet
+4. You'll be redirected to the dashboard
+
+### Creating a Listing
+
+1. Navigate to "Listings" in the dashboard
+2. Click "New Listing"
+3. Fill in the trade details:
+   - Token type (CRCX, MXNX, USDC)
+   - Amount and rate
+   - Payment method
+   - Description
+4. Submit the listing
+
+### Making a Trade
+
+1. Browse available listings on the marketplace
+2. Click on a listing to view details
+3. Click "Trade" to initiate an escrow
+4. Follow the escrow process:
+   - Deposit funds to the escrow contract
+   - Send fiat payment to the seller
+   - Upload payment receipt
+   - Wait for seller confirmation
+   - Funds are automatically released
 
 ## 🛠️ Development
 
@@ -168,6 +203,31 @@ npm run type-check       # Type check all packages
 npm run clean            # Clean all build artifacts
 ```
 
+### Development Workflow
+
+1. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make your changes** following our [coding standards](./CONTRIBUTING.md#coding-standards)
+
+3. **Test your changes**:
+   ```bash
+   npm run type-check
+   npm run biome:check
+   npm run build
+   ```
+
+4. **Commit using Conventional Commits**:
+   ```bash
+   git commit -m "feat: add new feature"
+   ```
+
+5. **Push and create a Pull Request**
+
+For detailed development instructions, see [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md).
+
 ### Adding New Packages
 
 1. Create a new directory in `packages/`
@@ -179,7 +239,7 @@ npm run clean            # Clean all build artifacts
 
 1. Create a new directory in `apps/`
 2. Add `package.json` with workspace dependencies
-3. Add necessary configuration files
+3. Add necessary configuration files (next.config.ts, tsconfig.json, etc.)
 4. Update root `package.json` workspaces if needed
 
 ## 🔧 Configuration
@@ -221,23 +281,57 @@ npm run build
 npm run start
 ```
 
-### Packages
+### Environment Variables
 
-```bash
-# Build all packages
-npm run build
-
-# Publish packages (if needed)
-npm publish --workspace=@pacto-p2p/shared
-```
+Ensure all required environment variables are set in your deployment environment. See [Quick Start](#quick-start) for the list of required variables.
 
 ## 🤝 Contributing
 
-1. Create a feature branch
-2. Make changes in the appropriate workspace
-3. Run tests and linting
-4. Submit a pull request
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on:
+
+- Code of Conduct
+- Development workflow
+- Coding standards
+- Pull request process
+- Reporting issues
+
+### Quick Contribution Guide
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting (`npm run type-check && npm run biome:check`)
+5. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 📚 Documentation
+
+- **[Development Guide](./docs/DEVELOPMENT.md)** - Detailed development instructions and architecture
+- **[Database Schema](./docs/DATABASE_SCHEMA.md)** - Database structure and relationships
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+
+## 🔐 Security
+
+If you discover a security vulnerability, please email security concerns privately to the maintainers. Do not open public issues for security vulnerabilities.
 
 ## 📝 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Stellar Development Foundation](https://www.stellar.org/)
+- [Trustless Work](https://trustlesswork.com/) for escrow infrastructure
+- [Next.js](https://nextjs.org/) for the amazing framework
+- All our contributors and supporters
+
+---
+
+<div align="center">
+
+Made with ❤️ by the Pacto P2P team
+
+[Documentation](./docs/) • [Contributing](./CONTRIBUTING.md) • [Issues](https://github.com/your-username/pacto-p2p/issues)
+
+</div>

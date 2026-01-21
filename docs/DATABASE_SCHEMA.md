@@ -95,50 +95,25 @@ Stores buy/sell offers posted by users.
 - `idx_listings_created_at`
 
 ### 4. `escrows`
-Stores escrow contracts linked to Trustless Work.
+Stores minimal platform-specific data for escrow contracts. All escrow details (amount, status, roles, milestones, etc.) are stored on-chain in the Stellar blockchain and can be retrieved via the Trustless Work API using the `engagement_id`.
 
 **Columns:**
 - `id` (UUID, Primary Key)
 - `listing_id` (UUID, Foreign Key → listings.id, Nullable)
 - `buyer_id` (UUID, Foreign Key → users.id, Not Null)
 - `seller_id` (UUID, Foreign Key → users.id, Not Null)
-- `trustless_work_contract_id` (VARCHAR(100), Unique, Not Null)
-- `engagement_id` (TEXT, Not Null)
-- `token` (VARCHAR(10), Not Null, Values: 'USDC'|'CRCX'|'MXNX')
-- `amount` (DECIMAL(20,7), Not Null, > 0)
-- `fiat_amount` (DECIMAL(20,2), Not Null, > 0)
-- `fiat_currency` (VARCHAR(3), Not Null)
-- `platform_fee` (DECIMAL(20,7), Default: 0, >= 0)
-- `approver_address` (VARCHAR(56), Not Null)
-- `service_provider_address` (VARCHAR(56), Not Null)
-- `release_signer_address` (VARCHAR(56), Not Null)
-- `receiver_address` (VARCHAR(56), Not Null)
-- `platform_address` (VARCHAR(56), Not Null)
-- `dispute_resolver_address` (VARCHAR(56), Not Null)
-- `status` (VARCHAR(30), Default: 'created', Values: 'created'|'funded'|'awaiting_payment'|'payment_reported'|'payment_confirmed'|'released'|'disputed'|'resolved'|'cancelled')
-- `payment_receipt_url` (TEXT)
-- `payment_evidence` (TEXT)
-- `is_disputed` (BOOLEAN, Default: false)
-- `is_released` (BOOLEAN, Default: false)
-- `is_resolved` (BOOLEAN, Default: false)
-- `is_approved` (BOOLEAN, Default: false)
-- `is_active` (BOOLEAN, Default: true)
-- `balance` (DECIMAL(20,7), Default: 0, >= 0)
-- `trustline_address` (VARCHAR(56), Not Null)
-- `trustline_name` (VARCHAR(10), Not Null)
-- `receiver_memo` (INTEGER, Default: 0)
-- `dispute_started_by` (VARCHAR(56))
-- `funded_by` (VARCHAR(56))
+- `engagement_id` (TEXT, Unique, Not Null) - On-chain identifier for fetching full escrow details
+- `fiat_amount` (DECIMAL(20,2), Not Null, > 0) - Used for platform statistics
 - `created_at` (TIMESTAMPTZ)
 - `updated_at` (TIMESTAMPTZ)
+
+**Note:** All other escrow details (token, amount, status, roles, trustline, milestones, balance, etc.) are available on-chain and should be fetched using the Trustless Work API with the `engagement_id`.
 
 **Indexes:**
 - `idx_escrows_listing_id`
 - `idx_escrows_buyer_id`
 - `idx_escrows_seller_id`
-- `idx_escrows_contract_id`
-- `idx_escrows_status`
-- `idx_escrows_is_active`
+- `idx_escrows_engagement_id`
 - `idx_escrows_created_at`
 
 ### 5. `escrow_milestones`
