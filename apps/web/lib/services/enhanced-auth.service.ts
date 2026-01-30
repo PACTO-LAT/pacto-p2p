@@ -52,13 +52,13 @@ export namespace EnhancedAuthService {
         try {
             // Check username uniqueness
             if (validatedData.username) {
-                const { data: existingUsername, error: usernameCheckError } =
+                const { data: existingUsernameData, error: usernameCheckError } =
                     await supabase
                         .from('users')
                         .select('id')
                         .eq('username', validatedData.username)
                         .neq('id', userId)
-                        .maybeSingle();
+                        .limit(1); // <-- ensures at most one row
 
                 if (usernameCheckError) {
                     throw new ProfileUpdateError(
@@ -68,7 +68,7 @@ export namespace EnhancedAuthService {
                     );
                 }
 
-                if (existingUsername) {
+                if (existingUsernameData && existingUsernameData.length > 0) {
                     throw new ProfileUpdateError(
                         'This username is already taken',
                         'USERNAME_TAKEN',
@@ -79,12 +79,13 @@ export namespace EnhancedAuthService {
 
             // Check email uniqueness
             if (validatedData.email && !validatedData.email.endsWith('@wallet.local')) {
-                const { data: existingEmail, error: emailCheckError } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('email', validatedData.email)
-                    .neq('id', userId)
-                    .maybeSingle();
+                const { data: existingEmailData, error: emailCheckError } =
+                    await supabase
+                        .from('users')
+                        .select('id')
+                        .eq('email', validatedData.email)
+                        .neq('id', userId)
+                        .limit(1);
 
                 if (emailCheckError) {
                     throw new ProfileUpdateError(
@@ -94,7 +95,7 @@ export namespace EnhancedAuthService {
                     );
                 }
 
-                if (existingEmail) {
+                if (existingEmailData && existingEmailData.length > 0) {
                     throw new ProfileUpdateError(
                         'This email is already in use',
                         'EMAIL_TAKEN',
@@ -105,13 +106,13 @@ export namespace EnhancedAuthService {
 
             // Check Stellar address uniqueness
             if (validatedData.stellar_address) {
-                const { data: existingStellar, error: stellarCheckError } =
+                const { data: existingStellarData, error: stellarCheckError } =
                     await supabase
                         .from('users')
                         .select('id')
                         .eq('stellar_address', validatedData.stellar_address)
                         .neq('id', userId)
-                        .maybeSingle();
+                        .limit(1);
 
                 if (stellarCheckError) {
                     throw new ProfileUpdateError(
@@ -121,7 +122,7 @@ export namespace EnhancedAuthService {
                     );
                 }
 
-                if (existingStellar) {
+                if (existingStellarData && existingStellarData.length > 0) {
                     throw new ProfileUpdateError(
                         'This Stellar address is already linked to another account',
                         'STELLAR_ADDRESS_TAKEN',
@@ -129,6 +130,7 @@ export namespace EnhancedAuthService {
                     );
                 }
             }
+
         } catch (error) {
             if (error instanceof ProfileUpdateError) {
                 throw error;
@@ -160,7 +162,7 @@ export namespace EnhancedAuthService {
                 .update(updatePayload)
                 .eq('id', userId)
                 .select()
-                .single();
+                .maybeSingle();
 
             if (error) {
                 // Handle specific Supabase errors

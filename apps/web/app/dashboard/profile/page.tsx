@@ -45,14 +45,15 @@ export default function EnhancedProfilePage() {
       return {
         id: baseUser?.id || localOverrides?.id || '',
         email: normalizedEmail,
-        full_name: baseUser?.full_name || localOverrides?.full_name || '',
-        username: baseUser?.username || localOverrides?.username || '',
-        bio: baseUser?.bio || localOverrides?.bio || '',
-        avatar_url: baseUser?.avatar_url || localOverrides?.avatar_url || '',
+        full_name: localOverrides?.full_name ?? baseUser?.full_name ?? '',
+        username: localOverrides?.username ?? baseUser?.username ?? '',
+        bio: localOverrides?.bio ?? baseUser?.bio ?? '',
+        phone: localOverrides?.phone ?? baseUser?.phone ?? '',
+        country: localOverrides?.country ?? baseUser?.country ?? '',
         stellar_address:
-          baseUser?.stellar_address || localOverrides?.stellar_address || '',
-        phone: baseUser?.phone || localOverrides?.phone || '',
-        country: baseUser?.country || localOverrides?.country || '',
+          localOverrides?.stellar_address ?? baseUser?.stellar_address ?? '',
+        avatar_url:
+          localOverrides?.avatar_url ?? baseUser?.avatar_url ?? '',
         kyc_status:
           baseUser?.kyc_status || localOverrides?.kyc_status || 'pending',
         reputation_score:
@@ -124,9 +125,9 @@ export default function EnhancedProfilePage() {
         phone: hydratedUserData.phone,
         country: hydratedUserData.country,
         kyc_status: hydratedUserData.kyc_status,
-        notifications: hydratedUserData.notifications,
-        security: hydratedUserData.security,
-        payment_methods: hydratedUserData.payment_methods,
+        // notifications: hydratedUserData.notifications,
+        // security: hydratedUserData.security,
+        // payment_methods: hydratedUserData.payment_methods,
         stellar_address: hydratedUserData.stellar_address,
       } as const;
 
@@ -143,11 +144,12 @@ export default function EnhancedProfilePage() {
           description: errors[0], // Show first error in toast
         });
 
+        setIsLoading(false);
         return;
       }
 
       // Step 3: Optimistic update (update UI immediately)
-      const previousUserData = hydratedUserData;
+      const previousUserData = structuredClone(userData);
 
       // Step 4: Perform the actual update
       try {
