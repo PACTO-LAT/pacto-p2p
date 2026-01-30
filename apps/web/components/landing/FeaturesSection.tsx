@@ -1,73 +1,206 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { DollarSign, Globe, Lock, Rocket } from 'lucide-react';
+import { ArrowLeftRight, Globe, Lock, Zap } from 'lucide-react';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { BentoCard, BentoGrid } from '@/components/ui/bento-grid';
+import { cn } from '@/lib/utils';
+
+const paymentMethods = [
+  { name: 'SINPE', country: 'CR' },
+  { name: 'SPEI', country: 'MX' },
+  { name: 'PIX', country: 'BR' },
+  { name: 'Nequi', country: 'CO' },
+];
+
+const tokens = ['CRCX', 'MXNX', 'USDC'];
+
+const countries = [
+  { flag: '🇨🇷', code: 'cr' },
+  { flag: '🇲🇽', code: 'mx' },
+  { flag: '🇨🇴', code: 'co' },
+  { flag: '🇵🇪', code: 'pe' },
+  { flag: '🇧🇷', code: 'br' },
+  { flag: '🇦🇷', code: 'ar' },
+];
 
 const features = [
   {
-    icon: Globe,
-    title: 'Local P2P On/Off-Ramps',
-    description:
-      'Easily trade CRCX, MXNX, or USDC using regional payment rails like SINPE or SPEI — directly with other users.',
+    Icon: Globe,
+    name: 'Local Payment Rails',
+    description: 'Trade using SINPE, SPEI and other regional methods.',
+    href: '#',
+    cta: 'View methods',
+    className: 'md:col-span-1 lg:col-span-1',
+    background: (
+      <div className="absolute top-4 left-0 right-0 bottom-24 flex justify-center [mask-image:linear-gradient(to_bottom,#000_70%,transparent_100%)]">
+        <div className="flex flex-col gap-2">
+          {paymentMethods.map((method, idx) => (
+            <div
+              key={method.name}
+              className={cn(
+                'flex items-center gap-3 rounded-lg border px-4 py-2',
+                'border-border/40 bg-muted/50',
+                'transition-transform duration-500',
+                idx % 2 === 0 ? 'translate-x-3' : '-translate-x-3',
+                'group-hover:translate-x-0'
+              )}
+            >
+              <span className="text-xs font-medium text-muted-foreground w-6">
+                {method.country}
+              </span>
+              <span className="text-sm font-semibold text-foreground">
+                {method.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
   },
   {
-    icon: Lock,
-    title: 'Smart Contract Escrows',
-    description:
-      'Every trade is powered by Trustless Work, a Stellar-based escrow engine that holds funds until milestones are met.',
+    Icon: Lock,
+    name: 'Trustless Escrows',
+    description: 'Smart contracts hold funds until both parties confirm.',
+    href: '#',
+    cta: 'How it works',
+    className: 'md:col-span-1 lg:col-span-2',
+    background: (
+      <div className="absolute top-8 left-0 right-0 bottom-24 flex items-center justify-center [mask-image:linear-gradient(to_bottom,#000_70%,transparent_100%)]">
+        <div className="flex items-center gap-4 lg:gap-8">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                A
+              </span>
+            </div>
+            <span className="text-[10px] lg:text-xs text-muted-foreground">Buyer</span>
+          </div>
+
+          <div className="flex items-center">
+            <div className="h-px w-8 lg:w-16 bg-gradient-to-r from-emerald-500/50 to-primary/50" />
+            <div className="h-2 w-2 rotate-45 border-t-2 border-r-2 border-primary/50 -ml-1" />
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-xl bg-primary/10 border-2 border-primary/25 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Lock className="h-6 w-6 lg:h-7 lg:w-7 text-primary" />
+            </div>
+            <span className="text-[10px] lg:text-xs font-medium text-primary">Escrow</span>
+          </div>
+
+          <div className="flex items-center">
+            <div className="h-2 w-2 rotate-45 border-b-2 border-l-2 border-primary/50 -mr-1" />
+            <div className="h-px w-8 lg:w-16 bg-gradient-to-r from-primary/50 to-blue-500/50" />
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-semibold text-blue-600 dark:text-blue-400">
+                B
+              </span>
+            </div>
+            <span className="text-[10px] lg:text-xs text-muted-foreground">Seller</span>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
-    icon: DollarSign,
-    title: 'Fair, Transparent OTC Market',
-    description:
-      'You choose the price. Compete with other traders in a non-custodial environment.',
+    Icon: ArrowLeftRight,
+    name: 'P2P OTC Market',
+    description: 'Set your own rates. Trade directly with others.',
+    href: '#',
+    cta: 'Start trading',
+    className: 'md:col-span-1 lg:col-span-2',
+    background: (
+      <div className="absolute top-0 left-0 right-0 bottom-24 flex items-center justify-center [mask-image:linear-gradient(to_bottom,#000_70%,transparent_100%)]">
+        <div className="flex gap-3 lg:gap-5">
+          {tokens.map((token, idx) => (
+            <div
+              key={token}
+              className={cn(
+                'flex flex-col gap-1.5 rounded-xl border p-3 lg:p-4 w-[88px] lg:w-32',
+                'border-border/40 bg-muted/50',
+                'transition-all duration-300',
+                'group-hover:scale-105',
+                idx === 1 ? '-translate-y-3' : 'translate-y-3',
+                idx === 1 && 'group-hover:-translate-y-5'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs lg:text-sm font-bold text-foreground">
+                  {token}
+                </span>
+                <span className="text-[10px] lg:text-xs text-emerald-500 font-medium">
+                  +{(2.1 + idx * 0.3).toFixed(1)}%
+                </span>
+              </div>
+              <div className="text-base lg:text-xl font-bold text-foreground">
+                ${(1.0 + idx * 0.002).toFixed(3)}
+              </div>
+              <svg
+                viewBox="0 0 80 24"
+                className="w-full h-6 lg:h-8"
+                aria-hidden="true"
+              >
+                <path
+                  d={`M0,20 Q20,${16 - idx * 4} 40,${12 + idx * 2} T80,${6 - idx * 2}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="text-emerald-500/50"
+                />
+              </svg>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
   },
   {
-    icon: Rocket,
-    title: 'Borderless & Stable',
-    description:
-      'Move value across borders and convert to local fiat on demand. Ideal for freelancers, merchants, and crypto-native LATAM users.',
+    Icon: Zap,
+    name: 'Cross-Border',
+    description: 'Move value across LATAM instantly.',
+    href: '#',
+    cta: 'See coverage',
+    className: 'md:col-span-1 lg:col-span-1',
+    background: (
+      <div className="absolute top-0 left-0 right-0 bottom-24 flex items-center justify-center [mask-image:linear-gradient(to_bottom,#000_70%,transparent_100%)]">
+        <div className="relative">
+          <div className="grid grid-cols-3 grid-rows-2 gap-3">
+            {countries.map((country, idx) => (
+              <div
+                key={country.code}
+                className={cn(
+                  'h-12 w-12 rounded-lg bg-muted/50 border border-border/40',
+                  'flex items-center justify-center text-xl',
+                  'transition-all duration-300',
+                  'group-hover:scale-110',
+                  idx % 2 === 0
+                    ? 'group-hover:-translate-y-1'
+                    : 'group-hover:translate-y-1'
+                )}
+              >
+                {country.flag}
+              </div>
+            ))}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="h-6 w-6 rounded-full bg-primary/25 animate-ping" />
+          </div>
+        </div>
+      </div>
+    ),
   },
 ];
 
 export function FeaturesSection() {
   const reducedMotion = useReducedMotion();
 
-  // Animation variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemAnimation = {
-    hidden: { opacity: 0, y: 20 },
+  const fadeIn = {
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
@@ -78,94 +211,37 @@ export function FeaturesSection() {
   const shouldAnimate = !reducedMotion;
 
   return (
-    <section className="container mx-auto px-6 py-20">
+    <section className="container mx-auto px-6 py-20 mt-20">
       <motion.div
-        className="text-center mb-16"
+        className="mb-12"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
-        variants={shouldAnimate ? fadeInUp : {}}
+        variants={shouldAnimate ? fadeIn : {}}
       >
-        <motion.div
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20 mb-6"
-          variants={shouldAnimate ? itemAnimation : {}}
-        >
-          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-          <span className="text-emerald-600 font-medium text-sm">
-            Core Features
-          </span>
-        </motion.div>
-        <motion.h2
-          className="text-4xl md:text-5xl font-bold mb-6 text-foreground"
-          variants={shouldAnimate ? itemAnimation : {}}
-        >
-          Why Choose Pacto?
-        </motion.h2>
-        <motion.p
-          className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
-          variants={shouldAnimate ? itemAnimation : {}}
-        >
-          Experience the future of P2P trading with our innovative platform
-        </motion.p>
+        <span className="text-sm font-medium text-primary mb-3 block">
+          Features
+        </span>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          Trade stablecoins your way
+        </h2>
+        <p className="text-muted-foreground max-w-xl">
+          A non-custodial P2P marketplace built for LATAM, powered by Stellar.
+        </p>
       </motion.div>
 
       <motion.div
-        className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
-        variants={shouldAnimate ? staggerContainer : {}}
+        variants={shouldAnimate ? fadeIn : {}}
       >
-        {features.map((feature) => (
-          <motion.div
-            key={feature.title}
-            variants={shouldAnimate ? itemAnimation : {}}
-            className="h-full"
-          >
-            <Card className="group relative overflow-hidden bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-lg hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-              {/* Top accent line */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/50 via-emerald-400/50 to-emerald-600/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
-
-              <CardHeader className="text-center pb-6 relative z-10 flex-shrink-0">
-                <div className="relative mx-auto mb-6">
-                  {/* Icon background glow */}
-                  <div className="absolute inset-0 w-16 h-16 bg-emerald-500/20 rounded-2xl blur-lg group-hover:bg-emerald-500/30 transition-all duration-500" />
-
-                  {/* Icon container */}
-                  <div className="relative w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:shadow-emerald-500/25 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
-                    <feature.icon className="w-8 h-8 text-white group-hover:scale-110 transition-all duration-300" />
-                  </div>
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 bg-emerald-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-
-                <CardTitle className="text-xl font-bold text-foreground mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                  {feature.title}
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="text-center relative z-10 flex-1 flex flex-col justify-center">
-                <CardDescription className="text-muted-foreground leading-relaxed text-base group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors duration-300">
-                  {feature.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+        <BentoGrid>
+          {features.map((feature) => (
+            <BentoCard key={feature.name} {...feature} />
+          ))}
+        </BentoGrid>
       </motion.div>
-
-      {/* Bottom accent */}
-      <div className="mt-16 text-center">
-        <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 rounded-full border border-emerald-500/20">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-emerald-700 dark:text-emerald-300 font-medium">
-            Powered by Stellar blockchain technology
-          </span>
-        </div>
-      </div>
     </section>
   );
 }
