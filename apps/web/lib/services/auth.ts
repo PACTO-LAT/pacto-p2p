@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/types';
+import { EnhancedAuthService } from './enhanced-auth.service';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Service class pattern for auth operations
 export class AuthService {
@@ -18,9 +19,9 @@ export class AuthService {
     }
 
     // Auto-confirm email in development mode
-    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development' || 
-                          process.env.NODE_ENV === 'development';
-    
+    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development' ||
+      process.env.NODE_ENV === 'development';
+
     if (data.user && isDevelopment) {
       try {
         // Call API route to auto-confirm user (server-side)
@@ -29,26 +30,26 @@ export class AuthService {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: data.user.id }),
         });
-        
+
         if (response.ok) {
           console.log('User auto-confirmed in development mode');
-          
+
           // After confirmation, sign in to establish a session
           // Wait a moment for confirmation to propagate
           await new Promise((resolve) => setTimeout(resolve, 500));
-          
+
           // Sign in to get a session
           const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
             email,
             password,
           });
-          
+
           if (signInError) {
             console.warn('Failed to sign in after auto-confirmation:', signInError);
             // Return original signup data - user can sign in manually
             return data;
           }
-          
+
           // Return the sign-in data which includes the session
           if (signInData) {
             return signInData;
@@ -69,7 +70,7 @@ export class AuthService {
     // Wait a moment for trigger to execute, then verify profile exists
     if (data.user) {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       // Verify profile was created by trigger
       try {
         const profile = await this.getUserProfile(data.user.id);
@@ -90,7 +91,7 @@ export class AuthService {
         // Don't throw - user is created in auth, profile can be created later
       }
     }
-    
+
     return data;
   }
 
@@ -191,19 +192,9 @@ export class AuthService {
     return data as unknown as User;
   }
 
-  static async updateUserProfile(userId: string, updates: Partial<User>) {
-    const { data, error } = await supabase
-      .from('users')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+  static async updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {
+    // Use the enhanced service for profile updates
+    return EnhancedAuthService.updateUserProfile(userId, updates);
   }
 
   static async linkWalletToUser(userId: string, stellarAddress: string) {
