@@ -17,6 +17,10 @@ interface BurnFormProps {
   onBurn: (token: string, amount: number) => void;
 }
 
+/**
+ * Presents all burnable tokens and exposes a quick action to retire a fixed
+ * amount of units from circulation while highlighting the irreversible nature.
+ */
 export function BurnForm({ tokens, onBurn }: BurnFormProps) {
   const burnableTokens = tokens.filter((t) => t.issuer !== 'External');
 
