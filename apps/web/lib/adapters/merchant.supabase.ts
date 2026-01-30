@@ -257,9 +257,14 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       return mapRowToMerchant(data);
     }
 
+    const insertPayload = {
+      ...payload,
+      verification_status: 'pending',
+    };
+
     const { data, error } = await supabase
       .from('merchants')
-      .insert(payload)
+      .insert(insertPayload)
       .select('*')
       .single();
     if (error) throw error;
