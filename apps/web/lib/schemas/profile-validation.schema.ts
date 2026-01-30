@@ -160,7 +160,7 @@ export function validateProfileUpdate(data: unknown) {
 export const fieldValidators = {
     email: (value: string) => {
         if (!value) return { success: true };
-        const result = z.string().email().safeParse(value);
+        const result = z.string().email().max(255).safeParse(value);
         return {
             success: result.success,
             error: result.success ? undefined : 'Invalid email format',
@@ -215,4 +215,23 @@ export const fieldValidators = {
                 : 'Invalid Stellar address format (must start with G and be 56 characters)',
         };
     },
+
+    fullName: (value: string) => {
+        if (!value) return { success: true };
+        const result = z.string().min(2).max(255).safeParse(value);
+        return {
+            success: result.success,
+            error: result.success ? undefined : 'Full name must be 2-255 characters',
+        };
+    },
+
+    bio: (value: string) => {
+        if (!value) return { success: true };
+        const result = z.string().max(1000).safeParse(value);
+        return {
+            success: result.success,
+            error: result.success ? undefined : 'Bio must not exceed 1000 characters',
+        };
+    },
+
 };

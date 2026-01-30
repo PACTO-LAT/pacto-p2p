@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/types';
-import { validateProfileUpdate } from '../schemas/profile-validation.schema';
+import { PartialProfileUpdateInput, validateProfileUpdate } from '../schemas/profile-validation.schema';
 
 /**
  * Custom error types for better error handling
@@ -278,7 +278,7 @@ export namespace EnhancedAuthService {
      * @returns Validation result
      */
     export function validateField(
-        field: keyof User,
+        field: keyof PartialProfileUpdateInput,
         value: unknown
     ): { success: boolean; error?: string } {
         const schema = validateProfileUpdate({ [field]: value });

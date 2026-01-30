@@ -125,9 +125,9 @@ export default function EnhancedProfilePage() {
         phone: hydratedUserData.phone,
         country: hydratedUserData.country,
         kyc_status: hydratedUserData.kyc_status,
-        // notifications: hydratedUserData.notifications,
-        // security: hydratedUserData.security,
-        // payment_methods: hydratedUserData.payment_methods,
+        notifications: hydratedUserData.notifications,
+        security: hydratedUserData.security,
+        payment_methods: hydratedUserData.payment_methods,
         stellar_address: hydratedUserData.stellar_address,
       } as const;
 

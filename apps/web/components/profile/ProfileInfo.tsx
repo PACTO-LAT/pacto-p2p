@@ -65,6 +65,12 @@ export function ProfileInfo({
         case 'stellar_address':
           result = fieldValidators.stellarAddress(value);
           break;
+        case 'full_name':
+          result = fieldValidators.fullName(value);
+          break;
+        case 'bio':
+          result = fieldValidators.bio(value);
+          break;
       }
 
       setFieldErrors((prev) => ({
