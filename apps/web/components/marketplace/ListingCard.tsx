@@ -66,6 +66,7 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                             ? listing.sellerAvatarUrl
                             : listing.buyerAvatarUrl
                         }
+                        alt={`${listing.type === 'sell' ? listing.sellerName : listing.buyerName || 'Trader'} avatar`}
                       />
                       <AvatarFallback className="bg-muted/50 backdrop-blur-sm text-muted-foreground rounded-xl">
                         {(listing.type === 'sell'

@@ -66,8 +66,6 @@ export const mockMarketplaceListings: MarketplaceListing[] = [
     buyer: 'GCNN2B23WJT5ZZ25FGK7M6N44SI3S7KUSM6J4GKEHMVN7VDYGC336XPN',
     sellerName: 'Juan Pérez',
     buyerName: 'Maria García',
-    sellerAvatarUrl: '',
-    buyerAvatarUrl: '',
     reputation: 4.8,
     trades: 23,
     created: '2024-01-15',
