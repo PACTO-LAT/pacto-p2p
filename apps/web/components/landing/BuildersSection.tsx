@@ -11,6 +11,11 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import {
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation,
+} from '@/components/ui/terminal';
 
 export function BuildersSection() {
   const reducedMotion = useReducedMotion();
@@ -96,7 +101,7 @@ export function BuildersSection() {
             </span>
           </motion.div>
           <motion.h2
-            className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-emerald-600 bg-clip-text text-transparent"
+            className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-white bg-clip-text text-transparent"
             variants={shouldAnimate ? itemAnimation : {}}
           >
             For Builders & Issuers
@@ -196,7 +201,7 @@ export function BuildersSection() {
             </div>
           </motion.div>
 
-          {/* Right: Code Example */}
+          {/* Right: Animated Terminal */}
           <motion.div
             className="relative"
             initial="hidden"
@@ -204,43 +209,67 @@ export function BuildersSection() {
             viewport={{ once: true, amount: 0.3 }}
             variants={shouldAnimate ? fadeInRight : {}}
           >
-            <div className="bg-gradient-to-br from-emerald-50/50 to-emerald-100/30 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-2xl p-8 border border-emerald-200/50 dark:border-emerald-700/30 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-foreground">
-                  Quick Integration
-                </h3>
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border border-white/10 dark:border-white/5 rounded-lg p-4">
-                  <pre className="text-sm text-foreground">
-                    <code>
-                      {`// Add your token to Pacto
-const config = {
-  asset: "YOUR_TOKEN",
-  issuer: "YOUR_ISSUER",
-  paymentMethods: ["SINPE", "SPEI"],
-  region: "Your Country"
-};
+            <Terminal className="shadow-xl border-emerald-500/20 h-[420px]" loop loopDelay={6000}>
+              <TypingAnimation className="text-muted-foreground">
+                &gt; npx pacto init my-stablecoin
+              </TypingAnimation>
 
-// That's it! Your token is now live.`}
-                    </code>
-                  </pre>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span>Integration takes less than 5 minutes</span>
-                </div>
-              </div>
-            </div>
+              <AnimatedSpan className="text-emerald-500">
+                ✔ Creating project structure...
+              </AnimatedSpan>
+
+              <AnimatedSpan className="text-emerald-500">
+                ✔ Configuring Stellar integration
+              </AnimatedSpan>
+
+              <AnimatedSpan className="text-emerald-500">
+                ✔ Setting up Trustless Work escrow
+              </AnimatedSpan>
+
+              <AnimatedSpan className="text-emerald-500">
+                ✔ Adding payment methods (SINPE, SPEI)
+              </AnimatedSpan>
+
+              <AnimatedSpan className="text-emerald-500">
+                ✔ Validating token configuration
+              </AnimatedSpan>
+
+              <AnimatedSpan className="h-2">
+                {'\u00A0'}
+              </AnimatedSpan>
+
+              <AnimatedSpan className="text-blue-500">
+                <span>ℹ Generated files:</span>
+                <span className="pl-2 block text-muted-foreground">
+                  - pacto.config.ts
+                </span>
+                <span className="pl-2 block text-muted-foreground">
+                  - payment-methods.json
+                </span>
+                <span className="pl-2 block text-muted-foreground">
+                  - escrow.contract.ts
+                </span>
+                <span className="pl-2 block text-muted-foreground">
+                  - stellar.keys.json
+                </span>
+              </AnimatedSpan>
+
+              <AnimatedSpan className="h-2">
+                {'\u00A0'}
+              </AnimatedSpan>
+
+              <TypingAnimation className="text-emerald-400">
+                Success! Your stablecoin is ready to trade.
+              </TypingAnimation>
+
+              <TypingAnimation className="text-muted-foreground">
+                Run `npx pacto deploy` to go live.
+              </TypingAnimation>
+            </Terminal>
 
             {/* Floating badge */}
             <div className="absolute -top-4 -right-4">
-              <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <div className="px-4 py-2 bg-emerald-500/10 border border-white/40 rounded-full text-sm font-medium text-white dark:text-white">
                 Built by Trustless Work
               </div>
             </div>

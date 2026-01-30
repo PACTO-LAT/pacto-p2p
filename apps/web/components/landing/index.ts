@@ -7,3 +7,4 @@ export { Footer } from './Footer';
 export { Header } from './Header';
 export { HeroSection } from './HeroSection';
 export { HowItWorksSection } from './HowItWorksSection';
+export { MacbookScrollDemo } from './MacbookScrollDemo';
