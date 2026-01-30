@@ -1,11 +1,5 @@
 'use client';
 
-import { Settings } from 'lucide-react';
-import { useState, useMemo, useCallback } from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WalletInfo } from '@/components/shared/WalletInfo';
 import {
   MerchantSection,
   NotificationSettings,
@@ -15,10 +9,16 @@ import {
   SecuritySettings,
 } from '@/components/profile';
 import type { UserData } from '@/components/profile/types';
-import type { User } from '@/lib/types';
+import { WalletInfo } from '@/components/shared/WalletInfo';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
-import { EnhancedAuthService } from '@/lib/services/enhanced-auth.service';
 import { validateProfileUpdate } from '@/lib/schemas/profile-validation.schema';
+import { EnhancedAuthService } from '@/lib/services/enhanced-auth.service';
+import type { User } from '@/lib/types';
+import { Settings } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function EnhancedProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -278,14 +278,15 @@ export default function EnhancedProfilePage() {
             Please fix the following errors:
           </h3>
           <ul className="list-disc list-inside space-y-1">
-            {validationErrors.map((error, index) => (
+            {validationErrors.map((error) => (
               <li
-                key={index}
+                key={error}
                 className="text-sm text-red-700 dark:text-red-300"
               >
                 {error}
               </li>
             ))}
+
           </ul>
         </div>
       )}

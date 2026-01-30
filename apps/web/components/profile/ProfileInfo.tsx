@@ -1,7 +1,5 @@
 'use client';
 
-import { AlertCircle, Camera, CheckCircle, Loader2, User } from 'lucide-react';
-import { useState, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,9 +13,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { AlertCircle, Camera, CheckCircle, Loader2, User } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
-import { ProfileData } from './types';
 import { fieldValidators } from '@/lib/schemas/profile-validation.schema';
+import { ProfileData } from './types';
 
 interface ProfileInfoProps {
   userData: ProfileData;
