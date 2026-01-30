@@ -25,6 +25,22 @@ export async function POST(req: Request) {
     }
 
     const serverClient = createServerClient();
+    
+    // Check if service role key is available (required for admin operations)
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.warn(
+        'SUPABASE_SERVICE_ROLE_KEY is not set. Cannot confirm user email. ' +
+        'Set SUPABASE_SERVICE_ROLE_KEY in your environment variables for admin operations.'
+      );
+      return NextResponse.json(
+        { 
+          error: 'Service role key not configured. Admin operations require SUPABASE_SERVICE_ROLE_KEY environment variable.',
+          hint: 'This endpoint requires admin privileges. Set SUPABASE_SERVICE_ROLE_KEY in your .env.local file.'
+        },
+        { status: 503 }
+      );
+    }
+
     const { error } = await serverClient.auth.admin.updateUserById(userId, {
       email_confirm: true,
     });

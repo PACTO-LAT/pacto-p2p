@@ -136,14 +136,21 @@ export class AdminService {
   static async getPlatformStats() {
     const supabase = createServerClient();
 
-    const [usersResult, listingsResult, escrowsResult] = await Promise.all([
-      supabase.from('users').select('id', { count: 'exact' }),
-      supabase
-        .from('listings')
-        .select('id', { count: 'exact' })
-        .eq('status', 'active'),
-      supabase.from('escrows').select('fiat_amount').eq('status', 'completed'),
-    ]);
+    const [usersResult, listingsResult, escrowsResult, tradesResult] =
+      await Promise.all([
+        supabase.from('users').select('id', { count: 'exact' }),
+        supabase
+          .from('listings')
+          .select('id', { count: 'exact' })
+          .eq('status', 'active'),
+        // Get all escrows for volume calculation (status is on-chain)
+        supabase.from('escrows').select('fiat_amount'),
+        // Get completed trades count from trades table
+        supabase
+          .from('trades')
+          .select('id', { count: 'exact' })
+          .eq('status', 'completed'),
+      ]);
 
     const totalVolume =
       escrowsResult.data?.reduce(
@@ -155,7 +162,7 @@ export class AdminService {
       totalUsers: usersResult.count || 0,
       activeListings: listingsResult.count || 0,
       totalVolume,
-      completedTrades: escrowsResult.data?.length || 0,
+      completedTrades: tradesResult.count || escrowsResult.data?.length || 0,
     };
   }
 }

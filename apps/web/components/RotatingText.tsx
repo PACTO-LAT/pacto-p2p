@@ -1,8 +1,8 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import {
   motion,
   AnimatePresence,
-  Transition,
+  type Transition,
   type VariantLabels,
   type Target,
   type TargetAndTransition
@@ -70,19 +70,36 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
     const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
 
     const splitIntoCharacters = (text: string): string[] => {
-      if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-        const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-        return Array.from(segmenter.segment(text), segment => segment.segment);
+      // Check if Intl.Segmenter is available (ES2022+)
+      if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+        try {
+          // Type assertion for Intl.Segmenter which may not be in TypeScript lib definitions
+          const Segmenter = (Intl as unknown as {
+            Segmenter: new (
+              locale: string,
+              options: { granularity: 'grapheme' }
+            ) => {
+              segment: (text: string) => Iterable<{ segment: string }>;
+            };
+          }).Segmenter;
+          const segmenter = new Segmenter('en', { granularity: 'grapheme' });
+          return Array.from(segmenter.segment(text), segment => segment.segment);
+        } catch {
+          // Fallback if Segmenter is not supported
+          return Array.from(text);
+        }
       }
       return Array.from(text);
     };
+
+    const splitIntoCharactersMemo = useCallback(splitIntoCharacters, []);
 
     const elements = useMemo(() => {
       const currentText: string = texts[currentTextIndex];
       if (splitBy === 'characters') {
         const words = currentText.split(' ');
         return words.map((word, i) => ({
-          characters: splitIntoCharacters(word),
+          characters: splitIntoCharactersMemo(word),
           needsSpace: i !== words.length - 1
         }));
       }
@@ -103,7 +120,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         characters: [part],
         needsSpace: i !== arr.length - 1
       }));
-    }, [texts, currentTextIndex, splitBy]);
+    }, [texts, currentTextIndex, splitBy, splitIntoCharactersMemo]);
 
     const getStaggerDelay = useCallback(
       (index: number, totalChars: number): number => {
