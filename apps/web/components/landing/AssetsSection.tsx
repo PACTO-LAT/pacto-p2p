@@ -11,35 +11,15 @@ import {
   Search,
 } from 'lucide-react';
 
+import { getSupportedAssets } from '@/lib/supported-assets';
 import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Card, CardContent } from '@/components/ui/card';
 
-const supportedAssets = [
-  {
-    symbol: 'CRCX',
-    name: 'Costa Rican Colón Token',
-    region: 'Costa Rica',
-    paymentMethods: 'SINPE',
-    color: 'bg-green-500',
-  },
-  {
-    symbol: 'MXNX',
-    name: 'Mexican Peso Token',
-    region: 'Mexico',
-    paymentMethods: 'SPEI, OXXO (coming)',
-    color: 'bg-red-500',
-  },
-  {
-    symbol: 'USDC',
-    name: 'USD Coin',
-    region: 'Global',
-    paymentMethods: 'Varies',
-    color: 'bg-emerald-600',
-  },
-];
-
 export function AssetsSection() {
   const reducedMotion = useReducedMotion();
+  const supportedAssets = getSupportedAssets();
+  const regionCount = new Set(supportedAssets.map((a) => a.region)).size;
+  const regionOptions = [...new Set(supportedAssets.map((a) => a.region))].sort();
 
   // Animation variants
   const fadeInUp = {
@@ -136,9 +116,11 @@ export function AssetsSection() {
             <div className="relative group">
               <select className="px-4 py-3 bg-card/60 backdrop-blur-sm border border-white/10 dark:border-white/5 rounded-xl focus:ring-2 focus:ring-emerald-400/40 focus:border-emerald-500/50 transition-all duration-300 group-hover:border-emerald-500/30 appearance-none pr-10">
                 <option value="">All Regions</option>
-                <option value="costa-rica">Costa Rica</option>
-                <option value="mexico">Mexico</option>
-                <option value="global">Global</option>
+                {regionOptions.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
+                ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
@@ -167,7 +149,7 @@ export function AssetsSection() {
             variants={shouldAnimate ? itemAnimation : {}}
           >
             <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              3
+              {regionCount}
             </div>
             <div className="text-sm text-muted-foreground">Regions</div>
           </motion.div>
