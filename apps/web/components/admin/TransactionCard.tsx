@@ -9,6 +9,10 @@ interface TransactionCardProps {
   transaction: Transaction;
 }
 
+/**
+ * Displays a summary card for an individual mint or burn transaction, including
+ * token metadata, recipient address, timestamp, and completion state.
+ */
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const isMint = transaction.type === 'mint';
   const isCompleted = transaction.status === 'completed';

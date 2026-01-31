@@ -28,6 +28,10 @@ interface MintFormProps {
   isLoading: boolean;
 }
 
+/**
+ * Controlled form for minting stablecoin tokens, allowing the admin to select a
+ * token, specify the amount, recipient, and optional memo before submitting.
+ */
 export function MintForm({
   formData,
   onFormChange,
