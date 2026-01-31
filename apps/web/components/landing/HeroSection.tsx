@@ -7,6 +7,7 @@ import Link from 'next/link';
 import WaitlistDialog from '@/components/marketing/WaitlistDialog';
 import { Button } from '@/components/ui/button';
 import RotatingText from '@/components/RotatingText';
+import { MacbookScrollDemo } from '@/components/landing/MacbookScrollDemo';
 
 export function HeroSection() {
   const reducedMotion = useReducedMotion();
@@ -34,7 +35,7 @@ export function HeroSection() {
   const shouldAnimate = !reducedMotion;
 
   return (
-    <section className="hero-section container mx-auto px-6 pt-24 pb-20 text-center">
+    <section className="hero-section container mx-auto px-6 pt-24 pb-0 text-center relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="hero-glow"></div>
       <div className="hero-shape hero-shape-1"></div>
@@ -42,7 +43,7 @@ export function HeroSection() {
       <div className="hero-shape hero-shape-3"></div>
 
       <motion.div
-        className="hero-content max-w-5xl mx-auto"
+        className="hero-content max-w-5xl mx-auto relative z-10"
         initial="hidden"
         animate="visible"
         variants={shouldAnimate ? staggerContainer : {}}
@@ -95,6 +96,11 @@ export function HeroSection() {
           <WaitlistDialog />
         </motion.div>
       </motion.div>
+      
+      {/* Macbook Mockup - visible directly in hero, scrolls down to next section */}
+      <div className="relative z-0 -mt-8 md:-mt-16">
+        <MacbookScrollDemo />
+      </div>
     </section>
   );
 }

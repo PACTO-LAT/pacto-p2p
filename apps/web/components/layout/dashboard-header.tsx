@@ -120,7 +120,7 @@ export function DashboardHeader() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
               <Image
                 src="/logo.webp"

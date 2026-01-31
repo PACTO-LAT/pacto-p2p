@@ -18,12 +18,6 @@ export default function HomePage() {
     <div className="min-h-screen relative">
       {/* Aurora Background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <Aurora
-          colorStops={['#1e293b', '#10b981', '#1e293b']}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
       </div>
 
       {/* Content */}

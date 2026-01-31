@@ -41,9 +41,6 @@ export function Header() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <p className="text-xs text-muted-foreground ml-4">
-              P2P OTC for Stellar Stablecoins
-            </p>
           </div>
         </div>
         <div className="flex w-full items-center gap-3 sm:w-auto sm:justify-end">
