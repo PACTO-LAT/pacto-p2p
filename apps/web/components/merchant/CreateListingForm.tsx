@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -27,25 +28,60 @@ import { TRUSTLINES } from '@/utils/constants/trustlines';
 import { useCreateListing } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
 import {
-  listingFormSchema,
-  LISTING_FORM_DEFAULT_VALUES,
-  type ListingFormValues,
-} from '@/lib/schemas/listing/listing-form-schema';
-import {
   toCreateListingData,
   type UIListingFormInput,
 } from '@/lib/marketplace-utils';
 
+const schema = z
+  .object({
+    type: z.enum(['buy', 'sell']),
+    token: z.string().min(1, 'Select a token'),
+    amount: z.string().min(1, 'Enter an amount'),
+    rate: z.string().min(1, 'Enter a rate'),
+    fiatCurrency: z.string().min(1, 'Select a currency'),
+    paymentMethod: z.string().min(1, 'Select a payment method'),
+    minAmount: z.string().optional(),
+    maxAmount: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      const min = data.minAmount
+        ? Number.parseFloat(data.minAmount)
+        : undefined;
+      const max = data.maxAmount
+        ? Number.parseFloat(data.maxAmount)
+        : undefined;
+      return min && max ? min <= max : true;
+    },
+    {
+      message: 'Min amount must be less than or equal to max amount',
+      path: ['minAmount'],
+    }
+  );
+
+type FormValues = z.infer<typeof schema>;
+
 export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
-  const form = useForm<ListingFormValues>({
-    resolver: zodResolver(listingFormSchema) as Resolver<ListingFormValues>,
-    defaultValues: LISTING_FORM_DEFAULT_VALUES,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema) as Resolver<FormValues>,
+    defaultValues: {
+      type: 'sell',
+      token: '',
+      amount: '',
+      rate: '',
+      fiatCurrency: '',
+      paymentMethod: '',
+      minAmount: '',
+      maxAmount: '',
+      description: '',
+    },
   });
 
   const createListing = useCreateListing();
   const { user } = useAuth();
 
-  async function onSubmit(values: ListingFormValues) {
+  async function onSubmit(values: FormValues) {
     if (!user?.id) {
       toast.error('Connect your wallet first');
       return;
