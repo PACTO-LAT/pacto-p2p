@@ -24,7 +24,7 @@ import {
   STEP_2_FIELDS,
   STEP_3_FIELDS,
   type ListingFormValues,
-} from '@/lib/listing-form-schema';
+} from '@/lib/schemas/listing/listing-form-schema';
 import {
   toCreateListingData,
   type UIListingFormInput,

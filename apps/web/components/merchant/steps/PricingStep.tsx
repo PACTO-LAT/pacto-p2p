@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { ListingFormValues } from '@/lib/listing-form-schema';
+import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function PricingStep() {
   const form = useFormContext<ListingFormValues>();

@@ -30,7 +30,7 @@ import {
   listingFormSchema,
   LISTING_FORM_DEFAULT_VALUES,
   type ListingFormValues,
-} from '@/lib/listing-form-schema';
+} from '@/lib/schemas/listing/listing-form-schema';
 import {
   toCreateListingData,
   type UIListingFormInput,

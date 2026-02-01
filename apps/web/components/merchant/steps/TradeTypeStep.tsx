@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { TRUSTLINES } from '@/utils/constants/trustlines';
-import type { ListingFormValues } from '@/lib/listing-form-schema';
+import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function TradeTypeStep() {
   const form = useFormContext<ListingFormValues>();

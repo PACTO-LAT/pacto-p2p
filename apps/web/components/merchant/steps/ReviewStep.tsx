@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import type { ListingFormValues } from '@/lib/listing-form-schema';
+import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function ReviewStep() {
   const form = useFormContext<ListingFormValues>();
