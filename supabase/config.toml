@@ -30,8 +30,8 @@ api_url = "http://127.0.0.1"
 
 [auth]
 enabled = true
-site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000", "http://127.0.0.1:3000"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
