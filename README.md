@@ -37,8 +37,10 @@ Pacto P2P is a non-custodial trading platform that connects buyers and sellers o
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm 9+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (required for local Supabase)
+- Supabase CLI (`npx supabase` works out of the box, or install globally with `npm i -g supabase`)
 
 ### Installation
 
@@ -59,6 +61,81 @@ npm run dev
 
 The application will be available at `http://localhost:3000`
 
+### Local Database Setup
+
+The project uses Supabase for its PostgreSQL database. A full local setup is included so you can develop without depending on a remote instance.
+
+**1. Start the local Supabase stack**
+
+Make sure Docker Desktop is running, then:
+
+```bash
+npm run db:start
+```
+
+This pulls the required Docker images (first run only), applies all migrations in `supabase/migrations/` in order, runs `supabase/seed.sql` to populate sample data, and starts the local services:
+
+| Service       | URL                              |
+| ------------- | -------------------------------- |
+| Studio (UI)   | http://127.0.0.1:54323           |
+| API (REST)    | http://127.0.0.1:54321/rest/v1   |
+| Database      | postgresql://postgres:postgres@127.0.0.1:54322/postgres |
+| Mailpit       | http://127.0.0.1:54324           |
+
+**2. Reset the database (re-apply migrations + seed)**
+
+If you want a clean slate at any point:
+
+```bash
+npm run db:reset
+```
+
+This drops all data, re-runs every migration from scratch, and re-seeds.
+
+**3. Stop the local stack**
+
+```bash
+npm run db:stop
+```
+
+Data is persisted in Docker volumes, so `npm run db:start` will restore where you left off. Use `supabase stop --no-backup` to discard volumes entirely.
+
+### Creating a New Migration
+
+When you need to modify the database schema (add tables, columns, indexes, etc.):
+
+```bash
+# Generate a new timestamped migration file
+npm run db:migration your_migration_name
+```
+
+This creates `supabase/migrations/<timestamp>_your_migration_name.sql`. Write your SQL there, then apply it:
+
+```bash
+# Option A: Reset everything (migrations + seed)
+npm run db:reset
+
+# Option B: Apply only pending migrations to a running instance
+npx supabase migration up
+```
+
+**Guidelines for writing migrations:**
+
+- Make migrations **idempotent** when possible (`CREATE OR REPLACE`, `IF NOT EXISTS`, etc.) so repeated runs don't fail.
+- Each migration should be a self-contained change. Don't modify a previous migration file — always create a new one.
+- If your migration adds columns that the seed data depends on, update `supabase/seed.sql` as well.
+- Test locally with `npm run db:reset` before pushing.
+
+### Diffing Schema Changes
+
+If you made changes directly through Studio or psql and want to capture them as a migration:
+
+```bash
+npx supabase db diff -f describe_your_change
+```
+
+This compares the live local database against the migration history and generates a new migration file with the differences.
+
 ### Environment Setup
 
 Create a `.env.local` file in `apps/web` with the following variables:
@@ -69,9 +146,9 @@ NEXT_PUBLIC_TLW_API_KEY=your_trustless_work_api_key
 NEXT_PUBLIC_ROLE_ADDRESS=your_stellar_role_address
 NEXT_PUBLIC_PLATFORM_FEE=0.01
 
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Supabase (use these defaults for local development)
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable key from supabase start output>
 
 # Optional: Mock Mode
 NEXT_PUBLIC_USE_MOCK=0
@@ -99,6 +176,11 @@ pacto-p2p/
 │   ├── ui/                  # Reusable UI components (Radix UI)
 │   ├── types/               # TypeScript type definitions
 │   └── config/              # Configuration and scripts
+│
+├── supabase/
+│   ├── config.toml          # Local Supabase configuration
+│   ├── migrations/          # SQL migrations (applied in order)
+│   └── seed.sql             # Sample data for local development
 │
 ├── docs/                    # Documentation
 │   ├── DEVELOPMENT.md       # Development guide
@@ -201,6 +283,12 @@ npm run biome:check      # Check code with Biome
 npm run biome:format     # Format code with Biome
 npm run biome:fix        # Fix code issues with Biome
 npm run type-check       # Type check all packages
+
+# Database
+npm run db:start         # Start local Supabase (Docker required)
+npm run db:stop          # Stop local Supabase
+npm run db:reset         # Drop, re-migrate, and re-seed
+npm run db:migration     # Create a new migration file
 
 # Maintenance
 npm run clean            # Clean all build artifacts
