@@ -75,6 +75,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Optional: Mock Mode
 NEXT_PUBLIC_USE_MOCK=0
+
+# Optional: Landing supported assets. JSON object keyed by asset symbol; each value must have name, region, paymentMethods, color. If unset or invalid, default assets (CRCX, MXNX, USDC) are used. See apps/web/.env.example for format.
+# NEXT_PUBLIC_SUPPORTED_ASSETS={"CRCX":{"name":"Costa Rican Colón Token","region":"Costa Rica","paymentMethods":"SINPE","color":"bg-green-500"},...}
 ```
 
 ## 🏗️ Architecture
