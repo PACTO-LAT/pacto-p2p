@@ -1,9 +1,6 @@
 # Supabase local development configuration
 # Docs: https://supabase.com/docs/guides/local-development/cli/config
 
-[project]
-id = "pacto-p2p-local"
-
 [api]
 enabled = true
 port = 54321

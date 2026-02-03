@@ -150,7 +150,7 @@ INSERT INTO merchants (
 )
 VALUES
   (
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'alice-otc',
     'Alice OTC',
@@ -167,7 +167,7 @@ VALUES
     15000.0000000
   ),
   (
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'bob-exchange',
     'Bob Exchange',
@@ -184,7 +184,7 @@ VALUES
     52000.0000000
   ),
   (
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
     'diana-premium',
     'Diana Premium Trading',
@@ -225,9 +225,9 @@ INSERT INTO listings (
 VALUES
   -- Alice's listings
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'sell',
     'CRCX',
     5000.0000000,
@@ -240,9 +240,9 @@ VALUES
     'active'
   ),
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'buy',
     'USDC',
     2000.0000000,
@@ -256,9 +256,9 @@ VALUES
   ),
   -- Bob's listings
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a21',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a21',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'sell',
     'MXNX',
     10000.0000000,
@@ -271,9 +271,9 @@ VALUES
     'active'
   ),
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'buy',
     'USDC',
     5000.0000000,
@@ -287,7 +287,7 @@ VALUES
   ),
   -- Charlie's listings
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a31',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a31',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     NULL,
     'sell',
@@ -303,9 +303,9 @@ VALUES
   ),
   -- Diana's listings
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a41',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a41',
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
     'sell',
     'CRCX',
     15000.0000000,
@@ -318,9 +318,9 @@ VALUES
     'active'
   ),
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a42',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a42',
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
-    'm0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
     'buy',
     'CRCX',
     8000.0000000,
@@ -334,7 +334,7 @@ VALUES
   ),
   -- Paused listing
   (
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a51',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a51',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a55',
     NULL,
     'sell',
@@ -379,7 +379,7 @@ VALUES
   -- Active escrow (funded, awaiting payment)
   (
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'contract-001',
@@ -413,7 +413,7 @@ VALUES
   -- Escrow awaiting payment confirmation
   (
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a21',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a21',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'contract-002',
@@ -447,7 +447,7 @@ VALUES
   -- Completed escrow (released)
   (
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'contract-003',
@@ -481,7 +481,7 @@ VALUES
   -- Disputed escrow
   (
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a31',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a31',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a55',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     'contract-004',
@@ -552,7 +552,7 @@ INSERT INTO escrow_milestones (
 )
 VALUES
   (
-    'em0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'ea2ebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     0,
     'Initial payment confirmation',
@@ -561,7 +561,7 @@ VALUES
     true
   ),
   (
-    'em0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    'ea2ebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     0,
     'Payment verification',
@@ -570,7 +570,7 @@ VALUES
     false
   ),
   (
-    'em0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
+    'ea2ebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
     0,
     'Payment received and verified',
@@ -579,7 +579,7 @@ VALUES
     true
   ),
   (
-    'em0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
+    'ea2ebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
     0,
     'Payment dispute resolution',
@@ -605,9 +605,9 @@ INSERT INTO trades (
 )
 VALUES
   (
-    't0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'USDC',
@@ -622,9 +622,9 @@ VALUES
     NOW() - INTERVAL '2 days'
   ),
   (
-    't0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    'a3eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'l0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    '10eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'CRCX',
@@ -663,45 +663,45 @@ INSERT INTO token_operations (
 )
 VALUES
   (
-    'to0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a40ebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'mint',
     'CRCX',
     10000.0000000,
     'GDXXX1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ123456',
-    'mint1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnop',
+    'mint1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab',
     'Initial mint for user',
     'completed',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
   ),
   (
-    'to0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    'a40ebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'mint',
     'MXNX',
     5000.0000000,
     'GDYYY9876543210FEDCBA9876543210FEDCBA9876543210FE',
-    'mint9876543210fedcba9876543210fedcba9876543210fedcba9876543210fe',
+    'mint9876543210fedcba9876543210fedcba9876543210fedcba98765432fe',
     'Initial mint for user',
     'completed',
     'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'
   ),
   (
-    'to0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
+    'a40ebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
     'mint',
     'USDC',
     3000.0000000,
     'GDZZZ55555555555555555555555555555555555555555555',
-    'mint555555555555555555555555555555555555555555555555555555555555',
+    'mint55555555555555555555555555555555555555555555555555555555555',
     'Initial mint for user',
     'completed',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'
   ),
   (
-    'to0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
+    'a40ebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
     'burn',
     'CRCX',
     500.0000000,
     'GDXXX1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ123456',
-    'burn1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnop',
+    'burn1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab',
     'User requested burn',
     'completed',
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
@@ -725,7 +725,7 @@ INSERT INTO waitlist_submissions (
 )
 VALUES
   (
-    'w0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'John Doe',
     'john@example.com',
     'Tech Corp',
@@ -739,7 +739,7 @@ VALUES
     NOW() - INTERVAL '5 days'
   ),
   (
-    'w0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+    'a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     'Jane Smith',
     'jane@example.com',
     NULL,
@@ -753,7 +753,7 @@ VALUES
     NULL
   ),
   (
-    'w0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
+    'a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
     'Carlos Rodriguez',
     'carlos@example.com',
     'Finance Inc',
