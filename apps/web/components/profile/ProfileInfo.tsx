@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { AlertCircle, Camera, CheckCircle, User } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AlertCircle, Camera, CheckCircle, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
-import { ProfileData } from './types';
+import { ProfileData } from "./types";
 
 interface ProfileInfoProps {
   userData: ProfileData;
@@ -30,21 +30,21 @@ export function ProfileInfo({
 }: ProfileInfoProps) {
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
-      case 'verified':
+      case "verified":
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
             <CheckCircle className="w-3 h-3 mr-1" />
             Verified
           </Badge>
         );
-      case 'pending':
+      case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
             <AlertCircle className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         );
-      case 'rejected':
+      case "rejected":
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
             <AlertCircle className="w-3 h-3 mr-1" />
@@ -52,6 +52,20 @@ export function ProfileInfo({
           </Badge>
         );
     }
+  };
+
+  // Safe avatar fallback generation
+  const getAvatarFallback = () => {
+    if (!userData.full_name || userData.full_name.trim() === "") {
+      return userData.username?.slice(0, 2).toUpperCase() || "U";
+    }
+    return userData.full_name
+      .split(" ")
+      .filter((n) => n.length > 0)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -69,12 +83,9 @@ export function ProfileInfo({
         {/* Avatar */}
         <div className="flex items-center gap-4">
           <Avatar className="w-20 h-20">
-            <AvatarImage src={userData.avatar_url || '/placeholder.svg'} />
+            <AvatarImage src={userData.avatar_url || "/placeholder.svg"} />
             <AvatarFallback className="text-lg">
-              {userData.full_name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
+              {getAvatarFallback()}
             </AvatarFallback>
           </Avatar>
           {isEditing && (
@@ -190,7 +201,7 @@ export function ProfileInfo({
             </Label>
             <div className="flex items-center gap-2">
               {getKycStatusBadge()}
-              {userData.kyc_status !== 'verified' && (
+              {userData.kyc_status !== "verified" && (
                 <Button variant="link" size="sm" className="p-0 h-auto">
                   Complete KYC
                 </Button>
