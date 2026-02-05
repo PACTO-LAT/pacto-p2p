@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { AlertCircle, Camera, CheckCircle, User } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AuthService } from "@/lib/services/auth";
 
 import { ProfileData } from "./types";
 
@@ -28,6 +31,8 @@ export function ProfileInfo({
   isEditing,
   onUserDataChange,
 }: ProfileInfoProps) {
+  const [uploading, setUploading] = useState(false);
+
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
       case "verified":
@@ -68,6 +73,57 @@ export function ProfileInfo({
       .slice(0, 2);
   };
 
+  // Handle avatar upload
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    try {
+      setUploading(true);
+
+      // Check if file was selected
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+
+      const file = event.target.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error("Image size must be less than 5MB");
+        return;
+      }
+
+      // Upload to Supabase Storage and save to database
+      const newAvatarUrl = await AuthService.uploadAvatar(userData.id, file);
+
+      // Update local state to show new avatar immediately
+      onUserDataChange({
+        ...userData,
+        avatar_url: newAvatarUrl,
+      });
+
+      toast.success("Avatar updated successfully!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload avatar",
+      );
+    } finally {
+      setUploading(false);
+      // Reset file input so same file can be selected again if needed
+      if (event.target) {
+        event.target.value = "";
+      }
+    }
+  };
+
   return (
     <Card className="feature-card">
       <CardHeader>
@@ -89,10 +145,31 @@ export function ProfileInfo({
             </AvatarFallback>
           </Avatar>
           {isEditing && (
-            <Button variant="outline" size="sm">
-              <Camera className="w-4 h-4 mr-2" />
-              Change Photo
-            </Button>
+            <>
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+              {/* Label acts as the button */}
+              <label htmlFor="avatar-upload">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  asChild
+                >
+                  <span className="cursor-pointer">
+                    <Camera className="w-4 h-4 mr-2" />
+                    {uploading ? "Uploading..." : "Change Photo"}
+                  </span>
+                </Button>
+              </label>
+            </>
           )}
         </div>
 
