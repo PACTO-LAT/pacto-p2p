@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Settings } from 'lucide-react';
-import { useState, useMemo, useCallback } from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WalletInfo } from '@/components/shared/WalletInfo';
+import { Settings } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WalletInfo } from "@/components/shared/WalletInfo";
 import {
   MerchantSection,
   NotificationSettings,
@@ -13,10 +13,10 @@ import {
   ProfileInfo,
   ProfileStats,
   SecuritySettings,
-} from '@/components/profile';
-import type { UserData } from '@/components/profile/types';
-import type { User } from '@/lib/types';
-import { useAuth } from '@/hooks/use-auth';
+} from "@/components/profile";
+import type { UserData } from "@/components/profile/types";
+import type { User } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -27,69 +27,63 @@ export default function ProfilePage() {
   const mapUserToUserData = useCallback(
     (u: User | null, local: UserData | null): UserData | null => {
       if (!u && !local) return null;
+
       const baseUser = u ?? null;
       const localOverrides = local ?? null;
+
+      if (localOverrides) {
+        return localOverrides;
+      }
+
       const normalizedEmail = (() => {
-        // Prefer local edits over base user email (to allow typing)
-        const e =
-          (localOverrides?.email?.length
-            ? localOverrides.email
-            : baseUser?.email || '') || '';
-        // Hide synthetic wallet-local email in UI to allow user to set a real one
-        return e.endsWith('@wallet.local') ? '' : e;
+        const e = baseUser?.email || "";
+        return e.endsWith("@wallet.local") ? "" : e;
       })();
+
       return {
-        id: baseUser?.id || localOverrides?.id || '',
+        id: baseUser?.id || "",
         email: normalizedEmail,
-        full_name: baseUser?.full_name || localOverrides?.full_name || '',
-        username: baseUser?.username || localOverrides?.username || '',
-        bio: baseUser?.bio || localOverrides?.bio || '',
-        avatar_url: baseUser?.avatar_url || localOverrides?.avatar_url || '',
-        stellar_address:
-          baseUser?.stellar_address || localOverrides?.stellar_address || '',
-        phone: baseUser?.phone || localOverrides?.phone || '',
-        country: baseUser?.country || localOverrides?.country || '',
-        kyc_status:
-          baseUser?.kyc_status || localOverrides?.kyc_status || 'pending',
-        reputation_score:
-          baseUser?.reputation_score ?? localOverrides?.reputation_score ?? 0,
-        total_trades:
-          baseUser?.total_trades ?? localOverrides?.total_trades ?? 0,
-        total_volume:
-          baseUser?.total_volume ?? localOverrides?.total_volume ?? 0,
-        created_at:
-          baseUser?.created_at ||
-          localOverrides?.created_at ||
-          new Date().toISOString(),
-        notifications: localOverrides?.notifications ?? {
+        full_name: baseUser?.full_name || "",
+        username: baseUser?.username || "",
+        bio: baseUser?.bio || "",
+        avatar_url: baseUser?.avatar_url || "",
+        stellar_address: baseUser?.stellar_address || "",
+        phone: baseUser?.phone || "",
+        country: baseUser?.country || "",
+        kyc_status: baseUser?.kyc_status || "pending",
+        reputation_score: baseUser?.reputation_score ?? 0,
+        total_trades: baseUser?.total_trades ?? 0,
+        total_volume: baseUser?.total_volume ?? 0,
+        created_at: baseUser?.created_at || new Date().toISOString(),
+        notifications: {
           email_trades: true,
           email_escrows: true,
           push_notifications: true,
           sms_notifications: false,
         },
-        security: localOverrides?.security ?? {
+        security: {
           two_factor_enabled: true,
           login_notifications: true,
         },
-        payment_methods: localOverrides?.payment_methods ?? {
-          sinpe_number: '',
-          preferred_method: 'sinpe',
+        payment_methods: {
+          sinpe_number: "",
+          preferred_method: "sinpe",
           bank_accounts: [
             {
-              bank_iban: '',
-              bank_name: '',
-              bank_account_holder: '',
+              bank_iban: "",
+              bank_name: "",
+              bank_account_holder: "",
             },
           ],
         },
       };
     },
-    []
+    [],
   );
 
   const hydratedUserData = useMemo<UserData | null>(
     () => mapUserToUserData(user, userData),
-    [user, userData, mapUserToUserData]
+    [user, userData, mapUserToUserData],
   );
 
   const handleSave = async () => {
@@ -99,7 +93,7 @@ export default function ProfilePage() {
       const payload = {
         // Only persist email if user provided a non-empty value
         ...(hydratedUserData.email &&
-        !hydratedUserData.email.endsWith('@wallet.local')
+        !hydratedUserData.email.endsWith("@wallet.local")
           ? { email: hydratedUserData.email }
           : {}),
         full_name: hydratedUserData.full_name,
@@ -115,13 +109,23 @@ export default function ProfilePage() {
         stellar_address: hydratedUserData.stellar_address,
       } as const;
       await updateProfile(payload);
-      toast.success('Profile updated successfully');
-    } catch {
-      toast.error('Failed to update profile');
+      toast.success("Profile updated successfully");
+      setIsEditing(false);
+      // DON'T reset userData here - let it stay so re-editing works
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update profile";
+      console.error("Profile update error:", error);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
-      setIsEditing(false);
     }
+  };
+
+  const handleCancel = () => {
+    // Reset local state to discard unsaved changes
+    setUserData(null);
+    setIsEditing(false);
   };
 
   const handleUserDataChange = (newData: Partial<UserData>) => {
@@ -129,17 +133,17 @@ export default function ProfilePage() {
   };
 
   const handleNotificationsChange = (
-    notifications: UserData['notifications']
+    notifications: UserData["notifications"],
   ) => {
     setUserData({ ...(hydratedUserData as UserData), notifications });
   };
 
-  const handleSecurityChange = (security: UserData['security']) => {
+  const handleSecurityChange = (security: UserData["security"]) => {
     setUserData({ ...(hydratedUserData as UserData), security });
   };
 
   const handlePaymentMethodsChange = (
-    payment_methods: UserData['payment_methods']
+    payment_methods: UserData["payment_methods"],
   ) => {
     setUserData({ ...(hydratedUserData as UserData), payment_methods });
   };
@@ -161,7 +165,8 @@ export default function ProfilePage() {
             <>
               <Button
                 variant="outline"
-                onClick={() => setIsEditing(false)}
+                onClick={handleCancel}
+                disabled={isLoading}
                 className="w-full sm:w-auto text-sm sm:text-base"
               >
                 Cancel
@@ -171,7 +176,7 @@ export default function ProfilePage() {
                 disabled={isLoading}
                 className="w-full sm:w-auto text-sm sm:text-base"
               >
-                {isLoading ? 'Saving...' : 'Save Changes'}
+                {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </>
           ) : (

@@ -1,21 +1,24 @@
-'use client';
+"use client";
 
-import { AlertCircle, Camera, CheckCircle, User } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { AlertCircle, Camera, CheckCircle, User } from "lucide-react";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { AuthService } from "@/lib/services/auth";
 
-import { ProfileData } from './types';
+import { ProfileData } from "./types";
 
 interface ProfileInfoProps {
   userData: ProfileData;
@@ -28,29 +31,96 @@ export function ProfileInfo({
   isEditing,
   onUserDataChange,
 }: ProfileInfoProps) {
+  const [uploading, setUploading] = useState(false);
+
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
-      case 'verified':
+      case "verified":
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
             <CheckCircle className="w-3 h-3 mr-1" />
             Verified
           </Badge>
         );
-      case 'pending':
+      case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
             <AlertCircle className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         );
-      case 'rejected':
+      case "rejected":
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
             <AlertCircle className="w-3 h-3 mr-1" />
             Rejected
           </Badge>
         );
+    }
+  };
+
+  // Safe avatar fallback generation
+  const getAvatarFallback = () => {
+    if (!userData.full_name || userData.full_name.trim() === "") {
+      return userData.username?.slice(0, 2).toUpperCase() || "U";
+    }
+    return userData.full_name
+      .split(" ")
+      .filter((n) => n.length > 0)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Handle avatar upload
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    try {
+      setUploading(true);
+
+      // Check if file was selected
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+
+      const file = event.target.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error("Image size must be less than 5MB");
+        return;
+      }
+
+      // Upload to Supabase Storage and save to database
+      const newAvatarUrl = await AuthService.uploadAvatar(userData.id, file);
+
+      // Update local state to show new avatar immediately
+      onUserDataChange({
+        ...userData,
+        avatar_url: newAvatarUrl,
+      });
+
+      toast.success("Avatar updated successfully!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload avatar",
+      );
+    } finally {
+      setUploading(false);
+      // Reset file input so same file can be selected again if needed
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   };
 
@@ -69,19 +139,37 @@ export function ProfileInfo({
         {/* Avatar */}
         <div className="flex items-center gap-4">
           <Avatar className="w-20 h-20">
-            <AvatarImage src={userData.avatar_url || '/placeholder.svg'} />
+            <AvatarImage src={userData.avatar_url || "/placeholder.svg"} />
             <AvatarFallback className="text-lg">
-              {userData.full_name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
+              {getAvatarFallback()}
             </AvatarFallback>
           </Avatar>
           {isEditing && (
-            <Button variant="outline" size="sm">
-              <Camera className="w-4 h-4 mr-2" />
-              Change Photo
-            </Button>
+            <>
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+              {/* Label acts as the button */}
+              <label htmlFor="avatar-upload">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  asChild
+                >
+                  <span className="cursor-pointer">
+                    <Camera className="w-4 h-4 mr-2" />
+                    {uploading ? "Uploading..." : "Change Photo"}
+                  </span>
+                </Button>
+              </label>
+            </>
           )}
         </div>
 
@@ -190,7 +278,7 @@ export function ProfileInfo({
             </Label>
             <div className="flex items-center gap-2">
               {getKycStatusBadge()}
-              {userData.kyc_status !== 'verified' && (
+              {userData.kyc_status !== "verified" && (
                 <Button variant="link" size="sm" className="p-0 h-auto">
                   Complete KYC
                 </Button>
