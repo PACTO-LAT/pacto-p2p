@@ -33,10 +33,12 @@ export interface User {
   };
   payment_methods?: {
     sinpe_number?: string;
-    bank_iban?: string;
-    bank_name?: string;
-    bank_account_holder?: string;
     preferred_method?: 'sinpe' | 'bank_transfer';
+    bank_accounts?: {
+      bank_iban?: string;
+      bank_name?: string;
+      bank_account_holder?: string;
+    }[];
   };
   created_at: string;
   updated_at: string;
