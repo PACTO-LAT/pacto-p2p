@@ -8,6 +8,10 @@ export interface MarketplaceListing {
   paymentMethod: string;
   seller: string;
   buyer: string;
+  sellerName?: string;
+  buyerName?: string;
+  sellerAvatarUrl?: string;
+  buyerAvatarUrl?: string;
   reputation: number;
   trades: number;
   created: string;
