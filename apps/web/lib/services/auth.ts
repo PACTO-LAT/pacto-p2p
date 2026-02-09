@@ -234,7 +234,7 @@ export class AuthService {
       .from("avatars")
       .upload(filePath, file, {
         cacheControl: "3600",
-        upsert: false, // Don't overwrite, create new file each time
+        upsert: false,
       });
 
     if (uploadError) {

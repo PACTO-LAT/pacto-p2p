@@ -73,9 +73,19 @@ USING (
 );
 
 -- ---------------------------------------------------------------------------
--- 3. Helper function: Clean up old user avatars (optional)
+-- 3. Helper function: Clean up old user avatars
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.cleanup_old_user_avatars(user_uuid UUID, keep_latest INTEGER DEFAULT 3)
+-- This utility helps manage storage by removing outdated avatar files while
+-- keeping the most recent uploads. Useful for preventing storage bloat when
+-- users frequently update their profile pictures.
+--
+-- Security: Implements proper authorization to ensure users can only clean
+-- their own avatar history, preventing unauthorized deletion of other users' files.
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.cleanup_old_user_avatars(
+  user_uuid UUID, 
+  keep_latest INTEGER DEFAULT 3
+)
 RETURNS INTEGER
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -84,6 +94,15 @@ AS $$
 DECLARE
   deleted_count INTEGER := 0;
 BEGIN
+  -- Verify the calling user has permission to clean this user's avatars.
+  -- This prevents any authenticated user from arbitrarily deleting another
+  -- user's avatar history by passing a different UUID.
+  IF auth.uid() IS NULL OR auth.uid() != user_uuid THEN
+    RAISE EXCEPTION 'Authorization failed: Users may only manage their own avatar files';
+  END IF;
+
+  -- Identify avatars beyond the retention limit and remove them from storage.
+  -- The ORDER BY created_at DESC ensures we preserve the most recent uploads.
   WITH old_avatars AS (
     SELECT name
     FROM storage.objects
@@ -102,6 +121,9 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.cleanup_old_user_avatars IS 
-'Removes old avatar files for a user, keeping only the N most recent uploads. Returns number of files deleted.';
+'Removes outdated avatar files for the authenticated user while preserving the N most recent uploads. '
+'Returns the count of deleted files. Includes authorization check to prevent cross-user deletion.';
 
+-- Grant execution rights to authenticated users since the function
+-- already enforces user-specific authorization internally
 GRANT EXECUTE ON FUNCTION public.cleanup_old_user_avatars(UUID, INTEGER) TO authenticated;
