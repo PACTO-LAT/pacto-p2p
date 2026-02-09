@@ -229,7 +229,17 @@ export class AuthService {
     const fileName = `${userId}-${timestamp}.${fileExt}`;
     const filePath = `${userId}/${fileName}`;
 
-    // Upload file to Supabase Storage bucket 'avatars'
+    // Delete ALL old avatars for this user BEFORE uploading
+    const { data: existingFiles } = await supabase.storage
+      .from("avatars")
+      .list(userId);
+
+    if (existingFiles && existingFiles.length > 0) {
+      const filesToRemove = existingFiles.map((f) => `${userId}/${f.name}`);
+      await supabase.storage.from("avatars").remove(filesToRemove);
+    }
+
+    // Upload new avatar file
     const { error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(filePath, file, {
@@ -242,17 +252,23 @@ export class AuthService {
       throw uploadError;
     }
 
-    // Get public URL of uploaded file
+    // Get public URL
     const { data: urlData } = supabase.storage
       .from("avatars")
       .getPublicUrl(filePath);
 
     const publicUrl = urlData.publicUrl;
 
-    // Update user profile with new avatar URL in database
-    await this.updateUserProfile(userId, {
-      avatar_url: publicUrl,
-    });
+    //  Wrap database update in try-catch for rollback
+    try {
+      await this.updateUserProfile(userId, {
+        avatar_url: publicUrl,
+      });
+    } catch (error) {
+      // Remove the just-uploaded file since DB update failed
+      await supabase.storage.from("avatars").remove([filePath]);
+      throw error;
+    }
 
     return publicUrl;
   }
