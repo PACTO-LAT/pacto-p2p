@@ -229,17 +229,7 @@ export class AuthService {
     const fileName = `${userId}-${timestamp}.${fileExt}`;
     const filePath = `${userId}/${fileName}`;
 
-    // Delete ALL old avatars for this user BEFORE uploading
-    const { data: existingFiles } = await supabase.storage
-      .from("avatars")
-      .list(userId);
-
-    if (existingFiles && existingFiles.length > 0) {
-      const filesToRemove = existingFiles.map((f) => `${userId}/${f.name}`);
-      await supabase.storage.from("avatars").remove(filesToRemove);
-    }
-
-    // Upload new avatar file
+    // Upload new avatar file FIRST
     const { error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(filePath, file, {
@@ -259,7 +249,7 @@ export class AuthService {
 
     const publicUrl = urlData.publicUrl;
 
-    //  Wrap database update in try-catch for rollback
+    // Update database with new avatar URL
     try {
       await this.updateUserProfile(userId, {
         avatar_url: publicUrl,
@@ -268,6 +258,27 @@ export class AuthService {
       // Remove the just-uploaded file since DB update failed
       await supabase.storage.from("avatars").remove([filePath]);
       throw error;
+    }
+
+    // Delete old avatars AFTER successful upload and DB update
+    try {
+      const { data: existingFiles } = await supabase.storage
+        .from("avatars")
+        .list(userId);
+
+      if (existingFiles && existingFiles.length > 1) {
+        // Keep the new one, remove all others
+        const filesToRemove = existingFiles
+          .filter((f) => f.name !== fileName)
+          .map((f) => `${userId}/${f.name}`);
+
+        if (filesToRemove.length > 0) {
+          await supabase.storage.from("avatars").remove(filesToRemove);
+        }
+      }
+    } catch (cleanupError) {
+      // Log cleanup error but don't fail the operation - avatar was already uploaded
+      console.warn("Cleanup of old avatars failed:", cleanupError);
     }
 
     return publicUrl;
