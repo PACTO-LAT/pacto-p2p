@@ -253,7 +253,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="escrows" className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-emerald-gradient leading-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
             Active Orders
           </h2>
 
@@ -283,7 +283,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-emerald-gradient leading-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
             Trade History
           </h2>
           <Card className="card">
