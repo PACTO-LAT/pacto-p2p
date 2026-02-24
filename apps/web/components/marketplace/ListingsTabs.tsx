@@ -13,7 +13,11 @@ interface ListingsTabsProps {
   onTrade: (listing: MarketplaceListing) => void;
 }
 
-function EmptyState({ type }: { type: "buy" | "sell" }) {
+interface EmptyStateProps {
+  type: "buy" | "sell";
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ type }) => {
   const title = type === "buy" ? "No buy orders yet" : "No sell orders yet";
   const description =
     type === "buy"
@@ -37,7 +41,21 @@ function EmptyState({ type }: { type: "buy" | "sell" }) {
       </CardContent>
     </Card>
   );
+};
+
+interface ListingGridProps {
+  listings: MarketplaceListing[];
+  onTrade: (listing: MarketplaceListing) => void;
+  type?: "buy" | "sell";
 }
+
+const ListingGrid: React.FC<ListingGridProps> = ({ listings, onTrade }) => (
+  <div className="grid gap-6">
+    {listings.map((listing) => (
+      <ListingCard key={listing.id} listing={listing} onTrade={onTrade} />
+    ))}
+  </div>
+);
 
 export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
   const buyListings = listings.filter((l) => l.type === "buy");
@@ -64,15 +82,7 @@ export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
         {buyListings.length === 0 ? (
           <EmptyState type="buy" />
         ) : (
-          <div className="grid gap-6">
-            {buyListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onTrade={onTrade}
-              />
-            ))}
-          </div>
+          <ListingGrid listings={buyListings} onTrade={onTrade} />
         )}
       </TabsContent>
 
@@ -80,15 +90,7 @@ export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
         {sellListings.length === 0 ? (
           <EmptyState type="sell" />
         ) : (
-          <div className="grid gap-6">
-            {sellListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onTrade={onTrade}
-              />
-            ))}
-          </div>
+          <ListingGrid listings={sellListings} onTrade={onTrade} />
         )}
       </TabsContent>
     </Tabs>
