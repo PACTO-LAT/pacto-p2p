@@ -1,29 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-function getValidSupabaseUrl(): string {
-  if (!rawUrl || rawUrl.includes('your_supabase')) {
-    return 'https://placeholder.supabase.co';
-  }
-  try {
-    new URL(rawUrl);
-    return rawUrl;
-  } catch {
-    return 'https://placeholder.supabase.co';
-  }
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Supabase env vars missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY ' +
+      'to your own Supabase project (or local Supabase CLI project).',
+  );
 }
-
-function getValidAnonKey(): string {
-  if (!rawKey || rawKey.includes('your_supabase') || rawKey === 'your_supabase_anon_key') {
-    return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.placeholder';
-  }
-  return rawKey;
-}
-
-const supabaseUrl = getValidSupabaseUrl();
-const supabaseAnonKey = getValidAnonKey();
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 

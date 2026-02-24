@@ -3,6 +3,16 @@
 -- This file is run after migrations on `supabase db reset`
 -- =============================================================================
 
+-- Ensure corresponding auth.users exist for seeded app users
+INSERT INTO auth.users (id, email)
+VALUES
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'alice@example.com'),
+  ('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'bob@example.com'),
+  ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'charlie@example.com'),
+  ('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'diana@example.com'),
+  ('e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a55', 'eve@example.com')
+ON CONFLICT (id) DO NOTHING;
+
 -- Disable RLS temporarily for seeding (will be re-enabled after)
 ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE merchants DISABLE ROW LEVEL SECURITY;
