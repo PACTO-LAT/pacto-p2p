@@ -288,9 +288,6 @@ export default function DashboardPage() {
           </h2>
           <Card className="card">
             <CardContent className="p-8 sm:p-12 lg:p-16 text-center">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted/50 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 glow-emerald">
-                <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
-              </div>
               <p className="text-base sm:text-lg text-muted-foreground mb-2 font-medium">
                 No completed trades yet
               </p>
