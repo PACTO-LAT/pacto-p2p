@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import { FC, ReactNode } from "react";
 import Link from "next/link";
 import { Plus, ShoppingCart } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +19,7 @@ interface GenericEmptyStateProps {
   title: string;
   description: string;
   action?: ReactNode;
+  iconContainerClassName?: string;
 }
 
 export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
@@ -26,6 +27,7 @@ export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
   title,
   description,
   action,
+  iconContainerClassName = "",
 }) => (
   <Card className="glass-card">
     <CardContent className="p-12 text-center">
@@ -39,7 +41,7 @@ export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
   </Card>
 );
 
-const EmptyState: React.FC<{ type: "buy" | "sell" }> = ({ type }) => {
+const EmptyState: FC<{ type: "buy" | "sell" }> = ({ type }) => {
   const title = type === "buy" ? "No buy orders yet" : "No sell orders yet";
   const description =
     type === "buy"
@@ -61,6 +63,7 @@ const EmptyState: React.FC<{ type: "buy" | "sell" }> = ({ type }) => {
       title={title}
       description={description}
       action={action}
+      iconContainerClassName="glow-emerald" // now applied via prop
     />
   );
 };
@@ -70,7 +73,7 @@ interface ListingGridProps {
   onTrade: (listing: MarketplaceListing) => void;
 }
 
-const ListingGrid: React.FC<ListingGridProps> = ({ listings, onTrade }) => (
+const ListingGrid: FC<ListingGridProps> = ({ listings, onTrade }) => (
   <div className="grid gap-6">
     {listings.map((listing) => (
       <ListingCard key={listing.id} listing={listing} onTrade={onTrade} />
