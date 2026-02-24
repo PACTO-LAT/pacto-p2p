@@ -38,8 +38,8 @@ export function Header() {
                 alt="Pacto Logo"
                 width={100}
                 height={100}
-                priority
                 loading="eager"
+                fetchPriority="high"
                 sizes="80px"
                 className="w-full h-full object-cover"
               />
