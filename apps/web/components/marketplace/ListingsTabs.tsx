@@ -1,12 +1,42 @@
 "use client";
 
+import Link from "next/link";
+import { Plus, ShoppingCart } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import type { MarketplaceListing } from "@/lib/types/marketplace";
 import { ListingCard } from "./ListingCard";
 
 interface ListingsTabsProps {
   listings: MarketplaceListing[];
   onTrade: (listing: MarketplaceListing) => void;
+}
+
+function EmptyState({ type }: { type: "buy" | "sell" }) {
+  const title = type === "buy" ? "No buy orders yet" : "No sell orders yet";
+  const description =
+    type === "buy"
+      ? "There are no active buy orders in the marketplace."
+      : "There are no active sell orders in the marketplace.";
+
+  return (
+    <Card className="glass-card">
+      <CardContent className="p-12 text-center">
+        <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl mx-auto mb-4 flex items-center justify-center glow-emerald">
+          <ShoppingCart className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
+        <p className="text-muted-foreground mb-6">{description}</p>
+        <Link href="/dashboard/listings/create">
+          <Button className="bg-emerald-500 hover:bg-emerald-600 text-white gap-2">
+            <Plus className="w-4 h-4" />
+            Create Listing
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
@@ -31,19 +61,35 @@ export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
       </TabsList>
 
       <TabsContent value="buy" className="space-y-6">
-        <div className="grid gap-6">
-          {buyListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} onTrade={onTrade} />
-          ))}
-        </div>
+        {buyListings.length === 0 ? (
+          <EmptyState type="buy" />
+        ) : (
+          <div className="grid gap-6">
+            {buyListings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                onTrade={onTrade}
+              />
+            ))}
+          </div>
+        )}
       </TabsContent>
 
       <TabsContent value="sell" className="space-y-6">
-        <div className="grid gap-6">
-          {sellListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} onTrade={onTrade} />
-          ))}
-        </div>
+        {sellListings.length === 0 ? (
+          <EmptyState type="sell" />
+        ) : (
+          <div className="grid gap-6">
+            {sellListings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                onTrade={onTrade}
+              />
+            ))}
+          </div>
+        )}
       </TabsContent>
     </Tabs>
   );
