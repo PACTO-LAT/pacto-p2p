@@ -28,12 +28,12 @@ function EmptyState({ type }: { type: "buy" | "sell" }) {
         </div>
         <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
         <p className="text-muted-foreground mb-6">{description}</p>
-        <Link href="/dashboard/listings/create">
-          <Button className="bg-emerald-500 hover:bg-emerald-600 text-white gap-2">
+        <Button asChild>
+          <Link href="/dashboard/listings/create" className="gap-2">
             <Plus className="w-4 h-4" />
             Create Listing
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );
