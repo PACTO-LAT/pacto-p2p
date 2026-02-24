@@ -27,32 +27,46 @@ CREATE INDEX IF NOT EXISTS idx_merchants_slug ON merchants(slug);
 CREATE INDEX IF NOT EXISTS idx_merchants_is_public ON merchants(is_public);
 CREATE INDEX IF NOT EXISTS idx_merchants_verification_status ON merchants(verification_status);
 
--- Add merchant_id FK to listings if column exists
 DO $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'listings' AND column_name = 'merchant_id'
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'listings'
   ) THEN
-    ALTER TABLE listings ADD COLUMN merchant_id UUID;
-  END IF;
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'listings_merchant_id_fkey'
-  ) THEN
-    ALTER TABLE listings ADD CONSTRAINT listings_merchant_id_fkey
-      FOREIGN KEY (merchant_id) REFERENCES merchants(id) ON DELETE SET NULL;
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'listings' AND column_name = 'merchant_id'
+    ) THEN
+      ALTER TABLE listings ADD COLUMN merchant_id UUID;
+    END IF;
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_constraint WHERE conname = 'listings_merchant_id_fkey'
+    ) THEN
+      ALTER TABLE listings ADD CONSTRAINT listings_merchant_id_fkey
+        FOREIGN KEY (merchant_id) REFERENCES merchants(id) ON DELETE SET NULL;
+    END IF;
   END IF;
 EXCEPTION WHEN OTHERS THEN
   -- Ignore if already exists or constraint fails
   NULL;
 END $$;
 
-CREATE INDEX IF NOT EXISTS idx_listings_merchant_id ON listings(merchant_id);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'listings'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_listings_merchant_id ON listings(merchant_id);
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
 
 -- Create escrows table (simplified: engagement_id links to Trustless Work on-chain)
 CREATE TABLE IF NOT EXISTS escrows (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  listing_id UUID REFERENCES listings(id) ON DELETE SET NULL,
+  listing_id UUID,
   buyer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   seller_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   engagement_id TEXT UNIQUE NOT NULL,
@@ -60,6 +74,27 @@ CREATE TABLE IF NOT EXISTS escrows (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add optional FK to listings if the table exists
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'listings'
+  ) THEN
+    IF NOT EXISTS (
+      SELECT 1
+      FROM pg_constraint
+      WHERE conname = 'escrows_listing_id_fkey'
+    ) THEN
+      ALTER TABLE escrows
+        ADD CONSTRAINT escrows_listing_id_fkey
+        FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE SET NULL;
+    END IF;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_escrows_listing_id ON escrows(listing_id);
 CREATE INDEX IF NOT EXISTS idx_escrows_buyer_id ON escrows(buyer_id);
