@@ -1,5 +1,6 @@
 "use client";
 
+import React, { ReactNode } from "react";
 import Link from "next/link";
 import { Plus, ShoppingCart } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,40 +14,60 @@ interface ListingsTabsProps {
   onTrade: (listing: MarketplaceListing) => void;
 }
 
-interface EmptyStateProps {
-  type: "buy" | "sell";
+interface GenericEmptyStateProps {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  action?: ReactNode;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ type }) => {
+export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
+  icon,
+  title,
+  description,
+  action,
+}) => (
+  <Card className="glass-card">
+    <CardContent className="p-12 text-center">
+      <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl mx-auto mb-4 flex items-center justify-center glow-emerald">
+        {icon}
+      </div>
+      <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
+      <p className="text-muted-foreground mb-6">{description}</p>
+      {action && <div>{action}</div>}
+    </CardContent>
+  </Card>
+);
+
+const EmptyState: React.FC<{ type: "buy" | "sell" }> = ({ type }) => {
   const title = type === "buy" ? "No buy orders yet" : "No sell orders yet";
   const description =
     type === "buy"
       ? "There are no active buy orders in the marketplace."
       : "There are no active sell orders in the marketplace.";
 
+  const action = (
+    <Button asChild>
+      <Link href="/dashboard/listings/create" className="gap-2">
+        <Plus className="w-4 h-4" />
+        Create Listing
+      </Link>
+    </Button>
+  );
+
   return (
-    <Card className="glass-card">
-      <CardContent className="p-12 text-center">
-        <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl mx-auto mb-4 flex items-center justify-center glow-emerald">
-          <ShoppingCart className="w-8 h-8 text-muted-foreground" />
-        </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
-        <p className="text-muted-foreground mb-6">{description}</p>
-        <Button asChild>
-          <Link href="/dashboard/listings/create" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Create Listing
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
+    <GenericEmptyState
+      icon={<ShoppingCart className="w-8 h-8 text-muted-foreground" />}
+      title={title}
+      description={description}
+      action={action}
+    />
   );
 };
 
 interface ListingGridProps {
   listings: MarketplaceListing[];
   onTrade: (listing: MarketplaceListing) => void;
-  type?: "buy" | "sell";
 }
 
 const ListingGrid: React.FC<ListingGridProps> = ({ listings, onTrade }) => (
