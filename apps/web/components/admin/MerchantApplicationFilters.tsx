@@ -27,6 +27,8 @@ export function MerchantApplicationFilters({
           variant={activeFilter === filter.value ? 'default' : 'outline'}
           size="sm"
           onClick={() => onFilterChange(filter.value)}
+          aria-pressed={activeFilter === filter.value}
+          aria-label={`Filter by ${filter.label} status`}
         >
           {filter.label}
         </Button>

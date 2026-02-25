@@ -48,12 +48,6 @@ try {
 
 Write-Host ""
 
-# Reset database with seed data
-Write-Host "🗄️  Resetting database with seed data..." -ForegroundColor Cyan
-npm run db:reset
-Write-Host "✅ Database reset complete" -ForegroundColor Green
-Write-Host ""
-
 # Install dependencies if needed
 if (-not (Test-Path "node_modules")) {
     Write-Host "📦 Installing dependencies..." -ForegroundColor Cyan
@@ -61,6 +55,12 @@ if (-not (Test-Path "node_modules")) {
     Write-Host "✅ Dependencies installed" -ForegroundColor Green
     Write-Host ""
 }
+
+# Reset database with seed data
+Write-Host "🗄️  Resetting database with seed data..." -ForegroundColor Cyan
+npm run db:reset
+Write-Host "✅ Database reset complete" -ForegroundColor Green
+Write-Host ""
 
 Write-Host "✅ Setup complete!" -ForegroundColor Green
 Write-Host ""

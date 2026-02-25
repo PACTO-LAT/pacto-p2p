@@ -47,12 +47,6 @@ fi
 echo "✅ Supabase is running"
 echo ""
 
-# Reset database with seed data
-echo "🗄️  Resetting database with seed data..."
-npm run db:reset
-echo "✅ Database reset complete"
-echo ""
-
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dependencies..."
@@ -60,6 +54,12 @@ if [ ! -d "node_modules" ]; then
     echo "✅ Dependencies installed"
     echo ""
 fi
+
+# Reset database with seed data
+echo "🗄️  Resetting database with seed data..."
+npm run db:reset
+echo "✅ Database reset complete"
+echo ""
 
 echo "✅ Setup complete!"
 echo ""

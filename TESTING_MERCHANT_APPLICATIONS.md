@@ -41,8 +41,7 @@ This will create test merchants with different verification statuses:
 - **Alice OTC** - verified
 - **Bob Exchange** - verified
 - **Diana Premium Trading** - verified
-- **Charlie Trader** 
-- pending (NEW)
+- **Charlie Trader** - pending (NEW)
 - **Eve Crypto Exchange** - pending (NEW)
 
 ### 4. Start Development Server
