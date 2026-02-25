@@ -1,6 +1,9 @@
 import { createServerClient } from '@/lib/supabase';
 import type { TokenOperation } from '@/lib/types';
 import { StellarService } from './stellar';
+import * as adminMocks from '@/lib/mocks/admin.fixtures';
+
+const useMock = process.env.NEXT_PUBLIC_USE_MOCK === '1';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class AdminService {
@@ -164,5 +167,113 @@ export class AdminService {
       totalVolume,
       completedTrades: tradesResult.count || escrowsResult.data?.length || 0,
     };
+  }
+
+  static async getMerchantApplications(status?: string) {
+    if (useMock) {
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return adminMocks.getMerchantApplications(status);
+    }
+
+    const supabase = createServerClient();
+    let query = supabase
+      .from('merchants')
+      .select(`
+        *,
+        user:users!merchants_user_id_fkey(id, email, full_name, created_at)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (status && status !== 'all') {
+      query = query.eq('verification_status', status);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  }
+
+  static async getMerchantApplicationById(id: string) {
+    if (useMock) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return adminMocks.getMerchantApplicationById(id);
+    }
+
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from('merchants')
+      .select(`
+        *,
+        user:users!merchants_user_id_fkey(*)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async approveMerchant(id: string) {
+    if (useMock) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      return adminMocks.approveMerchant(id);
+    }
+
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from('merchants')
+      .update({
+        verification_status: 'verified',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async rejectMerchant(id: string) {
+    if (useMock) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      return adminMocks.rejectMerchant(id);
+    }
+
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from('merchants')
+      .update({
+        verification_status: 'rejected',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async revokeMerchant(id: string) {
+    if (useMock) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      return adminMocks.revokeMerchant(id);
+    }
+
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from('merchants')
+      .update({
+        verification_status: 'revoked',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 }

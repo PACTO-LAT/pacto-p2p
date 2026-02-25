@@ -11,6 +11,7 @@ import {
   BurnForm,
   TransactionList,
   UserManagement,
+  MerchantApplications,
 } from '@/components/admin';
 import {
   getDefaultTokens,
@@ -96,6 +97,9 @@ export default function AdminPage() {
           <TabsTrigger value="mint">Mint/Burn</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="merchant-applications">
+            Merchant Applications
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tokens">
@@ -125,6 +129,10 @@ export default function AdminPage() {
 
         <TabsContent value="users">
           <UserManagement />
+        </TabsContent>
+
+        <TabsContent value="merchant-applications">
+          <MerchantApplications />
         </TabsContent>
       </Tabs>
     </div>
