@@ -13,33 +13,11 @@ import {
 
 import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Card, CardContent } from '@/components/ui/card';
-
-const supportedAssets = [
-  {
-    symbol: 'CRCX',
-    name: 'Costa Rican Colón Token',
-    region: 'Costa Rica',
-    paymentMethods: 'SINPE',
-    color: 'bg-green-500',
-  },
-  {
-    symbol: 'MXNX',
-    name: 'Mexican Peso Token',
-    region: 'Mexico',
-    paymentMethods: 'SPEI, OXXO (coming)',
-    color: 'bg-red-500',
-  },
-  {
-    symbol: 'USDC',
-    name: 'USD Coin',
-    region: 'Global',
-    paymentMethods: 'Varies',
-    color: 'bg-emerald-600',
-  },
-];
+import { getSupportedAssets } from '@/lib/supported-assets';
 
 export function AssetsSection() {
   const reducedMotion = useReducedMotion();
+  const supportedAssets = getSupportedAssets();
 
   // Animation variants
   const fadeInUp = {
