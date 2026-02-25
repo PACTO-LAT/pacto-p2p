@@ -1,21 +1,23 @@
 'use client';
 
 import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { ListingDetailsDialog } from '@/components/shared/ListingDetailsDialog';
 import { ListingEditDialog } from '@/components/shared/ListingEditDialog';
 import { TradeCard } from '@/components/shared/TradeCard';
 import { WalletConnectionPrompt } from '@/components/shared/WalletConnectionPrompt';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDialog } from '@/hooks/use-dialog';
 import { useAuth } from '@/hooks/use-auth';
+import { useDialog } from '@/hooks/use-dialog';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { useMarketplaceListings } from '@/hooks/use-listings';
+import { useMeMerchant } from '../../hooks/useMerchant';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,6 +35,7 @@ export default function DashboardPage() {
     setSelectedItem: setEditListing,
   } = useDialog<DashboardListing>();
 
+  const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
   const { data: marketplace = [], isLoading } = useMarketplaceListings({
     status: 'active',
   });
@@ -211,12 +214,24 @@ export default function DashboardPage() {
             <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
               Active Listings
             </h2>
-            <Link href="/dashboard/listings/create" className="w-full sm:w-auto">
-              <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base">
+            {merchantLoading ? (
+              <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base" disabled>
+                <Plus className="w-4 h-4 mr-2" />
+                Checking merchant status...
+              </Button>
+            ) : merchant ? (
+              <Link href="/dashboard/listings/create" className="w-full sm:w-auto">
+                <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Listing
+                </Button>
+              </Link>
+            ) : (
+              <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base" disabled title="You must be a merchant to create listings">
                 <Plus className="w-4 h-4 mr-2" />
                 New Listing
               </Button>
-            </Link>
+            )}
           </div>
 
           <div className="grid gap-4 sm:gap-6">
