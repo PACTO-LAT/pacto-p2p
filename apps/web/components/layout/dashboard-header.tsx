@@ -92,6 +92,57 @@ export function DashboardHeader() {
     }
   };
 
+  // Handle wallet connection with error handling
+  const handleWalletConnect = async () => {
+    try {
+      await handleConnect();
+      toast.success('Wallet connected successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
+      toast.error(errorMessage);
+      console.error('Error connecting wallet:', error);
+    }
+  };
+
+  // Handle wallet disconnection with error handling
+  const handleWalletDisconnect = async () => {
+    try {
+      await handleDisconnect();
+      toast.success('Wallet disconnected successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect wallet';
+      toast.error(errorMessage);
+      console.error('Error disconnecting wallet:', error);
+    }
+  };
+
+  // Mobile-specific handlers that close menu after action
+  const handleMobileConnect = async () => {
+    try {
+      await handleConnect();
+      toast.success('Wallet connected successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
+      toast.error(errorMessage);
+      console.error('Error connecting wallet:', error);
+    } finally {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const handleMobileDisconnect = async () => {
+    try {
+      await handleDisconnect();
+      toast.success('Wallet disconnected successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect wallet';
+      toast.error(errorMessage);
+      console.error('Error disconnecting wallet:', error);
+    } finally {
+      setMobileMenuOpen(false);
+    }
+  };
+
   const NavLink = ({
     item,
     onClick,
@@ -164,7 +215,9 @@ export function DashboardHeader() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleDisconnect}
+                  onClick={handleWalletDisconnect}
+                  aria-label={`Disconnect wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
+                  title="Disconnect wallet"
                   className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
                 >
                   <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-500 rounded-full">
@@ -177,7 +230,8 @@ export function DashboardHeader() {
               ) : (
                 <Button
                   size="sm"
-                  onClick={handleConnect}
+                  onClick={handleWalletConnect}
+                  aria-label="Connect wallet"
                   className="bg-gradient-emerald hover:shadow-emerald-glow transition-all duration-300 text-white font-medium"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
@@ -348,11 +402,10 @@ export function DashboardHeader() {
                       <Button
                         variant="outline"
                         size="default"
-                        onClick={() => {
-                          handleDisconnect();
-                          setMobileMenuOpen(false);
-                        }}
-                        className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group justify-start"
+                        onClick={handleMobileDisconnect}
+                        aria-label={`Disconnect wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
+                        title="Disconnect wallet"
+                        className="w-full relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group justify-start"
                       >
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-500 rounded-full">
                           <div className="absolute inset-0 bg-emerald-500 rounded-full animate-pulse" />
@@ -364,11 +417,9 @@ export function DashboardHeader() {
                     ) : (
                       <Button
                         size="default"
-                        onClick={() => {
-                          handleConnect();
-                          setMobileMenuOpen(false);
-                        }}
-                        className="bg-gradient-emerald hover:shadow-emerald-glow transition-all duration-300 text-white font-medium justify-start"
+                        onClick={handleMobileConnect}
+                        aria-label="Connect wallet"
+                        className="w-full bg-gradient-emerald hover:shadow-emerald-glow transition-all duration-300 text-white font-medium justify-start"
                       >
                         <LogIn className="w-4 h-4 mr-2" />
                         Connect Wallet
