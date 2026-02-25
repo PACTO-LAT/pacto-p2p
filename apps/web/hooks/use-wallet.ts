@@ -219,14 +219,7 @@ export const useWallet = () => {
   };
 
   const handleDisconnect = async () => {
-    try {
-      await disconnectWallet();
-    } catch (error) {
-      console.error('Error disconnecting wallet:', error);
-      toast.error('Failed to disconnect wallet', {
-        description: 'Please try again or refresh the page.',
-      });
-    }
+    await disconnectWallet();
   };
 
   return {
