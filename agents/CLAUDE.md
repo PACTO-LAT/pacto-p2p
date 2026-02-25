@@ -65,7 +65,7 @@ import { EscrowType } from '@pacto-p2p/types'
 - `/auth` - Authentication
 - `/dashboard` - Main dashboard
 - `/dashboard/listings` - Manage listings
-- `/dashboard/escrows` - Manage escrows
+- `/dashboard/orders` - Manage orders
 - `/dashboard/wallet` - Wallet management
 - `/m/[slug]` - Public merchant profile
 

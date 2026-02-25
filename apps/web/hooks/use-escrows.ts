@@ -223,7 +223,7 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      router.push('/dashboard/escrows');
+      router.push('/dashboard/orders');
       toast.success('Escrow created successfully');
       // Call the optional callback if provided
       if (onSuccessCallback) {
