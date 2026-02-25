@@ -149,7 +149,7 @@ export const useWallet = () => {
   const connectWallet = async () => {
     // Ensure we're on the client side
     if (typeof window === 'undefined') {
-      throw new Error('Wallet connection can only be used on the client side');
+      return;
     }
 
     try {
@@ -214,16 +214,8 @@ export const useWallet = () => {
     }
   };
 
-  const handleConnect = async () => {
-    await connectWallet();
-  };
-
-  const handleDisconnect = async () => {
-    await disconnectWallet();
-  };
-
   return {
-    handleConnect,
-    handleDisconnect,
+    handleConnect: connectWallet,
+    handleDisconnect: disconnectWallet,
   };
 };
