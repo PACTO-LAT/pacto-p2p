@@ -190,7 +190,7 @@ export const useWallet = () => {
       // Extract error message and display user-visible feedback
       const errorMessage = extractErrorMessage(error);
       updateConnectionStatus(false);
-      console.error('Wallet connection error:', errorMessage);
+      console.error('Wallet connection error:', error);
       toast.error('Wallet connection failed', {
         description: errorMessage,
       });
