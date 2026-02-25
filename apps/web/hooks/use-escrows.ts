@@ -10,7 +10,7 @@ import {
   useGetEscrowsFromIndexerBySigner,
 } from '@trustless-work/escrow';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import type { CreateEscrowData } from '@/lib/types';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
@@ -223,15 +223,15 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      router.push('/dashboard/orders');
-      toast.success('Escrow created successfully');
+      router.push('/dashboard/escrows');
+      sileo.success({ title: 'Escrow created successfully' });
       // Call the optional callback if provided
       if (onSuccessCallback) {
         onSuccessCallback();
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to create escrow');
+      sileo.error({ title: error.message || 'Failed to create escrow' });
     },
   });
 }
@@ -254,10 +254,10 @@ export function useReportPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      toast.success('Payment reported successfully');
+      sileo.success({ title: 'Payment reported successfully' });
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to report payment');
+      sileo.error({ title: error.message || 'Failed to report payment' });
     },
   });
 }
@@ -292,10 +292,10 @@ export function useDepositFunds() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      toast.success('Funds deposited successfully');
+      sileo.success({ title: 'Funds deposited successfully' });
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to deposit funds');
+      sileo.error({ title: error.message || 'Failed to deposit funds' });
     },
   });
 }
@@ -314,10 +314,10 @@ export function useDisputeEscrow() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      toast.success('Escrow disputed successfully');
+      sileo.success({ title: 'Escrow disputed successfully' });
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to dispute escrow');
+      sileo.error({ title: error.message || 'Failed to dispute escrow' });
     },
   });
 }

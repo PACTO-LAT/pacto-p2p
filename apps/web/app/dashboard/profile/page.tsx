@@ -2,7 +2,7 @@
 
 import { Settings } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -16,13 +16,17 @@ import {
 import type { UserData } from '@/components/profile/types';
 import type { User } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
+import { EnhancedAuthService } from '@/lib/services/enhanced-auth.service';
+import { validateProfileUpdate } from '@/lib/schemas/profile-validation.schema';
 
-export default function ProfilePage() {
+export default function EnhancedProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { user, updateProfile } = useAuth();
 
   const [userData, setUserData] = useState<UserData | null>(null);
+
   const mapUserToUserData = useCallback(
     (u: User | null, local: UserData | null): UserData | null => {
       if (!u && !local) return null;
@@ -91,14 +95,25 @@ export default function ProfilePage() {
     [user, userData, mapUserToUserData]
   );
 
+  /**
+   * Enhanced save handler with validation and error handling
+   */
   const handleSave = async () => {
-    if (!hydratedUserData) return;
+    if (!hydratedUserData) {
+      sileo.error({ title: 'No user data to save' });
+      return;
+    }
+
+    // Clear previous validation errors
+    setValidationErrors([]);
     setIsLoading(true);
+
     try {
+      // Step 1: Prepare the payload
       const payload = {
         // Only persist email if user provided a non-empty value
         ...(hydratedUserData.email &&
-        !hydratedUserData.email.endsWith('@wallet.local')
+          !hydratedUserData.email.endsWith('@wallet.local')
           ? { email: hydratedUserData.email }
           : {}),
         full_name: hydratedUserData.full_name,
@@ -113,15 +128,80 @@ export default function ProfilePage() {
         payment_methods: hydratedUserData.payment_methods,
         stellar_address: hydratedUserData.stellar_address,
       } as const;
-      await updateProfile(payload);
-      toast.success('Profile updated successfully');
-    } catch {
-      toast.error('Failed to update profile');
+
+      // Step 2: Validate the payload
+      const validation = validateProfileUpdate(payload);
+
+      if (!validation.success) {
+        const errors = validation.error.issues.map(
+          (err) => `${err.path.join('.')}: ${err.message}`
+        );
+        setValidationErrors(errors);
+
+        sileo.error({
+          title: 'Validation failed',
+          description: errors[0], // Show first error in toast
+        });
+
+        return;
+      }
+
+      // Step 3: Optimistic update (update UI immediately)
+      const previousUserData = hydratedUserData;
+
+      // Step 4: Perform the actual update
+      try {
+        await updateProfile(validation.data);
+
+        // Step 5: Success handling
+        sileo.success({
+          title: 'Profile updated successfully',
+          description: 'Your changes have been saved.',
+        });
+
+        setIsEditing(false);
+        setValidationErrors([]);
+
+      } catch (updateError) {
+        // Step 6: Revert optimistic update on error
+        setUserData(previousUserData);
+
+        // Get user-friendly error message
+        const errorMessage = EnhancedAuthService.getErrorMessage(updateError);
+
+        sileo.error({
+          title: 'Failed to update profile',
+          description: errorMessage,
+        });
+
+        // Keep edit mode open so user can fix the issue
+        console.error('Profile update error:', updateError);
+      }
+
+    } catch (error) {
+      // Handle unexpected errors
+      const errorMessage = EnhancedAuthService.getErrorMessage(error);
+
+      sileo.error({
+        title: 'An unexpected error occurred',
+        description: errorMessage,
+      });
+
+      console.error('Unexpected error during profile update:', error);
+
     } finally {
       setIsLoading(false);
-      setIsEditing(false);
     }
   };
+
+  /**
+   * Handle cancel - revert to original user data
+   */
+  const handleCancel = useCallback(() => {
+    setUserData(null); // Reset local overrides
+    setValidationErrors([]);
+    setIsEditing(false);
+  }, []);
 
   const handleUserDataChange = (newData: Partial<UserData>) => {
     setUserData({ ...(hydratedUserData as UserData), ...newData });
@@ -160,7 +240,8 @@ export default function ProfilePage() {
             <>
               <Button
                 variant="outline"
-                onClick={() => setIsEditing(false)}
+                onClick={handleCancel}
+                disabled={isLoading}
                 className="w-full sm:w-auto text-sm sm:text-base"
               >
                 Cancel
@@ -170,7 +251,14 @@ export default function ProfilePage() {
                 disabled={isLoading}
                 className="w-full sm:w-auto text-sm sm:text-base"
               >
-                {isLoading ? 'Saving...' : 'Save Changes'}
+                {isLoading ? (
+                  <>
+                    <Settings className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
               </Button>
             </>
           ) : (
@@ -185,6 +273,25 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Validation Errors Display */}
+      {validationErrors.length > 0 && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
+            Please fix the following errors:
+          </h3>
+          <ul className="list-disc list-inside space-y-1">
+            {validationErrors.map((error, index) => (
+              <li
+                key={index}
+                className="text-sm text-red-700 dark:text-red-300"
+              >
+                {error}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {!hydratedUserData ? (
         <div className="text-sm sm:text-base text-muted-foreground p-4 sm:p-6 text-center">

@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -85,7 +85,7 @@ export function MerchantProfileForm({
 
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
-      toast.error('Connect your wallet to save your merchant profile');
+      sileo.error({ title: 'Connect your wallet to save your merchant profile' });
       return;
     }
     const payload = {
@@ -94,9 +94,9 @@ export function MerchantProfileForm({
       location: values.location?.trim() || undefined,
       languages: values.languages
         ? values.languages
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean)
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
         : undefined,
       socials: {
         website: values.website || undefined,
@@ -109,7 +109,7 @@ export function MerchantProfileForm({
       slug: values.slug || undefined,
     };
     await upsert.mutateAsync(payload);
-    toast.success('Profile saved');
+    sileo.success({ title: 'Profile saved' });
   }
 
   return (
@@ -167,10 +167,10 @@ export function MerchantProfileForm({
                       .getPublicUrl(path);
                     form.setValue('avatar_url', data.publicUrl);
                     setAvatarPreview(data.publicUrl);
-                    toast.success('Avatar uploaded');
+                    sileo.success({ title: 'Avatar uploaded' });
                   } catch (err) {
                     console.error(err);
-                    toast.error('Failed to upload avatar');
+                    sileo.error({ title: 'Failed to upload avatar' });
                   }
                 }}
               />
@@ -224,10 +224,10 @@ export function MerchantProfileForm({
                       .getPublicUrl(path);
                     form.setValue('banner_url', data.publicUrl);
                     setBannerPreview(data.publicUrl);
-                    toast.success('Banner uploaded');
+                    sileo.success({ title: 'Banner uploaded' });
                   } catch (err) {
                     console.error(err);
-                    toast.error('Failed to upload banner');
+                    sileo.error({ title: 'Failed to upload banner' });
                   }
                 }}
               />
@@ -451,9 +451,9 @@ function TagsInput({
     () =>
       value
         ? value
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean)
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
         : [],
     [value]
   );

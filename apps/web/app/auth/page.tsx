@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AuthService } from '@/lib/services/auth';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function AuthPage() {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please fill in all fields');
+      sileo.error({ title: 'Please fill in all fields' });
       return;
     }
 
@@ -41,10 +41,10 @@ export default function AuthPage() {
           if (!result.session) {
             // Email confirmation required - show message
             setShowEmailConfirmationMessage(true);
-            toast.success(
-              'Account created! Please check your email to confirm your account.',
-              { duration: 8000 }
-            );
+            sileo.success({
+              title: 'Account created! Please check your email to confirm your account.',
+              duration: 8000,
+            });
             // Switch to login mode so they can sign in after confirming
             setTimeout(() => {
               setMode('login');
@@ -52,27 +52,27 @@ export default function AuthPage() {
             }, 3000);
             return;
           }
-          
+
           // Session exists - user is authenticated
-          toast.success('Account created successfully!');
-          
+          sileo.success({ title: 'Account created successfully!' });
+
           // Small delay to ensure session is fully established
           await new Promise((resolve) => setTimeout(resolve, 300));
-          
+
           // Refresh the page to ensure AuthGuard picks up the new session
           window.location.href = '/dashboard';
         } else {
-          toast.error('Failed to create account. Please try again.');
+          sileo.error({ title: 'Failed to create account. Please try again.' });
         }
       } else {
         await AuthService.signIn(email, password);
-        toast.success('Logged in successfully');
+        sileo.success({ title: 'Logged in successfully!' });
         router.push('/dashboard');
       }
     } catch (error) {
       console.error('Auth error:', error);
       let message = 'Authentication failed';
-      
+
       if (error instanceof Error) {
         message = error.message;
         // Provide user-friendly error messages
@@ -98,8 +98,8 @@ export default function AuthPage() {
           message = `Error ${supabaseError.code}. Please try again.`;
         }
       }
-      
-      toast.error(message);
+
+      sileo.error({ title: message });
     } finally {
       setIsLoading(false);
     }

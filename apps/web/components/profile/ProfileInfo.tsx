@@ -1,6 +1,7 @@
 'use client';
 
-import { AlertCircle, Camera, CheckCircle, User } from 'lucide-react';
+import { AlertCircle, Camera, CheckCircle, Loader2, User } from 'lucide-react';
+import { useState, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { ProfileData } from './types';
+import { fieldValidators } from '@/lib/schemas/profile-validation.schema';
 
 interface ProfileInfoProps {
   userData: ProfileData;
@@ -23,11 +25,99 @@ interface ProfileInfoProps {
   onUserDataChange: (data: ProfileData) => void;
 }
 
+interface FieldError {
+  [key: string]: string | undefined;
+}
+
 export function ProfileInfo({
   userData,
   isEditing,
   onUserDataChange,
 }: ProfileInfoProps) {
+  const [fieldErrors, setFieldErrors] = useState<FieldError>({});
+  const [validatingFields, setValidatingFields] = useState<Set<string>>(
+    new Set()
+  );
+
+  /**
+   * Validate a single field with real-time feedback
+   */
+  const validateField = useCallback(
+    (fieldName: string, value: string) => {
+      setValidatingFields((prev) => new Set(prev).add(fieldName));
+
+      // Use the appropriate validator
+      let result: { success: boolean; error?: string } = { success: true };
+
+      switch (fieldName) {
+        case 'email':
+          result = fieldValidators.email(value);
+          break;
+        case 'username':
+          result = fieldValidators.username(value);
+          break;
+        case 'phone':
+          result = fieldValidators.phone(value);
+          break;
+        case 'country':
+          result = fieldValidators.country(value);
+          break;
+        case 'stellar_address':
+          result = fieldValidators.stellarAddress(value);
+          break;
+      }
+
+      setFieldErrors((prev) => ({
+        ...prev,
+        [fieldName]: result.error,
+      }));
+
+      setValidatingFields((prev) => {
+        const next = new Set(prev);
+        next.delete(fieldName);
+        return next;
+      });
+
+      return result.success;
+    },
+    []
+  );
+
+  /**
+   * Handle field change with validation
+   */
+  const handleFieldChange = useCallback(
+    (fieldName: keyof ProfileData, value: string) => {
+      // Update the value immediately for responsive UX
+      onUserDataChange({
+        ...userData,
+        [fieldName]: value,
+      });
+
+      // Validate if editing (debounced validation happens on blur)
+      if (isEditing && value) {
+        // Clear previous error while typing
+        setFieldErrors((prev) => ({
+          ...prev,
+          [fieldName]: undefined,
+        }));
+      }
+    },
+    [userData, onUserDataChange, isEditing]
+  );
+
+  /**
+   * Handle field blur for validation
+   */
+  const handleFieldBlur = useCallback(
+    (fieldName: string, value: string) => {
+      if (isEditing && value) {
+        validateField(fieldName, value);
+      }
+    },
+    [isEditing, validateField]
+  );
+
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
       case 'verified':
@@ -52,6 +142,61 @@ export function ProfileInfo({
           </Badge>
         );
     }
+  };
+
+  /**
+   * Render input field with validation
+   */
+  const renderInputField = (
+    id: keyof ProfileData,
+    label: string,
+    type: string = 'text',
+    placeholder?: string
+  ) => {
+    const hasError = !!fieldErrors[id];
+    const isValidating = validatingFields.has(id);
+
+    return (
+      <div className="space-y-2">
+        <Label
+          htmlFor={id}
+          className="text-sm font-medium text-muted-foreground"
+        >
+          {label}
+        </Label>
+        <div className="relative">
+          <Input
+            id={id}
+            type={type}
+            value={userData[id] as string}
+            onChange={(e) => handleFieldChange(id, e.target.value)}
+            onBlur={(e) => handleFieldBlur(id, e.target.value)}
+            disabled={!isEditing}
+            placeholder={placeholder}
+            className={`glass-effect-light ${hasError
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+              : ''
+              }`}
+            aria-invalid={hasError}
+            aria-describedby={hasError ? `${id}-error` : undefined}
+          />
+          {isValidating && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        {hasError && (
+          <p
+            id={`${id}-error`}
+            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {fieldErrors[id]}
+          </p>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -86,104 +231,12 @@ export function ProfileInfo({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label
-              htmlFor="full_name"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Full Name
-            </Label>
-            <Input
-              id="full_name"
-              value={userData.full_name}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  full_name: e.target.value,
-                })
-              }
-              disabled={!isEditing}
-              className="glass-effect-light"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="username"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Username
-            </Label>
-            <Input
-              id="username"
-              value={userData.username}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  username: e.target.value,
-                })
-              }
-              disabled={!isEditing}
-              className="glass-effect-light"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={userData.email}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  email: e.target.value,
-                })
-              }
-              disabled={!isEditing}
-              className="glass-effect-light"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="phone"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Phone
-            </Label>
-            <Input
-              id="phone"
-              value={userData.phone}
-              onChange={(e) =>
-                onUserDataChange({ ...userData, phone: e.target.value })
-              }
-              disabled={!isEditing}
-              className="glass-effect-light"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="country"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Country
-            </Label>
-            <Input
-              id="country"
-              value={userData.country}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  country: e.target.value,
-                })
-              }
-              disabled={!isEditing}
-              className="glass-effect-light"
-            />
-          </div>
+          {renderInputField('full_name', 'Full Name')}
+          {renderInputField('username', 'Username', 'text', 'your-username')}
+          {renderInputField('email', 'Email', 'email', 'you@example.com')}
+          {renderInputField('phone', 'Phone', 'tel', '+1234567890')}
+          {renderInputField('country', 'Country', 'text', 'US')}
+
           <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">
               KYC Status
@@ -209,14 +262,25 @@ export function ProfileInfo({
           <Textarea
             id="bio"
             value={userData.bio}
-            onChange={(e) =>
-              onUserDataChange({ ...userData, bio: e.target.value })
-            }
+            onChange={(e) => handleFieldChange('bio', e.target.value)}
             disabled={!isEditing}
             rows={3}
             placeholder="Tell us about yourself and your trading experience..."
-            className="glass-effect-light"
+            className={`glass-effect-light ${fieldErrors.bio
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+              : ''
+              }`}
+            maxLength={1000}
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{userData.bio?.length || 0} / 1000 characters</span>
+            {fieldErrors.bio && (
+              <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {fieldErrors.bio}
+              </span>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

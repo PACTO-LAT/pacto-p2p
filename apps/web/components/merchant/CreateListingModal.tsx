@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm, type Resolver } from 'react-hook-form';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -129,19 +129,19 @@ export function CreateListingModal({
       return;
     }
     if (!user?.id) {
-      toast.error('Connect your wallet first');
+      sileo.error({ title: 'Connect your wallet first' });
       return;
     }
     try {
       const listingData = toCreateListingData(values as UIListingFormInput);
       await createListing.mutateAsync({ userId: user.id, listingData });
-      toast.success('Listing created');
+      sileo.success({ title: 'Listing created' });
       form.reset(LISTING_FORM_DEFAULT_VALUES);
       setStep(1);
       onOpenChange(false);
       onSuccess?.();
     } catch {
-      toast.error('Failed to create listing');
+      sileo.error({ title: 'Failed to create listing' });
     }
   }
 
