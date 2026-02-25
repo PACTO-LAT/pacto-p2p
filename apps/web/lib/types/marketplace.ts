@@ -13,6 +13,8 @@ export interface MarketplaceListing {
   created: string;
   status: string;
   description?: string;
+  avatarUrl?: string;
+  fullName?: string;
   minAmount?: number;
   maxAmount?: number;
   terms?: Array<{

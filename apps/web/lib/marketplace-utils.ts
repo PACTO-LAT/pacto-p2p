@@ -59,6 +59,8 @@ export function mapDbListingToMarketplace(
     created: listing.created_at,
     status: listing.status,
     description: listing.description || '',
+    avatarUrl: user?.avatar_url,
+    fullName: user?.full_name,
   };
 }
 
