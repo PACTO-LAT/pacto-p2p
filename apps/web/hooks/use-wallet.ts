@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { KitEventType } from '@creit-tech/stellar-wallets-kit/types';
+import { toast } from 'sonner';
 import { initializeWalletKit, isWalletKitInitialized, getInitializationError } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
@@ -186,10 +187,13 @@ export const useWallet = () => {
         return;
       }
 
-      // Extract and throw meaningful error message
+      // Extract error message and display user-visible feedback
       const errorMessage = extractErrorMessage(error);
       updateConnectionStatus(false);
-      throw new Error(errorMessage);
+      console.error('Wallet connection error:', errorMessage);
+      toast.error('Wallet connection failed', {
+        description: errorMessage,
+      });
     }
   };
 
@@ -204,7 +208,9 @@ export const useWallet = () => {
       // The DISCONNECT event will handle updating the store
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
-      throw error;
+      toast.error('Failed to disconnect wallet', {
+        description: 'Please try again or refresh the page.',
+      });
     }
   };
 
@@ -212,8 +218,8 @@ export const useWallet = () => {
     try {
       await connectWallet();
     } catch (error) {
+      // connectWallet already shows toast feedback, log for debugging
       console.error('Error connecting wallet:', error);
-      throw error;
     }
   };
 
@@ -222,7 +228,9 @@ export const useWallet = () => {
       await disconnectWallet();
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
-      // You might want to show a toast notification here
+      toast.error('Failed to disconnect wallet', {
+        description: 'Please try again or refresh the page.',
+      });
     }
   };
 
