@@ -2,7 +2,7 @@
 
 import { Settings } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletInfo } from '@/components/shared/WalletInfo';
@@ -101,7 +101,7 @@ export default function EnhancedProfilePage() {
    */
   const handleSave = async () => {
     if (!hydratedUserData) {
-      toast.error('No user data to save');
+      sileo.error({ title: 'No user data to save' });
       return;
     }
 
@@ -139,7 +139,8 @@ export default function EnhancedProfilePage() {
         );
         setValidationErrors(errors);
 
-        toast.error('Validation failed', {
+        sileo.error({
+          title: 'Validation failed',
           description: errors[0], // Show first error in toast
         });
 
@@ -154,7 +155,8 @@ export default function EnhancedProfilePage() {
         await updateProfile(validation.data);
 
         // Step 5: Success handling
-        toast.success('Profile updated successfully', {
+        sileo.success({
+          title: 'Profile updated successfully',
           description: 'Your changes have been saved.',
         });
 
@@ -168,7 +170,8 @@ export default function EnhancedProfilePage() {
         // Get user-friendly error message
         const errorMessage = EnhancedAuthService.getErrorMessage(updateError);
 
-        toast.error('Failed to update profile', {
+        sileo.error({
+          title: 'Failed to update profile',
           description: errorMessage,
         });
 
@@ -180,7 +183,8 @@ export default function EnhancedProfilePage() {
       // Handle unexpected errors
       const errorMessage = EnhancedAuthService.getErrorMessage(error);
 
-      toast.error('An unexpected error occurred', {
+      sileo.error({
+        title: 'An unexpected error occurred',
         description: errorMessage,
       });
 

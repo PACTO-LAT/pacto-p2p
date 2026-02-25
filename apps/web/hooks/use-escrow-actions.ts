@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { useInitializeTrade } from '@/hooks/use-trades';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import type { Escrow } from '@pacto-p2p/types';
@@ -37,7 +37,7 @@ export function useEscrowActions() {
       });
       return true;
     } catch {
-      toast.error('Error reporting payment');
+      sileo.error({ title: 'Error reporting payment' });
       return false;
     } finally {
       setIsReportPaymentLoading(false);
@@ -57,10 +57,10 @@ export function useEscrowActions() {
           },
         ],
       });
-      toast.success('Payment confirmed successfully');
+      sileo.success({ title: 'Payment confirmed successfully' });
       return true;
-    } catch {
-      toast.error('Error confirming payment');
+    } catch (error) {
+      sileo.error({ title: 'Error confirming payment', description: error instanceof Error ? error.message : 'Unknown error' });
       return false;
     }
   };
@@ -72,10 +72,10 @@ export function useEscrowActions() {
         ...escrow,
         balance: escrow.amount,
       });
-      toast.success('Funds deposited successfully');
+      sileo.success({ title: 'Funds deposited successfully' });
       return true;
     } catch {
-      toast.error('Error depositing funds');
+      sileo.error({ title: 'Error depositing funds' });
       return false;
     }
   };
@@ -90,10 +90,10 @@ export function useEscrowActions() {
           disputed: true,
         },
       });
-      toast.success('Escrow disputed successfully');
+      sileo.success({ title: 'Escrow disputed successfully' });
       return true;
     } catch {
-      toast.error('Error disputing escrow');
+      sileo.error({ title: 'Error disputing escrow' });
       return false;
     }
   };
@@ -109,10 +109,10 @@ export function useEscrowActions() {
         },
         balance: 0,
       });
-      toast.success('Funds released successfully');
+      sileo.success({ title: 'Funds released successfully' });
       return true;
     } catch {
-      toast.error('Error releasing funds');
+      sileo.error({ title: 'Error releasing funds' });
       return false;
     }
   };

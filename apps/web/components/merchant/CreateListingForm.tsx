@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -47,12 +47,12 @@ export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
 
   async function onSubmit(values: ListingFormValues) {
     if (!user?.id) {
-      toast.error('Connect your wallet first');
+      sileo.error({ title: 'Connect your wallet first' });
       return;
     }
     const listingData = toCreateListingData(values as UIListingFormInput);
     await createListing.mutateAsync({ userId: user.id, listingData });
-    toast.success('Listing created');
+    sileo.success({ title: 'Listing created' });
     form.reset();
     onCreated?.();
   }

@@ -39,7 +39,7 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -93,10 +93,10 @@ export function AppSidebar() {
       }
       // Sign out from auth
       await signOut();
-      toast.success('Signed out successfully');
+      sileo.success({ title: 'Signed out successfully' });
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Failed to sign out. Please try again.');
+      sileo.error({ title: 'Failed to sign out. Please try again.' });
     }
   };
 
@@ -134,7 +134,7 @@ export function AppSidebar() {
                     className={cn(
                       'nav-card text-foreground/70 hover:text-foreground hover:bg-glass-hover group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:rounded-xl',
                       pathname === item.href &&
-                        'bg-gradient-emerald text-white shadow-emerald-glow'
+                      'bg-gradient-emerald text-white shadow-emerald-glow'
                     )}
                   >
                     <Link
@@ -161,7 +161,7 @@ export function AppSidebar() {
                     className={cn(
                       'nav-card text-foreground/70 hover:text-foreground hover:bg-glass-hover group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:rounded-xl',
                       pathname === '/dashboard/admin' &&
-                        'bg-gradient-emerald text-white shadow-emerald-glow'
+                      'bg-gradient-emerald text-white shadow-emerald-glow'
                     )}
                   >
                     <Link
