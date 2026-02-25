@@ -192,6 +192,56 @@ export class AuthService {
   }
 
   static async updateUserProfile(userId: string, updates: Partial<User>) {
+    // Validate the updates before sending to database
+    const { validateProfileUpdate, formatValidationErrors } = await import('@/lib/validations/profile');
+    const validation = validateProfileUpdate(updates);
+    
+    if (!validation.success) {
+      const errorMessage = formatValidationErrors(validation.error);
+      throw new Error(`Validation failed: ${errorMessage}`);
+    }
+
+    // Check for unique constraint violations before attempting update
+    if (updates.email) {
+      const { data: existingEmail } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', updates.email)
+        .neq('id', userId)
+        .single();
+      
+      if (existingEmail) {
+        throw new Error('This email is already in use by another account');
+      }
+    }
+
+    if (updates.username) {
+      const { data: existingUsername } = await supabase
+        .from('users')
+        .select('id')
+        .eq('username', updates.username)
+        .neq('id', userId)
+        .single();
+      
+      if (existingUsername) {
+        throw new Error('This username is already taken');
+      }
+    }
+
+    if (updates.stellar_address) {
+      const { data: existingWallet } = await supabase
+        .from('users')
+        .select('id')
+        .eq('stellar_address', updates.stellar_address)
+        .neq('id', userId)
+        .single();
+      
+      if (existingWallet) {
+        throw new Error('This wallet address is already linked to another account');
+      }
+    }
+
+    // Perform the update
     const { data, error } = await supabase
       .from('users')
       .update({
@@ -202,7 +252,24 @@ export class AuthService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Handle specific Supabase errors
+      if (error.code === '23505') {
+        // Unique constraint violation
+        throw new Error('A field you are trying to update already exists for another user');
+      }
+      if (error.code === '23503') {
+        // Foreign key violation
+        throw new Error('Invalid reference in update data');
+      }
+      if (error.code === 'PGRST116') {
+        // No rows returned
+        throw new Error('User not found');
+      }
+      // Generic error
+      throw new Error(`Failed to update profile: ${error.message}`);
+    }
+
     return data;
   }
 

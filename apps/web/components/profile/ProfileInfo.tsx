@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, Camera, CheckCircle, User } from 'lucide-react';
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,72 @@ export function ProfileInfo({
   isEditing,
   onUserDataChange,
 }: ProfileInfoProps) {
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validateField = (field: string, value: string) => {
+    const errors: Record<string, string> = { ...fieldErrors };
+    
+    switch (field) {
+      case 'email':
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          errors.email = 'Invalid email format';
+        } else {
+          delete errors.email;
+        }
+        break;
+      case 'username':
+        if (value && !/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
+          errors.username = 'Username must be 3-30 characters (letters, numbers, _, -)';
+        } else {
+          delete errors.username;
+        }
+        break;
+      case 'phone':
+        if (value && !/^\+?[1-9]\d{1,14}$/.test(value)) {
+          errors.phone = 'Use international format (e.g., +1234567890)';
+        } else {
+          delete errors.phone;
+        }
+        break;
+      case 'country':
+        if (value && !/^[A-Z]{2}$/.test(value)) {
+          errors.country = 'Use 2-letter country code (e.g., US, CR, MX)';
+        } else {
+          delete errors.country;
+        }
+        break;
+      case 'full_name':
+        if (!value || value.trim().length === 0) {
+          errors.full_name = 'Full name is required';
+        } else if (value.length > 100) {
+          errors.full_name = 'Full name must be less than 100 characters';
+        } else {
+          delete errors.full_name;
+        }
+        break;
+      case 'bio':
+        if (value && value.length > 500) {
+          errors.bio = 'Bio must be less than 500 characters';
+        } else {
+          delete errors.bio;
+        }
+        break;
+    }
+    
+    setFieldErrors(errors);
+  };
+
+  const handleFieldChange = (field: keyof ProfileData, value: string) => {
+    onUserDataChange({
+      ...userData,
+      [field]: value,
+    });
+    
+    if (isEditing) {
+      validateField(field, value);
+    }
+  };
+
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
       case 'verified':
@@ -96,15 +163,13 @@ export function ProfileInfo({
             <Input
               id="full_name"
               value={userData.full_name}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  full_name: e.target.value,
-                })
-              }
+              onChange={(e) => handleFieldChange('full_name', e.target.value)}
               disabled={!isEditing}
-              className="glass-effect-light"
+              className={`glass-effect-light ${fieldErrors.full_name ? 'border-red-500' : ''}`}
             />
+            {fieldErrors.full_name && (
+              <p className="text-xs text-red-500">{fieldErrors.full_name}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
@@ -116,15 +181,13 @@ export function ProfileInfo({
             <Input
               id="username"
               value={userData.username}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  username: e.target.value,
-                })
-              }
+              onChange={(e) => handleFieldChange('username', e.target.value)}
               disabled={!isEditing}
-              className="glass-effect-light"
+              className={`glass-effect-light ${fieldErrors.username ? 'border-red-500' : ''}`}
             />
+            {fieldErrors.username && (
+              <p className="text-xs text-red-500">{fieldErrors.username}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
@@ -137,15 +200,13 @@ export function ProfileInfo({
               id="email"
               type="email"
               value={userData.email}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  email: e.target.value,
-                })
-              }
+              onChange={(e) => handleFieldChange('email', e.target.value)}
               disabled={!isEditing}
-              className="glass-effect-light"
+              className={`glass-effect-light ${fieldErrors.email ? 'border-red-500' : ''}`}
             />
+            {fieldErrors.email && (
+              <p className="text-xs text-red-500">{fieldErrors.email}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
@@ -157,12 +218,14 @@ export function ProfileInfo({
             <Input
               id="phone"
               value={userData.phone}
-              onChange={(e) =>
-                onUserDataChange({ ...userData, phone: e.target.value })
-              }
+              onChange={(e) => handleFieldChange('phone', e.target.value)}
               disabled={!isEditing}
-              className="glass-effect-light"
+              placeholder="+1234567890"
+              className={`glass-effect-light ${fieldErrors.phone ? 'border-red-500' : ''}`}
             />
+            {fieldErrors.phone && (
+              <p className="text-xs text-red-500">{fieldErrors.phone}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
@@ -174,15 +237,15 @@ export function ProfileInfo({
             <Input
               id="country"
               value={userData.country}
-              onChange={(e) =>
-                onUserDataChange({
-                  ...userData,
-                  country: e.target.value,
-                })
-              }
+              onChange={(e) => handleFieldChange('country', e.target.value.toUpperCase())}
               disabled={!isEditing}
-              className="glass-effect-light"
+              placeholder="US"
+              maxLength={2}
+              className={`glass-effect-light ${fieldErrors.country ? 'border-red-500' : ''}`}
             />
+            {fieldErrors.country && (
+              <p className="text-xs text-red-500">{fieldErrors.country}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">
@@ -209,14 +272,20 @@ export function ProfileInfo({
           <Textarea
             id="bio"
             value={userData.bio}
-            onChange={(e) =>
-              onUserDataChange({ ...userData, bio: e.target.value })
-            }
+            onChange={(e) => handleFieldChange('bio', e.target.value)}
             disabled={!isEditing}
             rows={3}
             placeholder="Tell us about yourself and your trading experience..."
-            className="glass-effect-light"
+            className={`glass-effect-light ${fieldErrors.bio ? 'border-red-500' : ''}`}
           />
+          {fieldErrors.bio && (
+            <p className="text-xs text-red-500">{fieldErrors.bio}</p>
+          )}
+          {isEditing && (
+            <p className="text-xs text-muted-foreground">
+              {userData.bio?.length || 0}/500 characters
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

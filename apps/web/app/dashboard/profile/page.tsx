@@ -92,9 +92,16 @@ export default function ProfilePage() {
     [user, userData, mapUserToUserData]
   );
 
+  const handleCancel = () => {
+    // Reset local state to discard unsaved changes
+    setUserData(null);
+    setIsEditing(false);
+  };
+
   const handleSave = async () => {
     if (!hydratedUserData) return;
     setIsLoading(true);
+    
     try {
       const payload = {
         // Only persist email if user provided a non-empty value
@@ -114,13 +121,26 @@ export default function ProfilePage() {
         payment_methods: hydratedUserData.payment_methods,
         stellar_address: hydratedUserData.stellar_address,
       } as const;
+      
       await updateProfile(payload);
+      
+      // Reset local state to sync with updated user data
+      setUserData(null);
+      
       toast.success('Profile updated successfully');
-    } catch {
-      toast.error('Failed to update profile');
+      setIsEditing(false);
+    } catch (error) {
+      // Display user-friendly error message
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Failed to update profile';
+      
+      toast.error(errorMessage);
+      
+      // Keep edit mode active so user can fix errors
+      console.error('Profile update error:', error);
     } finally {
       setIsLoading(false);
-      setIsEditing(false);
     }
   };
 
@@ -161,7 +181,8 @@ export default function ProfilePage() {
             <>
               <Button
                 variant="outline"
-                onClick={() => setIsEditing(false)}
+                onClick={handleCancel}
+                disabled={isLoading}
                 className="w-full sm:w-auto text-sm sm:text-base"
               >
                 Cancel
