@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, User } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatAmount } from '@/lib/dashboard-utils';
@@ -81,7 +81,6 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
                   Seller Address
                 </p>
                 <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md break-all">
-                  <User className="w-4 h-4 text-muted-foreground" />
                   <span className="font-mono text-xs text-foreground">
                     {escrow.roles.approver.slice(0, 8)}...
                     {escrow.roles.approver.slice(-8)}
@@ -93,7 +92,6 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
                   Buyer Address
                 </p>
                 <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md break-all">
-                  <User className="w-4 h-4 text-muted-foreground" />
                   <span className="font-mono text-xs text-foreground">
                     {escrow.roles.serviceProvider.slice(0, 8)}...
                     {escrow.roles.serviceProvider.slice(-8)}

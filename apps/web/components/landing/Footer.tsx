@@ -70,8 +70,7 @@ export function Footer() {
               />
             </div>
             <p className="text-muted-foreground text-sm">
-              Decentralized P2P OTC for Stellar stablecoins — built for LATAM.
-              Open to the world.
+              Decentralized P2P OTC for Stellar stablecoins — built for LATAM. Open to the world.
             </p>
           </motion.div>
         </motion.div>
@@ -97,7 +96,7 @@ export function Footer() {
                   href="/listings"
                   className="hover:text-foreground transition-colors"
                 >
-                  Marketplace
+                  Listings
                 </Link>
               </li>
               <li>
@@ -117,24 +116,30 @@ export function Footer() {
             <ul className="space-y-3 text-muted-foreground">
               <li>
                 <Link
-                  href="/docs"
+                  href="https://pacto.gitbook.io/pacto-docs/"
                   className="hover:text-foreground transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  Docs
+                  Documentation
                 </Link>
               </li>
               <li>
                 <Link
-                  href="https://twitter.com"
+                  href="https://x.com/Pactop2p"
                   className="hover:text-foreground transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  Twitter
+                  X
                 </Link>
               </li>
               <li>
                 <Link
-                  href="https://github.com"
+                  href="https://github.com/PACTO-LAT"
                   className="hover:text-foreground transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   GitHub
                 </Link>
