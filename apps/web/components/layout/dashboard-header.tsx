@@ -36,7 +36,7 @@ import { toast } from 'sonner';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Listings', href: '/dashboard/listings', icon: List },
-  { name: 'Orders', href: '/dashboard/escrows', icon: Shield },
+  { name: 'Orders', href: '/dashboard/orders', icon: Shield },
   { name: 'Merchants', href: '/dashboard/merchants', icon: Users },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
 ] as const;
