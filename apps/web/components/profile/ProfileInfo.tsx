@@ -1,6 +1,8 @@
 'use client';
 
-import { AlertCircle, Camera, CheckCircle, User } from 'lucide-react';
+import { AlertCircle, Camera, CheckCircle, User, X, Loader2 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { supabase } from '@/lib/supabase';
 
 import { ProfileData } from './types';
 
@@ -28,6 +31,107 @@ export function ProfileInfo({
   isEditing,
   onUserDataChange,
 }: ProfileInfoProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string>(userData.avatar_url || '');
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please upload a valid image file (JPEG, PNG, or WebP)');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Generate unique filename with user ID
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userData.id}-${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('user-profiles')
+        .upload(filePath, file, { 
+          upsert: true,
+          contentType: file.type 
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('user-profiles')
+        .getPublicUrl(filePath);
+
+      // Update local state
+      const publicUrl = data.publicUrl;
+      setAvatarPreview(publicUrl);
+      onUserDataChange({
+        ...userData,
+        avatar_url: publicUrl,
+      });
+
+      toast.success('Profile picture uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload profile picture. Please try again.');
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!userData.avatar_url) return;
+
+    try {
+      // Extract file path from URL
+      const url = new URL(userData.avatar_url);
+      const pathParts = url.pathname.split('/');
+      const filePath = pathParts.slice(pathParts.indexOf('avatars')).join('/');
+
+      // Delete from storage
+      const { error } = await supabase.storage
+        .from('user-profiles')
+        .remove([filePath]);
+
+      if (error) {
+        console.error('Delete error:', error);
+        // Continue anyway as the file might not exist
+      }
+
+      // Update local state
+      setAvatarPreview('');
+      onUserDataChange({
+        ...userData,
+        avatar_url: '',
+      });
+
+      toast.success('Profile picture removed');
+    } catch (error) {
+      console.error('Remove error:', error);
+      toast.error('Failed to remove profile picture');
+    }
+  };
+
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
       case 'verified':
@@ -66,22 +170,71 @@ export function ProfileInfo({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Avatar */}
-        <div className="flex items-center gap-4">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={userData.avatar_url || '/placeholder.svg'} />
-            <AvatarFallback className="text-lg">
-              {userData.full_name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
+        {/* Avatar Upload Section */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-muted-foreground">
+            Profile Picture
+          </Label>
+          <div className="flex items-center gap-4">
+            <Avatar className="w-20 h-20">
+              <AvatarImage src={avatarPreview || userData.avatar_url || '/placeholder.svg'} />
+              <AvatarFallback className="text-lg">
+                {userData.full_name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
+            
+            {isEditing && (
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4 mr-2" />
+                      Change Photo
+                    </>
+                  )}
+                </Button>
+                
+                {(avatarPreview || userData.avatar_url) && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveAvatar}
+                    disabled={isUploading}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Remove
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
           {isEditing && (
-            <Button variant="outline" size="sm">
-              <Camera className="w-4 h-4 mr-2" />
-              Change Photo
-            </Button>
+            <p className="text-xs text-muted-foreground">
+              Accepted formats: JPEG, PNG, WebP. Max size: 5MB
+            </p>
           )}
         </div>
 
