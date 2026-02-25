@@ -26,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TRUSTLINES } from '@/utils/constants/trustlines';
 import { useCreateListing } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
+import { useMeMerchant } from '../../hooks/useMerchant';
 import {
   listingFormSchema,
   LISTING_FORM_DEFAULT_VALUES,
@@ -35,8 +36,35 @@ import {
   toCreateListingData,
   type UIListingFormInput,
 } from '@/lib/marketplace-utils';
+import Link from 'next/link';
 
 export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
+  const { data:merchant, isLoading: merchantLoading } = useMeMerchant();
+
+  if (merchantLoading) {
+    return (
+      <Card className="feature-card-dark rounded-2xl p-4 sm:p-6 text-center">
+        <span className="text-gray-500">Checking merchant status...</span>
+      </Card>
+    );
+  }
+
+  if (!merchant) {
+    return (
+      <Card className="feature-card-dark rounded-2xl p-4 sm:p-6 text-center">
+        <p className="mb-4 text-lg text-gray-700">
+          You need a merchant profile to create a listing.
+        </p>
+        <Link
+          href="/dashboard/merchant"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Create Merchant Profile
+        </Link>
+      </Card>
+    );
+  }
+
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema) as Resolver<ListingFormValues>,
     defaultValues: LISTING_FORM_DEFAULT_VALUES,

@@ -69,6 +69,8 @@ export const mockMarketplaceListings: MarketplaceListing[] = [
     created: '2024-01-15',
     status: 'active',
     description: 'XXXXXXXXXXXXXXXXXXX',
+    avatarUrl: 'https://github.com/shadcn.png',
+    fullName: 'Stellar Trader',
   },
 ];
 

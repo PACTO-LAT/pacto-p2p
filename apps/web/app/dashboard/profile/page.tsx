@@ -5,7 +5,6 @@ import { useState, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WalletInfo } from '@/components/shared/WalletInfo';
 import {
   MerchantSection,
   NotificationSettings,
@@ -200,12 +199,7 @@ export default function ProfilePage() {
             >
               Profile
             </TabsTrigger>
-            <TabsTrigger
-              value="wallet"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-            >
-              Wallet
-            </TabsTrigger>
+
             <TabsTrigger
               value="payments"
               className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
@@ -250,11 +244,6 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
-          </TabsContent>
-
-          {/* Wallet Tab */}
-          <TabsContent value="wallet" className="space-y-4 sm:space-y-6">
-            <WalletInfo showDetails={true} />
           </TabsContent>
 
           {/* Payments Tab */}
