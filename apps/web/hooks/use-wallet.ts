@@ -215,12 +215,7 @@ export const useWallet = () => {
   };
 
   const handleConnect = async () => {
-    try {
-      await connectWallet();
-    } catch (error) {
-      // connectWallet already shows toast feedback, log for debugging
-      console.error('Error connecting wallet:', error);
-    }
+    await connectWallet();
   };
 
   const handleDisconnect = async () => {
