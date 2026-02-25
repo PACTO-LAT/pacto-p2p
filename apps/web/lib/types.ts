@@ -130,6 +130,8 @@ export interface MarketplaceListing {
   created: string;
   status: string;
   description: string;
+  avatarUrl?: string;
+  fullName?: string;
 }
 
 export type DialogType = 'receipt' | 'dispute' | null;
@@ -162,4 +164,6 @@ export type Listing = {
   created: string;
   status: string;
   description: string;
+  avatarUrl?: string;
+  fullName?: string;
 };
