@@ -32,7 +32,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { toast } from 'sonner';
-import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -158,12 +157,6 @@ export function DashboardHeader() {
 
           {/* Right Side: User Menu & Actions */}
           <div className="flex items-center gap-3">
-            {/* Theme Toggle */}
-            <AnimatedThemeToggler
-              className="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-glass-hover transition-colors"
-              duration={400}
-            />
-
             {/* Wallet Status Indicator (Desktop) */}
             {isConnected && address && (
               <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
@@ -352,15 +345,6 @@ export function DashboardHeader() {
 
                   {/* Mobile Actions */}
                   <div className="flex flex-col gap-2 pt-4 border-t border-glass-border">
-                    {/* Theme Toggle (Mobile) */}
-                    <div className="flex items-center justify-between p-2 rounded-lg glass-effect-light">
-                      <span className="text-sm text-foreground/70">Theme</span>
-                      <AnimatedThemeToggler
-                        className="h-9 w-9 rounded-lg flex items-center justify-center hover:bg-glass-hover transition-colors"
-                        duration={400}
-                      />
-                    </div>
-
                     {isConnected ? (
                       <>
                         <Button
