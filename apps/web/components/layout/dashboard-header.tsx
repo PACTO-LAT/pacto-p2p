@@ -31,13 +31,13 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Listings', href: '/dashboard/listings', icon: List },
-  { name: 'Orders', href: '/dashboard/escrows', icon: Shield },
+  { name: 'Orders', href: '/dashboard/orders', icon: Shield },
   { name: 'Merchants', href: '/dashboard/merchants', icon: Users },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
 ] as const;
@@ -85,10 +85,10 @@ export function DashboardHeader() {
       }
       // Sign out from auth
       await signOut();
-      toast.success('Signed out successfully');
+      sileo.success({ title: 'Signed out successfully' });
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Failed to sign out. Please try again.');
+      sileo.error({ title: 'Failed to sign out. Please try again.' });
     }
   };
 
@@ -106,7 +106,7 @@ export function DashboardHeader() {
         'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
         'hover:bg-glass-hover text-foreground/70 hover:text-foreground',
         pathname === item.href &&
-          'bg-gradient-emerald text-white shadow-emerald-glow'
+        'bg-gradient-emerald text-white shadow-emerald-glow'
       )}
       aria-current={pathname === item.href ? 'page' : undefined}
     >
@@ -144,7 +144,7 @@ export function DashboardHeader() {
                   'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                   'hover:bg-glass-hover text-foreground/70 hover:text-foreground',
                   pathname === '/dashboard/admin' &&
-                    'bg-gradient-emerald text-white shadow-emerald-glow'
+                  'bg-gradient-emerald text-white shadow-emerald-glow'
                 )}
                 aria-current={
                   pathname === '/dashboard/admin' ? 'page' : undefined
@@ -158,12 +158,6 @@ export function DashboardHeader() {
 
           {/* Right Side: User Menu & Actions */}
           <div className="flex items-center gap-3">
-            {/* Theme Toggle */}
-            <AnimatedThemeToggler
-              className="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-glass-hover transition-colors"
-              duration={400}
-            />
-
             {/* Wallet Status Indicator (Desktop) */}
             {isConnected && address && (
               <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
@@ -341,7 +335,7 @@ export function DashboardHeader() {
                           'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                           'hover:bg-glass-hover text-foreground/70 hover:text-foreground',
                           pathname === '/dashboard/admin' &&
-                            'bg-gradient-emerald text-white shadow-emerald-glow'
+                          'bg-gradient-emerald text-white shadow-emerald-glow'
                         )}
                       >
                         <Settings className="w-4 h-4" />
@@ -352,15 +346,6 @@ export function DashboardHeader() {
 
                   {/* Mobile Actions */}
                   <div className="flex flex-col gap-2 pt-4 border-t border-glass-border">
-                    {/* Theme Toggle (Mobile) */}
-                    <div className="flex items-center justify-between p-2 rounded-lg glass-effect-light">
-                      <span className="text-sm text-foreground/70">Theme</span>
-                      <AnimatedThemeToggler
-                        className="h-9 w-9 rounded-lg flex items-center justify-center hover:bg-glass-hover transition-colors"
-                        duration={400}
-                      />
-                    </div>
-
                     {isConnected ? (
                       <>
                         <Button

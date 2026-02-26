@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useWallet } from '@/hooks/use-wallet';
 import { AuthService } from '@/lib/services/auth';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface WalletConnectionPromptProps {
@@ -34,7 +34,7 @@ export function WalletConnectionPrompt({
 
   const handleConnectAndLink = async () => {
     if (!user) {
-      toast.error('Please sign in to link your wallet');
+      sileo.error({ title: 'Please sign in to link your wallet' });
       return;
     }
 
@@ -42,13 +42,13 @@ export function WalletConnectionPrompt({
     try {
       // Connect wallet
       await handleConnect();
-      
+
       // Wait a bit for wallet state to update
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       // Get the connected address
       const connectedAddress = useGlobalAuthenticationStore.getState().address;
-      
+
       if (!connectedAddress) {
         throw new Error('Failed to get wallet address. Please try connecting again.');
       }
@@ -56,11 +56,11 @@ export function WalletConnectionPrompt({
       // Link wallet to user profile
       setIsLinking(true);
       await AuthService.linkWalletToUser(user.id, connectedAddress);
-      
+
       // Update local profile state
       await updateProfile({ stellar_address: connectedAddress });
-      
-      toast.success('Wallet linked successfully!');
+
+      sileo.success({ title: 'Wallet linked successfully!' });
       onOpenChange(false);
     } catch (error) {
       // Extract error message with better error handling
@@ -72,14 +72,14 @@ export function WalletConnectionPrompt({
       } else if (error && typeof error === 'object' && 'message' in error) {
         message = String(error.message);
       }
-      
+
       console.error('Wallet connection error:', {
         error,
         message,
         errorType: error instanceof Error ? error.constructor.name : typeof error,
       });
-      
-      toast.error(message);
+
+      sileo.error({ title: 'Failed to connect wallet', description: message });
     } finally {
       setIsConnecting(false);
       setIsLinking(false);
