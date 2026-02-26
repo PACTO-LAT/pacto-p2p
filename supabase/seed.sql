@@ -209,6 +209,41 @@ VALUES
     4.95,
     67,
     89000.0000000
+  ),
+  -- Pending merchant applications for testing admin feature
+  (
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    'charlie-trader',
+    'Charlie Trader',
+    true,
+    'pending',
+    'New merchant application. Looking to provide USDC liquidity in the US market.',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=charlie',
+    'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200',
+    'New York, US',
+    ARRAY['en'],
+    '{"website": "https://charlietrader.com"}'::jsonb,
+    0,
+    0,
+    0
+  ),
+  (
+    'a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a55',
+    'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a55',
+    'eve-crypto',
+    'Eve Crypto Exchange',
+    true,
+    'pending',
+    'Crypto exchange looking to expand into P2P trading. Specializing in MXNX.',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=eve',
+    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200',
+    'Guadalajara, MX',
+    ARRAY['es', 'en'],
+    '{"twitter": "@evecrypto", "website": "https://evecrypto.mx"}'::jsonb,
+    0,
+    0,
+    0
   )
 ON CONFLICT (slug) DO UPDATE SET
   user_id = EXCLUDED.user_id,

@@ -65,3 +65,55 @@ export function useBurnTokens() {
     },
   });
 }
+
+export function useMerchantApplications(status?: string) {
+  return useQuery({
+    queryKey: ['admin', 'merchant-applications', status],
+    queryFn: () => AdminService.getMerchantApplications(status),
+  });
+}
+
+export function useMerchantApplicationDetails(id: string) {
+  return useQuery({
+    queryKey: ['admin', 'merchant-application', id],
+    queryFn: () => AdminService.getMerchantApplicationById(id),
+    enabled: !!id,
+  });
+}
+
+export function useApproveMerchant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => AdminService.approveMerchant(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'merchant-applications'],
+      });
+      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
+    },
+  });
+}
+
+export function useRejectMerchant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => AdminService.rejectMerchant(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'merchant-applications'],
+      });
+    },
+  });
+}
+
+export function useRevokeMerchant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => AdminService.revokeMerchant(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'merchant-applications'],
+      });
+    },
+  });
+}

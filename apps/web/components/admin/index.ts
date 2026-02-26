@@ -6,3 +6,7 @@ export { BurnForm } from './BurnForm';
 export { TransactionCard } from './TransactionCard';
 export { TransactionList } from './TransactionList';
 export { UserManagement } from './UserManagement';
+export { MerchantApplications } from './MerchantApplications';
+export { MerchantApplicationCard } from './MerchantApplicationCard';
+export { MerchantApplicationModal } from './MerchantApplicationModal';
+export { MerchantApplicationFilters } from './MerchantApplicationFilters';
