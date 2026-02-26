@@ -244,6 +244,8 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       avatar_url: input.avatar_url ?? null,
       banner_url: input.banner_url ?? null,
       slug: finalSlug,
+      // Ensure new applications start with pending status
+      ...(existing?.id ? {} : { verification_status: 'pending' }),
     };
 
     if (existing?.id) {
