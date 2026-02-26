@@ -10,12 +10,15 @@ import { cn } from '@/lib/utils';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
+    handleScroll(); // Check initial scroll position
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -38,6 +41,8 @@ export function Header() {
                 alt="Pacto Logo"
                 width={100}
                 height={100}
+                priority
+                sizes="80px"
                 className="w-full h-full object-cover"
               />
             </div>
