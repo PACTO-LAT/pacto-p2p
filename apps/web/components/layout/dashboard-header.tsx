@@ -208,52 +208,6 @@ export function DashboardHeader() {
 
           {/* Right Side: User Menu & Actions */}
           <div className="flex items-center gap-3">
-            {/* Connect Wallet Button (Desktop) */}
-            <div className="hidden md:block">
-              {isConnected && address ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleWalletDisconnect}
-                  aria-label={`Disconnect wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
-                  title="Disconnect wallet"
-                  className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
-                >
-                  <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-500 rounded-full">
-                    <div className="absolute inset-0 bg-emerald-500 rounded-full animate-pulse" />
-                  </div>
-                  <span className="text-xs font-mono text-emerald-400 group-hover:text-emerald-300 ml-2">
-                    {address.slice(0, 6)}...{address.slice(-4)}
-                  </span>
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={handleWalletConnect}
-                  aria-label="Connect wallet"
-                  className="bg-gradient-emerald hover:shadow-emerald-glow transition-all duration-300 text-white font-medium"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Connect Wallet
-                </Button>
-              )}
-            </div>
-
-            {/* Theme Toggle */}
-            <AnimatedThemeToggler
-              className="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-glass-hover transition-colors"
-              duration={400}
-            />
-            {/* Wallet Status Indicator (Desktop) */}
-            {isConnected && address && (
-              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-xs font-mono text-emerald-400">
-                  {address.slice(0, 6)}...{address.slice(-4)}
-                </span>
-              </div>
-            )}
-
             {/* User Dropdown Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -313,6 +267,37 @@ export function DashboardHeader() {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Connect Wallet Button (Desktop) - Positioned AFTER user avatar */}
+            <div className="hidden md:block">
+              {isConnected && address ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleWalletDisconnect}
+                  aria-label={`Disconnect wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
+                  title="Disconnect wallet"
+                  className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
+                >
+                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-500 rounded-full">
+                    <div className="absolute inset-0 bg-emerald-500 rounded-full animate-pulse" />
+                  </div>
+                  <span className="text-xs font-mono text-emerald-400 group-hover:text-emerald-300 ml-2">
+                    {address.slice(0, 6)}...{address.slice(-4)}
+                  </span>
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={handleWalletConnect}
+                  aria-label="Connect wallet"
+                  className="bg-gradient-emerald hover:shadow-emerald-glow transition-all duration-300 text-white font-medium"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Connect Wallet
+                </Button>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -437,43 +422,9 @@ export function DashboardHeader() {
                     {/* Theme Toggle (Mobile) */}
                     <div className="flex items-center justify-between p-2 rounded-lg glass-effect-light">
                       <span className="text-sm text-foreground/70">Theme</span>
-                      <AnimatedThemeToggler
-                        className="h-9 w-9 rounded-lg flex items-center justify-center hover:bg-glass-hover transition-colors"
-                        duration={400}
-                      />
                     </div>
 
                     {user && (
-                    {isConnected ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="justify-start glass-effect-light hover:bg-glass-hover"
-                          onClick={() => {
-                            handleDisconnect();
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          <LogOut className="w-4 h-4 mr-2" />
-                          Disconnect Wallet
-                        </Button>
-                        {user && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="justify-start glass-effect-light hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30"
-                            onClick={() => {
-                              handleSignOut();
-                              setMobileMenuOpen(false);
-                            }}
-                          >
-                            <LogOut className="w-4 h-4 mr-2" />
-                            Sign Out
-                          </Button>
-                        )}
-                      </>
-                    ) : (
                       <Button
                         variant="outline"
                         size="sm"
