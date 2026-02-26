@@ -14,58 +14,87 @@ Enabling peer-to-peer trading of CRCX, MXNX, and USDC using regional payment rai
 
 ---
 
-## 🌟 Overview
+## Overview
 
 Pacto P2P is a non-custodial trading platform that connects buyers and sellers of Stellar stablecoins through secure, blockchain-backed escrows. Every trade is secured by Trustless Work smart contracts on the Stellar blockchain, ensuring transparency and security without requiring a trusted intermediary.
 
 ### Key Features
 
-- **🔒 Non-Custodial Trading**: Your funds are secured by smart contracts, not held by us
-- **🌍 Borderless Payments**: Trade using regional payment methods (SINPE, SPEI, etc.)
-- **⚡ Fast Settlements**: Stellar blockchain enables near-instant transactions
-- **🛡️ Dispute Resolution**: Built-in dispute system for trade conflicts
-- **💼 Merchant Profiles**: Verified merchant accounts with public profiles
-- **📊 Real-time Tracking**: Live status updates for trades and escrows
+- **Non-Custodial Trading**: Your funds are secured by smart contracts, not held by us
+- **Borderless Payments**: Trade using regional payment methods (SINPE, SPEI, etc.)
+- **Fast Settlements**: Stellar blockchain enables near-instant transactions
+- **Dispute Resolution**: Built-in dispute system for trade conflicts
+- **Merchant Profiles**: Verified merchant accounts with public profiles
+- **Real-time Tracking**: Live status updates for trades and escrows
 
 ### Supported Assets
 
-- **CRCX** - Costa Rican Colón Token
+- **CRCX** - Costa Rican Colon Token
 - **MXNX** - Mexican Peso Token
 - **USDC** - USD Coin (Global, various payment methods)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
 - npm 9+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (required for local Supabase)
-- Supabase CLI (`npx supabase` works out of the box, or install globally with `npm i -g supabase`)
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** — required to run Supabase locally. Docker Desktop must be installed and running before you start the local database.
+- **Supabase CLI** — required to manage the local Supabase stack. Install globally with `npm i -g supabase` or use it directly with `npx supabase` (no global install needed).
+- **Trustless Work API credentials** — required for escrows and trades. You need:
+  - An API key (`NEXT_PUBLIC_TLW_API_KEY`)
+  - A Stellar role address (`NEXT_PUBLIC_ROLE_ADDRESS`)
 
-### Installation
+  Obtain both from [Trustless Work](https://trustlesswork.com/) or their documentation.
+
+### Installation and Local Setup
+
+Follow these steps in order:
+
+**1. Clone and install dependencies**
 
 ```bash
-# Clone the repository
 git clone https://github.com/your-username/pacto-p2p.git
 cd pacto-p2p
-
-# Install all dependencies
 npm install
+```
 
-# Build all packages
-npm run build
+**2. Start local Supabase with Docker**
 
-# Start development server
+Make sure Docker Desktop is running, then:
+
+```bash
+npm run db:start
+```
+
+This pulls the required Docker images (first run only), applies all migrations, seeds sample data, and prints the local Supabase keys. Copy the `anon key` and `service_role key` from the output — you will need them in the next step.
+
+**3. Set up environment variables**
+
+Copy the example env file to create your local config:
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+```
+
+Open `apps/web/.env.local` and fill in the values:
+
+- **Supabase keys**: use the `API URL`, `anon key`, `service_role key`, and `JWT secret` printed by `npm run db:start` in the previous step.
+- **Trustless Work credentials**: paste your `NEXT_PUBLIC_TLW_API_KEY` and `NEXT_PUBLIC_ROLE_ADDRESS` obtained from Trustless Work.
+
+**4. Start the development server**
+
+```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:3000`.
 
 ### Local Database Setup
 
 The project uses Supabase for its PostgreSQL database. A full local setup is included so you can develop without depending on a remote instance.
 
-**1. Start the local Supabase stack**
+**Start the local Supabase stack**
 
 Make sure Docker Desktop is running, then:
 
@@ -75,14 +104,14 @@ npm run db:start
 
 This pulls the required Docker images (first run only), applies all migrations in `supabase/migrations/` in order, runs `supabase/seed.sql` to populate sample data, and starts the local services:
 
-| Service       | URL                              |
-| ------------- | -------------------------------- |
-| Studio (UI)   | http://127.0.0.1:54323           |
-| API (REST)    | http://127.0.0.1:54321/rest/v1   |
+| Service       | URL                                                     |
+| ------------- | ------------------------------------------------------- |
+| Studio (UI)   | http://127.0.0.1:54323                                  |
+| API (REST)    | http://127.0.0.1:54321/rest/v1                          |
 | Database      | postgresql://postgres:postgres@127.0.0.1:54322/postgres |
-| Mailpit       | http://127.0.0.1:54324           |
+| Mailpit       | http://127.0.0.1:54324                                  |
 
-**2. Reset the database (re-apply migrations + seed)**
+**Reset the database (re-apply migrations + seed)**
 
 If you want a clean slate at any point:
 
@@ -92,7 +121,7 @@ npm run db:reset
 
 This drops all data, re-runs every migration from scratch, and re-seeds.
 
-**3. Stop the local stack**
+**Stop the local stack**
 
 ```bash
 npm run db:stop
@@ -105,7 +134,6 @@ Data is persisted in Docker volumes, so `npm run db:start` will restore where yo
 When you need to modify the database schema (add tables, columns, indexes, etc.):
 
 ```bash
-# Generate a new timestamped migration file
 npm run db:migration your_migration_name
 ```
 
@@ -121,8 +149,8 @@ npx supabase migration up
 
 **Guidelines for writing migrations:**
 
-- Make migrations **idempotent** when possible (`CREATE OR REPLACE`, `IF NOT EXISTS`, etc.) so repeated runs don't fail.
-- Each migration should be a self-contained change. Don't modify a previous migration file — always create a new one.
+- Make migrations idempotent when possible (`CREATE OR REPLACE`, `IF NOT EXISTS`, etc.) so repeated runs do not fail.
+- Each migration should be a self-contained change. Do not modify a previous migration file — always create a new one.
 - If your migration adds columns that the seed data depends on, update `supabase/seed.sql` as well.
 - Test locally with `npm run db:reset` before pushing.
 
@@ -138,26 +166,37 @@ This compares the live local database against the migration history and generate
 
 ### Environment Setup
 
-Create a `.env.local` file in `apps/web` with the following variables:
+Copy `apps/web/.env.example` to `apps/web/.env.local`:
 
-```env
-# Stellar & Trustless Work
-NEXT_PUBLIC_TLW_API_KEY=your_trustless_work_api_key
-NEXT_PUBLIC_ROLE_ADDRESS=your_stellar_role_address
-NEXT_PUBLIC_PLATFORM_FEE=0.01
-
-# Supabase (use these defaults for local development)
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable key from supabase start output>
-
-# Optional: Mock Mode
-NEXT_PUBLIC_USE_MOCK=0
-
-# Optional: Landing supported assets. JSON object keyed by asset symbol; each value must have name, region, paymentMethods, color. If unset or invalid, default assets (CRCX, MXNX, USDC) are used. See apps/web/.env.example for format.
-# NEXT_PUBLIC_SUPPORTED_ASSETS={"CRCX":{"name":"Costa Rican Colón Token","region":"Costa Rica","paymentMethods":"SINPE","color":"bg-green-500"},...}
+```bash
+cp apps/web/.env.example apps/web/.env.local
 ```
 
-## 🏗️ Architecture
+Open `apps/web/.env.local` and fill in the following:
+
+**Supabase (local development)**
+
+Run `npm run db:start` first. The CLI prints all keys you need:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key from db:start output>
+SUPABASE_SERVICE_ROLE_KEY=<service_role key from db:start output>
+SUPABASE_JWT_SECRET=<jwt secret from db:start output>
+```
+
+**Trustless Work (required for escrows and trades)**
+
+Obtain your API key and Stellar role address from [Trustless Work](https://trustlesswork.com/):
+
+```env
+NEXT_PUBLIC_TLW_API_KEY=<your-trustless-work-api-key>
+NEXT_PUBLIC_ROLE_ADDRESS=<your-stellar-role-address>
+```
+
+See `apps/web/.env.example` for the full list of variables including optional ones.
+
+## Architecture
 
 ### Monorepo Structure
 
@@ -201,7 +240,7 @@ pacto-p2p/
 - **Code Quality**: Biome, TypeScript
 - **Build System**: Turborepo, npm workspaces
 
-## 📦 Workspaces
+## Workspaces
 
 ### Apps
 
@@ -235,14 +274,14 @@ pacto-p2p/
   - Environment configurations
   - Build configurations
 
-## 🎯 Usage
+## Usage
 
 ### Connecting Your Wallet
 
 1. Click "Sign In" on the homepage
 2. Choose your preferred Stellar wallet (Freighter, WalletConnect, etc.)
 3. Approve the connection in your wallet
-4. You'll be redirected to the dashboard
+4. You will be redirected to the dashboard
 
 ### Creating a Listing
 
@@ -267,7 +306,7 @@ pacto-p2p/
    - Wait for seller confirmation
    - Funds are automatically released
 
-## 🛠️ Development
+## Development
 
 ### Available Scripts
 
@@ -285,7 +324,7 @@ npm run biome:fix        # Fix code issues with Biome
 npm run type-check       # Type check all packages
 
 # Database
-npm run db:start         # Start local Supabase (Docker required)
+npm run db:start         # Start local Supabase (Docker Desktop required)
 npm run db:stop          # Stop local Supabase
 npm run db:reset         # Drop, re-migrate, and re-seed
 npm run db:migration     # Create a new migration file
@@ -333,7 +372,7 @@ For detailed development instructions, see [docs/DEVELOPMENT.md](./docs/DEVELOPM
 3. Add necessary configuration files (next.config.ts, tsconfig.json, etc.)
 4. Update root `package.json` workspaces if needed
 
-## 🔧 Configuration
+## Configuration
 
 ### TypeScript
 
@@ -360,25 +399,22 @@ Use `workspace:*` for internal dependencies:
 }
 ```
 
-## 🚀 Deployment
+## Deployment
 
 ### Web App
 
 ```bash
-# Build the web app
 npm run build
-
-# Start production server
 npm run start
 ```
 
 ### Environment Variables
 
-Ensure all required environment variables are set in your deployment environment. See [Quick Start](#quick-start) for the list of required variables.
+Ensure all required environment variables are set in your deployment environment. See `apps/web/.env.example` for the full list of variables and their descriptions.
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on:
+We welcome contributions. Please see our [Contributing Guide](./CONTRIBUTING.md) for details on:
 
 - Code of Conduct
 - Development workflow
@@ -396,21 +432,21 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
 
-## 📚 Documentation
+## Documentation
 
 - **[Development Guide](./docs/DEVELOPMENT.md)** - Detailed development instructions and architecture
 - **[Database Schema](./docs/DATABASE_SCHEMA.md)** - Database structure and relationships
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
 
-## 🔐 Security
+## Security
 
 If you discover a security vulnerability, please email security concerns privately to the maintainers. Do not open public issues for security vulnerabilities.
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Stellar Development Foundation](https://www.stellar.org/)
 - [Trustless Work](https://trustlesswork.com/) for escrow infrastructure
@@ -421,8 +457,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-Made with ❤️ by the Pacto P2P team
+Made with care by the Pacto P2P team
 
-[Documentation](./docs/) • [Contributing](./CONTRIBUTING.md) • [Issues](https://github.com/your-username/pacto-p2p/issues)
+[Documentation](./docs/) • [Contributing](./CONTRIBUTING.md) • [Issues](https://github.com/PACTO-LAT/pacto-p2p/issues)
 
 </div>

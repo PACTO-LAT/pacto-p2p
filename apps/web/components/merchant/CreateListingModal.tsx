@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm, type Resolver } from 'react-hook-form';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +17,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { useCreateListing } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
+import { useMeMerchant } from '../../hooks/useMerchant';
 import {
   listingFormSchema,
   LISTING_FORM_DEFAULT_VALUES,
@@ -36,6 +37,7 @@ import {
   PaymentLimitsStep,
   ReviewStep,
 } from '@/components/merchant/steps';
+import Link from 'next/link';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -62,6 +64,7 @@ export function CreateListingModal({
 
   const createListing = useCreateListing();
   const { user } = useAuth();
+  const { data:merchant, isLoading: merchantLoading } = useMeMerchant();
   const isDirty = form.formState.isDirty;
 
   useEffect(() => {
@@ -120,20 +123,25 @@ export function CreateListingModal({
   }, [step]);
 
   async function onSubmit(values: ListingFormValues) {
+    if (merchantLoading) return;
+    if (!merchant) {
+      toast.error('You need a merchant profile to create a listing.');
+      return;
+    }
     if (!user?.id) {
-      toast.error('Connect your wallet first');
+      sileo.error({ title: 'Connect your wallet first' });
       return;
     }
     try {
       const listingData = toCreateListingData(values as UIListingFormInput);
       await createListing.mutateAsync({ userId: user.id, listingData });
-      toast.success('Listing created');
+      sileo.success({ title: 'Listing created' });
       form.reset(LISTING_FORM_DEFAULT_VALUES);
       setStep(1);
       onOpenChange(false);
       onSuccess?.();
     } catch {
-      toast.error('Failed to create listing');
+      sileo.error({ title: 'Failed to create listing' });
     }
   }
 
@@ -160,6 +168,38 @@ export function CreateListingModal({
         : step === 3
           ? form.watch('paymentMethod')
           : true;
+
+  if (merchantLoading) {
+    return (
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent>
+          <div className="flex items-center justify-center py-12">
+            <span className="text-gray-500">Checking merchant status...</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!merchant) {
+    return (
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent>
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="mb-4 text-center text-lg text-gray-700">
+              You need a merchant profile to create a listing.
+            </p>
+            <Link
+              href="/dashboard/merchant"
+              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            >
+              Create Merchant Profile
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <>

@@ -1,6 +1,7 @@
 'use client';
 
 import { User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,16 +60,32 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-muted/50 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                      <User className="w-5 h-5 text-muted-foreground" />
-                    </div>
+                    <Avatar className="w-10 h-10 rounded-xl border border-border/50">
+                      <AvatarImage
+                        src={listing.avatarUrl || '/placeholder.svg'}
+                        alt={listing.fullName || 'Trader'}
+                      />
+                      <AvatarFallback className="rounded-xl bg-muted/50 text-xs font-semibold">
+                        {(listing.fullName ||
+                          (listing.type === 'sell'
+                            ? listing.seller
+                            : listing.buyer) ||
+                          'TR')
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
                       <p className="text-sm text-muted-foreground">Trader</p>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-sm text-foreground break-all">
-                          {listing.type === 'sell'
-                            ? listing.seller
-                            : listing.buyer}
+                          {listing.fullName ||
+                            (listing.type === 'sell'
+                              ? listing.seller
+                              : listing.buyer)}
                         </span>
                         <Badge
                           variant="outline"

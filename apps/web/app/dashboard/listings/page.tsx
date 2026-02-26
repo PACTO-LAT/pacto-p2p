@@ -3,7 +3,7 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { useCreateEscrow } from '@/hooks/use-escrows';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
@@ -68,38 +68,38 @@ export default function ListingsPage() {
 
     // Get current user's wallet address
     const currentUserAddress = address || user?.stellar_address;
-    
+
     if (!currentUserAddress) {
-      toast.error('Please connect your wallet to proceed with the trade');
+      sileo.error({ title: 'Please connect your wallet to proceed with the trade' });
       return;
     }
 
     if (!isValidStellarAddress(currentUserAddress)) {
-      toast.error('Invalid wallet address. Please reconnect your wallet.');
+      sileo.error({ title: 'Invalid wallet address. Please reconnect your wallet.' });
       return;
     }
 
     if (!selectedListing.seller) {
-      toast.error('Invalid listing: seller address is missing');
+      sileo.error({ title: 'Invalid listing: seller address is missing' });
       return;
     }
 
     // Get the listing creator's Stellar address
     let listingCreatorAddress = selectedListing.seller;
-    
+
     // If seller is not a valid Stellar address (might be UUID or email), fetch it
     if (!isValidStellarAddress(listingCreatorAddress)) {
       try {
         // Try to fetch user by ID (if it's a UUID)
         // UUIDs are typically in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingCreatorAddress);
-        
+
         if (isUUID) {
           const listingUser = await AuthService.getUserProfile(listingCreatorAddress).catch(() => null);
           if (listingUser?.stellar_address) {
             listingCreatorAddress = listingUser.stellar_address;
           } else {
-            toast.error('Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.');
+            sileo.error({ title: 'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.' });
             return;
           }
         } else {
@@ -109,36 +109,36 @@ export default function ListingsPage() {
             .select('stellar_address')
             .eq('email', listingCreatorAddress)
             .maybeSingle();
-          
+
           if (queryError && queryError.code !== 'PGRST116') {
             // PGRST116 means no rows found, which is fine - we'll handle it below
             throw queryError;
           }
-          
+
           if (userData?.stellar_address) {
             listingCreatorAddress = userData.stellar_address;
           } else {
-            toast.error('Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.');
+            sileo.error({ title: 'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.' });
             return;
           }
         }
       } catch (error) {
         console.error('Error fetching listing creator address:', error);
-        toast.error('Failed to get listing creator wallet address. Please ensure they have linked their wallet.');
+        sileo.error({ title: 'Failed to get listing creator wallet address. Please ensure they have linked their wallet.' });
         return;
       }
     }
 
     if (!isValidStellarAddress(listingCreatorAddress)) {
-      toast.error('Listing creator does not have a valid Stellar wallet address');
+      sileo.error({ title: 'Listing creator does not have a valid Stellar wallet address' });
       return;
     }
 
     // Determine seller and buyer based on listing type
     // If listing type is "sell": listing creator is seller, current user is buyer
     // If listing type is "buy": current user is seller, listing creator is buyer
-    const seller_id = selectedListing.type === 'sell' 
-      ? listingCreatorAddress 
+    const seller_id = selectedListing.type === 'sell'
+      ? listingCreatorAddress
       : currentUserAddress;
     const buyer_id = selectedListing.type === 'sell'
       ? currentUserAddress
