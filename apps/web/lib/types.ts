@@ -34,11 +34,11 @@ export interface User {
   payment_methods?: {
     sinpe_number?: string;
     preferred_method?: 'sinpe' | 'bank_transfer';
-    bank_accounts?: Array<{
-      bank_iban: string;
-      bank_name: string;
-      bank_account_holder: string;
-    }>;
+    bank_accounts?: {
+      bank_iban?: string;
+      bank_name?: string;
+      bank_account_holder?: string;
+    }[];
   };
   created_at: string;
   updated_at: string;
@@ -132,6 +132,8 @@ export interface MarketplaceListing {
   created: string;
   status: string;
   description: string;
+  avatarUrl?: string;
+  fullName?: string;
 }
 
 export type DialogType = 'receipt' | 'dispute' | null;
@@ -164,4 +166,6 @@ export type Listing = {
   created: string;
   status: string;
   description: string;
+  avatarUrl?: string;
+  fullName?: string;
 };

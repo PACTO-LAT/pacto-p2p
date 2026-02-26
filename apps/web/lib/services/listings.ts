@@ -1,10 +1,10 @@
-import { supabase } from '@/lib/supabase';
 import type { CreateListingData } from '@/lib/types';
 import type { DbListing } from '@/lib/types/db';
+import { supabase } from '@/lib/supabase';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ListingsService {
-  static async getListings(filters?: {
+  static async getListings (filters?: {
     token?: string;
     type?: 'buy' | 'sell';
     status?: string;
@@ -34,7 +34,7 @@ export class ListingsService {
     return (data as unknown as DbListing[]) || [];
   }
 
-  static async getUserListings(userId: string): Promise<DbListing[]> {
+  static async getUserListings (userId: string): Promise<DbListing[]> {
     const { data, error } = await supabase
       .from('listings')
       .select(
@@ -50,7 +50,15 @@ export class ListingsService {
     return (data as unknown as DbListing[]) || [];
   }
 
-  static async createListing(
+  /**
+   * Creates a new listing for the given user. 
+   * The user must be a merchant, and the listing will be associated with the merchant's ID.
+   * 
+   * @param userId 
+   * @param listingData 
+   * @returns 
+   */
+  static async createListing (
     userId: string,
     listingData: CreateListingData
   ): Promise<DbListing> {
@@ -61,12 +69,16 @@ export class ListingsService {
       .eq('user_id', userId)
       .maybeSingle();
 
+    if (!merchant) {
+      throw new Error("User must be a merchant to create a listing.");
+    }
+
     const { data, error } = await supabase
       .from('listings')
       .insert({
         ...listingData,
         user_id: userId,
-        merchant_id: merchant?.id ?? null,
+        merchant_id: merchant.id,
       })
       .select(
         `
@@ -80,7 +92,7 @@ export class ListingsService {
     return data as unknown as DbListing;
   }
 
-  static async updateListing(
+  static async updateListing (
     listingId: string,
     updates: Partial<DbListing>
   ): Promise<DbListing> {
@@ -103,7 +115,7 @@ export class ListingsService {
     return data as unknown as DbListing;
   }
 
-  static async deleteListing(listingId: string): Promise<void> {
+  static async deleteListing (listingId: string): Promise<void> {
     const { error } = await supabase
       .from('listings')
       .delete()
@@ -112,7 +124,7 @@ export class ListingsService {
     if (error) throw error;
   }
 
-  static async getListingById(listingId: string): Promise<DbListing | null> {
+  static async getListingById (listingId: string): Promise<DbListing | null> {
     const { data, error } = await supabase
       .from('listings')
       .select(

@@ -1,8 +1,7 @@
 'use client';
 
-import { AlertCircle, Camera, CheckCircle, User, X, Loader2 } from 'lucide-react';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
+import { AlertCircle, Camera, CheckCircle, Loader2, User } from 'lucide-react';
+import { useState, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabase';
 
 import { ProfileData } from './types';
+import { fieldValidators } from '@/lib/schemas/profile-validation.schema';
 
 interface ProfileInfoProps {
   userData: ProfileData;
@@ -26,176 +26,98 @@ interface ProfileInfoProps {
   onUserDataChange: (data: ProfileData) => void;
 }
 
+interface FieldError {
+  [key: string]: string | undefined;
+}
+
 export function ProfileInfo({
   userData,
   isEditing,
   onUserDataChange,
 }: ProfileInfoProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string>(userData.avatar_url || '');
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<FieldError>({});
+  const [validatingFields, setValidatingFields] = useState<Set<string>>(
+    new Set()
+  );
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  /**
+   * Validate a single field with real-time feedback
+   */
+  const validateField = useCallback(
+    (fieldName: string, value: string) => {
+      setValidatingFields((prev) => new Set(prev).add(fieldName));
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      toast.error('Please upload a valid image file (JPEG, PNG, or WebP)');
-      return;
-    }
+      // Use the appropriate validator
+      let result: { success: boolean; error?: string } = { success: true };
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-    if (file.size > maxSize) {
-      toast.error('Image size must be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      // Generate unique filename with user ID
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${userData.id}-${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('user-profiles')
-        .upload(filePath, file, { 
-          upsert: true,
-          contentType: file.type 
-        });
-
-      if (uploadError) {
-        throw uploadError;
+      switch (fieldName) {
+        case 'email':
+          result = fieldValidators.email(value);
+          break;
+        case 'username':
+          result = fieldValidators.username(value);
+          break;
+        case 'phone':
+          result = fieldValidators.phone(value);
+          break;
+        case 'country':
+          result = fieldValidators.country(value);
+          break;
+        case 'stellar_address':
+          result = fieldValidators.stellarAddress(value);
+          break;
       }
 
-      // Get public URL
-      const { data } = supabase.storage
-        .from('user-profiles')
-        .getPublicUrl(filePath);
+      setFieldErrors((prev) => ({
+        ...prev,
+        [fieldName]: result.error,
+      }));
 
-      // Update local state
-      const publicUrl = data.publicUrl;
-      setAvatarPreview(publicUrl);
-      onUserDataChange({
-        ...userData,
-        avatar_url: publicUrl,
+      setValidatingFields((prev) => {
+        const next = new Set(prev);
+        next.delete(fieldName);
+        return next;
       });
 
-      toast.success('Profile picture uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload profile picture. Please try again.');
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
+      return result.success;
+    },
+    []
+  );
 
-  const handleRemoveAvatar = async () => {
-    if (!userData.avatar_url) return;
-
-    try {
-      // Extract file path from URL
-      const url = new URL(userData.avatar_url);
-      const pathParts = url.pathname.split('/');
-      const filePath = pathParts.slice(pathParts.indexOf('avatars')).join('/');
-
-      // Delete from storage
-      const { error } = await supabase.storage
-        .from('user-profiles')
-        .remove([filePath]);
-
-      if (error) {
-        console.error('Delete error:', error);
-        // Continue anyway as the file might not exist
-      }
-
-      // Update local state
-      setAvatarPreview('');
+  /**
+   * Handle field change with validation
+   */
+  const handleFieldChange = useCallback(
+    (fieldName: keyof ProfileData, value: string) => {
+      // Update the value immediately for responsive UX
       onUserDataChange({
         ...userData,
-        avatar_url: '',
+        [fieldName]: value,
       });
 
-      toast.success('Profile picture removed');
-    } catch (error) {
-      console.error('Remove error:', error);
-      toast.error('Failed to remove profile picture');
-    }
-  };
+      // Validate if editing (debounced validation happens on blur)
+      if (isEditing && value) {
+        // Clear previous error while typing
+        setFieldErrors((prev) => ({
+          ...prev,
+          [fieldName]: undefined,
+        }));
+      }
+    },
+    [userData, onUserDataChange, isEditing]
+  );
 
-  const validateField = (field: string, value: string) => {
-    const errors: Record<string, string> = { ...fieldErrors };
-    
-    switch (field) {
-      case 'email':
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          errors.email = 'Invalid email format';
-        } else {
-          delete errors.email;
-        }
-        break;
-      case 'username':
-        if (value && !/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
-          errors.username = 'Username must be 3-30 characters (letters, numbers, _, -)';
-        } else {
-          delete errors.username;
-        }
-        break;
-      case 'phone':
-        if (value && !/^\+?[1-9]\d{1,14}$/.test(value)) {
-          errors.phone = 'Use international format (e.g., +1234567890)';
-        } else {
-          delete errors.phone;
-        }
-        break;
-      case 'country':
-        if (value && !/^[A-Z]{2}$/.test(value)) {
-          errors.country = 'Use 2-letter country code (e.g., US, CR, MX)';
-        } else {
-          delete errors.country;
-        }
-        break;
-      case 'full_name':
-        if (!value || value.trim().length === 0) {
-          errors.full_name = 'Full name is required';
-        } else if (value.length > 100) {
-          errors.full_name = 'Full name must be less than 100 characters';
-        } else {
-          delete errors.full_name;
-        }
-        break;
-      case 'bio':
-        if (value && value.length > 500) {
-          errors.bio = 'Bio must be less than 500 characters';
-        } else {
-          delete errors.bio;
-        }
-        break;
-    }
-    
-    setFieldErrors(errors);
-  };
-
-  const handleFieldChange = (field: keyof ProfileData, value: string) => {
-    onUserDataChange({
-      ...userData,
-      [field]: value,
-    });
-    
-    if (isEditing) {
-      validateField(field, value);
-    }
-  };
+  /**
+   * Handle field blur for validation
+   */
+  const handleFieldBlur = useCallback(
+    (fieldName: string, value: string) => {
+      if (isEditing && value) {
+        validateField(fieldName, value);
+      }
+    },
+    [isEditing, validateField]
+  );
 
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
@@ -221,6 +143,61 @@ export function ProfileInfo({
           </Badge>
         );
     }
+  };
+
+  /**
+   * Render input field with validation
+   */
+  const renderInputField = (
+    id: keyof ProfileData,
+    label: string,
+    type: string = 'text',
+    placeholder?: string
+  ) => {
+    const hasError = !!fieldErrors[id];
+    const isValidating = validatingFields.has(id);
+
+    return (
+      <div className="space-y-2">
+        <Label
+          htmlFor={id}
+          className="text-sm font-medium text-muted-foreground"
+        >
+          {label}
+        </Label>
+        <div className="relative">
+          <Input
+            id={id}
+            type={type}
+            value={userData[id] as string}
+            onChange={(e) => handleFieldChange(id, e.target.value)}
+            onBlur={(e) => handleFieldBlur(id, e.target.value)}
+            disabled={!isEditing}
+            placeholder={placeholder}
+            className={`glass-effect-light ${hasError
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+              : ''
+              }`}
+            aria-invalid={hasError}
+            aria-describedby={hasError ? `${id}-error` : undefined}
+          />
+          {isValidating && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        {hasError && (
+          <p
+            id={`${id}-error`}
+            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {fieldErrors[id]}
+          </p>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -304,100 +281,12 @@ export function ProfileInfo({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label
-              htmlFor="full_name"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Full Name
-            </Label>
-            <Input
-              id="full_name"
-              value={userData.full_name}
-              onChange={(e) => handleFieldChange('full_name', e.target.value)}
-              disabled={!isEditing}
-              className={`glass-effect-light ${fieldErrors.full_name ? 'border-red-500' : ''}`}
-            />
-            {fieldErrors.full_name && (
-              <p className="text-xs text-red-500">{fieldErrors.full_name}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="username"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Username
-            </Label>
-            <Input
-              id="username"
-              value={userData.username}
-              onChange={(e) => handleFieldChange('username', e.target.value)}
-              disabled={!isEditing}
-              className={`glass-effect-light ${fieldErrors.username ? 'border-red-500' : ''}`}
-            />
-            {fieldErrors.username && (
-              <p className="text-xs text-red-500">{fieldErrors.username}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={userData.email}
-              onChange={(e) => handleFieldChange('email', e.target.value)}
-              disabled={!isEditing}
-              className={`glass-effect-light ${fieldErrors.email ? 'border-red-500' : ''}`}
-            />
-            {fieldErrors.email && (
-              <p className="text-xs text-red-500">{fieldErrors.email}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="phone"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Phone
-            </Label>
-            <Input
-              id="phone"
-              value={userData.phone}
-              onChange={(e) => handleFieldChange('phone', e.target.value)}
-              disabled={!isEditing}
-              placeholder="+1234567890"
-              className={`glass-effect-light ${fieldErrors.phone ? 'border-red-500' : ''}`}
-            />
-            {fieldErrors.phone && (
-              <p className="text-xs text-red-500">{fieldErrors.phone}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="country"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Country
-            </Label>
-            <Input
-              id="country"
-              value={userData.country}
-              onChange={(e) => handleFieldChange('country', e.target.value.toUpperCase())}
-              disabled={!isEditing}
-              placeholder="US"
-              maxLength={2}
-              className={`glass-effect-light ${fieldErrors.country ? 'border-red-500' : ''}`}
-            />
-            {fieldErrors.country && (
-              <p className="text-xs text-red-500">{fieldErrors.country}</p>
-            )}
-          </div>
+          {renderInputField('full_name', 'Full Name')}
+          {renderInputField('username', 'Username', 'text', 'your-username')}
+          {renderInputField('email', 'Email', 'email', 'you@example.com')}
+          {renderInputField('phone', 'Phone', 'tel', '+1234567890')}
+          {renderInputField('country', 'Country', 'text', 'US')}
+
           <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">
               KYC Status
@@ -427,16 +316,21 @@ export function ProfileInfo({
             disabled={!isEditing}
             rows={3}
             placeholder="Tell us about yourself and your trading experience..."
-            className={`glass-effect-light ${fieldErrors.bio ? 'border-red-500' : ''}`}
+            className={`glass-effect-light ${fieldErrors.bio
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+              : ''
+              }`}
+            maxLength={1000}
           />
-          {fieldErrors.bio && (
-            <p className="text-xs text-red-500">{fieldErrors.bio}</p>
-          )}
-          {isEditing && (
-            <p className="text-xs text-muted-foreground">
-              {userData.bio?.length || 0}/500 characters
-            </p>
-          )}
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{userData.bio?.length || 0} / 1000 characters</span>
+            {fieldErrors.bio && (
+              <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {fieldErrors.bio}
+              </span>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

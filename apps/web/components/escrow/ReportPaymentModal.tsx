@@ -2,7 +2,7 @@
 
 import { DollarSign, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -47,7 +47,7 @@ export function ReportPaymentModal({
       form.reset();
       onOpenChange(false);
     } catch {
-      toast.error('Error reporting payment');
+      sileo.error({title: 'Error reporting payment'});
     }
   };
 
