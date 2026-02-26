@@ -85,9 +85,30 @@ export function useAuth() {
 
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) throw new Error('No user logged in');
-    const updatedUser = await AuthService.updateUserProfile(user.id, updates);
-    setUser(updatedUser);
-    return updatedUser;
+    
+    // Store original user state for rollback on error
+    const originalUser = user;
+    
+    // Optimistic update: immediately update UI
+    setUser({ ...user, ...updates });
+    
+    try {
+      // Perform actual database update
+      const updatedUser = await AuthService.updateUserProfile(user.id, updates);
+      
+      // Refetch to ensure consistency with database
+      const freshProfile = await AuthService.getUserProfile(user.id);
+      if (freshProfile) {
+        setUser(freshProfile);
+        return freshProfile;
+      }
+      
+      return updatedUser;
+    } catch (error) {
+      // Rollback optimistic update on error
+      setUser(originalUser);
+      throw error;
+    }
   };
 
   return {
