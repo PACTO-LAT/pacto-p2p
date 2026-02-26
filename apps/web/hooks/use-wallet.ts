@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { KitEventType } from '@creit-tech/stellar-wallets-kit/types';
+import { toast } from 'sonner';
 import { initializeWalletKit, isWalletKitInitialized, getInitializationError } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
@@ -148,7 +149,7 @@ export const useWallet = () => {
   const connectWallet = async () => {
     // Ensure we're on the client side
     if (typeof window === 'undefined') {
-      throw new Error('Wallet connection can only be used on the client side');
+      return;
     }
 
     try {
@@ -186,10 +187,13 @@ export const useWallet = () => {
         return;
       }
 
-      // Extract and throw meaningful error message
+      // Extract error message and display user-visible feedback
       const errorMessage = extractErrorMessage(error);
       updateConnectionStatus(false);
-      throw new Error(errorMessage);
+      console.error('Wallet connection error:', error);
+      toast.error('Wallet connection failed', {
+        description: errorMessage,
+      });
     }
   };
 
@@ -204,30 +208,14 @@ export const useWallet = () => {
       // The DISCONNECT event will handle updating the store
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
-      throw error;
-    }
-  };
-
-  const handleConnect = async () => {
-    try {
-      await connectWallet();
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-      throw error;
-    }
-  };
-
-  const handleDisconnect = async () => {
-    try {
-      await disconnectWallet();
-    } catch (error) {
-      console.error('Error disconnecting wallet:', error);
-      // You might want to show a toast notification here
+      toast.error('Failed to disconnect wallet', {
+        description: 'Please try again or refresh the page.',
+      });
     }
   };
 
   return {
-    handleConnect,
-    handleDisconnect,
+    handleConnect: connectWallet,
+    handleDisconnect: disconnectWallet,
   };
 };

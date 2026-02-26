@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google';
 import type React from 'react';
 import './globals.css';
 import { AuthGuard } from '@/components/auth-guard';
-import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { EscrowProvider } from '@/lib/contexts/escrow-context';
 import { QueryProvider } from '@/providers/query-provider';
@@ -23,22 +22,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-black/40 min-h-screen`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <QueryProvider>
-            <TrustlessWorkProvider>
-              <EscrowProvider>
-                <AuthGuard>{children}</AuthGuard>
-              </EscrowProvider>
-            </TrustlessWorkProvider>
-          </QueryProvider>
-        </ThemeProvider>
+    <html lang="en" className="dark">
+      <body className={`${inter.className} min-h-screen`} style={{ backgroundColor: '#040404' }}>
+        <QueryProvider>
+          <TrustlessWorkProvider>
+            <EscrowProvider>
+              <AuthGuard>{children}</AuthGuard>
+            </EscrowProvider>
+          </TrustlessWorkProvider>
+        </QueryProvider>
         <Toaster />
       </body>
     </html>

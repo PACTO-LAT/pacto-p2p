@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -90,7 +90,8 @@ export function WaitlistDialog({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error('Failed to join waitlist', {
+        sileo.error({
+          title: 'Failed to join waitlist',
           description: data?.error || 'Unknown error',
         });
         return;
@@ -98,12 +99,13 @@ export function WaitlistDialog({
 
       setPendingEmail(values.email);
       setStep('otp');
-      toast.success('Check your email for a verification code', {
+      sileo.success({
+        title: 'Check your email for a verification code',
         description: 'Enter the 6-digit code to confirm your registration.',
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Unknown error';
-      toast.error('Unexpected error', { description: message });
+      sileo.error({ title: 'Unexpected error', description: message });
     }
   }
 
@@ -117,12 +119,14 @@ export function WaitlistDialog({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error('Invalid or expired code', {
+        sileo.error({
+          title: 'Invalid or expired code',
           description: data?.error || 'Try again or request a new code.',
         });
         return;
       }
-      toast.success('You are on the waitlist!', {
+      sileo.success({
+        title: 'You are on the waitlist!',
         description: 'Verification complete. We’ll reach out as slots open up.',
       });
       setTimeout(() => {
@@ -134,7 +138,7 @@ export function WaitlistDialog({
       }, 1200);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Unknown error';
-      toast.error('Unexpected error', { description: message });
+      sileo.error({ title: 'Unexpected error', description: message });
     }
   }
 

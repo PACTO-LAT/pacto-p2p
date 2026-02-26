@@ -2,7 +2,7 @@
 
 import { CheckCircle, Copy, ExternalLink, Wallet, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,7 +39,7 @@ export function WalletInfo({
   const copyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address);
-      toast.success('Address copied to clipboard');
+      sileo.success({ title: 'Address copied to clipboard' });
     }
   };
 
@@ -55,7 +55,7 @@ export function WalletInfo({
 
   const handleConnectAndLink = async () => {
     if (!user) {
-      toast.error('Please sign in to link your wallet');
+      sileo.error({ title: 'Please sign in to link your wallet' });
       return;
     }
 
@@ -63,13 +63,13 @@ export function WalletInfo({
     try {
       // Connect wallet
       await handleConnect();
-      
+
       // Wait a bit for wallet state to update
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       // Get the connected address
       const connectedAddress = useGlobalAuthenticationStore.getState().address;
-      
+
       if (!connectedAddress) {
         throw new Error('Failed to get wallet address');
       }
@@ -77,15 +77,15 @@ export function WalletInfo({
       // Link wallet to user profile
       setIsLinking(true);
       await AuthService.linkWalletToUser(user.id, connectedAddress);
-      
+
       // Update local profile state
       await updateProfile({ stellar_address: connectedAddress });
-      
-      toast.success('Wallet linked successfully!');
+
+      sileo.success({ title: 'Wallet linked successfully!' });
       onWalletLinked?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to connect wallet';
-      toast.error(message);
+      sileo.error({ title: 'Failed to connect wallet', description: message });
     } finally {
       setIsConnecting(false);
       setIsLinking(false);
@@ -96,16 +96,17 @@ export function WalletInfo({
     try {
       const { disconnectWalletStore } = useGlobalAuthenticationStore.getState();
       disconnectWalletStore();
-      
+
       // Optionally unlink wallet from profile (or keep it linked for future reconnection)
       // Uncomment if you want to unlink on disconnect:
       // if (user) {
       //   await updateProfile({ stellar_address: null });
       // }
-      
-      toast.success('Wallet disconnected');
+
+      sileo.success({ title: 'Wallet disconnected' });
     } catch (error) {
-      toast.error('Failed to disconnect wallet');
+      sileo.error({ title: 'Failed to disconnect wallet' });
+      console.error(error)
     }
   };
 
