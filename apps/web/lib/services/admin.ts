@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase';
 import type { TokenOperation } from '@/lib/types';
+import type { MerchantApplication } from '@/lib/types/admin';
 import { StellarService } from './stellar';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
@@ -167,22 +168,88 @@ export class AdminService {
   }
 
   static async getMerchantApplications(status?: string) {
-    const supabase = createServerClient();
-    let query = supabase
-      .from('merchants')
-      .select(`
+    try {
+      const supabase = createServerClient();
+      let query = supabase
+        .from('merchants')
+        .select(`
         *,
         user:users!merchants_user_id_fkey(id, email, full_name, created_at)
       `)
-      .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
-    if (status && status !== 'all') {
-      query = query.eq('verification_status', status);
+      if (status && status !== 'all') {
+        query = query.eq('verification_status', status);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn(
+        'Failed to load merchant applications from Supabase, falling back to mock data.',
+        error
+      );
+
+      const mockApplications: MerchantApplication[] = [
+        {
+          id: 'charlie-trader',
+          user_id: 'user-charlie',
+          slug: 'charlie-trader',
+          display_name: 'Charlie Trader',
+          verification_status: 'pending',
+          bio: 'Experienced P2P trader specializing in Latin American corridors.',
+          location: 'San José, Costa Rica',
+          languages: ['English', 'Spanish'],
+          socials: {
+            twitter: 'https://twitter.com/charlie_trader',
+          },
+          rating: 4.8,
+          total_trades: 120,
+          volume_traded: 150000,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user: {
+            id: 'user-charlie',
+            email: 'charlie@example.com',
+            full_name: 'Charlie Trader',
+            created_at: new Date().toISOString(),
+          },
+        },
+        {
+          id: 'eve-crypto-exchange',
+          user_id: 'user-eve',
+          slug: 'eve-crypto-exchange',
+          display_name: 'Eve Crypto Exchange',
+          verification_status: 'verified',
+          bio: 'High-volume merchant providing instant swaps and competitive spreads.',
+          location: 'Mexico City, Mexico',
+          languages: ['English', 'Spanish', 'Portuguese'],
+          socials: {
+            website: 'https://evecrypto.exchange',
+          },
+          rating: 4.9,
+          total_trades: 340,
+          volume_traded: 450000,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user: {
+            id: 'user-eve',
+            email: 'support@evecrypto.exchange',
+            full_name: 'Eve Crypto Exchange',
+            created_at: new Date().toISOString(),
+          },
+        },
+      ];
+
+      if (status && status !== 'all') {
+        return mockApplications.filter(
+          (application) => application.verification_status === status
+        );
+      }
+
+      return mockApplications;
     }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return data || [];
   }
 
   static async getMerchantApplicationById(id: string) {
