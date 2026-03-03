@@ -23,7 +23,7 @@ export default function EnhancedProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { user, updateProfile, loading: authLoading } = useAuth();
+  const { user, updateProfile, updateAvatarUrl, loading: authLoading } = useAuth();
 
   const [userData, setUserData] = useState<UserData | null>(null);
 
@@ -47,7 +47,10 @@ export default function EnhancedProfilePage() {
         full_name: baseUser?.full_name || localOverrides?.full_name || '',
         username: baseUser?.username || localOverrides?.username || '',
         bio: baseUser?.bio || localOverrides?.bio || '',
-        avatar_url: baseUser?.avatar_url || localOverrides?.avatar_url || '',
+        // Use ?? so that an explicit '' (avatar removed) is respected over the base user's URL
+        avatar_url: local !== null
+          ? (localOverrides?.avatar_url ?? baseUser?.avatar_url ?? '')
+          : (baseUser?.avatar_url ?? ''),
         stellar_address:
           baseUser?.stellar_address || localOverrides?.stellar_address || '',
         phone: baseUser?.phone || localOverrides?.phone || '',
@@ -363,6 +366,12 @@ export default function EnhancedProfilePage() {
                   userData={hydratedUserData}
                   isEditing={isEditing}
                   onUserDataChange={handleUserDataChange}
+                  onAvatarUploaded={async (avatarUrl) => {
+                    await updateAvatarUrl(avatarUrl);
+                  }}
+                  onAvatarRemoved={async () => {
+                    await updateAvatarUrl('');
+                  }}
                 />
               </div>
 

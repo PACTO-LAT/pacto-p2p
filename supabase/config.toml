@@ -44,6 +44,16 @@ enable_confirmations = true
 enabled = true
 file_size_limit = "50MiB"
 
+[storage.buckets.user-profiles]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+
+[storage.buckets.merchant-media]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+
 [realtime]
 enabled = true
 

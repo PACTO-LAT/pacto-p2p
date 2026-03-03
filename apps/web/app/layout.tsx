@@ -5,6 +5,7 @@ import './globals.css';
 import { AuthGuard } from '@/components/auth-guard';
 import { Toaster } from '@/components/ui/sonner';
 import { EscrowProvider } from '@/lib/contexts/escrow-context';
+import { AuthProvider } from '@/providers/auth-provider';
 import { QueryProvider } from '@/providers/query-provider';
 import { TrustlessWorkProvider } from '@/providers/trustless-work';
 
@@ -25,11 +26,13 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen`} style={{ backgroundColor: '#040404' }}>
         <QueryProvider>
-          <TrustlessWorkProvider>
-            <EscrowProvider>
-              <AuthGuard>{children}</AuthGuard>
-            </EscrowProvider>
-          </TrustlessWorkProvider>
+          <AuthProvider>
+            <TrustlessWorkProvider>
+              <EscrowProvider>
+                <AuthGuard>{children}</AuthGuard>
+              </EscrowProvider>
+            </TrustlessWorkProvider>
+          </AuthProvider>
         </QueryProvider>
         <Toaster />
       </body>

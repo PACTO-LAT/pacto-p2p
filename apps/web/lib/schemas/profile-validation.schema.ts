@@ -112,7 +112,7 @@ export const profileUpdateSchema = z.object({
 
     avatar_url: z
         .string()
-        .url('Avatar URL must be a valid URL')
+        .refine((val) => !val || val === '' || /^https?:\/\/.+/.test(val), 'Avatar URL must be a valid URL')
         .optional()
         .or(z.literal('')),
 
