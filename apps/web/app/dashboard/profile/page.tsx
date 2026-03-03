@@ -23,7 +23,7 @@ export default function EnhancedProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, loading: authLoading } = useAuth();
 
   const [userData, setUserData] = useState<UserData | null>(null);
 
@@ -64,27 +64,44 @@ export default function EnhancedProfilePage() {
           baseUser?.created_at ||
           localOverrides?.created_at ||
           new Date().toISOString(),
-        notifications: localOverrides?.notifications ?? {
-          email_trades: true,
-          email_escrows: true,
-          push_notifications: true,
-          sms_notifications: false,
-        },
-        security: localOverrides?.security ?? {
-          two_factor_enabled: true,
-          login_notifications: true,
-        },
-        payment_methods: localOverrides?.payment_methods ?? {
-          sinpe_number: '',
-          preferred_method: 'sinpe',
-          bank_accounts: [
-            {
-              bank_iban: '',
-              bank_name: '',
-              bank_account_holder: '',
-            },
-          ],
-        },
+        notifications: (() => {
+          const n = baseUser?.notifications ?? localOverrides?.notifications;
+          return {
+            email_trades: n?.email_trades ?? true,
+            email_escrows: n?.email_escrows ?? true,
+            push_notifications: n?.push_notifications ?? true,
+            sms_notifications: n?.sms_notifications ?? false,
+          };
+        })(),
+        security: (() => {
+          const s = baseUser?.security ?? localOverrides?.security;
+          return {
+            two_factor_enabled: s?.two_factor_enabled ?? false,
+            login_notifications: s?.login_notifications ?? true,
+          };
+        })(),
+        payment_methods: (() => {
+          const pm = baseUser?.payment_methods ?? localOverrides?.payment_methods;
+          const defaultPm = {
+            sinpe_number: '',
+            preferred_method: 'sinpe' as const,
+            bank_accounts: [
+              { bank_iban: '', bank_name: '', bank_account_holder: '' },
+            ],
+          };
+          if (!pm) return defaultPm;
+          return {
+            sinpe_number: pm.sinpe_number ?? '',
+            preferred_method: pm.preferred_method ?? 'sinpe',
+            bank_accounts: Array.isArray(pm.bank_accounts)
+              ? pm.bank_accounts.map((b) => ({
+                  bank_iban: b.bank_iban ?? '',
+                  bank_name: b.bank_name ?? '',
+                  bank_account_holder: b.bank_account_holder ?? '',
+                }))
+              : defaultPm.bank_accounts,
+          };
+        })(),
       };
     },
     []
@@ -281,9 +298,9 @@ export default function EnhancedProfilePage() {
             Please fix the following errors:
           </h3>
           <ul className="list-disc list-inside space-y-1">
-            {validationErrors.map((error, index) => (
+            {[...new Set(validationErrors)].map((error) => (
               <li
-                key={index}
+                key={error}
                 className="text-sm text-red-700 dark:text-red-300"
               >
                 {error}
@@ -293,7 +310,11 @@ export default function EnhancedProfilePage() {
         </div>
       )}
 
-      {!hydratedUserData ? (
+      {authLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <Settings className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : !hydratedUserData ? (
         <div className="text-sm sm:text-base text-muted-foreground p-4 sm:p-6 text-center">
           Connect your wallet or sign in to manage your profile.
         </div>
