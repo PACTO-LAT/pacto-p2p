@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
 
 interface AuthGuardProps {
@@ -24,19 +23,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const lastRedirectRef = useRef<string>('');
 
   useEffect(() => {
-    // Check Supabase auth status
+    // Use getSession() for initial check - reads from storage immediately (no network delay).
+    // getCurrentUser()/getUser() validates with server and can cause a flash of "logged out" on reload.
     const checkAuth = async () => {
       try {
-        const user = await AuthService.getCurrentUser();
-        setIsAuthenticated(!!user);
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session?.user);
       } catch {
         setIsAuthenticated(false);
       }
     };
 
     checkAuth();
-    
-    // Also listen to auth state changes
+
+    // Listen to auth state changes (sign in, sign out, token refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
