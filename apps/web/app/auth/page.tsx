@@ -70,32 +70,26 @@ export default function AuthPage() {
         router.push('/dashboard');
       }
     } catch (error) {
-      console.error('Auth error:', error);
       let message = 'Authentication failed';
+      const err = error as { message?: string; code?: string } | undefined;
 
-      if (error instanceof Error) {
-        message = error.message;
-        // Provide user-friendly error messages
+      // Check Supabase error code first (AuthApiError)
+      if (err?.code === 'email_not_confirmed') {
+        message = 'Please check your email and confirm your account before signing in.';
+      } else if (err?.code === 'invalid_credentials') {
+        message =
+          'Invalid email or password. If you just signed up, please check your email to confirm your account first.';
+      } else if (err?.message) {
+        message = err.message;
         if (message.includes('User already registered') || message.includes('already registered')) {
           message = 'This email is already registered. Please sign in instead.';
-        } else if (message.includes('Password') || message.includes('password')) {
-          message = 'Password must be at least 6 characters';
         } else if (message.includes('Email not confirmed') || message.includes('email_not_confirmed')) {
           message = 'Please check your email and confirm your account before signing in.';
         } else if (message.includes('Invalid login credentials') || message.includes('Invalid')) {
-          message = 'Invalid email or password';
+          message =
+            'Invalid email or password. If you just signed up, please check your email to confirm your account first.';
         } else if (message.includes('Email rate limit') || message.includes('rate limit')) {
           message = 'Too many requests. Please wait a moment and try again.';
-        } else if (message.includes('email')) {
-          message = 'Please enter a valid email address';
-        }
-      } else if (error && typeof error === 'object') {
-        // Handle Supabase error objects
-        const supabaseError = error as { message?: string; code?: string };
-        if (supabaseError.message) {
-          message = supabaseError.message;
-        } else if (supabaseError.code) {
-          message = `Error ${supabaseError.code}. Please try again.`;
         }
       }
 
