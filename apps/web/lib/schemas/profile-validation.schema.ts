@@ -70,7 +70,8 @@ export const profileUpdateSchema = z.object({
         .string()
         .min(2, 'Full name must be at least 2 characters')
         .max(255, 'Full name is too long')
-        .optional(),
+        .optional()
+        .or(z.literal('')),
 
     username: z
         .string()
@@ -80,7 +81,8 @@ export const profileUpdateSchema = z.object({
             usernameRegex,
             'Username can only contain letters, numbers, hyphens, and underscores'
         )
-        .optional(),
+        .optional()
+        .or(z.literal('')),
 
     email: z
         .string()
