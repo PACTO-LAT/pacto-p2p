@@ -156,36 +156,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Wallet Connection Banner */}
-      {user && !user.stellar_address && (
-        <Card className="glass-card border-orange-200/30 bg-orange-50/80 backdrop-blur-sm">
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100/80 backdrop-blur-sm rounded-xl flex items-center justify-center glow-emerald flex-shrink-0">
-                  <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-                </div>
-                <div className="space-y-1 min-w-0 flex-1">
-                  <p className="font-semibold text-orange-900 text-base sm:text-lg leading-tight">
-                    Link your Stellar wallet
-                  </p>
-                  <p className="text-orange-700 text-xs sm:text-sm md:text-base leading-relaxed">
-                    Connect your wallet to your account to start trading
-                  </p>
-                </div>
-              </div>
-              <Button
-                onClick={() => setShowWalletPrompt(true)}
-                className="btn-emerald w-full md:w-auto mt-2 md:mt-0 flex-shrink-0"
-              >
-                <Wallet className="w-4 h-4 mr-2" />
-                Connect Wallet
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Main Content Tabs */}
       <Tabs id="dashboard-tabs" defaultValue="listings" className="space-y-4 sm:space-y-6">
         <TabsList className="flex flex-col sm:flex-row h-auto p-1.5 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-2 w-full sm:w-auto">

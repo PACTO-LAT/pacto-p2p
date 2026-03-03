@@ -15,7 +15,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +32,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { sileo } from 'sileo';
-import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -45,11 +44,20 @@ const navigation = [
 export function DashboardHeader() {
   const pathname = usePathname();
   const { handleDisconnect, handleConnect } = useWallet();
-  const { address, network, walletType, isConnected } =
+  const { address, isConnected } =
     useGlobalAuthenticationStore();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateProfile, loading: authLoading } = useAuth();
   const canSeeAdmin = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Sync stellar_address when wallet is already connected on page load
+  useEffect(() => {
+    if (user && address && user.stellar_address !== address) {
+      updateProfile({ stellar_address: address }).catch(() => {
+        // Ignore - user may have connected from another tab
+      });
+    }
+  }, [user, address, updateProfile]);
 
   // Get user display name
   const getUserDisplayName = () => {
@@ -92,14 +100,19 @@ export function DashboardHeader() {
     }
   };
 
-  // Handle wallet connection with error handling
+  // Handle wallet connection with error handling + save stellar_address to DB
   const handleWalletConnect = async () => {
     try {
-      await handleConnect();
-      toast.success('Wallet connected successfully');
+      const connectedAddress = await handleConnect();
+      if (connectedAddress) {
+        if (user) {
+          await updateProfile({ stellar_address: connectedAddress });
+        }
+        sileo.success({ title: 'Wallet connected successfully' });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
-      toast.error(errorMessage);
+      sileo.error({ title: errorMessage });
       console.error('Error connecting wallet:', error);
     }
   };
@@ -108,10 +121,10 @@ export function DashboardHeader() {
   const handleWalletDisconnect = async () => {
     try {
       await handleDisconnect();
-      toast.success('Wallet disconnected successfully');
+      sileo.success({ title: 'Wallet disconnected successfully' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect wallet';
-      toast.error(errorMessage);
+      sileo.error({ title: errorMessage });
       console.error('Error disconnecting wallet:', error);
     }
   };
@@ -119,11 +132,16 @@ export function DashboardHeader() {
   // Mobile-specific handlers that close menu after action
   const handleMobileConnect = async () => {
     try {
-      await handleConnect();
-      toast.success('Wallet connected successfully');
+      const connectedAddress = await handleConnect();
+      if (connectedAddress) {
+        if (user) {
+          await updateProfile({ stellar_address: connectedAddress });
+        }
+        sileo.success({ title: 'Wallet connected successfully' });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
-      toast.error(errorMessage);
+      sileo.error({ title: errorMessage });
       console.error('Error connecting wallet:', error);
     } finally {
       setMobileMenuOpen(false);
@@ -133,10 +151,10 @@ export function DashboardHeader() {
   const handleMobileDisconnect = async () => {
     try {
       await handleDisconnect();
-      toast.success('Wallet disconnected successfully');
+      sileo.success({ title: 'Wallet disconnected successfully' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect wallet';
-      toast.error(errorMessage);
+      sileo.error({ title: errorMessage });
       console.error('Error disconnecting wallet:', error);
     } finally {
       setMobileMenuOpen(false);
@@ -216,7 +234,9 @@ export function DashboardHeader() {
                   variant="ghost"
                   className="relative h-10 w-10 rounded-full p-0 hover:bg-glass-hover"
                 >
-                  {user?.avatar_url ? (
+                  {authLoading ? (
+                    <div className="relative w-10 h-10 rounded-full bg-muted/50 border-2 border-emerald-500/20 flex items-center justify-center animate-pulse" />
+                  ) : user?.avatar_url ? (
                     <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500/30">
                       <Image
                         src={user.avatar_url}
@@ -317,10 +337,12 @@ export function DashboardHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="glass-effect w-[280px]">
-                <div className="flex flex-col gap-4 mt-6">
+                  <div className="flex flex-col gap-4 mt-6">
                   {/* Mobile User Info */}
                   <div className="flex items-center gap-3 p-3 nav-card rounded-xl">
-                    {user?.avatar_url ? (
+                    {authLoading ? (
+                      <div className="w-12 h-12 rounded-full bg-muted/50 border-2 border-emerald-500/20 flex items-center justify-center animate-pulse" />
+                    ) : user?.avatar_url ? (
                       <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-500/30">
                         <Image
                           src={user.avatar_url}

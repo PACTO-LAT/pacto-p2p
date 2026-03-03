@@ -174,6 +174,8 @@ export const useWallet = () => {
       
       try {
         await StellarWalletsKit.authModal();
+        const { address } = await StellarWalletsKit.getAddress();
+        return address ?? undefined;
       } finally {
         // Remove modal class after a short delay to allow for animations
         setTimeout(() => {

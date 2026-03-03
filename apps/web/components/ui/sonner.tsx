@@ -8,7 +8,7 @@ export function SileoToaster() {
 
   return (
     <Toaster
-      position="top-right"
+      position="top-center"
       theme={theme as 'light' | 'dark' | 'system'}
     />
   );

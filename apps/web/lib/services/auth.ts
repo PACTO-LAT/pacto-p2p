@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/types';
+import { normalizeUserFromDb } from '@/lib/utils/normalize-user';
 import { EnhancedAuthService } from './enhanced-auth.service';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Service class pattern for auth operations
@@ -9,7 +10,7 @@ export class AuthService {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -18,53 +19,8 @@ export class AuthService {
       throw error;
     }
 
-    // Auto-confirm email in development mode
-    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development' ||
-      process.env.NODE_ENV === 'development';
-
-    if (data.user && isDevelopment) {
-      try {
-        // Call API route to auto-confirm user (server-side)
-        const response = await fetch('/api/auth/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: data.user.id }),
-        });
-
-        if (response.ok) {
-          console.log('User auto-confirmed in development mode');
-
-          // After confirmation, sign in to establish a session
-          // Wait a moment for confirmation to propagate
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          // Sign in to get a session
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (signInError) {
-            console.warn('Failed to sign in after auto-confirmation:', signInError);
-            // Return original signup data - user can sign in manually
-            return data;
-          }
-
-          // Return the sign-in data which includes the session
-          if (signInData) {
-            return signInData;
-          }
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.warn('Failed to auto-confirm user:', errorData);
-          // Don't throw - user is created, they can confirm via email
-        }
-      } catch (confirmErr) {
-        console.warn('Error during auto-confirmation:', confirmErr);
-        // Don't throw - user is created, they can confirm via email
-      }
-    }
-
+    // User must verify email before signing in - no auto-confirm
+    // Supabase sends verification email; user clicks link to confirm
     // User profile is automatically created by database trigger (handle_new_user)
     // The trigger runs AFTER INSERT on auth.users and creates the profile
     // Wait a moment for trigger to execute, then verify profile exists
@@ -143,7 +99,7 @@ export class AuthService {
       throw error;
     }
 
-    return data;
+    return normalizeUserFromDb(data as Record<string, unknown>);
   }
 
   static async getUserByWallet(stellarAddress: string): Promise<User | null> {
@@ -160,36 +116,11 @@ export class AuthService {
         message?: string;
       };
       if (e.code === 'PGRST116') return null;
-      // On some PostgREST versions, .single() without rows throws 406 / PGRST116
       if (e.message?.includes('No rows found')) return null;
-      // If multiple rows, fall back to first
       if (e.details?.includes('Results contain 0')) return null;
+      throw error;
     }
-    return (data as unknown as User) ?? null;
-  }
-
-  static async ensureUserProfileByWallet(
-    stellarAddress: string
-  ): Promise<User> {
-    // Try to find existing user by wallet
-    const existing = await this.getUserByWallet(stellarAddress);
-    if (existing) return existing;
-
-    // Create a minimal profile; email is synthetic for type compatibility
-    const syntheticEmail = `${stellarAddress}@wallet.local`;
-    const { data, error } = await supabase
-      .from('users')
-      .insert({
-        email: syntheticEmail,
-        stellar_address: stellarAddress,
-        reputation_score: 0,
-        total_trades: 0,
-      })
-      .select('*')
-      .single();
-
-    if (error) throw error;
-    return data as unknown as User;
+    return normalizeUserFromDb(data as Record<string, unknown>) ?? null;
   }
 
   static async updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {

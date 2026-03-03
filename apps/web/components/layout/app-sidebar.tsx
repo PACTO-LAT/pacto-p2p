@@ -54,7 +54,7 @@ export function AppSidebar() {
   const { handleDisconnect, handleConnect } = useWallet();
   const { address, network, walletType, isConnected } =
     useGlobalAuthenticationStore();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateProfile } = useAuth();
   const canSeeAdmin = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
   const { state, isMobile } = useSidebar();
   const isCollapsed = state === 'collapsed' && !isMobile;
@@ -77,6 +77,23 @@ export function AppSidebar() {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
     return name.slice(0, 2).toUpperCase();
+  };
+
+  // Handle wallet connection + save stellar_address to DB
+  const handleConnectAndLink = async () => {
+    try {
+      const connectedAddress = await handleConnect();
+      if (connectedAddress) {
+        if (user) {
+          await updateProfile({ stellar_address: connectedAddress });
+        }
+        sileo.success({ title: 'Wallet connected successfully' });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
+      sileo.error({ title: errorMessage });
+      console.error('Error connecting wallet:', error);
+    }
   };
 
   // Handle sign out with wallet disconnection
@@ -330,7 +347,7 @@ export function AppSidebar() {
                   className={cn(
                     'justify-start glass-effect-light hover:bg-glass-hover text-foreground/80 w-full group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center text-xs sm:text-sm btn-emerald-outline'
                   )}
-                  onClick={handleConnect}
+                  onClick={handleConnectAndLink}
                   aria-label="Connect wallet"
                 >
                   <LogIn className="w-4 h-4" />
