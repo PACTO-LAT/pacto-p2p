@@ -128,6 +128,19 @@ export class AuthService {
     return EnhancedAuthService.updateUserProfile(userId, updates);
   }
 
+  /** Direct avatar update - bypasses full validation for storage URLs */
+  static async updateAvatarUrl(userId: string, avatarUrl: string): Promise<User> {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ avatar_url: avatarUrl || null, updated_at: new Date().toISOString() })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return normalizeUserFromDb(data as Record<string, unknown>) ?? (data as User);
+  }
+
   static async linkWalletToUser(userId: string, stellarAddress: string) {
     // Check if wallet is already linked to another user
     const existingUser = await this.getUserByWallet(stellarAddress);
