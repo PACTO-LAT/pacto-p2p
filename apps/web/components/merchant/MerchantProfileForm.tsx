@@ -21,6 +21,7 @@ import { useUpsertMerchantProfile } from '@/hooks/useMerchant';
 import type { Merchant } from '@/lib/types/merchant';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useWallet } from '@/hooks/use-wallet';
+import { useAuth } from '@/hooks/use-auth';
 import {
   Select,
   SelectContent,
@@ -58,6 +59,18 @@ export function MerchantProfileForm({
 }) {
   const { isConnected } = useGlobalAuthenticationStore();
   const { handleConnect } = useWallet();
+  const { user, updateProfile } = useAuth();
+
+  const handleConnectAndLink = async () => {
+    try {
+      const connectedAddress = await handleConnect();
+      if (connectedAddress && user) {
+        await updateProfile({ stellar_address: connectedAddress });
+      }
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+    }
+  };
   const [avatarPreview, setAvatarPreview] = useState<string>(
     initial?.avatar_url || ''
   );
@@ -123,7 +136,7 @@ export function MerchantProfileForm({
               profile.
             </div>
           </div>
-          <Button type="button" variant="default" onClick={handleConnect}>
+          <Button type="button" variant="default" onClick={handleConnectAndLink}>
             Connect Wallet
           </Button>
         </div>

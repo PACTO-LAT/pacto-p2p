@@ -40,14 +40,7 @@ export function WalletConnectionPrompt({
 
     setIsConnecting(true);
     try {
-      // Connect wallet
-      await handleConnect();
-
-      // Wait a bit for wallet state to update
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Get the connected address
-      const connectedAddress = useGlobalAuthenticationStore.getState().address;
+      const connectedAddress = await handleConnect();
 
       if (!connectedAddress) {
         throw new Error('Failed to get wallet address. Please try connecting again.');

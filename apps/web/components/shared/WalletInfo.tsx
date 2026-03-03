@@ -1,7 +1,7 @@
 'use client';
 
 import { CheckCircle, Copy, ExternalLink, Wallet, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { sileo } from 'sileo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -61,14 +61,7 @@ export function WalletInfo({
 
     setIsConnecting(true);
     try {
-      // Connect wallet
-      await handleConnect();
-
-      // Wait a bit for wallet state to update
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Get the connected address
-      const connectedAddress = useGlobalAuthenticationStore.getState().address;
+      const connectedAddress = await handleConnect();
 
       if (!connectedAddress) {
         throw new Error('Failed to get wallet address');
