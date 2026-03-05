@@ -18,7 +18,8 @@ interface ReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   escrow: DashboardEscrow | null;
-  onUpload: (escrow: DashboardEscrow, file: File) => void;
+  onUpload: (escrow: DashboardEscrow, file: File) => Promise<void>;
+  isUploading?: boolean;
 }
 
 interface DisputeDialogProps {
@@ -33,6 +34,7 @@ export function ReceiptDialog({
   onOpenChange,
   escrow,
   onUpload,
+  isUploading = false,
 }: ReceiptDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -43,10 +45,11 @@ export function ReceiptDialog({
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (escrow && selectedFile) {
-      onUpload(escrow, selectedFile);
+      await onUpload(escrow, selectedFile);
       setSelectedFile(null);
+      handleClose();
     }
   };
 
@@ -85,10 +88,10 @@ export function ReceiptDialog({
           )}
           <Button
             onClick={handleUpload}
-            disabled={!selectedFile}
+            disabled={!selectedFile || isUploading}
             className="w-full btn-emerald"
           >
-            Upload Receipt
+            {isUploading ? 'Uploading...' : 'Upload Receipt'}
           </Button>
         </div>
       </DialogContent>

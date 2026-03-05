@@ -2,6 +2,7 @@
 
 import { AlertCircle, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import type { Escrow } from '@pacto-p2p/types';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +16,9 @@ import { TradeCard } from '@/components/shared/TradeCard';
 import { WalletConnectionPrompt } from '@/components/shared/WalletConnectionPrompt';
 import { useAuth } from '@/hooks/use-auth';
 import { useDialog } from '@/hooks/use-dialog';
+import { useInitializeTrade } from '@/hooks/use-trades';
+import { uploadReceipt } from '@/lib/services/receipts';
+import { sileo } from 'sileo';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useMarketplaceListings } from '@/hooks/use-listings';
 import { useTrades } from '@/hooks/use-trades-history';
@@ -37,6 +41,8 @@ export default function DashboardPage() {
     setSelectedItem: setEditListing,
   } = useDialog<DashboardListing>();
 
+  const { reportPayment } = useInitializeTrade();
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
   const {
     data: trades = [],
@@ -93,9 +99,36 @@ export default function DashboardPage() {
     }
   };
 
-  const handleUploadReceipt = (escrow: DashboardEscrow, file: File) => {
-    console.log('Uploading receipt for escrow:', escrow.id, file);
-    closeDialog();
+  const handleUploadReceipt = async (
+    escrow: DashboardEscrow,
+    file: File
+  ): Promise<void> => {
+    if (!escrow.contractId || !escrow.roles?.serviceProvider) {
+      sileo.error({
+        title: 'Cannot report payment',
+        description:
+          'This escrow is missing contract data. Ensure you are viewing an active escrow from Trustless Work.',
+      });
+      return;
+    }
+
+    setIsUploadingReceipt(true);
+    try {
+      const receiptUrl = await uploadReceipt(escrow.id, file);
+      const escrowForReport: Pick<Escrow, 'contractId' | 'roles'> = {
+        contractId: escrow.contractId,
+        roles: { serviceProvider: escrow.roles.serviceProvider },
+      };
+      await reportPayment(escrowForReport as Escrow, receiptUrl);
+      sileo.success({ title: 'Payment receipt uploaded successfully' });
+      closeDialog();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to upload receipt. Please try again.';
+      sileo.error({ title: 'Upload failed', description: message });
+    } finally {
+      setIsUploadingReceipt(false);
+    }
   };
 
   const handleCreateDispute = (escrow: DashboardEscrow, reason: string) => {
@@ -340,6 +373,7 @@ export default function DashboardPage() {
         onOpenChange={closeDialog}
         escrow={dialogState.selectedItem}
         onUpload={handleUploadReceipt}
+        isUploading={isUploadingReceipt}
       />
 
       <DisputeDialog
