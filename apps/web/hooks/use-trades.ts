@@ -119,7 +119,10 @@ export const useInitializeTrade = () => {
     }
   };
 
-  const reportPayment = async (escrow: Escrow, evidence: string) => {
+  const reportPayment = async (
+    escrow: Escrow | { contractId: string; roles: { serviceProvider: string } },
+    evidence: string
+  ) => {
     if (!address) {
       throw new Error('Wallet address is required. Please connect your wallet.');
     }

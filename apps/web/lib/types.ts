@@ -115,6 +115,9 @@ export interface DashboardEscrow {
   status: string;
   progress: number;
   created: string;
+  /** Required for reportPayment - from Trustless Work Escrow */
+  contractId?: string;
+  roles?: { serviceProvider?: string };
 }
 
 export interface MarketplaceListing {
