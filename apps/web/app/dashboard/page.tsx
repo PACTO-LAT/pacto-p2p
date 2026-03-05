@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, Plus, TrendingUp, Wallet } from 'lucide-react';
+import { AlertCircle, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
@@ -17,7 +17,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useDialog } from '@/hooks/use-dialog';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useMarketplaceListings } from '@/hooks/use-listings';
+import { useTrades } from '@/hooks/use-trades-history';
 import { useMeMerchant } from '../../hooks/useMerchant';
+import { TradeHistorySkeleton } from '@/components/shared/TradeHistorySkeleton';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -36,6 +38,12 @@ export default function DashboardPage() {
   } = useDialog<DashboardListing>();
 
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
+  const {
+    data: trades = [],
+    isLoading: tradesLoading,
+    isError: tradesError,
+    error: tradesErrorDetail,
+  } = useTrades(user?.id);
   const { data: marketplace = [], isLoading } = useMarketplaceListings({
     status: 'active',
   });
@@ -271,17 +279,47 @@ export default function DashboardPage() {
           <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
             Trade History
           </h2>
-          <Card className="card">
-            <CardContent className="p-8 sm:p-12 lg:p-16 text-center">
-              <p className="text-base sm:text-lg text-muted-foreground mb-2 font-medium">
-                No completed trades yet
-              </p>
-              <p className="text-sm sm:text-base text-muted-foreground/80 max-w-md mx-auto">
-                Your trade history will appear here once you complete your first
-                transaction
-              </p>
-            </CardContent>
-          </Card>
+
+          {tradesLoading ? (
+            <TradeHistorySkeleton />
+          ) : tradesError ? (
+            <Card className="card">
+              <CardContent className="p-8 sm:p-12 text-center">
+                <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
+                <p className="text-base sm:text-lg text-muted-foreground mb-2 font-medium">
+                  Failed to load trade history
+                </p>
+                <p className="text-sm text-muted-foreground/80 max-w-md mx-auto">
+                  {tradesErrorDetail instanceof Error
+                    ? tradesErrorDetail.message
+                    : 'Please try again later.'}
+                </p>
+              </CardContent>
+            </Card>
+          ) : trades.length === 0 ? (
+            <Card className="card">
+              <CardContent className="p-8 sm:p-12 lg:p-16 text-center">
+                <p className="text-base sm:text-lg text-muted-foreground mb-2 font-medium">
+                  No completed trades yet
+                </p>
+                <p className="text-sm sm:text-base text-muted-foreground/80 max-w-md mx-auto">
+                  Your trade history will appear here once you complete your first
+                  transaction
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 sm:gap-6">
+              {trades.map((trade) => (
+                <TradeCard
+                  key={trade.id}
+                  trade={trade}
+                  onAction={handleTradeAction}
+                  onOpenDialog={handleOpenDialog}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
