@@ -2,7 +2,6 @@
 
 import { AlertCircle, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Escrow } from '@pacto-p2p/types';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
 import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -115,11 +114,13 @@ export default function DashboardPage() {
     setIsUploadingReceipt(true);
     try {
       const receiptUrl = await uploadReceipt(escrow.id, file);
-      const escrowForReport: Pick<Escrow, 'contractId' | 'roles'> = {
-        contractId: escrow.contractId,
-        roles: { serviceProvider: escrow.roles.serviceProvider },
-      };
-      await reportPayment(escrowForReport as Escrow, receiptUrl);
+      await reportPayment(
+        {
+          contractId: escrow.contractId,
+          roles: { serviceProvider: escrow.roles.serviceProvider },
+        },
+        receiptUrl
+      );
       sileo.success({ title: 'Payment receipt uploaded successfully' });
       closeDialog();
     } catch (err) {
