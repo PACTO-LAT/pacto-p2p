@@ -62,15 +62,19 @@ export const useInitializeTrade = () => {
       );
     }
 
+    const listingId =
+      'id' in payload.listing ? String(payload.listing.id) : crypto.randomUUID();
+    const engagementId = `${listingId}-${Date.now()}`;
+
     const finalPayload = {
       signer: address,
-      engagementId: payload.listing.token,
+      engagementId,
       description: payload.listing.description || '',
       trustline: {
         address: trustline.address, // Issuer address (G...)
         symbol: trustline.symbol, // Token symbol (e.g., "USDC")
       },
-      title: payload.listing.token,
+      title: `${payload.listing.token} trade - ${listingId}`,
       roles: {
         approver: seller, // seller
         releaseSigner: seller, // seller
