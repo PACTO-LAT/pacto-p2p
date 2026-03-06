@@ -125,7 +125,7 @@ export function CreateListingModal({
   async function onSubmit(values: ListingFormValues) {
     if (merchantLoading) return;
     if (!merchant) {
-      toast.error('You need a merchant profile to create a listing.');
+      sileo.error({ title: 'You need a merchant profile to create a listing.' });
       return;
     }
     if (!user?.id) {
