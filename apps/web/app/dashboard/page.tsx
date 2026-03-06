@@ -23,10 +23,25 @@ import { useMarketplaceListings } from '@/hooks/use-listings';
 import { useTrades } from '@/hooks/use-trades-history';
 import { useMeMerchant } from '../../hooks/useMerchant';
 import { TradeHistorySkeleton } from '@/components/shared/TradeHistorySkeleton';
+import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
+import { useEscrowSelection } from '@/hooks/use-escrow-selection';
+import { useEscrowActions } from '@/hooks/use-escrow-actions';
+import {
+  EscrowCard,
+  EscrowDetailsModal,
+  ReportPaymentModal,
+  EmptyState,
+  LoadingState,
+  ErrorState,
+} from '@/components/escrow';
+import type { Escrow } from '@pacto-p2p/types';
+import type { ReportPaymentData } from '@/lib/types/escrow';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const [showWalletPrompt, setShowWalletPrompt] = useState(false);
+  const { address, isConnected } = useGlobalAuthenticationStore();
+
   const { dialogState, openDialog, closeDialog } = useDialog<DashboardEscrow>();
   const {
     dialogState: listingDialogState,
@@ -40,8 +55,19 @@ export default function DashboardPage() {
     setSelectedItem: setEditListing,
   } = useDialog<DashboardListing>();
 
-  const { reportPayment } = useInitializeTrade();
-  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  // Escrow modal state
+  const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
+  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] = useState(false);
+  const { selectedEscrow, selectEscrow, clearSelectedEscrow } = useEscrowSelection();
+  const {
+    isReportPaymentLoading,
+    handleReportPayment,
+    handleConfirmPayment,
+    handleDeposit,
+    handleDisputeEscrow,
+    handleReleaseFunds,
+  } = useEscrowActions();
+
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
   const {
     data: trades = [],
@@ -52,6 +78,19 @@ export default function DashboardPage() {
   const { data: marketplace = [], isLoading } = useMarketplaceListings({
     status: 'active',
   });
+
+  // Fetch active escrows from TLW indexer (buyer role = serviceProvider)
+  const {
+    data: activeEscrows = [],
+    isLoading: escrowsLoading,
+    error: escrowsError,
+  } = useEscrowsByRoleQuery({
+    role: 'serviceProvider',
+    roleAddress: address,
+    isActive: true,
+    enabled: !!address,
+  });
+
   const activeListings = marketplace.map(
     (m): DashboardListing => ({
       id: String(m.id),
@@ -68,7 +107,6 @@ export default function DashboardPage() {
       paymentMethod: m.paymentMethod,
     })
   );
-  const activeEscrows: DashboardEscrow[] = [];
 
   const handleTradeAction = (
     trade: DashboardListing | DashboardEscrow,
@@ -137,7 +175,26 @@ export default function DashboardPage() {
     closeDialog();
   };
 
-  const { address, isConnected } = useGlobalAuthenticationStore();
+  // Escrow modal handlers
+  const openEscrowModal = (escrow: Escrow) => {
+    selectEscrow(escrow);
+    setIsEscrowModalOpen(true);
+  };
+
+  const onReportPayment = (escrow: Escrow) => {
+    selectEscrow(escrow);
+    setIsReportPaymentModalOpen(true);
+  };
+
+  const onSubmitReportPayment = async (data: ReportPaymentData) => {
+    if (selectedEscrow) {
+      const success = await handleReportPayment(selectedEscrow, data);
+      if (success) {
+        setIsReportPaymentModalOpen(false);
+      }
+    }
+  };
+
   const [hasShownWalletPrompt, setHasShownWalletPrompt] = useState(false);
   const [userDismissedPrompt, setUserDismissedPrompt] = useState(false);
 
@@ -155,11 +212,11 @@ export default function DashboardPage() {
     if (userDismissedPrompt || showWalletPrompt) {
       return;
     }
-    
+
     if (isConnected && address && user?.stellar_address === address) {
       return;
     }
-    
+
     if (
       !authLoading &&
       user &&
@@ -284,29 +341,23 @@ export default function DashboardPage() {
             Active Orders
           </h2>
 
-          <div className="grid gap-4 sm:gap-6">
-            {activeEscrows.length === 0 ? (
-              <Card className="card">
-                <CardContent className="p-8 sm:p-12 text-center">
-                  <div className="text-muted-foreground text-sm sm:text-base">
-                    No active orders
-                  </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground/70 mt-2">
-                    Your active escrow orders will appear here
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              activeEscrows.map((escrow) => (
-                <TradeCard
-                  key={escrow.id}
-                  trade={escrow}
-                  onAction={handleTradeAction}
-                  onOpenDialog={handleOpenDialog}
+          {escrowsLoading ? (
+            <LoadingState />
+          ) : escrowsError ? (
+            <ErrorState error={escrowsError} />
+          ) : activeEscrows.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="space-y-4 sm:space-y-6">
+              {activeEscrows.map((escrow) => (
+                <EscrowCard
+                  key={escrow.engagementId}
+                  escrow={escrow}
+                  onClick={openEscrowModal}
                 />
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4 sm:space-y-6">
@@ -357,7 +408,7 @@ export default function DashboardPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Dialogs */}
+      {/* Listing Dialogs */}
       <ListingDetailsDialog
         open={listingDialogState.isOpen}
         onOpenChange={closeListingDialog}
@@ -382,6 +433,34 @@ export default function DashboardPage() {
         onOpenChange={closeDialog}
         escrow={dialogState.selectedItem}
         onCreate={handleCreateDispute}
+      />
+
+      {/* Escrow Modals */}
+      <EscrowDetailsModal
+        open={isEscrowModalOpen}
+        onOpenChange={(open) => {
+          setIsEscrowModalOpen(open);
+          if (!open) clearSelectedEscrow();
+        }}
+        escrow={selectedEscrow}
+        activeTab="buyer"
+        onReportPayment={onReportPayment}
+        onConfirmPayment={async (escrow) => { await handleConfirmPayment(escrow); }}
+        onDeposit={async (escrow) => { await handleDeposit(escrow); }}
+        onDisputeEscrow={async (escrow) => { await handleDisputeEscrow(escrow); }}
+        onReleaseFunds={async (escrow) => { await handleReleaseFunds(escrow); }}
+      />
+
+      <ReportPaymentModal
+        open={isReportPaymentModalOpen}
+        onOpenChange={(open) => {
+          if (!isReportPaymentLoading) {
+            setIsReportPaymentModalOpen(open);
+            if (!open) clearSelectedEscrow();
+          }
+        }}
+        onSubmit={onSubmitReportPayment}
+        isLoading={isReportPaymentLoading}
       />
 
       {/* Wallet Connection Prompt */}
