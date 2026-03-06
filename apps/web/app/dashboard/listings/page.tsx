@@ -12,6 +12,7 @@ import {
   MarketplaceFilters,
   MarketStats,
   TradeConfirmationDialog,
+  type TradeConfirmData,
 } from '@/components/marketplace';
 import type {
   MarketplaceListing,
@@ -63,7 +64,7 @@ export default function ListingsPage() {
     setOpen(true);
   };
 
-  const confirmTrade = async () => {
+  const handleConfirm = async (data: TradeConfirmData) => {
     if (!selectedListing) return;
 
     // Get current user's wallet address
@@ -148,13 +149,13 @@ export default function ListingsPage() {
       listing: {
         ...selectedListing,
         fiat_currency: selectedListing.fiatCurrency,
-        payment_method: selectedListing.paymentMethod,
+        payment_method: data.paymentMethod,
       },
-      amount: selectedListing.amount,
+      amount: data.amount,
       buyer_id,
       seller_id,
       token: selectedListing.token,
-      fiat_amount: selectedListing.amount * selectedListing.rate,
+      fiat_amount: data.amount * selectedListing.rate,
       fiat_currency: selectedListing.fiatCurrency,
     });
   };
@@ -195,7 +196,7 @@ export default function ListingsPage() {
         open={open}
         onOpenChange={setOpen}
         selectedListing={selectedListing}
-        onConfirm={confirmTrade}
+        onConfirm={handleConfirm}
         isPending={isPending}
       />
     </div>
