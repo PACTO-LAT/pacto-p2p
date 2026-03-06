@@ -10,11 +10,16 @@ import { formatAmount, formatCurrency } from '@/lib/dashboard-utils';
 import type { MarketplaceListing } from '@/lib/types/marketplace';
 import { cn } from '@/lib/utils';
 
+export interface TradeConfirmData {
+  amount: number;
+  paymentMethod: string;
+}
+
 interface TradeConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedListing: MarketplaceListing | null;
-  onConfirm: () => void;
+  onConfirm: (data: TradeConfirmData) => void;
   isPending: boolean;
 }
 
@@ -71,6 +76,15 @@ export function TradeConfirmationDialog({
 
   const getTerms = () => {
     return selectedListing.terms || [];
+  };
+
+  const handleConfirmClick = () => {
+    const paymentMethodDisplayName =
+      paymentMethods.find((m) => m.id === selectedPaymentMethod)?.name ??
+      selectedPaymentMethod;
+    const amountNumber = Number(cryptoAmount);
+    if (!Number.isFinite(amountNumber) || amountNumber <= 0) return;
+    onConfirm({ amount: amountNumber, paymentMethod: paymentMethodDisplayName });
   };
 
   return (
@@ -282,7 +296,7 @@ export function TradeConfirmationDialog({
 
                 {/* Buy Button */}
                 <Button
-                  onClick={onConfirm}
+                  onClick={handleConfirmClick}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-lg text-lg"
                   disabled={
                     isPending || !isAmountValid || !selectedPaymentMethod
