@@ -286,16 +286,13 @@ export function TradeConfirmationDialog({
 
                 {/* Buy Button */}
                 <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const fiatAmount = parseFloat(amount);
-                    const cryptoAmount = fiatAmount / selectedListing.rate;
+                  onClick={() =>
                     onConfirm({
                       fiatAmount,
                       cryptoAmount,
                       paymentMethod: selectedPaymentMethod,
-                    });
-                  }}
+                    })
+                  }
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-lg text-lg"
                   disabled={
                     isPending || !isAmountValid || !selectedPaymentMethod
