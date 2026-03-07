@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import { countries as countriesData } from 'countries-list';
@@ -96,11 +96,25 @@ export function MerchantProfileForm({
 
   const upsert = useUpsertMerchantProfile();
 
+  // Reset mutation state if it gets stuck (e.g. due to network timeout)
+  const resetIfStuck = useCallback(() => {
+    if (upsert.isPending) {
+      upsert.reset();
+    }
+  }, [upsert]);
+
+  useEffect(() => {
+    if (!upsert.isPending) return;
+    const timeout = setTimeout(resetIfStuck, 30_000); // 30s safety timeout
+    return () => clearTimeout(timeout);
+  }, [upsert.isPending, resetIfStuck]);
+
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
       sileo.error({ title: 'Connect your wallet to save your merchant profile' });
       return;
     }
+
     const payload = {
       display_name: values.display_name,
       bio: values.bio?.trim() || undefined,
