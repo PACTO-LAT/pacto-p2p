@@ -173,6 +173,7 @@ export function CreateListingModal({
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
+          <DialogTitle className="sr-only">Loading</DialogTitle>
           <div className="flex items-center justify-center py-12">
             <span className="text-gray-500">Checking merchant status...</span>
           </div>
@@ -185,6 +186,7 @@ export function CreateListingModal({
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
+          <DialogTitle className="sr-only">Merchant Required</DialogTitle>
           <div className="flex flex-col items-center justify-center py-12">
             <p className="mb-4 text-center text-lg text-gray-700">
               You need a merchant profile to create a listing.
@@ -206,13 +208,12 @@ export function CreateListingModal({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           className="fixed inset-0 w-full max-h-[100dvh] rounded-none border-0 sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:rounded-lg sm:border sm:p-6 gap-4 overflow-y-auto"
-          aria-describedby={undefined}
         >
           <DialogHeader>
-            <DialogTitle id="create-listing-modal-title">
+            <DialogTitle>
               Create Listing
             </DialogTitle>
-            <DialogDescription id="create-listing-modal-description">
+            <DialogDescription>
               Complete the steps below to create your OTC trade listing.
             </DialogDescription>
           </DialogHeader>
@@ -275,11 +276,10 @@ export function CreateListingModal({
       <Dialog open={showDiscardConfirm} onOpenChange={setShowDiscardConfirm}>
         <DialogContent
           className="sm:max-w-md"
-          aria-describedby="discard-confirm-description"
         >
           <DialogHeader>
             <DialogTitle>Discard changes?</DialogTitle>
-            <DialogDescription id="discard-confirm-description">
+            <DialogDescription>
               You have unsaved changes. Are you sure you want to close? Your
               progress will be lost.
             </DialogDescription>

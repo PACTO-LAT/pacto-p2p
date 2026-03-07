@@ -9,6 +9,8 @@ import { TokenIcon } from '@/components/shared/TokenIcon';
 import { TradeTypeBadge } from '@/components/shared/TradeTypeBadge';
 import { formatAmount, formatDate } from '@/lib/dashboard-utils';
 import { MarketplaceListing } from '@/lib/types/marketplace';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useAuth } from '@/hooks/use-auth';
 
 interface ListingCardProps {
   listing: MarketplaceListing;
@@ -16,6 +18,14 @@ interface ListingCardProps {
 }
 
 export function ListingCard({ listing, onTrade }: ListingCardProps) {
+  const { address } = useGlobalAuthenticationStore();
+  const { user } = useAuth();
+  const isOwnListing =
+    listing.seller === address ||
+    listing.seller === user?.id ||
+    listing.buyer === address ||
+    listing.buyer === user?.id;
+
   return (
     <Card className="card hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 animate-fade-in">
       <CardContent className="p-0">
@@ -115,9 +125,11 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
 
               <Button
                 onClick={() => onTrade(listing)}
+                disabled={isOwnListing}
+                title={isOwnListing ? 'This is your listing' : ''}
                 className="btn-emerald w-full justify-center px-8 py-2 text-base font-semibold sm:w-auto"
               >
-                {listing.type === 'sell' ? 'Buy Now' : 'Sell Now'}
+                {isOwnListing ? 'Your Listing' : listing.type === 'sell' ? 'Buy Now' : 'Sell Now'}
               </Button>
             </div>
           </div>

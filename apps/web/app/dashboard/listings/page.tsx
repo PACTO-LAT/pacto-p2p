@@ -144,6 +144,11 @@ export default function ListingsPage() {
       ? currentUserAddress
       : listingCreatorAddress;
 
+    if (seller_id === buyer_id) {
+      sileo.error({ title: 'You cannot trade against your own listing' });
+      return;
+    }
+
     mutate({
       listing: {
         ...selectedListing,

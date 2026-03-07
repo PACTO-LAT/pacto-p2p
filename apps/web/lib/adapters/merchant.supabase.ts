@@ -71,18 +71,56 @@ function slugify(input: string): string {
 
 async function ensureUniqueSlug(base: string): Promise<string> {
   let candidate = slugify(base);
+  if (!candidate) candidate = 'merchant';
   let suffix = 1;
+  const MAX_ATTEMPTS = 20;
   // Try the base, then append -1,-2,... until unique
-  while (true) {
+  while (suffix <= MAX_ATTEMPTS) {
     const { data, error } = await supabase
       .from('merchants')
       .select('id')
       .eq('slug', candidate)
       .limit(1)
       .maybeSingle();
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     if (!data) return candidate;
-    candidate = `${slugify(base)}-${suffix++}`;
+    candidate = `${slugify(base) || 'merchant'}-${suffix++}`;
+  }
+  // Fallback: use a random suffix
+  return `${slugify(base) || 'merchant'}-${Date.now().toString(36)}`;
+}
+
+/**
+ * Ensure the user profile exists in the public.users table.
+ * The handle_new_user trigger should create it on signup, but it may not
+ * have fired (e.g. user was created before the trigger was added).
+ */
+async function ensureUserProfile(userId: string): Promise<void> {
+  const { data } = await supabase
+    .from('users')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (data) return; // Profile exists
+
+  // Get email from the current session
+  const { data: { session } } = await supabase.auth.getSession();
+  const email = session?.user?.email ?? `${userId}@auth.local`;
+
+  const { error } = await supabase
+    .from('users')
+    .insert({
+      id: userId,
+      email,
+      reputation_score: 0,
+      total_trades: 0,
+      total_volume: 0,
+    });
+
+  // 23505 = unique constraint violation → profile already exists (race condition)
+  if (error && error.code !== '23505') {
+    throw new Error(error.message || 'Failed to create user profile');
   }
 }
 
@@ -93,7 +131,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .select('*')
       .eq('is_public', true)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return (data ?? []).map(mapRowToMerchant);
   },
 
@@ -113,7 +151,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       if (e.code === 'PGRST116') return null;
       if (e.details?.includes('Results contain 0')) return null;
       if (e.message?.includes('No rows')) return null;
-      throw error;
+      throw new Error(error.message);
     }
     return data ? mapRowToMerchant(data) : null;
   },
@@ -124,7 +162,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .from('listings')
       .select('id', { count: 'exact', head: true })
       .eq('merchant_id', merchantId);
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     const badges: MerchantBadge[] = [];
     if ((count ?? 0) >= 1) {
       badges.push({
@@ -145,7 +183,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .from('listings')
       .select('id', { count: 'exact', head: true })
       .eq('merchant_id', merchantId);
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return {
       total_trades: total ?? 0,
       completed_trades: 0,
@@ -174,7 +212,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .eq('merchant_id', merchantId)
       .eq('status', 'active')
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     const rows = data ?? [];
     return rows.map((r) => ({
       id: r.id,
@@ -209,20 +247,31 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       if (e.code === 'PGRST116') return null;
       if (e.details?.includes('Results contain 0')) return null;
       if (e.message?.includes('No rows')) return null;
-      throw error;
+      throw new Error(error.message);
     }
     return data ? mapRowToMerchant(data) : null;
   },
 
   async upsertMyMerchantProfile(input) {
     const userId = await resolveCurrentUserId();
-    if (!userId) throw new Error('Not authenticated');
+    if (!userId) throw new Error('Not authenticated — please sign in with email before saving your merchant profile');
 
-    const { data: existing } = await supabase
+    // Ensure user profile exists in the users table (trigger may not have fired)
+    await ensureUserProfile(userId);
+
+    const { data: existing, error: existingError } = await supabase
       .from('merchants')
       .select('*')
       .eq('user_id', userId)
       .maybeSingle();
+
+    if (existingError) {
+      console.error('Error checking existing merchant:', existingError);
+      // PGRST116 = 0 rows with .single(), safe to ignore for maybeSingle
+      if (existingError.code !== 'PGRST116') {
+        throw new Error(existingError.message || 'Failed to check existing merchant profile');
+      }
+    }
 
     const desiredSlug = input.slug || input.display_name;
     const finalSlug = existing?.slug
@@ -253,7 +302,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
         .eq('id', existing.id)
         .select('*')
         .single();
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to update merchant profile');
       return mapRowToMerchant(data);
     }
 
@@ -262,7 +311,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .insert(payload)
       .select('*')
       .single();
-    if (error) throw error;
+    if (error) throw new Error(error.message || 'Failed to create merchant profile');
     return mapRowToMerchant(data);
   },
 
@@ -295,7 +344,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .insert(insert)
       .select('*')
       .single();
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     return {
       id: data.id,
@@ -322,7 +371,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     return (data ?? []).map((r) => ({
       id: r.id,
@@ -343,8 +392,10 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
 
 async function resolveCurrentUserId(): Promise<string | null> {
   try {
-    const { data: auth } = await supabase.auth.getUser();
-    return auth.user?.id ?? null;
+    // Use getSession() instead of getUser() — reads from localStorage instantly.
+    // getUser() makes a network call that can hang if the auth server is slow.
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.user?.id ?? null;
   } catch {
     return null;
   }

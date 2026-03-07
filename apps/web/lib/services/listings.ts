@@ -30,7 +30,7 @@ export class ListingsService {
 
     const { data, error } = await query;
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return (data as unknown as DbListing[]) || [];
   }
 
@@ -46,7 +46,7 @@ export class ListingsService {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return (data as unknown as DbListing[]) || [];
   }
 
@@ -88,7 +88,7 @@ export class ListingsService {
       )
       .single();
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data as unknown as DbListing;
   }
 
@@ -111,7 +111,7 @@ export class ListingsService {
       )
       .single();
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data as unknown as DbListing;
   }
 
@@ -121,7 +121,7 @@ export class ListingsService {
       .delete()
       .eq('id', listingId);
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
   }
 
   static async getListingById (listingId: string): Promise<DbListing | null> {
@@ -138,7 +138,7 @@ export class ListingsService {
 
     if (error) {
       if (error.code === 'PGRST116') return null;
-      throw error;
+      throw new Error(error.message);
     }
 
     return (data as unknown as DbListing) ?? null;
