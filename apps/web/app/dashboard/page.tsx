@@ -58,6 +58,7 @@ export default function DashboardPage() {
   // Escrow modal state
   const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
   const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] = useState(false);
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const { selectedEscrow, selectEscrow, clearSelectedEscrow } = useEscrowSelection();
   const {
     isReportPaymentLoading,
@@ -67,6 +68,7 @@ export default function DashboardPage() {
     handleDisputeEscrow,
     handleReleaseFunds,
   } = useEscrowActions();
+  const { reportPayment } = useInitializeTrade();
 
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
   const {
