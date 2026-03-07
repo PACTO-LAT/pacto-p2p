@@ -96,7 +96,7 @@ export class AuthService {
 
     if (error) {
       if (error.code === 'PGRST116') return null; // No rows returned
-      throw error;
+      throw new Error(error.message);
     }
 
     return normalizeUserFromDb(data as Record<string, unknown>);
@@ -118,7 +118,7 @@ export class AuthService {
       if (e.code === 'PGRST116') return null;
       if (e.message?.includes('No rows found')) return null;
       if (e.details?.includes('Results contain 0')) return null;
-      throw error;
+      throw new Error(error.message);
     }
     return normalizeUserFromDb(data as Record<string, unknown>) ?? null;
   }
@@ -137,7 +137,7 @@ export class AuthService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return normalizeUserFromDb(data as Record<string, unknown>) ?? (data as User);
   }
 
@@ -179,7 +179,7 @@ export class AuthService {
           userId,
           email,
         });
-        throw error;
+        throw new Error(error.message);
       }
     } catch (err) {
       // Enhanced error logging
@@ -192,7 +192,7 @@ export class AuthService {
         email,
       };
       console.error('Profile creation failed:', errorDetails);
-      throw err;
+      throw err instanceof Error ? err : new Error(String(err));
     }
   }
 }

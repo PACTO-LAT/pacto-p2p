@@ -121,8 +121,15 @@ export function MerchantProfileForm({
       is_public: values.is_public,
       slug: values.slug || undefined,
     };
-    await upsert.mutateAsync(payload);
-    sileo.success({ title: 'Profile saved' });
+    try {
+      await upsert.mutateAsync(payload);
+      sileo.success({ title: 'Profile saved' });
+    } catch (err) {
+      sileo.error({
+        title: 'Failed to save profile',
+        description: err instanceof Error ? err.message : 'Unknown error',
+      });
+    }
   }
 
   return (

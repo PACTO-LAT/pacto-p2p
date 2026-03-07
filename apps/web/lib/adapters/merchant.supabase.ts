@@ -80,7 +80,7 @@ async function ensureUniqueSlug(base: string): Promise<string> {
       .eq('slug', candidate)
       .limit(1)
       .maybeSingle();
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     if (!data) return candidate;
     candidate = `${slugify(base)}-${suffix++}`;
   }
@@ -93,7 +93,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .select('*')
       .eq('is_public', true)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return (data ?? []).map(mapRowToMerchant);
   },
 
@@ -113,7 +113,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       if (e.code === 'PGRST116') return null;
       if (e.details?.includes('Results contain 0')) return null;
       if (e.message?.includes('No rows')) return null;
-      throw error;
+      throw new Error(error.message);
     }
     return data ? mapRowToMerchant(data) : null;
   },
@@ -124,7 +124,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .from('listings')
       .select('id', { count: 'exact', head: true })
       .eq('merchant_id', merchantId);
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     const badges: MerchantBadge[] = [];
     if ((count ?? 0) >= 1) {
       badges.push({
@@ -145,7 +145,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .from('listings')
       .select('id', { count: 'exact', head: true })
       .eq('merchant_id', merchantId);
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return {
       total_trades: total ?? 0,
       completed_trades: 0,
@@ -174,7 +174,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .eq('merchant_id', merchantId)
       .eq('status', 'active')
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     const rows = data ?? [];
     return rows.map((r) => ({
       id: r.id,
@@ -209,7 +209,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       if (e.code === 'PGRST116') return null;
       if (e.details?.includes('Results contain 0')) return null;
       if (e.message?.includes('No rows')) return null;
-      throw error;
+      throw new Error(error.message);
     }
     return data ? mapRowToMerchant(data) : null;
   },
@@ -253,7 +253,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
         .eq('id', existing.id)
         .select('*')
         .single();
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to update merchant profile');
       return mapRowToMerchant(data);
     }
 
@@ -262,7 +262,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .insert(payload)
       .select('*')
       .single();
-    if (error) throw error;
+    if (error) throw new Error(error.message || 'Failed to create merchant profile');
     return mapRowToMerchant(data);
   },
 
@@ -295,7 +295,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .insert(insert)
       .select('*')
       .single();
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     return {
       id: data.id,
@@ -322,7 +322,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     return (data ?? []).map((r) => ({
       id: r.id,

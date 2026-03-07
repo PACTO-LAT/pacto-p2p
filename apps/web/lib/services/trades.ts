@@ -44,7 +44,7 @@ export class TradesService {
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     const trades = (data as DbTrade[]) ?? [];
     return trades.map((t) => mapTradeToDashboardListing(t, userId));
