@@ -9,7 +9,7 @@ import { useMerchantApplications } from '@/hooks/use-admin';
 import type { MerchantApplication } from '@/lib/types/admin';
 
 export function MerchantApplications() {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('pending');
   const [selectedApplication, setSelectedApplication] =
     useState<MerchantApplication | null>(null);
 
