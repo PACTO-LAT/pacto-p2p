@@ -212,28 +212,30 @@ export function MerchantApplicationModal({
           <div className="space-y-3">
             <h3 className="font-semibold text-lg">Trading Statistics</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-600 mb-1">
+              <div className="bg-black border border-white rounded-lg p-4">
+                <div className="flex items-center gap-2 text-gray-400 mb-1">
                   <Star className="w-4 h-4" />
                   <span className="text-sm">Rating</span>
                 </div>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-bold text-white">
                   {application.rating.toFixed(1)}
                 </p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-600 mb-1">
+              <div className="bg-black border border-white rounded-lg p-4">
+                <div className="flex items-center gap-2 text-gray-400 mb-1">
                   <TrendingUp className="w-4 h-4" />
                   <span className="text-sm">Total Trades</span>
                 </div>
-                <p className="text-2xl font-bold">{application.total_trades}</p>
+                <p className="text-2xl font-bold text-white">
+                  {application.total_trades}
+                </p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-600 mb-1">
+              <div className="bg-black border border-white rounded-lg p-4">
+                <div className="flex items-center gap-2 text-gray-400 mb-1">
                   <DollarSign className="w-4 h-4" />
                   <span className="text-sm">Volume Traded</span>
                 </div>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-bold text-white">
                   ${application.volume_traded.toLocaleString()}
                 </p>
               </div>

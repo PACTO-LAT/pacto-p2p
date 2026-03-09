@@ -1,21 +1,61 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { MerchantApplicationCard } from './MerchantApplicationCard';
+import { Loader2, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { MerchantApplicationModal } from './MerchantApplicationModal';
 import { MerchantApplicationFilters } from './MerchantApplicationFilters';
-import { useMerchantApplications } from '@/hooks/use-admin';
+import {
+  useMerchantApplications,
+  useApproveMerchant,
+  useRejectMerchant,
+} from '@/hooks/use-admin';
+import { toast } from 'sonner';
 import type { MerchantApplication } from '@/lib/types/admin';
 
+const statusVariants: Record<
+  MerchantApplication['verification_status'],
+  string
+> = {
+  pending:
+    'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800',
+  verified:
+    'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+  rejected:
+    'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  revoked:
+    'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800/30 dark:text-gray-400 dark:border-gray-700',
+};
+
 export function MerchantApplications() {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('pending');
   const [selectedApplication, setSelectedApplication] =
     useState<MerchantApplication | null>(null);
 
   const { data: applications, isLoading, error } = useMerchantApplications(
     activeFilter === 'all' ? undefined : activeFilter
   );
+  const approveMutation = useApproveMerchant();
+  const rejectMutation = useRejectMerchant();
+
+  const handleApprove = async (application: MerchantApplication) => {
+    try {
+      await approveMutation.mutateAsync(application.id);
+      toast.success('Merchant application approved successfully');
+    } catch {
+      toast.error('Failed to approve merchant application');
+    }
+  };
+
+  const handleReject = async (application: MerchantApplication) => {
+    try {
+      await rejectMutation.mutateAsync(application.id);
+      toast.success('Merchant application rejected');
+    } catch {
+      toast.error('Failed to reject merchant application');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -46,21 +86,100 @@ export function MerchantApplications() {
       </div>
 
       {!applications || applications.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <p className="text-gray-600">
+        <div className="text-center py-12 rounded-lg border border-gray-200 dark:border-gray-700">
+          <p className="text-muted-foreground">
             No merchant applications found
             {activeFilter !== 'all' && ` with status "${activeFilter}"`}.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {applications.map((application) => (
-            <MerchantApplicationCard
-              key={application.id}
-              application={application}
-              onClick={setSelectedApplication}
-            />
-          ))}
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700 bg-muted/50">
+                <th className="text-left py-3 px-4 font-medium">Applicant</th>
+                <th className="text-left py-3 px-4 font-medium">Email</th>
+                <th className="text-left py-3 px-4 font-medium">Status</th>
+                <th className="text-left py-3 px-4 font-medium">Applied</th>
+                <th className="text-left py-3 px-4 font-medium">Bio</th>
+                <th className="text-right py-3 px-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map((application) => (
+                <tr
+                  key={application.id}
+                  className="border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-muted/30"
+                >
+                  <td className="py-3 px-4">
+                    <span className="font-medium">
+                      {application.display_name}
+                    </span>
+                    <p className="text-sm text-muted-foreground">
+                      @{application.slug}
+                    </p>
+                  </td>
+                  <td className="py-3 px-4 text-sm">
+                    {application.user?.email || 'N/A'}
+                  </td>
+                  <td className="py-3 px-4">
+                    <Badge
+                      variant="outline"
+                      className={statusVariants[application.verification_status]}
+                    >
+                      {application.verification_status}
+                    </Badge>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">
+                    {new Date(application.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground max-w-[200px] truncate">
+                    {application.bio || '—'}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedApplication(application)}
+                        aria-label="View details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {application.verification_status === 'pending' && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => handleApprove(application)}
+                            disabled={
+                              approveMutation.isPending ||
+                              rejectMutation.isPending
+                            }
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleReject(application)}
+                            disabled={
+                              approveMutation.isPending ||
+                              rejectMutation.isPending
+                            }
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 

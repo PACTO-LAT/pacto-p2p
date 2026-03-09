@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { useUpsertMerchantProfile } from '@/hooks/useMerchant';
+import { useMerchantApplication } from '@/hooks/useMerchant';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 
@@ -46,7 +46,7 @@ export function MerchantApplicationModal({
   onSuccess,
 }: MerchantApplicationModalProps) {
   const { user } = useAuth();
-  const upsertMerchant = useUpsertMerchantProfile();
+  const applyMerchant = useMerchantApplication();
 
   const form = useForm<ApplicationFormValues>({
     resolver: zodResolver(applicationSchema),
@@ -62,24 +62,19 @@ export function MerchantApplicationModal({
     }
 
     try {
-      // Auto-populate fields from user profile
       const merchantData = {
-        display_name: user.full_name || user.username || user.email,
+        display_name: user.full_name || user.username || user.email || '',
         bio: values.bio.trim(),
         location: user.country || undefined,
-        // Set verification status to pending (handled by backend)
         is_public: false, // Keep private until verified
       };
 
-      await upsertMerchant.mutateAsync(merchantData);
-      
-      toast.success('Merchant application submitted successfully! We will review your application and notify you of the status.');
+      await applyMerchant.mutateAsync(merchantData);
       form.reset();
       onOpenChange(false);
       onSuccess?.();
-    } catch (error) {
-      console.error('Failed to submit merchant application:', error);
-      toast.error('Failed to submit application. Please try again.');
+    } catch {
+      // Toast handled by useMerchantApplication onError
     }
   }
 
@@ -134,15 +129,15 @@ export function MerchantApplicationModal({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={upsertMerchant.isPending}
+                disabled={applyMerchant.isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={upsertMerchant.isPending}
+                disabled={applyMerchant.isPending}
               >
-                {upsertMerchant.isPending && (
+                {applyMerchant.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Submit Application

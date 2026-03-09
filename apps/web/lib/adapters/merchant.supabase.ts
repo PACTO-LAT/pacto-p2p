@@ -280,6 +280,11 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
         ? await ensureUniqueSlug(desiredSlug)
         : null;
 
+    const canReapply =
+      existing?.id &&
+      (existing.verification_status === 'rejected' ||
+        existing.verification_status === 'revoked');
+
     const payload = {
       user_id: userId,
       display_name: input.display_name,
@@ -291,8 +296,12 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       avatar_url: input.avatar_url ?? null,
       banner_url: input.banner_url ?? null,
       slug: finalSlug,
-      // Ensure new applications start with pending status
-      ...(existing?.id ? {} : { verification_status: 'pending' }),
+      // New applications: pending. Re-applications: reset to pending
+      ...(existing?.id
+        ? canReapply
+          ? { verification_status: 'pending' as const }
+          : {}
+        : { verification_status: 'pending' as const }),
     };
 
     if (existing?.id) {
