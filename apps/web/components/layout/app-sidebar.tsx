@@ -40,6 +40,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { sileo } from 'sileo';
+import { useMerchantStatus } from '@/hooks/useMerchant';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -57,6 +58,7 @@ export function AppSidebar() {
   const { user, signOut, updateProfile } = useAuth();
   const canSeeAdmin = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
   const { state, isMobile } = useSidebar();
+  const { isVerifiedMerchant, verificationStatus } = useMerchantStatus();
   const isCollapsed = state === 'collapsed' && !isMobile;
 
   // Get user display name
@@ -241,6 +243,16 @@ export function AppSidebar() {
                   <p className="text-sm sm:text-base font-semibold text-foreground truncate">
                     {getUserDisplayName()}
                   </p>
+                  {isVerifiedMerchant && (
+                    <span className="flex-shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Merchant
+                    </span>
+                  )}
+                  {!isVerifiedMerchant && verificationStatus === 'pending' && (
+                    <span className="flex-shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                      Pending
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {isConnected && address ? (
