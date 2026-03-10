@@ -22,6 +22,7 @@ import { useMarketplaceListings } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
 import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
+import { useMerchantStatus } from '@/hooks/useMerchant';
 
 // Helper function to check if a string is a valid Stellar address
 const isValidStellarAddress = (address: string): boolean => {
@@ -29,6 +30,7 @@ const isValidStellarAddress = (address: string): boolean => {
 };
 
 export default function ListingsPage() {
+  const { isVerifiedMerchant } = useMerchantStatus();
   const [filters, setFilters] = useState<ListingFilters>({
     searchTerm: '',
     selectedToken: 'all',
@@ -169,12 +171,23 @@ export default function ListingsPage() {
             Browse and trade stablecoins in stellar network
           </p>
         </div>
-        <Link href="/dashboard/listings/create">
-          <Button className="btn-emerald">
+        {isVerifiedMerchant ? (
+          <Link href="/dashboard/listings/create">
+            <Button className="btn-emerald">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Listing
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            className="btn-emerald"
+            disabled
+            title="Only verified merchants can create listings"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Create Listing
           </Button>
-        </Link>
+        )}
       </div>
 
       {/* Market Stats */}
