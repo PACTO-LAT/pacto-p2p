@@ -270,7 +270,7 @@ export function useDepositFunds() {
   return useMutation({
     mutationFn: ({ escrow }: { escrow: Escrow }) => {
       if (!address) {
-        throw new Error('Wallet address is required. Please connect your wallet.');
+        throw new Error('Wallet not connected');
       }
 
       if (!escrow.contractId) {
@@ -279,6 +279,10 @@ export function useDepositFunds() {
 
       if (!escrow.amount || escrow.amount <= 0) {
         throw new Error('Invalid escrow amount.');
+      }
+
+      if (address !== escrow.roles.releaseSigner) {
+        throw new Error('Only the seller can deposit funds into this escrow');
       }
 
       return fundEscrow(
@@ -302,12 +306,24 @@ export function useDepositFunds() {
 
 export function useDisputeEscrow() {
   const { disputeEscrow } = useInitializeTrade();
+  const { address } = useGlobalAuthenticationStore();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ escrow }: { escrow: Escrow }) => {
+      if (!address) {
+        throw new Error('Wallet not connected');
+      }
+
       if (!escrow.contractId) {
         throw new Error('Escrow contract ID is required.');
+      }
+
+      const isParticipant =
+        address === escrow.roles.releaseSigner ||
+        address === escrow.roles.serviceProvider;
+      if (!isParticipant) {
+        throw new Error('Only escrow participants can raise a dispute');
       }
 
       return disputeEscrow(escrow);

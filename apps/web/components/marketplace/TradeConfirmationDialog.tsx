@@ -14,7 +14,11 @@ interface TradeConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedListing: MarketplaceListing | null;
-  onConfirm: () => void;
+  onConfirm: (data: {
+    fiatAmount: number;
+    cryptoAmount: number;
+    paymentMethod: string;
+  }) => void;
   isPending: boolean;
 }
 
@@ -282,7 +286,13 @@ export function TradeConfirmationDialog({
 
                 {/* Buy Button */}
                 <Button
-                  onClick={onConfirm}
+                  onClick={() =>
+                    onConfirm({
+                      fiatAmount,
+                      cryptoAmount,
+                      paymentMethod: selectedPaymentMethod,
+                    })
+                  }
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-lg text-lg"
                   disabled={
                     isPending || !isAmountValid || !selectedPaymentMethod

@@ -4,25 +4,25 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { sileo } from 'sileo';
-import { Button } from '@/components/ui/button';
-import { useCreateEscrow } from '@/hooks/use-escrows';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
 import {
   ListingsTabs,
   MarketplaceFilters,
   MarketStats,
   TradeConfirmationDialog,
 } from '@/components/marketplace';
-import type {
-  MarketplaceListing,
-  ListingFilters,
-} from '@/lib/types/marketplace';
-import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
-import { useMarketplaceListings } from '@/hooks/use-listings';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
+import { useCreateEscrow } from '@/hooks/use-escrows';
+import { useMarketplaceListings } from '@/hooks/use-listings';
+import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
 import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
 import { useMerchantStatus } from '@/hooks/useMerchant';
+import type {
+  ListingFilters,
+  MarketplaceListing,
+} from '@/lib/types/marketplace';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 // Helper function to check if a string is a valid Stellar address
 const isValidStellarAddress = (address: string): boolean => {
@@ -65,19 +65,44 @@ export default function ListingsPage() {
     setOpen(true);
   };
 
-  const confirmTrade = async () => {
+  const confirmTrade = async ({
+    fiatAmount,
+    cryptoAmount,
+    paymentMethod,
+  }: {
+    fiatAmount: number;
+    cryptoAmount: number;
+    paymentMethod: string;
+  }) => {
     if (!selectedListing) return;
+
+    // Validate amount is within listing bounds
+    const minAmount = selectedListing.minAmount || 0;
+    const maxAvailable =
+      selectedListing.maxAmount ||
+      selectedListing.amount * selectedListing.rate;
+
+    if (fiatAmount < minAmount || fiatAmount > maxAvailable) {
+      sileo.error({
+        title: `Amount must be between ${minAmount} and ${maxAvailable} ${selectedListing.fiatCurrency}`,
+      });
+      return;
+    }
 
     // Get current user's wallet address
     const currentUserAddress = address || user?.stellar_address;
 
     if (!currentUserAddress) {
-      sileo.error({ title: 'Please connect your wallet to proceed with the trade' });
+      sileo.error({
+        title: 'Please connect your wallet to proceed with the trade',
+      });
       return;
     }
 
     if (!isValidStellarAddress(currentUserAddress)) {
-      sileo.error({ title: 'Invalid wallet address. Please reconnect your wallet.' });
+      sileo.error({
+        title: 'Invalid wallet address. Please reconnect your wallet.',
+      });
       return;
     }
 
@@ -94,14 +119,22 @@ export default function ListingsPage() {
       try {
         // Try to fetch user by ID (if it's a UUID)
         // UUIDs are typically in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingCreatorAddress);
+        const isUUID =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            listingCreatorAddress
+          );
 
         if (isUUID) {
-          const listingUser = await AuthService.getUserProfile(listingCreatorAddress).catch(() => null);
+          const listingUser = await AuthService.getUserProfile(
+            listingCreatorAddress
+          ).catch(() => null);
           if (listingUser?.stellar_address) {
             listingCreatorAddress = listingUser.stellar_address;
           } else {
-            sileo.error({ title: 'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.' });
+            sileo.error({
+              title:
+                'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.',
+            });
             return;
           }
         } else {
@@ -120,43 +153,58 @@ export default function ListingsPage() {
           if (userData?.stellar_address) {
             listingCreatorAddress = userData.stellar_address;
           } else {
-            sileo.error({ title: 'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.' });
+            sileo.error({
+              title:
+                'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.',
+            });
             return;
           }
         }
       } catch (error) {
         console.error('Error fetching listing creator address:', error);
-        sileo.error({ title: 'Failed to get listing creator wallet address. Please ensure they have linked their wallet.' });
+        sileo.error({
+          title:
+            'Failed to get listing creator wallet address. Please ensure they have linked their wallet.',
+        });
         return;
       }
     }
 
     if (!isValidStellarAddress(listingCreatorAddress)) {
-      sileo.error({ title: 'Listing creator does not have a valid Stellar wallet address' });
+      sileo.error({
+        title: 'Listing creator does not have a valid Stellar wallet address',
+      });
       return;
     }
 
     // Determine seller and buyer based on listing type
     // If listing type is "sell": listing creator is seller, current user is buyer
     // If listing type is "buy": current user is seller, listing creator is buyer
-    const seller_id = selectedListing.type === 'sell'
-      ? listingCreatorAddress
-      : currentUserAddress;
-    const buyer_id = selectedListing.type === 'sell'
-      ? currentUserAddress
-      : listingCreatorAddress;
+    const seller_id =
+      selectedListing.type === 'sell'
+        ? listingCreatorAddress
+        : currentUserAddress;
+    const buyer_id =
+      selectedListing.type === 'sell'
+        ? currentUserAddress
+        : listingCreatorAddress;
+
+    if (seller_id === buyer_id) {
+      sileo.error({ title: 'You cannot trade against your own listing' });
+      return;
+    }
 
     mutate({
       listing: {
         ...selectedListing,
         fiat_currency: selectedListing.fiatCurrency,
-        payment_method: selectedListing.paymentMethod,
+        payment_method: paymentMethod,
       },
-      amount: selectedListing.amount,
+      amount: cryptoAmount,
       buyer_id,
       seller_id,
       token: selectedListing.token,
-      fiat_amount: selectedListing.amount * selectedListing.rate,
+      fiat_amount: fiatAmount,
       fiat_currency: selectedListing.fiatCurrency,
     });
   };

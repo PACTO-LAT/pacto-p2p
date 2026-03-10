@@ -66,7 +66,7 @@ export function TradeTypeStep() {
                   </SelectTrigger>
                   <SelectContent>
                     {TRUSTLINES.map((t) => (
-                      <SelectItem key={t.address} value={t.name}>
+                      <SelectItem key={t.symbol} value={t.name}>
                         {t.name}
                       </SelectItem>
                     ))}

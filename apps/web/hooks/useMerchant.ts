@@ -1,7 +1,9 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { merchantAdapter } from '@/lib/adapters';
+import { applyAsMerchant } from '@/lib/services/merchants';
 import type {
   Merchant,
   MerchantBadge,
@@ -95,6 +97,28 @@ export function useUpsertMerchantProfile() {
     mutationFn: merchantAdapter.upsertMyMerchantProfile,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me', 'merchant'] });
+    },
+  });
+}
+
+/**
+ * Hook for submitting merchant applications with mutation + toast feedback.
+ * Inserts into merchants with verification_status = 'pending', or re-opens
+ * rejected/revoked applications.
+ */
+export function useMerchantApplication() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: applyAsMerchant,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['me', 'merchant'] });
+      toast.success(
+        'Merchant application submitted! We will review and notify you of the status.'
+      );
+    },
+    onError: (error) => {
+      console.error('Failed to submit merchant application:', error);
+      toast.error('Failed to submit application. Please try again.');
     },
   });
 }
