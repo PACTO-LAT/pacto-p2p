@@ -18,7 +18,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useMarketplaceListings } from '@/hooks/use-listings';
 import { useTrades } from '@/hooks/use-trades-history';
-import { useMeMerchant } from '../../hooks/useMerchant';
+import { useMerchantStatus } from '../../hooks/useMerchant';
 import { TradeHistorySkeleton } from '@/components/shared/TradeHistorySkeleton';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
@@ -65,7 +65,7 @@ export default function DashboardPage() {
     handleReleaseFunds,
   } = useEscrowActions();
 
-  const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
+  const { isLoading: merchantLoading, isVerifiedMerchant, verificationStatus } = useMerchantStatus();
   const {
     data: trades = [],
     isLoading: tradesLoading,
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                 <Plus className="w-4 h-4 mr-2" />
                 Checking merchant status...
               </Button>
-            ) : merchant ? (
+            ) : isVerifiedMerchant ? (
               <Link href="/dashboard/listings/create" className="w-full sm:w-auto">
                 <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base">
                   <Plus className="w-4 h-4 mr-2" />
@@ -264,7 +264,19 @@ export default function DashboardPage() {
                 </Button>
               </Link>
             ) : (
-              <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base" disabled title="You must be a merchant to create listings">
+              <Button
+                className="btn-emerald w-full sm:w-auto text-sm sm:text-base"
+                disabled
+                title={
+                  verificationStatus === 'pending'
+                    ? 'Your merchant application is under review'
+                    : verificationStatus === 'rejected'
+                    ? 'Your merchant application was rejected'
+                    : verificationStatus === 'revoked'
+                    ? 'Your merchant access has been revoked'
+                    : 'Only verified merchants can create listings'
+                }
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Listing
               </Button>
