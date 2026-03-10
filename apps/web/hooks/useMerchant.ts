@@ -74,6 +74,16 @@ export function useMeMerchant() {
   });
 }
 
+export function useMerchantStatus() {
+  const { data: merchant, isLoading } = useMeMerchant();
+  return {
+    isLoading,
+    verificationStatus: merchant?.verification_status ?? null,
+    isVerifiedMerchant: merchant?.verification_status === 'verified',
+    hasMerchantProfile: !!merchant,
+  };
+}
+
 export function useMyListings() {
   return useQuery<MerchantListing[]>({
     queryKey: ['me', 'listings'],
