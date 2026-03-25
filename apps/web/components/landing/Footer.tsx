@@ -70,7 +70,8 @@ export function Footer() {
               />
             </div>
             <p className="text-muted-foreground text-sm">
-              Decentralized P2P OTC for Stellar stablecoins — built for LATAM. Open to the world.
+              Decentralized P2P OTC for Stellar stablecoins — built for LATAM.
+              Open to the world.
             </p>
           </motion.div>
         </motion.div>

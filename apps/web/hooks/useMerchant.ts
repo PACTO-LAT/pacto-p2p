@@ -1,9 +1,10 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { merchantAdapter } from '@/lib/adapters';
 import { applyAsMerchant } from '@/lib/services/merchants';
+import { useAuth } from '@/hooks/use-auth';
 import type {
   Merchant,
   MerchantBadge,
@@ -74,13 +75,20 @@ export function useMeMerchant() {
   });
 }
 
+export function useIsAdmin() {
+  const { user, loading } = useAuth();
+  return { isAdmin: user?.user_type === 'admin', loading };
+}
+
 export function useMerchantStatus() {
-  const { data: merchant, isLoading } = useMeMerchant();
+  const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
+  const { isAdmin, loading: adminLoading } = useIsAdmin();
   return {
-    isLoading,
+    // Skip merchant loading entirely once we know the user is admin
+    isLoading: isAdmin ? false : merchantLoading || adminLoading,
     verificationStatus: merchant?.verification_status ?? null,
-    isVerifiedMerchant: merchant?.verification_status === 'verified',
-    hasMerchantProfile: !!merchant,
+    isVerifiedMerchant: isAdmin || merchant?.verification_status === 'verified',
+    hasMerchantProfile: isAdmin || !!merchant,
   };
 }
 
@@ -112,13 +120,14 @@ export function useMerchantApplication() {
     mutationFn: applyAsMerchant,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me', 'merchant'] });
-      toast.success(
-        'Merchant application submitted! We will review and notify you of the status.'
-      );
+      sileo.success({
+        title: 'Application submitted!',
+        description: 'We will review and notify you of the status.',
+      });
     },
     onError: (error) => {
       console.error('Failed to submit merchant application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      sileo.error({ title: 'Failed to submit application. Please try again.' });
     },
   });
 }

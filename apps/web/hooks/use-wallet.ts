@@ -2,7 +2,11 @@ import { useEffect } from 'react';
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { KitEventType } from '@creit-tech/stellar-wallets-kit/types';
 import { toast } from 'sonner';
-import { initializeWalletKit, isWalletKitInitialized, getInitializationError } from '@/lib/wallet';
+import {
+  initializeWalletKit,
+  isWalletKitInitialized,
+  getInitializationError,
+} from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 /**
@@ -29,8 +33,10 @@ const isSilentError = (error: unknown): boolean => {
   const errorObj = error as Record<string, unknown>;
 
   // Check for meaningful error properties first (most common case)
-  const hasMessage = typeof errorObj.message === 'string' && errorObj.message.length > 0;
-  const hasError = typeof errorObj.error === 'string' && errorObj.error.length > 0;
+  const hasMessage =
+    typeof errorObj.message === 'string' && errorObj.message.length > 0;
+  const hasError =
+    typeof errorObj.error === 'string' && errorObj.error.length > 0;
   if (hasMessage || hasError) {
     return false;
   }
@@ -66,11 +72,11 @@ const extractErrorMessage = (error: unknown): string => {
 
   if (error && typeof error === 'object') {
     const errorObj = error as Record<string, unknown>;
-    
+
     if (typeof errorObj.message === 'string' && errorObj.message) {
       return errorObj.message;
     }
-    
+
     if (typeof errorObj.error === 'string' && errorObj.error) {
       return errorObj.error;
     }
@@ -97,9 +103,11 @@ export const useWallet = () => {
       KitEventType.STATE_UPDATED,
       (event) => {
         const { address, networkPassphrase } = event.payload;
-        
+
         if (address) {
-          const network = networkPassphrase.includes('TESTNET') ? 'testnet' : 'mainnet';
+          const network = networkPassphrase.includes('TESTNET')
+            ? 'testnet'
+            : 'mainnet';
           // Try to get wallet info, but if not available, use defaults
           const walletType = 'Connected Wallet'; // Default, can be improved later
           const publicKey = address;
@@ -158,20 +166,23 @@ export const useWallet = () => {
         initializeWalletKit();
       } catch (initError) {
         console.error('Failed to initialize wallet kit:', initError);
-        throw new Error('Failed to initialize wallet. Please refresh the page and try again.');
+        throw new Error(
+          'Failed to initialize wallet. Please refresh the page and try again.'
+        );
       }
 
       // Verify initialization was successful
       if (!isWalletKitInitialized()) {
         const initError = getInitializationError();
         throw new Error(
-          initError?.message || 'Wallet kit is not initialized. Please refresh the page and try again.'
+          initError?.message ||
+            'Wallet kit is not initialized. Please refresh the page and try again.'
         );
       }
 
       // Add modal class to body for styling
       document.body.classList.add('stellar-wallets-kit-modal-open');
-      
+
       try {
         await StellarWalletsKit.authModal();
         const { address } = await StellarWalletsKit.getAddress();

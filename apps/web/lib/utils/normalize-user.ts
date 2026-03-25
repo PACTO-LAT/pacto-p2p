@@ -4,7 +4,9 @@ import type { User } from '@/lib/types';
  * Normalizes raw DB user row to User type.
  * Handles legacy/variant JSONB structures from seed or migrations.
  */
-export function normalizeUserFromDb(raw: Record<string, unknown> | null): User | null {
+export function normalizeUserFromDb(
+  raw: Record<string, unknown> | null
+): User | null {
   if (!raw || typeof raw !== 'object') return null;
 
   const notifications = normalizeNotifications(raw.notifications);
@@ -14,10 +16,13 @@ export function normalizeUserFromDb(raw: Record<string, unknown> | null): User |
   return {
     id: String(raw.id ?? ''),
     email: String(raw.email ?? ''),
-    stellar_address: raw.stellar_address ? String(raw.stellar_address) : undefined,
+    stellar_address: raw.stellar_address
+      ? String(raw.stellar_address)
+      : undefined,
     reputation_score: Number(raw.reputation_score ?? 0),
     total_trades: Number(raw.total_trades ?? 0),
-    total_volume: raw.total_volume != null ? Number(raw.total_volume) : undefined,
+    total_volume:
+      raw.total_volume != null ? Number(raw.total_volume) : undefined,
     full_name: raw.full_name ? String(raw.full_name) : undefined,
     username: raw.username ? String(raw.username) : undefined,
     bio: raw.bio ? String(raw.bio) : undefined,
@@ -29,8 +34,12 @@ export function normalizeUserFromDb(raw: Record<string, unknown> | null): User |
     notifications,
     security,
     payment_methods,
-    created_at: raw.created_at ? String(raw.created_at) : new Date().toISOString(),
-    updated_at: raw.updated_at ? String(raw.updated_at) : new Date().toISOString(),
+    created_at: raw.created_at
+      ? String(raw.created_at)
+      : new Date().toISOString(),
+    updated_at: raw.updated_at
+      ? String(raw.updated_at)
+      : new Date().toISOString(),
   };
 }
 
@@ -61,8 +70,12 @@ function normalizeSecurity(v: unknown): User['security'] {
   }
   const o = v as Record<string, unknown>;
   return {
-    two_factor_enabled: Boolean(o.two_factor_enabled ?? o.twoFactorEnabled ?? false),
-    login_notifications: Boolean(o.login_notifications ?? o.loginNotifications ?? true),
+    two_factor_enabled: Boolean(
+      o.two_factor_enabled ?? o.twoFactorEnabled ?? false
+    ),
+    login_notifications: Boolean(
+      o.login_notifications ?? o.loginNotifications ?? true
+    ),
   };
 }
 
@@ -75,7 +88,9 @@ function normalizePaymentMethods(v: unknown): User['payment_methods'] {
     };
   }
   const o = v as Record<string, unknown>;
-  const methods = (o.methods ?? o.bank_accounts ?? []) as Array<Record<string, unknown>>;
+  const methods = (o.methods ?? o.bank_accounts ?? []) as Array<
+    Record<string, unknown>
+  >;
   const bank_accounts = Array.isArray(methods)
     ? methods.map((m) => ({
         bank_iban: String(m.bank_iban ?? m.account ?? ''),
@@ -84,12 +99,17 @@ function normalizePaymentMethods(v: unknown): User['payment_methods'] {
       }))
     : [];
 
-  const sinpe = methods?.find((m) => String(m.type ?? '').toUpperCase() === 'SINPE');
-  const sinpe_number = sinpe ? String(sinpe.account ?? '') : String(o.sinpe_number ?? '');
+  const sinpe = methods?.find(
+    (m) => String(m.type ?? '').toUpperCase() === 'SINPE'
+  );
+  const sinpe_number = sinpe
+    ? String(sinpe.account ?? '')
+    : String(o.sinpe_number ?? '');
 
   return {
     sinpe_number,
-    preferred_method: (o.preferred_method as 'sinpe' | 'bank_transfer') ?? 'sinpe',
+    preferred_method:
+      (o.preferred_method as 'sinpe' | 'bank_transfer') ?? 'sinpe',
     bank_accounts,
   };
 }

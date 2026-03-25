@@ -39,7 +39,7 @@ import {
 import Link from 'next/link';
 
 export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
-  const { data:merchant, isLoading: merchantLoading } = useMeMerchant();
+  const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
 
   if (merchantLoading) {
     return (

@@ -1,9 +1,12 @@
 'use client';
 
-import { AlertCircle, Plus } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import type { DashboardEscrow, DashboardListing } from '@/lib/types';
-import { DisputeDialog, ReceiptDialog } from '@/components/shared/DashboardDialogs';
+import {
+  DisputeDialog,
+  ReceiptDialog,
+} from '@/components/shared/DashboardDialogs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEffect, useState } from 'react';
 
@@ -21,7 +24,6 @@ import { sileo } from 'sileo';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useMarketplaceListings } from '@/hooks/use-listings';
 import { useTrades } from '@/hooks/use-trades-history';
-import { useMerchantStatus } from '../../hooks/useMerchant';
 import { TradeHistorySkeleton } from '@/components/shared/TradeHistorySkeleton';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
@@ -56,10 +58,13 @@ export default function DashboardPage() {
   } = useDialog<DashboardListing>();
 
   // Escrow modal state
+  const [activeTab, setActiveTab] = useState('listings');
   const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
-  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] = useState(false);
+  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
+    useState(false);
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
-  const { selectedEscrow, selectEscrow, clearSelectedEscrow } = useEscrowSelection();
+  const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
+    useEscrowSelection();
   const {
     isReportPaymentLoading,
     handleReportPayment,
@@ -70,7 +75,6 @@ export default function DashboardPage() {
   } = useEscrowActions();
   const { reportPayment } = useInitializeTrade();
 
-  const { isLoading: merchantLoading, isVerifiedMerchant, verificationStatus } = useMerchantStatus();
   const {
     data: trades = [],
     isLoading: tradesLoading,
@@ -114,8 +118,9 @@ export default function DashboardPage() {
     trade: DashboardListing | DashboardEscrow,
     action: string
   ) => {
-    const isListing = (t: DashboardListing | DashboardEscrow): t is DashboardListing =>
-      'rate' in t && 'fiatCurrency' in t;
+    const isListing = (
+      t: DashboardListing | DashboardEscrow
+    ): t is DashboardListing => 'rate' in t && 'fiatCurrency' in t;
 
     if (action === 'view' && isListing(trade)) {
       openListingDialog(trade);
@@ -165,7 +170,9 @@ export default function DashboardPage() {
       closeDialog();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to upload receipt. Please try again.';
+        err instanceof Error
+          ? err.message
+          : 'Failed to upload receipt. Please try again.';
       sileo.error({ title: 'Upload failed', description: message });
     } finally {
       setIsUploadingReceipt(false);
@@ -233,18 +240,29 @@ export default function DashboardPage() {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, authLoading, showWalletPrompt, isConnected, address, hasShownWalletPrompt, userDismissedPrompt]);
+  }, [
+    user,
+    authLoading,
+    showWalletPrompt,
+    isConnected,
+    address,
+    hasShownWalletPrompt,
+    userDismissedPrompt,
+  ]);
 
   // Handle when user closes the prompt
   const handleWalletPromptChange = (open: boolean) => {
     setShowWalletPrompt(open);
-    if (!open && (!isConnected || !address || user?.stellar_address !== address)) {
+    if (
+      !open &&
+      (!isConnected || !address || user?.stellar_address !== address)
+    ) {
       setUserDismissedPrompt(true);
     }
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className="space-y-3 sm:space-y-4">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:gap-4">
         <div>
@@ -258,65 +276,46 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs id="dashboard-tabs" defaultValue="listings" className="space-y-4 sm:space-y-6">
-        <TabsList className="flex flex-col sm:flex-row h-auto p-1.5 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-2 w-full sm:w-auto">
-          <TabsTrigger
-            value="listings"
-            className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-          >
-            My Listings
-          </TabsTrigger>
-          <TabsTrigger
-            value="escrows"
-            className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-          >
-            Active Orders
-          </TabsTrigger>
-          <TabsTrigger
-            value="history"
-            className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-          >
-            History
-          </TabsTrigger>
-        </TabsList>
+      <Tabs
+        id="dashboard-tabs"
+        defaultValue="listings"
+        className="space-y-4 sm:space-y-6"
+        onValueChange={setActiveTab}
+      >
+        {/* Shared header: title left, tabs + action right */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+            {activeTab === 'listings'
+              ? 'Active Listings'
+              : activeTab === 'escrows'
+                ? 'Active Orders'
+                : 'Trade History'}
+          </h2>
+          <div className="flex flex-col items-end gap-2">
+            <TabsList className="flex flex-row h-auto p-1 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-1">
+              <TabsTrigger
+                value="listings"
+                className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
+              >
+                My Listings
+              </TabsTrigger>
+              <TabsTrigger
+                value="escrows"
+                className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
+              >
+                Active Orders
+              </TabsTrigger>
+              <TabsTrigger
+                value="history"
+                className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
+              >
+                History
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
 
         <TabsContent value="listings" className="space-y-4 sm:space-y-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
-              Active Listings
-            </h2>
-            {merchantLoading ? (
-              <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base" disabled>
-                <Plus className="w-4 h-4 mr-2" />
-                Checking merchant status...
-              </Button>
-            ) : isVerifiedMerchant ? (
-              <Link href="/dashboard/listings/create" className="w-full sm:w-auto">
-                <Button className="btn-emerald w-full sm:w-auto text-sm sm:text-base">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Listing
-                </Button>
-              </Link>
-            ) : (
-              <Button
-                className="btn-emerald w-full sm:w-auto text-sm sm:text-base"
-                disabled
-                title={
-                  verificationStatus === 'pending'
-                    ? 'Your merchant application is under review'
-                    : verificationStatus === 'rejected'
-                    ? 'Your merchant application was rejected'
-                    : verificationStatus === 'revoked'
-                    ? 'Your merchant access has been revoked'
-                    : 'Only verified merchants can create listings'
-                }
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Listing
-              </Button>
-            )}
-          </div>
-
           <div className="grid gap-4 sm:gap-6">
             {isLoading ? (
               <Card className="card">
@@ -351,10 +350,6 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="escrows" className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
-            Active Orders
-          </h2>
-
           {escrowsLoading ? (
             <LoadingState />
           ) : escrowsError ? (
@@ -375,10 +370,6 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
-            Trade History
-          </h2>
-
           {tradesLoading ? (
             <TradeHistorySkeleton />
           ) : tradesError ? (
@@ -402,8 +393,8 @@ export default function DashboardPage() {
                   No completed trades yet
                 </p>
                 <p className="text-sm sm:text-base text-muted-foreground/80 max-w-md mx-auto">
-                  Your trade history will appear here once you complete your first
-                  transaction
+                  Your trade history will appear here once you complete your
+                  first transaction
                 </p>
               </CardContent>
             </Card>
@@ -459,10 +450,18 @@ export default function DashboardPage() {
         escrow={selectedEscrow}
         activeTab="buyer"
         onReportPayment={onReportPayment}
-        onConfirmPayment={async (escrow) => { await handleConfirmPayment(escrow); }}
-        onDeposit={async (escrow) => { await handleDeposit(escrow); }}
-        onDisputeEscrow={async (escrow) => { await handleDisputeEscrow(escrow); }}
-        onReleaseFunds={async (escrow) => { await handleReleaseFunds(escrow); }}
+        onConfirmPayment={async (escrow) => {
+          await handleConfirmPayment(escrow);
+        }}
+        onDeposit={async (escrow) => {
+          await handleDeposit(escrow);
+        }}
+        onDisputeEscrow={async (escrow) => {
+          await handleDisputeEscrow(escrow);
+        }}
+        onReleaseFunds={async (escrow) => {
+          await handleReleaseFunds(escrow);
+        }}
       />
 
       <ReportPaymentModal

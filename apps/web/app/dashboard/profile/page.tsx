@@ -1,7 +1,8 @@
 'use client';
 
 import { Settings } from 'lucide-react';
-import { useState, useMemo, useCallback } from 'react';
+import { Suspense, useState, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,11 +20,26 @@ import { useAuth } from '@/hooks/use-auth';
 import { EnhancedAuthService } from '@/lib/services/enhanced-auth.service';
 import { validateProfileUpdate } from '@/lib/schemas/profile-validation.schema';
 
-export default function EnhancedProfilePage() {
+const TAB_TRIGGER_CLASS =
+  'bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap';
+
+const VALID_TABS = ['profile', 'payments', 'merchant', 'settings', 'security'];
+
+function EnhancedProfilePageInner() {
+  const searchParams = useSearchParams();
+  const initialTab = VALID_TABS.includes(searchParams.get('tab') ?? '')
+    ? (searchParams.get('tab') as string)
+    : 'profile';
+
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { user, updateProfile, updateAvatarUrl, loading: authLoading } = useAuth();
+  const {
+    user,
+    updateProfile,
+    updateAvatarUrl,
+    loading: authLoading,
+  } = useAuth();
 
   const [userData, setUserData] = useState<UserData | null>(null);
 
@@ -33,12 +49,10 @@ export default function EnhancedProfilePage() {
       const baseUser = u ?? null;
       const localOverrides = local ?? null;
       const normalizedEmail = (() => {
-        // Prefer local edits over base user email (to allow typing)
         const e =
           (localOverrides?.email?.length
             ? localOverrides.email
             : baseUser?.email || '') || '';
-        // Hide synthetic wallet-local email in UI to allow user to set a real one
         return e.endsWith('@wallet.local') ? '' : e;
       })();
       return {
@@ -47,10 +61,10 @@ export default function EnhancedProfilePage() {
         full_name: baseUser?.full_name || localOverrides?.full_name || '',
         username: baseUser?.username || localOverrides?.username || '',
         bio: baseUser?.bio || localOverrides?.bio || '',
-        // Use ?? so that an explicit '' (avatar removed) is respected over the base user's URL
-        avatar_url: local !== null
-          ? (localOverrides?.avatar_url ?? baseUser?.avatar_url ?? '')
-          : (baseUser?.avatar_url ?? ''),
+        avatar_url:
+          local !== null
+            ? (localOverrides?.avatar_url ?? baseUser?.avatar_url ?? '')
+            : (baseUser?.avatar_url ?? ''),
         stellar_address:
           baseUser?.stellar_address || localOverrides?.stellar_address || '',
         phone: baseUser?.phone || localOverrides?.phone || '',
@@ -84,7 +98,8 @@ export default function EnhancedProfilePage() {
           };
         })(),
         payment_methods: (() => {
-          const pm = baseUser?.payment_methods ?? localOverrides?.payment_methods;
+          const pm =
+            baseUser?.payment_methods ?? localOverrides?.payment_methods;
           const defaultPm = {
             sinpe_number: '',
             preferred_method: 'sinpe' as const,
@@ -115,25 +130,19 @@ export default function EnhancedProfilePage() {
     [user, userData, mapUserToUserData]
   );
 
-  /**
-   * Enhanced save handler with validation and error handling
-   */
   const handleSave = async () => {
     if (!hydratedUserData) {
       sileo.error({ title: 'No user data to save' });
       return;
     }
 
-    // Clear previous validation errors
     setValidationErrors([]);
     setIsLoading(true);
 
     try {
-      // Step 1: Prepare the payload
       const payload = {
-        // Only persist email if user provided a non-empty value
         ...(hydratedUserData.email &&
-          !hydratedUserData.email.endsWith('@wallet.local')
+        !hydratedUserData.email.endsWith('@wallet.local')
           ? { email: hydratedUserData.email }
           : {}),
         full_name: hydratedUserData.full_name,
@@ -149,7 +158,6 @@ export default function EnhancedProfilePage() {
         stellar_address: hydratedUserData.stellar_address,
       } as const;
 
-      // Step 2: Validate the payload
       const validation = validateProfileUpdate(payload);
 
       if (!validation.success) {
@@ -157,68 +165,46 @@ export default function EnhancedProfilePage() {
           (err) => `${err.path.join('.')}: ${err.message}`
         );
         setValidationErrors(errors);
-
         sileo.error({
           title: 'Validation failed',
-          description: errors[0], // Show first error in toast
+          description: errors[0],
         });
-
         return;
       }
 
-      // Step 3: Optimistic update (update UI immediately)
       const previousUserData = hydratedUserData;
 
-      // Step 4: Perform the actual update
       try {
         await updateProfile(validation.data);
-
-        // Step 5: Success handling
         sileo.success({
           title: 'Profile updated successfully',
           description: 'Your changes have been saved.',
         });
-
         setIsEditing(false);
         setValidationErrors([]);
-
       } catch (updateError) {
-        // Step 6: Revert optimistic update on error
         setUserData(previousUserData);
-
-        // Get user-friendly error message
         const errorMessage = EnhancedAuthService.getErrorMessage(updateError);
-
         sileo.error({
           title: 'Failed to update profile',
           description: errorMessage,
         });
-
-        // Keep edit mode open so user can fix the issue
         console.error('Profile update error:', updateError);
       }
-
     } catch (error) {
-      // Handle unexpected errors
       const errorMessage = EnhancedAuthService.getErrorMessage(error);
-
       sileo.error({
         title: 'An unexpected error occurred',
         description: errorMessage,
       });
-
       console.error('Unexpected error during profile update:', error);
-
     } finally {
       setIsLoading(false);
     }
   };
 
-  /**
-   * Handle cancel - revert to original user data
-   */
   const handleCancel = useCallback(() => {
-    setUserData(null); // Reset local overrides
+    setUserData(null);
     setValidationErrors([]);
     setIsEditing(false);
   }, []);
@@ -243,58 +229,84 @@ export default function EnhancedProfilePage() {
     setUserData({ ...(hydratedUserData as UserData), payment_methods });
   };
 
+  const isReady = !authLoading && !!hydratedUserData;
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <Tabs defaultValue={initialTab} className="space-y-3 sm:space-y-4">
+      {/* Header row: title left | tabs center | button right */}
+      <div className="flex flex-col gap-3 sm:grid sm:grid-cols-3 sm:items-center">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
             My Profile
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Manage your personal information and settings
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          {isEditing ? (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleCancel}
-                disabled={isLoading}
-                className="w-full sm:w-auto text-sm sm:text-base"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isLoading}
-                className="w-full sm:w-auto text-sm sm:text-base"
-              >
-                {isLoading ? (
-                  <>
-                    <Settings className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
-            </>
-          ) : (
-            <Button
-              onClick={() => setIsEditing(true)}
-              variant="secondary"
-              className="w-full sm:w-auto text-sm sm:text-base"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Edit Profile
-            </Button>
+
+        <div className="flex justify-center">
+          {isReady && (
+            <TabsList className="flex flex-row h-auto p-1 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-1 w-full sm:w-auto">
+              <TabsTrigger value="profile" className={TAB_TRIGGER_CLASS}>
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="payments" className={TAB_TRIGGER_CLASS}>
+                Payments
+              </TabsTrigger>
+              <TabsTrigger value="merchant" className={TAB_TRIGGER_CLASS}>
+                Merchant
+              </TabsTrigger>
+              <TabsTrigger value="settings" className={TAB_TRIGGER_CLASS}>
+                Notifications
+              </TabsTrigger>
+              <TabsTrigger value="security" className={TAB_TRIGGER_CLASS}>
+                Security
+              </TabsTrigger>
+            </TabsList>
           )}
+        </div>
+
+        <div className="h-9 flex items-center justify-end gap-2">
+          {isReady &&
+            (isEditing ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                  className="text-sm"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={isLoading}
+                  className="text-sm"
+                >
+                  {isLoading ? (
+                    <>
+                      <Settings className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="secondary"
+                className="text-sm"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Edit Profile
+              </Button>
+            ))}
         </div>
       </div>
 
-      {/* Validation Errors Display */}
+      {/* Validation Errors */}
       {validationErrors.length > 0 && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
@@ -313,6 +325,7 @@ export default function EnhancedProfilePage() {
         </div>
       )}
 
+      {/* Content */}
       {authLoading ? (
         <div className="flex items-center justify-center p-8">
           <Settings className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -322,45 +335,10 @@ export default function EnhancedProfilePage() {
           Connect your wallet or sign in to manage your profile.
         </div>
       ) : (
-        <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
-          <TabsList className="flex flex-col sm:flex-row h-auto p-1.5 sm:p-1.5 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-2 w-full sm:w-auto">
-            <TabsTrigger
-              value="profile"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-            >
-              Profile
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="payments"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-            >
-              Payments
-            </TabsTrigger>
-            <TabsTrigger
-              value="merchant"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-            >
-              Merchant
-            </TabsTrigger>
-            <TabsTrigger
-              value="settings"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-            >
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger
-              value="security"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-            >
-              Security
-            </TabsTrigger>
-          </TabsList>
-
+        <>
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-              {/* Profile Info */}
               <div className="lg:col-span-2">
                 <ProfileInfo
                   userData={hydratedUserData}
@@ -374,8 +352,6 @@ export default function EnhancedProfilePage() {
                   }}
                 />
               </div>
-
-              {/* Stats */}
               <div className="space-y-6">
                 <ProfileStats
                   stats={{
@@ -398,7 +374,7 @@ export default function EnhancedProfilePage() {
             />
           </TabsContent>
 
-          {/* Settings Tab */}
+          {/* Notifications Tab */}
           <TabsContent value="settings" className="space-y-4 sm:space-y-6">
             <NotificationSettings
               notifications={hydratedUserData.notifications}
@@ -418,8 +394,22 @@ export default function EnhancedProfilePage() {
           <TabsContent value="merchant" className="space-y-4 sm:space-y-6">
             <MerchantSection />
           </TabsContent>
-        </Tabs>
+        </>
       )}
-    </div>
+    </Tabs>
+  );
+}
+
+export default function EnhancedProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center p-8">
+          <Settings className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <EnhancedProfilePageInner />
+    </Suspense>
   );
 }

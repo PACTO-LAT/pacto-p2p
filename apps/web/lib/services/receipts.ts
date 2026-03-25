@@ -18,9 +18,7 @@ export async function uploadReceipt(
   }
 
   if (!ACCEPTED_TYPES.includes(file.type)) {
-    throw new Error(
-      'Invalid file type. Use JPEG, PNG, WebP, or PDF.'
-    );
+    throw new Error('Invalid file type. Use JPEG, PNG, WebP, or PDF.');
   }
 
   const ext = file.name.split('.').pop() || 'bin';

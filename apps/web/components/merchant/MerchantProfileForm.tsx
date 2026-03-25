@@ -111,7 +111,9 @@ export function MerchantProfileForm({
 
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
-      sileo.error({ title: 'Connect your wallet to save your merchant profile' });
+      sileo.error({
+        title: 'Connect your wallet to save your merchant profile',
+      });
       return;
     }
 
@@ -121,9 +123,9 @@ export function MerchantProfileForm({
       location: values.location?.trim() || undefined,
       languages: values.languages
         ? values.languages
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean)
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
         : undefined,
       socials: {
         website: values.website || undefined,
@@ -157,7 +159,11 @@ export function MerchantProfileForm({
               profile.
             </div>
           </div>
-          <Button type="button" variant="default" onClick={handleConnectAndLink}>
+          <Button
+            type="button"
+            variant="default"
+            onClick={handleConnectAndLink}
+          >
             Connect Wallet
           </Button>
         </div>
@@ -485,9 +491,9 @@ function TagsInput({
     () =>
       value
         ? value
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
         : [],
     [value]
   );

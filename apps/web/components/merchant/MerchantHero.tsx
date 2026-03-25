@@ -104,7 +104,11 @@ export function MerchantHero({ merchant }: { merchant: Merchant }) {
                   </span>
                 ) : null}
                 {merchant.socials?.website && (
-                  <Link href={merchant.socials.website} target="_blank" className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 hover:text-foreground">
+                  <Link
+                    href={merchant.socials.website}
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 hover:text-foreground"
+                  >
                     <Globe className="h-4 w-4" /> Website
                   </Link>
                 )}

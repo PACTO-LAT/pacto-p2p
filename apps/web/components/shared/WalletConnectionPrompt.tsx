@@ -2,7 +2,13 @@
 
 import { Wallet } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useWallet } from '@/hooks/use-wallet';
@@ -27,7 +33,7 @@ export function WalletConnectionPrompt({
 
   // Close dialog if wallet is already connected and linked
   useEffect(() => {
-    if (open && (isConnected && address) && user?.stellar_address === address) {
+    if (open && isConnected && address && user?.stellar_address === address) {
       onOpenChange(false);
     }
   }, [open, isConnected, address, user?.stellar_address, onOpenChange]);
@@ -43,7 +49,9 @@ export function WalletConnectionPrompt({
       const connectedAddress = await handleConnect();
 
       if (!connectedAddress) {
-        throw new Error('Failed to get wallet address. Please try connecting again.');
+        throw new Error(
+          'Failed to get wallet address. Please try connecting again.'
+        );
       }
 
       // Link wallet to user profile
@@ -69,7 +77,8 @@ export function WalletConnectionPrompt({
       console.error('Wallet connection error:', {
         error,
         message,
-        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        errorType:
+          error instanceof Error ? error.constructor.name : typeof error,
       });
 
       sileo.error({ title: 'Failed to connect wallet', description: message });
@@ -94,8 +103,9 @@ export function WalletConnectionPrompt({
             Connect Your Stellar Wallet
           </DialogTitle>
           <DialogDescription className="text-center">
-            Link your Stellar wallet to your account to start trading stablecoins.
-            You can connect or change your wallet anytime in your profile settings.
+            Link your Stellar wallet to your account to start trading
+            stablecoins. You can connect or change your wallet anytime in your
+            profile settings.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

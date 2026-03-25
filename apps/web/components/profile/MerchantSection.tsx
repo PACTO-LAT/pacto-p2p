@@ -73,7 +73,9 @@ export function MerchantSection() {
     if (isLoading) {
       return (
         <CardContent>
-          <div className="text-sm text-muted-foreground">Loading merchant status...</div>
+          <div className="text-sm text-muted-foreground">
+            Loading merchant status...
+          </div>
         </CardContent>
       );
     }
@@ -83,10 +85,11 @@ export function MerchantSection() {
       return (
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Become a merchant to list your own trading offers and earn from P2P trading.
+            Become a merchant to list your own trading offers and earn from P2P
+            trading.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button 
+            <Button
               onClick={() => setShowApplicationModal(true)}
               className="text-accent"
             >
@@ -113,7 +116,7 @@ export function MerchantSection() {
             </Link>
           )}
           {merchant.verification_status === 'rejected' && (
-            <Button 
+            <Button
               onClick={() => setShowApplicationModal(true)}
               variant="default"
             >

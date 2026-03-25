@@ -47,10 +47,16 @@ export function KpiCards({ kpis }: { kpis: MerchantKpis }) {
           <Card className="rounded-2xl p-4 sm:p-5 bg-gradient-to-b from-background to-muted/40 border border-border/50 transition-all hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{it.label}</div>
-                <div className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{it.value}</div>
+                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {it.label}
+                </div>
+                <div className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  {it.value}
+                </div>
               </div>
-              <div className="shrink-0 rounded-md bg-emerald-500/10 p-2">{it.icon}</div>
+              <div className="shrink-0 rounded-md bg-emerald-500/10 p-2">
+                {it.icon}
+              </div>
             </div>
           </Card>
         </motion.div>

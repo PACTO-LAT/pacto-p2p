@@ -30,8 +30,15 @@ export function BadgeGrid({ badges }: { badges: MerchantBadge[] }) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="truncate text-sm font-semibold text-foreground">{b.title}</div>
-                        <UiBadge variant="secondary" className="whitespace-nowrap">{b.code}</UiBadge>
+                        <div className="truncate text-sm font-semibold text-foreground">
+                          {b.title}
+                        </div>
+                        <UiBadge
+                          variant="secondary"
+                          className="whitespace-nowrap"
+                        >
+                          {b.code}
+                        </UiBadge>
                       </div>
                       {b.description ? (
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-2">

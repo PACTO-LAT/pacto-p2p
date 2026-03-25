@@ -3,12 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 
-const STEP_LABELS = [
-  'Type & Asset',
-  'Pricing',
-  'Payment',
-  'Review',
-] as const;
+const STEP_LABELS = ['Type & Asset', 'Pricing', 'Payment', 'Review'] as const;
 
 type Step = 1 | 2 | 3 | 4;
 

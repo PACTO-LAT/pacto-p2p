@@ -74,7 +74,9 @@ const features = [
                 A
               </span>
             </div>
-            <span className="text-[10px] lg:text-xs text-muted-foreground">Buyer</span>
+            <span className="text-[10px] lg:text-xs text-muted-foreground">
+              Buyer
+            </span>
           </div>
 
           <div className="flex items-center">
@@ -86,7 +88,9 @@ const features = [
             <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-xl bg-primary/10 border-2 border-primary/25 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <Lock className="h-6 w-6 lg:h-7 lg:w-7 text-primary" />
             </div>
-            <span className="text-[10px] lg:text-xs font-medium text-primary">Escrow</span>
+            <span className="text-[10px] lg:text-xs font-medium text-primary">
+              Escrow
+            </span>
           </div>
 
           <div className="flex items-center">
@@ -100,7 +104,9 @@ const features = [
                 B
               </span>
             </div>
-            <span className="text-[10px] lg:text-xs text-muted-foreground">Seller</span>
+            <span className="text-[10px] lg:text-xs text-muted-foreground">
+              Seller
+            </span>
           </div>
         </div>
       </div>

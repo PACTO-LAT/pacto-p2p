@@ -64,7 +64,7 @@ export function CreateListingModal({
 
   const createListing = useCreateListing();
   const { user } = useAuth();
-  const { data:merchant, isLoading: merchantLoading } = useMeMerchant();
+  const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
   const isDirty = form.formState.isDirty;
 
   useEffect(() => {
@@ -125,7 +125,9 @@ export function CreateListingModal({
   async function onSubmit(values: ListingFormValues) {
     if (merchantLoading) return;
     if (!merchant) {
-      toast.error('You need a merchant profile to create a listing.');
+      sileo.error({
+        title: 'You need a merchant profile to create a listing.',
+      });
       return;
     }
     if (!user?.id) {
@@ -208,11 +210,19 @@ export function CreateListingModal({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           className="fixed inset-0 w-full max-h-[100dvh] rounded-none border-0 sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:rounded-lg sm:border sm:p-6 gap-4 overflow-y-auto"
+          onPointerDownOutside={(e) => {
+            // Prevent dialog from closing when interacting with Select dropdown (portal outside dialog DOM)
+            const target = e.target as Element;
+            if (
+              target.closest('[data-slot="select-content"]') ||
+              target.closest('[data-radix-popper-content-wrapper]')
+            ) {
+              e.preventDefault();
+            }
+          }}
         >
           <DialogHeader>
-            <DialogTitle>
-              Create Listing
-            </DialogTitle>
+            <DialogTitle>Create Listing</DialogTitle>
             <DialogDescription>
               Complete the steps below to create your OTC trade listing.
             </DialogDescription>
@@ -274,9 +284,7 @@ export function CreateListingModal({
       </Dialog>
 
       <Dialog open={showDiscardConfirm} onOpenChange={setShowDiscardConfirm}>
-        <DialogContent
-          className="sm:max-w-md"
-        >
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Discard changes?</DialogTitle>
             <DialogDescription>

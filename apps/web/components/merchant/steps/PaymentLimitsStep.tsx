@@ -37,9 +37,7 @@ export function PaymentLimitsStep() {
                 <SelectContent>
                   <SelectItem value="SINPE">SINPE (Costa Rica)</SelectItem>
                   <SelectItem value="SPEI">SPEI (Mexico)</SelectItem>
-                  <SelectItem value="Bank Transfer">
-                    Bank Transfer
-                  </SelectItem>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
                   <SelectItem value="Cash Deposit">Cash Deposit</SelectItem>
                 </SelectContent>
               </Select>

@@ -19,13 +19,13 @@ export default function MerchantsPage() {
         <h1 className="text-3xl font-bold">Merchants</h1>
         {me.data ? (
           <div className="flex gap-2">
-            <Link href="/dashboard/merchant">
+            <Link href="/dashboard/profile?tab=merchant">
               <Button variant="outline">My Merchant</Button>
             </Link>
           </div>
         ) : (
-          <Link href="/dashboard/merchant">
-            <Button>Become a Merchant</Button>
+          <Link href="/dashboard/profile?tab=merchant">
+            <Button className="btn-emerald">Become a Merchant</Button>
           </Link>
         )}
       </div>

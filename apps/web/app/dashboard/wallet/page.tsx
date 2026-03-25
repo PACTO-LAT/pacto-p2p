@@ -16,7 +16,9 @@ export default function WalletPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <p className="text-muted-foreground">Wallet connection functionality coming soon.</p>
+            <p className="text-muted-foreground">
+              Wallet connection functionality coming soon.
+            </p>
           </div>
         </CardContent>
       </Card>

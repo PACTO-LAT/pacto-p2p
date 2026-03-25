@@ -33,11 +33,11 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
               <p className="text-xl font-semibold text-foreground break-words">
-                  {escrow.title}
-                </p>
+                {escrow.title}
+              </p>
               <p className="text-sm text-muted-foreground break-all">
-                  ID: {escrow.engagementId}
-                </p>
+                ID: {escrow.engagementId}
+              </p>
             </div>
             <div className="flex items-center gap-2 sm:justify-end">
               <span className={`text-lg font-bold ${status.color}`}>

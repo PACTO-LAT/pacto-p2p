@@ -1,13 +1,18 @@
-import Link from "next/link";
-import React from "react";
-import { useMerchantStatus } from "../../hooks/useMerchant";
+import Link from 'next/link';
+import React from 'react';
+import { useMerchantStatus } from '../../hooks/useMerchant';
 
 interface MerchantGuardProps {
   children: React.ReactNode;
 }
 
 export function MerchantGuard({ children }: MerchantGuardProps) {
-  const { isLoading, hasMerchantProfile, isVerifiedMerchant, verificationStatus } = useMerchantStatus();
+  const {
+    isLoading,
+    hasMerchantProfile,
+    isVerifiedMerchant,
+    verificationStatus,
+  } = useMerchantStatus();
 
   if (isLoading) {
     return (
@@ -35,11 +40,13 @@ export function MerchantGuard({ children }: MerchantGuardProps) {
 
   if (!isVerifiedMerchant) {
     const messages: Record<string, string> = {
-      pending: "Your merchant application is under review.",
-      rejected: "Your merchant application was rejected.",
-      revoked: "Your merchant access has been revoked.",
+      pending: 'Your merchant application is under review.',
+      rejected: 'Your merchant application was rejected.',
+      revoked: 'Your merchant access has been revoked.',
     };
-    const message = messages[verificationStatus ?? ""] ?? "Your merchant account is not verified.";
+    const message =
+      messages[verificationStatus ?? ''] ??
+      'Your merchant account is not verified.';
 
     return (
       <div className="flex flex-col items-center justify-center py-12">

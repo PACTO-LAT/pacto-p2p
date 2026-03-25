@@ -21,14 +21,16 @@ export function initializeWalletKit(): void {
       isInitialized = true;
       initializationError = null;
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Failed to initialize StellarWalletsKit';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to initialize StellarWalletsKit';
       initializationError = new Error(errorMessage);
       console.error('Failed to initialize StellarWalletsKit:', {
         error,
         message: errorMessage,
-        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        errorType:
+          error instanceof Error ? error.constructor.name : typeof error,
       });
       throw initializationError;
     }
@@ -50,11 +52,11 @@ export function getKit() {
   if (typeof window === 'undefined') {
     throw new Error('StellarWalletsKit can only be used on the client side');
   }
-  
+
   if (!isInitialized) {
     initializeWalletKit();
   }
-  
+
   return StellarWalletsKit;
 }
 
@@ -75,12 +77,13 @@ export const signTransaction = async ({
     initializeWalletKit();
   }
 
-  const { signedTxXdr } = await StellarWalletsKit.signTransaction(unsignedTransaction, {
-    address,
-    networkPassphrase: Networks.TESTNET,
-  });
+  const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+    unsignedTransaction,
+    {
+      address,
+      networkPassphrase: Networks.TESTNET,
+    }
+  );
 
   return signedTxXdr;
 };
-
-

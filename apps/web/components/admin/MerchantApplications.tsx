@@ -33,7 +33,11 @@ export function MerchantApplications() {
   const [selectedApplication, setSelectedApplication] =
     useState<MerchantApplication | null>(null);
 
-  const { data: applications, isLoading, error } = useMerchantApplications(
+  const {
+    data: applications,
+    isLoading,
+    error,
+  } = useMerchantApplications(
     activeFilter === 'all' ? undefined : activeFilter
   );
   const approveMutation = useApproveMerchant();
@@ -106,7 +110,7 @@ export function MerchantApplications() {
               </tr>
             </thead>
             <tbody>
-              {applications.map((application) => (
+              {applications.map((application: MerchantApplication) => (
                 <tr
                   key={application.id}
                   className="border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-muted/30"
@@ -125,7 +129,9 @@ export function MerchantApplications() {
                   <td className="py-3 px-4">
                     <Badge
                       variant="outline"
-                      className={statusVariants[application.verification_status]}
+                      className={
+                        statusVariants[application.verification_status]
+                      }
                     >
                       {application.verification_status}
                     </Badge>

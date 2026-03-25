@@ -94,36 +94,37 @@ export default function EscrowsPage() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
-          Orders
-        </h1>
-        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mt-1 sm:mt-2">
-          Monitor and manage your active escrow contracts
-        </p>
-      </div>
-
+    <div className="space-y-3 sm:space-y-4">
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller')}
-        className="space-y-4 sm:space-y-6"
+        className="space-y-4"
       >
-        <TabsList className="flex flex-col sm:flex-row h-auto p-1.5 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-2 w-full sm:w-auto">
-          <TabsTrigger
-            value="buyer"
-            className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-6 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-          >
-            Buyer
-          </TabsTrigger>
-          <TabsTrigger
-            value="seller"
-            className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-6 py-3 sm:py-2.5 text-sm font-medium border border-transparent cursor-pointer w-full sm:w-auto sm:flex-initial whitespace-nowrap justify-center min-h-[44px] sm:min-h-0"
-          >
-            Seller
-          </TabsTrigger>
-        </TabsList>
+        {/* Header row: title left, tabs right */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+              Orders
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
+              Monitor and manage your active escrow contracts
+            </p>
+          </div>
+          <TabsList className="flex flex-row h-auto p-1 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-1 w-full sm:w-auto">
+            <TabsTrigger
+              value="buyer"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
+            >
+              Buyer
+            </TabsTrigger>
+            <TabsTrigger
+              value="seller"
+              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
+            >
+              Seller
+            </TabsTrigger>
+          </TabsList>
+        </div>
       </Tabs>
 
       {/* Escrows List */}

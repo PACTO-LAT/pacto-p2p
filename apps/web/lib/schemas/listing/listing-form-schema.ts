@@ -32,7 +32,11 @@ export type ListingFormValues = z.infer<typeof listingFormSchema>;
 
 export const STEP_1_FIELDS = ['type', 'token', 'amount'] as const;
 export const STEP_2_FIELDS = ['rate', 'fiatCurrency'] as const;
-export const STEP_3_FIELDS = ['paymentMethod', 'minAmount', 'maxAmount'] as const;
+export const STEP_3_FIELDS = [
+  'paymentMethod',
+  'minAmount',
+  'maxAmount',
+] as const;
 
 export const LISTING_FORM_DEFAULT_VALUES: ListingFormValues = {
   type: 'sell',

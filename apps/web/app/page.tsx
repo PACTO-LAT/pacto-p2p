@@ -17,20 +17,19 @@ export default function HomePage() {
   return (
     <div className="min-h-screen relative">
       {/* Aurora Background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-      </div>
+      <div className="fixed inset-0 -z-10 overflow-hidden"></div>
 
       {/* Content */}
       <div className="relative z-10">
-      <Header />
-      <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <AssetsSection />
-      <BuildersSection />
-      <BuiltWithSection />
-      <CTASection />
-      <Footer />
+        <Header />
+        <HeroSection />
+        <FeaturesSection />
+        <HowItWorksSection />
+        <AssetsSection />
+        <BuildersSection />
+        <BuiltWithSection />
+        <CTASection />
+        <Footer />
       </div>
     </div>
   );

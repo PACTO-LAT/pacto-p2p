@@ -77,7 +77,8 @@ export function WalletInfo({
       sileo.success({ title: 'Wallet linked successfully!' });
       onWalletLinked?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to connect wallet';
+      const message =
+        error instanceof Error ? error.message : 'Failed to connect wallet';
       sileo.error({ title: 'Failed to connect wallet', description: message });
     } finally {
       setIsConnecting(false);
@@ -99,7 +100,7 @@ export function WalletInfo({
       sileo.success({ title: 'Wallet disconnected' });
     } catch (error) {
       sileo.error({ title: 'Failed to disconnect wallet' });
-      console.error(error)
+      console.error(error);
     }
   };
 

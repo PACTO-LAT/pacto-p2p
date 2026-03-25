@@ -76,11 +76,13 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                         alt={listing.fullName || 'Trader'}
                       />
                       <AvatarFallback className="rounded-xl bg-muted/50 text-xs font-semibold">
-                        {(listing.fullName ||
+                        {(
+                          listing.fullName ||
                           (listing.type === 'sell'
                             ? listing.seller
                             : listing.buyer) ||
-                          'TR')
+                          'TR'
+                        )
                           .split(' ')
                           .map((n) => n[0])
                           .join('')
@@ -129,7 +131,11 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                 title={isOwnListing ? 'This is your listing' : ''}
                 className="btn-emerald w-full justify-center px-8 py-2 text-base font-semibold sm:w-auto"
               >
-                {isOwnListing ? 'Your Listing' : listing.type === 'sell' ? 'Buy Now' : 'Sell Now'}
+                {isOwnListing
+                  ? 'Your Listing'
+                  : listing.type === 'sell'
+                    ? 'Buy Now'
+                    : 'Sell Now'}
               </Button>
             </div>
           </div>

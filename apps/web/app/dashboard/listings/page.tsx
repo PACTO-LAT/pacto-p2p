@@ -1,7 +1,6 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
 import { sileo } from 'sileo';
 import {
@@ -18,6 +17,7 @@ import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
 import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
 import { useMerchantStatus } from '@/hooks/useMerchant';
+import { CreateListingModal } from '@/components/merchant/CreateListingModal';
 import type {
   ListingFilters,
   MarketplaceListing,
@@ -31,6 +31,7 @@ const isValidStellarAddress = (address: string): boolean => {
 
 export default function ListingsPage() {
   const { isVerifiedMerchant } = useMerchantStatus();
+  const [createOpen, setCreateOpen] = useState(false);
   const [filters, setFilters] = useState<ListingFilters>({
     searchTerm: '',
     selectedToken: 'all',
@@ -219,19 +220,8 @@ export default function ListingsPage() {
             Browse and trade stablecoins in stellar network
           </p>
         </div>
-        {isVerifiedMerchant ? (
-          <Link href="/dashboard/listings/create">
-            <Button className="btn-emerald">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Listing
-            </Button>
-          </Link>
-        ) : (
-          <Button
-            className="btn-emerald"
-            disabled
-            title="Only verified merchants can create listings"
-          >
+        {isVerifiedMerchant && (
+          <Button className="btn-emerald" onClick={() => setCreateOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Create Listing
           </Button>
@@ -248,7 +238,12 @@ export default function ListingsPage() {
       {isLoading ? (
         <div className="text-muted-foreground">Loading listings...</div>
       ) : (
-        <ListingsTabs listings={filteredListings} onTrade={handleTrade} />
+        <ListingsTabs
+          listings={filteredListings}
+          onTrade={handleTrade}
+          canCreateListing={isVerifiedMerchant}
+          onCreateListing={() => setCreateOpen(true)}
+        />
       )}
 
       {/* Trade Confirmation Dialog */}
@@ -258,6 +253,13 @@ export default function ListingsPage() {
         selectedListing={selectedListing}
         onConfirm={confirmTrade}
         isPending={isPending}
+      />
+
+      {/* Create Listing Modal */}
+      <CreateListingModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={() => setCreateOpen(false)}
       />
     </div>
   );

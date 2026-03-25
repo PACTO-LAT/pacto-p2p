@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function MerchantHeroSkeleton() {
   return (
@@ -95,5 +95,3 @@ export function ListingsTableSkeleton() {
     </Card>
   );
 }
-
-

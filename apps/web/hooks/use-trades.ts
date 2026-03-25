@@ -31,7 +31,9 @@ export const useInitializeTrade = () => {
 
   const initializeTrade = async (payload: CreateEscrowData) => {
     if (!address) {
-      throw new Error('Wallet address is required. Please connect your wallet.');
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
     }
 
     const trustline = getTrustline(payload.listing.token);
@@ -63,7 +65,9 @@ export const useInitializeTrade = () => {
     }
 
     const listingId =
-      'id' in payload.listing ? String(payload.listing.id) : crypto.randomUUID();
+      'id' in payload.listing
+        ? String(payload.listing.id)
+        : crypto.randomUUID();
     const engagementId = `${listingId}-${Date.now()}`;
 
     const finalPayload = {
@@ -124,7 +128,9 @@ export const useInitializeTrade = () => {
     evidence: string
   ) => {
     if (!address) {
-      throw new Error('Wallet address is required. Please connect your wallet.');
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
     }
 
     if (!escrow.contractId) {
@@ -172,7 +178,9 @@ export const useInitializeTrade = () => {
 
   const depositFunds = async (escrow: Escrow) => {
     if (!address) {
-      throw new Error('Wallet address is required. Please connect your wallet.');
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
     }
 
     if (!escrow.contractId) {
@@ -218,7 +226,9 @@ export const useInitializeTrade = () => {
 
   const disputeEscrow = async (escrow: Escrow) => {
     if (!address) {
-      throw new Error('Wallet address is required. Please connect your wallet.');
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
     }
 
     if (!escrow.contractId) {
@@ -259,7 +269,9 @@ export const useInitializeTrade = () => {
 
   const releaseFunds = async (escrow: Escrow) => {
     if (!address) {
-      throw new Error('Wallet address is required. Please connect your wallet.');
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
     }
 
     if (!escrow.contractId) {
@@ -304,7 +316,9 @@ export const useInitializeTrade = () => {
 
   const confirmPayment = async (escrow: Escrow) => {
     if (!address) {
-      throw new Error('Wallet address is required. Please connect your wallet.');
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
     }
 
     if (!escrow.contractId) {

@@ -851,7 +851,8 @@ div[id*="wallet"],
 body > div[role="dialog"],
 body > div[class*="modal"],
 /* Target portal containers that might contain the modal */
-#root > div[role="dialog"],
+  #root
+  > div[role="dialog"],
 #__next > div[role="dialog"],
 body > div:last-child[role="dialog"] {
   z-index: 99999 !important;

@@ -47,7 +47,7 @@ export function ReportPaymentModal({
       form.reset();
       onOpenChange(false);
     } catch {
-      sileo.error({title: 'Error reporting payment'});
+      sileo.error({ title: 'Error reporting payment' });
     }
   };
 

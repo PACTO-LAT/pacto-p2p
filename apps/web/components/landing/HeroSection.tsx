@@ -96,7 +96,7 @@ export function HeroSection() {
           <WaitlistDialog />
         </motion.div>
       </motion.div>
-      
+
       {/* Macbook Mockup - visible directly in hero, scrolls down to next section */}
       <div className="relative z-0 -mt-8 md:-mt-16">
         <MacbookScrollDemo />

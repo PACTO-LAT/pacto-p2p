@@ -24,7 +24,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen`} style={{ backgroundColor: '#040404' }}>
+      <body
+        className={`${inter.className} min-h-screen`}
+        style={{ backgroundColor: '#040404' }}
+      >
         <QueryProvider>
           <AuthProvider>
             <TrustlessWorkProvider>

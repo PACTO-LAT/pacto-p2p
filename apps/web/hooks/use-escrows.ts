@@ -241,7 +241,13 @@ export function useReportPayment() {
   const { reportPayment } = useInitializeTrade();
 
   return useMutation({
-    mutationFn: ({ escrow, evidence }: { escrow: Escrow; evidence: string }) => {
+    mutationFn: ({
+      escrow,
+      evidence,
+    }: {
+      escrow: Escrow;
+      evidence: string;
+    }) => {
       if (!escrow.contractId) {
         throw new Error('Escrow contract ID is required.');
       }

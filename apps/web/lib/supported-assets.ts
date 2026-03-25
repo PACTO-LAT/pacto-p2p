@@ -251,9 +251,7 @@ export const parseSupportedAssets = (
   }
 
   if (parsedAssets.length === 0) {
-    console.warn(
-      `${LOG_PREFIX} Falling back to default supported assets.`
-    );
+    console.warn(`${LOG_PREFIX} Falling back to default supported assets.`);
     return DEFAULT_SUPPORTED_ASSETS;
   }
 
@@ -271,6 +269,4 @@ export const getSupportedAssets = (): SupportedAsset[] => {
   return cachedAssets;
 };
 
-export const DEFAULT_SUPPORTED_ASSET_SYMBOLS = [
-  ...SUPPORTED_ASSET_MAP.keys(),
-];
+export const DEFAULT_SUPPORTED_ASSET_SYMBOLS = [...SUPPORTED_ASSET_MAP.keys()];

@@ -144,18 +144,14 @@ export function AssetsSection() {
             className="bg-card border border-border rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-500">
-              3
-            </div>
+            <div className="text-2xl font-bold text-emerald-500">3</div>
             <div className="text-sm text-muted-foreground">Regions</div>
           </motion.div>
           <motion.div
             className="bg-card border border-border rounded-xl p-4 text-center"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            <div className="text-2xl font-bold text-emerald-500">
-              100%
-            </div>
+            <div className="text-2xl font-bold text-emerald-500">100%</div>
             <div className="text-sm text-muted-foreground">Live Status</div>
           </motion.div>
         </motion.div>

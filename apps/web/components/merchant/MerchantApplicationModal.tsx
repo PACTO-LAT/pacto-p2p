@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { sileo } from 'sileo';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,7 +57,9 @@ export function MerchantApplicationModal({
 
   async function onSubmit(values: ApplicationFormValues) {
     if (!user) {
-      toast.error('User information not available. Please try again.');
+      sileo.error({
+        title: 'User information not available. Please try again.',
+      });
       return;
     }
 
@@ -84,7 +86,8 @@ export function MerchantApplicationModal({
         <DialogHeader>
           <DialogTitle>Apply to Become a Merchant</DialogTitle>
           <DialogDescription>
-            Tell us about your trading experience and why you want to become a merchant on PACTO P2P.
+            Tell us about your trading experience and why you want to become a
+            merchant on PACTO P2P.
           </DialogDescription>
         </DialogHeader>
 
@@ -133,10 +136,7 @@ export function MerchantApplicationModal({
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={applyMerchant.isPending}
-              >
+              <Button type="submit" disabled={applyMerchant.isPending}>
                 {applyMerchant.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

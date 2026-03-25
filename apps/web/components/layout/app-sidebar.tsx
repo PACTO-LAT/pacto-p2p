@@ -92,7 +92,8 @@ export function AppSidebar() {
         sileo.success({ title: 'Wallet connected successfully' });
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to connect wallet';
       sileo.error({ title: errorMessage });
       console.error('Error connecting wallet:', error);
     }
@@ -153,7 +154,7 @@ export function AppSidebar() {
                     className={cn(
                       'nav-card text-foreground/70 hover:text-foreground hover:bg-glass-hover group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:rounded-xl',
                       pathname === item.href &&
-                      'bg-gradient-emerald text-white shadow-emerald-glow'
+                        'bg-gradient-emerald text-white shadow-emerald-glow'
                     )}
                   >
                     <Link
@@ -180,7 +181,7 @@ export function AppSidebar() {
                     className={cn(
                       'nav-card text-foreground/70 hover:text-foreground hover:bg-glass-hover group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:rounded-xl',
                       pathname === '/dashboard/admin' &&
-                      'bg-gradient-emerald text-white shadow-emerald-glow'
+                        'bg-gradient-emerald text-white shadow-emerald-glow'
                     )}
                   >
                     <Link
@@ -285,7 +286,9 @@ export function AppSidebar() {
             <div className="text-xs space-y-1">
               <p className="font-semibold">{getUserDisplayName()}</p>
               {isConnected && address && (
-                <p className="font-mono">{address.slice(0, 8)}...{address.slice(-6)}</p>
+                <p className="font-mono">
+                  {address.slice(0, 8)}...{address.slice(-6)}
+                </p>
               )}
             </div>
           </TooltipContent>

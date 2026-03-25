@@ -34,7 +34,9 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{stats.activeListings}</div>
+          <div className="text-2xl font-bold text-foreground">
+            {stats.activeListings}
+          </div>
           <p className="text-sm text-blue-600 mt-1">Across all tokens</p>
         </CardContent>
       </Card>
@@ -62,7 +64,9 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{stats.completedTrades}</div>
+          <div className="text-2xl font-bold text-foreground">
+            {stats.completedTrades}
+          </div>
           <p className="text-sm text-gray-600 mt-1">98.5% success rate</p>
         </CardContent>
       </Card>

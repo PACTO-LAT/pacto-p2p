@@ -60,7 +60,10 @@ export function useEscrowActions() {
       sileo.success({ title: 'Payment confirmed successfully' });
       return true;
     } catch (error) {
-      sileo.error({ title: 'Error confirming payment', description: error instanceof Error ? error.message : 'Unknown error' });
+      sileo.error({
+        title: 'Error confirming payment',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
       return false;
     }
   };

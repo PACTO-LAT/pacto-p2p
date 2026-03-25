@@ -22,7 +22,7 @@ export default function DashboardLayout({
       <div className="h-16 shrink-0">
         <DashboardHeader />
       </div>
-      <main className="flex-1 p-4 sm:p-5 md:p-6 lg:p-8 max-w-full overflow-x-hidden">
+      <main className="flex-1 p-4 pt-12 sm:p-5 sm:pt-14 md:p-6 md:pt-16 lg:p-8 lg:pt-20 max-w-full overflow-x-hidden">
         {children}
       </main>
     </div>

@@ -23,10 +23,16 @@ export function PricingStep() {
   const form = useFormContext<ListingFormValues>();
   const amount = useWatch({ control: form.control, name: 'amount' });
   const rate = useWatch({ control: form.control, name: 'rate' });
-  const fiatCurrency = useWatch({ control: form.control, name: 'fiatCurrency' });
+  const fiatCurrency = useWatch({
+    control: form.control,
+    name: 'fiatCurrency',
+  });
 
   const total =
-    amount && rate && !Number.isNaN(Number(amount)) && !Number.isNaN(Number(rate))
+    amount &&
+    rate &&
+    !Number.isNaN(Number(amount)) &&
+    !Number.isNaN(Number(rate))
       ? (Number(amount) * Number(rate)).toFixed(2)
       : null;
 
@@ -63,9 +69,7 @@ export function PricingStep() {
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="CRC">
-                      CRC - Costa Rican Colón
-                    </SelectItem>
+                    <SelectItem value="CRC">CRC - Costa Rican Colón</SelectItem>
                     <SelectItem value="MXN">MXN - Mexican Peso</SelectItem>
                     <SelectItem value="USD">USD - US Dollar</SelectItem>
                   </SelectContent>

@@ -19,7 +19,9 @@ export function ReviewStep() {
   const amount = values.amount ? Number(values.amount) : 0;
   const rate = values.rate ? Number(values.rate) : 0;
   const total =
-    !Number.isNaN(amount) && !Number.isNaN(rate) ? (amount * rate).toFixed(2) : '—';
+    !Number.isNaN(amount) && !Number.isNaN(rate)
+      ? (amount * rate).toFixed(2)
+      : '—';
   const fiatCurrency = values.fiatCurrency || '';
 
   return (

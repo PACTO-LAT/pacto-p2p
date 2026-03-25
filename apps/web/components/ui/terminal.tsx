@@ -207,7 +207,11 @@ export function TypingAnimation({
 
   return (
     <Component
-      className={cn('inline-block', shouldStart ? 'opacity-100' : 'opacity-0', className)}
+      className={cn(
+        'inline-block',
+        shouldStart ? 'opacity-100' : 'opacity-0',
+        className
+      )}
     >
       {displayedText}
       {isStarted && displayedText.length < children.length && (

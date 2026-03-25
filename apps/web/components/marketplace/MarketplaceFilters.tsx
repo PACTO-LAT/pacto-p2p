@@ -34,7 +34,7 @@ export function MarketplaceFilters({
   };
 
   return (
-    <Card className="glass-card">
+    <Card className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm">
       <CardContent className="p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
           <div className="flex-1 min-w-[220px]">

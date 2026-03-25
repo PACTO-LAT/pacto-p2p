@@ -1,4 +1,7 @@
-import type { MarketplaceListing, ListingFilters } from '@/lib/types/marketplace';
+import type {
+  MarketplaceListing,
+  ListingFilters,
+} from '@/lib/types/marketplace';
 import type { DbListing } from '@/lib/types/db';
 import type { User } from '@/lib/types';
 

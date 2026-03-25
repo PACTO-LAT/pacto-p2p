@@ -1,17 +1,18 @@
-"use client";
+'use client';
 
-import { FC, ReactNode } from "react";
-import Link from "next/link";
-import { Plus, ShoppingCart } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import type { MarketplaceListing } from "@/lib/types/marketplace";
-import { ListingCard } from "./ListingCard";
+import { FC, ReactNode } from 'react';
+import { Plus, ShoppingCart } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import type { MarketplaceListing } from '@/lib/types/marketplace';
+import { ListingCard } from './ListingCard';
 
 interface ListingsTabsProps {
   listings: MarketplaceListing[];
   onTrade: (listing: MarketplaceListing) => void;
+  canCreateListing?: boolean;
+  onCreateListing?: () => void;
 }
 
 interface GenericEmptyStateProps {
@@ -27,7 +28,7 @@ export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
   title,
   description,
   action,
-  iconContainerClassName = "",
+  iconContainerClassName = '',
 }) => (
   <Card className="glass-card">
     <CardContent className="p-12 text-center">
@@ -38,21 +39,23 @@ export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
   </Card>
 );
 
-const EmptyState: FC<{ type: "buy" | "sell" }> = ({ type }) => {
-  const title = type === "buy" ? "No buy orders yet" : "No sell orders yet";
+const EmptyState: FC<{
+  type: 'buy' | 'sell';
+  canCreateListing?: boolean;
+  onCreateListing?: () => void;
+}> = ({ type, canCreateListing, onCreateListing }) => {
+  const title = type === 'buy' ? 'No buy orders yet' : 'No sell orders yet';
   const description =
-    type === "buy"
-      ? "There are no active buy orders in the marketplace."
-      : "There are no active sell orders in the marketplace.";
+    type === 'buy'
+      ? 'There are no active buy orders in the marketplace.'
+      : 'There are no active sell orders in the marketplace.';
 
-  const action = (
-    <Button asChild>
-      <Link href="/dashboard/listings/create" className="gap-2">
-        <Plus className="w-4 h-4" />
-        Create Listing
-      </Link>
+  const action = canCreateListing ? (
+    <Button className="btn-emerald gap-2" onClick={onCreateListing}>
+      <Plus className="w-4 h-4" />
+      Create Listing
     </Button>
-  );
+  ) : undefined;
 
   return (
     <GenericEmptyState
@@ -60,7 +63,7 @@ const EmptyState: FC<{ type: "buy" | "sell" }> = ({ type }) => {
       title={title}
       description={description}
       action={action}
-      iconContainerClassName="glow-emerald" // now applied via prop
+      iconContainerClassName="glow-emerald"
     />
   );
 };
@@ -78,22 +81,27 @@ const ListingGrid: FC<ListingGridProps> = ({ listings, onTrade }) => (
   </div>
 );
 
-export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
-  const buyListings = listings.filter((l) => l.type === "buy");
-  const sellListings = listings.filter((l) => l.type === "sell");
+export function ListingsTabs({
+  listings,
+  onTrade,
+  canCreateListing,
+  onCreateListing,
+}: ListingsTabsProps) {
+  const buyListings = listings.filter((l) => l.type === 'buy');
+  const sellListings = listings.filter((l) => l.type === 'sell');
 
   return (
     <Tabs defaultValue="buy" className="space-y-6">
-      <TabsList className="glass-card bg-white/80 backdrop-blur-sm border border-white/30 p-1 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <TabsList className="inline-flex h-auto p-1 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-1">
         <TabsTrigger
           value="buy"
-          className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 w-full sm:w-auto"
+          className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
         >
           Buy Orders ({buyListings.length})
         </TabsTrigger>
         <TabsTrigger
           value="sell"
-          className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 w-full sm:w-auto"
+          className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
         >
           Sell Orders ({sellListings.length})
         </TabsTrigger>
@@ -101,7 +109,11 @@ export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
 
       <TabsContent value="buy" className="space-y-6">
         {buyListings.length === 0 ? (
-          <EmptyState type="buy" />
+          <EmptyState
+            type="buy"
+            canCreateListing={canCreateListing}
+            onCreateListing={onCreateListing}
+          />
         ) : (
           <ListingGrid listings={buyListings} onTrade={onTrade} />
         )}
@@ -109,7 +121,11 @@ export function ListingsTabs({ listings, onTrade }: ListingsTabsProps) {
 
       <TabsContent value="sell" className="space-y-6">
         {sellListings.length === 0 ? (
-          <EmptyState type="sell" />
+          <EmptyState
+            type="sell"
+            canCreateListing={canCreateListing}
+            onCreateListing={onCreateListing}
+          />
         ) : (
           <ListingGrid listings={sellListings} onTrade={onTrade} />
         )}

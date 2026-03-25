@@ -5,9 +5,20 @@ import { AdminService } from '@/lib/services/admin';
 import { supabase } from '@/lib/supabase';
 
 async function getAuthHeaders(): Promise<HeadersInit> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) return {};
-  return { Authorization: `Bearer ${session.access_token}` };
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (session?.access_token)
+    return { Authorization: `Bearer ${session.access_token}` };
+
+  // Fallback: refresh the session in case local cache is stale
+  const {
+    data: { session: refreshed },
+  } = await supabase.auth.refreshSession();
+  if (refreshed?.access_token)
+    return { Authorization: `Bearer ${refreshed.access_token}` };
+
+  return {};
 }
 
 export function usePlatformStats() {

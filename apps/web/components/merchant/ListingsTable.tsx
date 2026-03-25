@@ -48,7 +48,10 @@ export function ListingsTable({
       {/* Mobile Cards */}
       <div className="grid gap-3 p-3 sm:hidden">
         {sorted.map((l) => (
-          <div key={l.id} className="rounded-xl border p-4 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+          <div
+            key={l.id}
+            className="rounded-xl border p-4 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60"
+          >
             <div className="flex items-center justify-between gap-3">
               <div className="font-medium capitalize">
                 {l.side}
@@ -78,7 +81,10 @@ export function ListingsTable({
                 <div>
                   <div className="text-muted-foreground">Status</div>
                   <div>
-                    <Badge variant={l.status === 'active' ? 'secondary' : 'outline'} className="capitalize">
+                    <Badge
+                      variant={l.status === 'active' ? 'secondary' : 'outline'}
+                      className="capitalize"
+                    >
                       {l.status}
                     </Badge>
                   </div>
@@ -96,7 +102,11 @@ export function ListingsTable({
                 {l.payment_methods?.length ? (
                   <div className="flex flex-wrap gap-1.5">
                     {l.payment_methods.map((pm) => (
-                      <Badge key={pm.method} variant="outline" className="text-[11px]">
+                      <Badge
+                        key={pm.method}
+                        variant="outline"
+                        className="text-[11px]"
+                      >
                         {pm.method}
                       </Badge>
                     ))}
@@ -153,12 +163,16 @@ export function ListingsTable({
                 key={l.id}
                 className="border-b/50 transition-colors hover:bg-emerald-500/5"
               >
-                <td className="px-4 py-3 font-medium capitalize whitespace-nowrap">{l.side}</td>
+                <td className="px-4 py-3 font-medium capitalize whitespace-nowrap">
+                  {l.side}
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">{l.asset_code}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {l.price_rate} {l.quote_currency}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">{l.amount.toLocaleString()}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {l.amount.toLocaleString()}
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {new Date(l.created_at).toLocaleString()}
                 </td>
@@ -170,7 +184,11 @@ export function ListingsTable({
                   {l.payment_methods?.length ? (
                     <div className="flex flex-wrap gap-1.5">
                       {l.payment_methods.map((pm) => (
-                        <Badge key={pm.method} variant="outline" className="text-[11px]">
+                        <Badge
+                          key={pm.method}
+                          variant="outline"
+                          className="text-[11px]"
+                        >
                           {pm.method}
                         </Badge>
                       ))}
@@ -181,7 +199,10 @@ export function ListingsTable({
                 </td>
                 {showStatus ? (
                   <td className="px-4 py-3">
-                    <Badge variant={l.status === 'active' ? 'secondary' : 'outline'} className="capitalize">
+                    <Badge
+                      variant={l.status === 'active' ? 'secondary' : 'outline'}
+                      className="capitalize"
+                    >
                       {l.status}
                     </Badge>
                   </td>

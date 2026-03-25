@@ -46,7 +46,9 @@ export function TradeCard({ trade, onAction, onOpenDialog }: TradeCardProps) {
         <div className="flex flex-col items-start gap-2 sm:gap-3 text-left lg:items-end lg:text-right w-full lg:w-auto">
           <StatusBadge status={trade.status} />
           <div className="text-left lg:text-right">
-            <p className="text-xs sm:text-sm text-muted-foreground">Total Value</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Total Value
+            </p>
             <p className="text-lg sm:text-xl font-bold text-foreground leading-tight">
               {formatCurrency(trade.amount * trade.rate, trade.fiatCurrency)}
             </p>

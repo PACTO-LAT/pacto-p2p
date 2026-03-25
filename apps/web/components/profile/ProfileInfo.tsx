@@ -1,6 +1,13 @@
 'use client';
 
-import { AlertCircle, Camera, CheckCircle, Loader2, User, X } from 'lucide-react';
+import {
+  AlertCircle,
+  Camera,
+  CheckCircle,
+  Loader2,
+  User,
+  X,
+} from 'lucide-react';
 import { useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -114,46 +121,43 @@ export function ProfileInfo({
   /**
    * Validate a single field with real-time feedback
    */
-  const validateField = useCallback(
-    (fieldName: string, value: string) => {
-      setValidatingFields((prev) => new Set(prev).add(fieldName));
+  const validateField = useCallback((fieldName: string, value: string) => {
+    setValidatingFields((prev) => new Set(prev).add(fieldName));
 
-      // Use the appropriate validator
-      let result: { success: boolean; error?: string } = { success: true };
+    // Use the appropriate validator
+    let result: { success: boolean; error?: string } = { success: true };
 
-      switch (fieldName) {
-        case 'email':
-          result = fieldValidators.email(value);
-          break;
-        case 'username':
-          result = fieldValidators.username(value);
-          break;
-        case 'phone':
-          result = fieldValidators.phone(value);
-          break;
-        case 'country':
-          result = fieldValidators.country(value);
-          break;
-        case 'stellar_address':
-          result = fieldValidators.stellarAddress(value);
-          break;
-      }
+    switch (fieldName) {
+      case 'email':
+        result = fieldValidators.email(value);
+        break;
+      case 'username':
+        result = fieldValidators.username(value);
+        break;
+      case 'phone':
+        result = fieldValidators.phone(value);
+        break;
+      case 'country':
+        result = fieldValidators.country(value);
+        break;
+      case 'stellar_address':
+        result = fieldValidators.stellarAddress(value);
+        break;
+    }
 
-      setFieldErrors((prev) => ({
-        ...prev,
-        [fieldName]: result.error,
-      }));
+    setFieldErrors((prev) => ({
+      ...prev,
+      [fieldName]: result.error,
+    }));
 
-      setValidatingFields((prev) => {
-        const next = new Set(prev);
-        next.delete(fieldName);
-        return next;
-      });
+    setValidatingFields((prev) => {
+      const next = new Set(prev);
+      next.delete(fieldName);
+      return next;
+    });
 
-      return result.success;
-    },
-    []
-  );
+    return result.success;
+  }, []);
 
   /**
    * Handle field change with validation
@@ -222,7 +226,10 @@ export function ProfileInfo({
       const UPLOAD_TIMEOUT_MS = 20000; // 20s is enough for a compressed avatar
       const timeoutId = setTimeout(() => {
         setIsUploadingAvatar(false);
-        sileo.error({ title: 'Upload timed out', description: 'Please try again.' });
+        sileo.error({
+          title: 'Upload timed out',
+          description: 'Please try again.',
+        });
       }, UPLOAD_TIMEOUT_MS);
 
       try {
@@ -232,14 +239,19 @@ export function ProfileInfo({
 
         const { error } = await supabase.storage
           .from('user-profiles')
-          .upload(path, compressedBlob, { upsert: true, contentType: 'image/jpeg' });
+          .upload(path, compressedBlob, {
+            upsert: true,
+            contentType: 'image/jpeg',
+          });
 
         if (error) {
           clearTimeout(timeoutId);
           throw error;
         }
 
-        const { data: urlData } = supabase.storage.from('user-profiles').getPublicUrl(path);
+        const { data: urlData } = supabase.storage
+          .from('user-profiles')
+          .getPublicUrl(path);
 
         onUserDataChange({ ...userData, avatar_url: urlData.publicUrl });
 
@@ -250,7 +262,10 @@ export function ProfileInfo({
             console.error('Failed to save avatar to profile:', saveErr);
             sileo.error({
               title: 'Upload OK, save failed',
-              description: saveErr instanceof Error ? saveErr.message : 'Click Save Changes to retry.',
+              description:
+                saveErr instanceof Error
+                  ? saveErr.message
+                  : 'Click Save Changes to retry.',
             });
           }
         }
@@ -291,13 +306,19 @@ export function ProfileInfo({
 
       // Best-effort: delete the file from storage (non-blocking).
       // Don't await — a hanging storage call should never block the remove flow.
-      if (previousAvatarUrl?.includes('/storage/v1/object/public/user-profiles/')) {
-        const path = previousAvatarUrl.split('/storage/v1/object/public/user-profiles/')[1];
+      if (
+        previousAvatarUrl?.includes('/storage/v1/object/public/user-profiles/')
+      ) {
+        const path = previousAvatarUrl.split(
+          '/storage/v1/object/public/user-profiles/'
+        )[1];
         if (path) {
           supabase.storage
             .from('user-profiles')
             .remove([path])
-            .catch((err) => console.warn('Storage cleanup failed (non-blocking):', err));
+            .catch((err) =>
+              console.warn('Storage cleanup failed (non-blocking):', err)
+            );
         }
       }
     } catch (err) {
@@ -306,7 +327,8 @@ export function ProfileInfo({
       console.error('Failed to remove avatar:', err);
       sileo.error({
         title: 'Remove failed',
-        description: err instanceof Error ? err.message : 'Click Save Changes to retry.',
+        description:
+          err instanceof Error ? err.message : 'Click Save Changes to retry.',
       });
     }
   }, [userData, onUserDataChange, onAvatarRemoved]);
@@ -366,10 +388,11 @@ export function ProfileInfo({
             onBlur={(e) => handleFieldBlur(id, e.target.value)}
             disabled={!isEditing}
             placeholder={placeholder}
-            className={`glass-effect-light ${hasError
-              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-              : ''
-              }`}
+            className={`glass-effect-light ${
+              hasError
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                : ''
+            }`}
             aria-invalid={hasError}
             aria-describedby={hasError ? `${id}-error` : undefined}
           />
@@ -508,10 +531,11 @@ export function ProfileInfo({
             disabled={!isEditing}
             rows={3}
             placeholder="Tell us about yourself and your trading experience..."
-            className={`glass-effect-light ${fieldErrors.bio
-              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-              : ''
-              }`}
+            className={`glass-effect-light ${
+              fieldErrors.bio
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                : ''
+            }`}
             maxLength={1000}
           />
           <div className="flex justify-between text-xs text-muted-foreground">

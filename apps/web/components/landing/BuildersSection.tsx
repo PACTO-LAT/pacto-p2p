@@ -209,7 +209,11 @@ export function BuildersSection() {
             viewport={{ once: true, amount: 0.3 }}
             variants={shouldAnimate ? fadeInRight : {}}
           >
-            <Terminal className="shadow-xl border-emerald-500/20 h-[420px]" loop loopDelay={6000}>
+            <Terminal
+              className="shadow-xl border-emerald-500/20 h-[420px]"
+              loop
+              loopDelay={6000}
+            >
               <TypingAnimation className="text-muted-foreground">
                 &gt; npx pacto init my-stablecoin
               </TypingAnimation>
@@ -234,9 +238,7 @@ export function BuildersSection() {
                 ✔ Validating token configuration
               </AnimatedSpan>
 
-              <AnimatedSpan className="h-2">
-                {'\u00A0'}
-              </AnimatedSpan>
+              <AnimatedSpan className="h-2">{'\u00A0'}</AnimatedSpan>
 
               <AnimatedSpan className="text-blue-500">
                 <span>ℹ Generated files:</span>
@@ -254,9 +256,7 @@ export function BuildersSection() {
                 </span>
               </AnimatedSpan>
 
-              <AnimatedSpan className="h-2">
-                {'\u00A0'}
-              </AnimatedSpan>
+              <AnimatedSpan className="h-2">{'\u00A0'}</AnimatedSpan>
 
               <TypingAnimation className="text-emerald-400">
                 Success! Your stablecoin is ready to trade.

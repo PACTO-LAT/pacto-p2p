@@ -22,7 +22,7 @@ const logos = [
     alt: 'Trustless Work',
     title: 'Trustless Work Escrow Engine',
     href: 'https://trustless.work',
-  }
+  },
 ];
 
 export function BuiltWithSection() {
@@ -80,13 +80,22 @@ export function BuiltWithSection() {
           className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-12"
           variants={shouldAnimate ? itemAnimation : {}}
         >
-          Our production-ready tech stack powering the decentralized P2P revolution
+          Our production-ready tech stack powering the decentralized P2P
+          revolution
         </motion.p>
       </motion.div>
 
       {/* Logo Loop Animation - Centered */}
       <div className="relative flex justify-center">
-        <div className="mt-8" style={{ height: '120px', width: '650px', position: 'relative', overflow: 'hidden' }}>
+        <div
+          className="mt-8"
+          style={{
+            height: '120px',
+            width: '650px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
           <LogoLoop
             logos={logos}
             speed={40}

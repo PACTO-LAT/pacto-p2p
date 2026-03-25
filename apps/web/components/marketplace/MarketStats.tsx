@@ -11,7 +11,7 @@ interface MarketStatsProps {
 export function MarketStats({ stats }: MarketStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card className="glass-card">
+      <Card className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
             Active Listings
@@ -39,7 +39,7 @@ export function MarketStats({ stats }: MarketStatsProps) {
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
             Total Volume (24h)
@@ -65,7 +65,7 @@ export function MarketStats({ stats }: MarketStatsProps) {
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
             Avg. Trade Size
