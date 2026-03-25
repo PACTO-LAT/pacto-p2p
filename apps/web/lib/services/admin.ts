@@ -226,6 +226,7 @@ export class AdminService {
       .from('merchants')
       .update({
         verification_status: status,
+        is_public: status === 'verified',
         updated_at: new Date().toISOString(),
       })
       .eq('id', merchantId)
@@ -242,6 +243,7 @@ export class AdminService {
       .from('merchants')
       .update({
         verification_status: 'revoked',
+        is_public: false,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)

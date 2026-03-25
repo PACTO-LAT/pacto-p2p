@@ -1,8 +1,8 @@
 'use client';
 
-import { Settings } from 'lucide-react';
-import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   PlatformStats,
@@ -23,11 +23,22 @@ import {
 import type { Token, MintFormData } from '@/lib/types/admin';
 
 export default function AdminPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
   const [mintForm, setMintForm] = useState<MintFormData>(getDefaultMintForm());
   const [isLoading, setIsLoading] = useState(false);
   const [tokens] = useState(getDefaultTokens());
   const [recentTransactions] = useState(getDefaultTransactions());
   const [platformStats] = useState(getDefaultPlatformStats());
+
+  useEffect(() => {
+    if (!loading && user?.user_type !== 'admin') {
+      router.replace('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  if (loading || user?.user_type !== 'admin') return null;
 
   const handleMint = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,13 +89,6 @@ export default function AdminPage() {
             Manage stablecoins and platform operations
           </p>
         </div>
-        <Badge
-          variant="outline"
-          className="bg-red-50 text-red-700 border-red-200"
-        >
-          <Settings className="w-4 h-4 mr-2" />
-          Admin Access
-        </Badge>
       </div>
 
       {/* Platform Stats */}

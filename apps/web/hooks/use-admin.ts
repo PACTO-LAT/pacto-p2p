@@ -2,6 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminService } from '@/lib/services/admin';
+import { supabase } from '@/lib/supabase';
+
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) return {};
+  return { Authorization: `Bearer ${session.access_token}` };
+}
 
 export function usePlatformStats() {
   return useQuery({
@@ -69,7 +76,13 @@ export function useBurnTokens() {
 export function useMerchantApplications(status?: string) {
   return useQuery({
     queryKey: ['admin', 'merchant-applications', status],
-    queryFn: () => AdminService.getMerchantApplications(status),
+    queryFn: async () => {
+      const params = status && status !== 'all' ? `?status=${status}` : '';
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/admin/merchants${params}`, { headers });
+      if (!res.ok) throw new Error('Failed to fetch merchant applications');
+      return res.json();
+    },
   });
 }
 
@@ -81,10 +94,21 @@ export function useMerchantApplicationDetails(id: string) {
   });
 }
 
+async function patchMerchant(id: string, action: string) {
+  const authHeaders = await getAuthHeaders();
+  const res = await fetch(`/api/admin/merchants/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders },
+    body: JSON.stringify({ action }),
+  });
+  if (!res.ok) throw new Error(`Failed to ${action} merchant`);
+  return res.json();
+}
+
 export function useApproveMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => AdminService.approveMerchant(id),
+    mutationFn: (id: string) => patchMerchant(id, 'approve'),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'merchant-applications'],
@@ -97,7 +121,7 @@ export function useApproveMerchant() {
 export function useRejectMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => AdminService.rejectMerchant(id),
+    mutationFn: (id: string) => patchMerchant(id, 'reject'),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'merchant-applications'],
@@ -109,7 +133,7 @@ export function useRejectMerchant() {
 export function useRevokeMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => AdminService.revokeMerchant(id),
+    mutationFn: (id: string) => patchMerchant(id, 'revoke'),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'merchant-applications'],

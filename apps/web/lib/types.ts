@@ -21,6 +21,7 @@ export interface User {
   phone?: string;
   country?: string;
   kyc_status?: 'pending' | 'verified' | 'rejected';
+  user_type?: 'user' | 'merchant' | 'admin';
   notifications?: {
     email_trades: boolean;
     email_escrows: boolean;

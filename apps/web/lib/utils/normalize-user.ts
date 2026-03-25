@@ -25,6 +25,7 @@ export function normalizeUserFromDb(raw: Record<string, unknown> | null): User |
     phone: raw.phone ? String(raw.phone) : undefined,
     country: raw.country ? String(raw.country) : undefined,
     kyc_status: normalizeKycStatus(raw.kyc_status),
+    user_type: normalizeUserType(raw.user_type),
     notifications,
     security,
     payment_methods,
@@ -91,6 +92,12 @@ function normalizePaymentMethods(v: unknown): User['payment_methods'] {
     preferred_method: (o.preferred_method as 'sinpe' | 'bank_transfer') ?? 'sinpe',
     bank_accounts,
   };
+}
+
+function normalizeUserType(v: unknown): 'user' | 'merchant' | 'admin' {
+  const s = String(v ?? 'user').toLowerCase();
+  if (s === 'admin' || s === 'merchant') return s;
+  return 'user';
 }
 
 function normalizeKycStatus(v: unknown): 'pending' | 'verified' | 'rejected' {
