@@ -19,35 +19,8 @@ export class AuthService {
       throw error;
     }
 
-    // User must verify email before signing in - no auto-confirm
-    // Supabase sends verification email; user clicks link to confirm
-    // User profile is automatically created by database trigger (handle_new_user)
-    // The trigger runs AFTER INSERT on auth.users and creates the profile
-    // Wait a moment for trigger to execute, then verify profile exists
-    if (data.user) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Verify profile was created by trigger
-      try {
-        const profile = await this.getUserProfile(data.user.id);
-        if (!profile) {
-          console.warn('Profile not created by trigger, attempting manual creation');
-          // Fallback: try to create profile manually
-          await this.createUserProfile(data.user.id, email);
-        }
-      } catch (profileError) {
-        // Log the error but don't fail signup - user is created in auth
-        console.error('Profile verification/creation error:', {
-          error: profileError,
-          userId: data.user.id,
-          email,
-          errorString: JSON.stringify(profileError),
-          errorMessage: profileError instanceof Error ? profileError.message : String(profileError),
-        });
-        // Don't throw - user is created in auth, profile can be created later
-      }
-    }
-
+    // Profile is automatically created by the handle_new_user trigger on auth.users
+    // No need to verify here — user is not yet authenticated (email confirmation required)
     return data;
   }
 
