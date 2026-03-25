@@ -196,13 +196,14 @@ export function DashboardHeader() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
+            <div className="relative w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden">
               <Image
                 src="/logo.webp"
                 alt="Pacto Logo"
-                width={80}
-                height={40}
-                className="w-full h-full object-contain"
+                fill
+                sizes="80px"
+                className="object-contain"
+                priority
               />
             </div>
           </Link>

@@ -128,13 +128,13 @@ export function AppSidebar() {
     >
       <SidebarHeader className="p-6 border-b border-glass-border glass-effect group-data-[collapsible=icon]:p-2">
         <div className="flex items-center justify-between gap-3 w-full">
-          <div className="w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
+          <div className="relative w-20 h-10 rounded-xl flex items-center justify-center logo-glow overflow-hidden group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
             <Image
               src="/logo.webp"
               alt="Pacto Logo"
-              width={80}
-              height={80}
-              className="w-full h-full object-cover"
+              fill
+              sizes="80px"
+              className="object-contain"
             />
           </div>
         </div>
