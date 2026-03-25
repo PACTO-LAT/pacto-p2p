@@ -40,7 +40,7 @@ const statusVariants = {
   pending:
     'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800',
   verified:
-    'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+    'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400 dark:border-emerald-500/30',
   rejected:
     'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
   revoked:
@@ -255,7 +255,7 @@ export function MerchantApplicationModal({
                 <Button
                   onClick={handleApprove}
                   disabled={isLoading}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="btn-emerald flex-1"
                 >
                   {approveMutation.isPending ? (
                     <>
@@ -314,19 +314,19 @@ export function MerchantApplicationModal({
               <Button
                 onClick={handleApprove}
                 disabled={isLoading}
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="btn-emerald flex-1"
               >
                 {approveMutation.isPending ? (
-                  <>
-                    <span className="animate-spin mr-2">⏳</span>
-                    Approving...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Approve
-                  </>
-                )}
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Approving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Approve
+                    </>
+                  )}
               </Button>
             )}
           </div>

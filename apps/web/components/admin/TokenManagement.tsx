@@ -23,7 +23,7 @@ export function TokenManagement({
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Managed Tokens</h2>
         {onAddToken && (
-          <Button onClick={onAddToken}>
+          <Button className="btn-emerald" onClick={onAddToken}>
             <Plus className="w-4 h-4 mr-2" />
             Add New Token
           </Button>

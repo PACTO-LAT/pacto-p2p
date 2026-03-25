@@ -22,7 +22,7 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           <div className="text-2xl font-bold text-foreground">
             {stats.totalUsers.toLocaleString()}
           </div>
-          <p className="text-sm text-green-600 mt-1">+12% this month</p>
+          <p className="text-sm text-emerald-500 mt-1">+12% this month</p>
         </CardContent>
       </Card>
 
@@ -52,7 +52,7 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           <div className="text-2xl font-bold text-foreground">
             ${stats.totalVolume.toLocaleString()}
           </div>
-          <p className="text-sm text-green-600 mt-1">+25% this week</p>
+          <p className="text-sm text-emerald-500 mt-1">+25% this week</p>
         </CardContent>
       </Card>
 

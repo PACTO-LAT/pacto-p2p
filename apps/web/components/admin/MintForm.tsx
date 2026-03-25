@@ -105,7 +105,7 @@ export function MintForm({
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="btn-emerald w-full" disabled={isLoading}>
             {isLoading ? 'Minting...' : 'Mint Tokens'}
           </Button>
         </form>

@@ -96,12 +96,12 @@ export default function AdminPage() {
 
       {/* Main Admin Tabs */}
       <Tabs defaultValue="tokens" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="tokens">Token Management</TabsTrigger>
-          <TabsTrigger value="mint">Mint/Burn</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="users">User Management</TabsTrigger>
-          <TabsTrigger value="merchant-applications">
+        <TabsList className="flex flex-wrap h-auto p-1 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-1 w-full sm:w-auto">
+          <TabsTrigger value="tokens" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">Token Management</TabsTrigger>
+          <TabsTrigger value="mint" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">Mint/Burn</TabsTrigger>
+          <TabsTrigger value="transactions" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">Transactions</TabsTrigger>
+          <TabsTrigger value="users" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">User Management</TabsTrigger>
+          <TabsTrigger value="merchant-applications" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">
             Merchant Applications
           </TabsTrigger>
         </TabsList>

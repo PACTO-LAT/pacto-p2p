@@ -21,8 +21,8 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 isMint
-                  ? 'bg-green-100 text-green-600'
-                  : 'bg-red-100 text-red-600'
+                  ? 'bg-emerald-500/10 text-emerald-500'
+                  : 'bg-red-500/10 text-red-500'
               }`}
             >
               {isMint ? (
@@ -53,7 +53,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             </div>
             <div className="flex items-center gap-2">
               {isCompleted ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
               ) : (
                 <AlertCircle className="w-5 h-5 text-yellow-500" />
               )}
