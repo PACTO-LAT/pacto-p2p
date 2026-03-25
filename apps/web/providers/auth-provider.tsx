@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
@@ -29,7 +35,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const bootstrap = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (session?.user) {
           const profile = await AuthService.getUserProfile(session.user.id);
           if (profile) setUser(profile);
@@ -40,17 +48,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          if (session?.user) {
-            const profile = await AuthService.getUserProfile(session.user.id);
-            setUser(profile);
-          } else {
-            setUser(null);
-          }
-          setLoading(false);
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session?.user) {
+          const profile = await AuthService.getUserProfile(session.user.id);
+          setUser(profile);
+        } else {
+          setUser(null);
         }
-      );
+        setLoading(false);
+      });
 
       unsub = { unsubscribe: () => subscription.unsubscribe() };
     };
@@ -62,52 +70,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const data = await AuthService.signIn(email, password);
-    router.push('/dashboard');
-    return data;
-  }, [router]);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const data = await AuthService.signIn(email, password);
+      router.push('/dashboard');
+      return data;
+    },
+    [router]
+  );
 
-  const signUp = useCallback(async (email: string, password: string) => {
-    const data = await AuthService.signUp(email, password);
-    router.push('/dashboard');
-    return data;
-  }, [router]);
+  const signUp = useCallback(
+    async (email: string, password: string) => {
+      const data = await AuthService.signUp(email, password);
+      router.push('/dashboard');
+      return data;
+    },
+    [router]
+  );
 
-  const signInWithProvider = useCallback(async (provider: 'google' | 'github') => {
-    return AuthService.signInWithProvider(provider);
-  }, []);
+  const signInWithProvider = useCallback(
+    async (provider: 'google' | 'github') => {
+      return AuthService.signInWithProvider(provider);
+    },
+    []
+  );
 
   const signOut = useCallback(async () => {
     await AuthService.signOut();
     router.push('/');
   }, [router]);
 
-  const updateProfile = useCallback(async (updates: Partial<User>) => {
-    if (!user) throw new Error('No user logged in');
-    const updatedUser = await AuthService.updateUserProfile(user.id, updates);
-    setUser(updatedUser);
-    return updatedUser;
-  }, [user]);
+  const updateProfile = useCallback(
+    async (updates: Partial<User>) => {
+      if (!user) throw new Error('No user logged in');
+      const updatedUser = await AuthService.updateUserProfile(user.id, updates);
+      setUser(updatedUser);
+      return updatedUser;
+    },
+    [user]
+  );
 
-  const updateAvatarUrl = useCallback(async (avatarUrl: string) => {
-    if (!user) throw new Error('No user logged in');
-    const updatedUser = await AuthService.updateAvatarUrl(user.id, avatarUrl);
-    setUser(updatedUser);
-    return updatedUser;
-  }, [user]);
+  const updateAvatarUrl = useCallback(
+    async (avatarUrl: string) => {
+      if (!user) throw new Error('No user logged in');
+      const updatedUser = await AuthService.updateAvatarUrl(user.id, avatarUrl);
+      setUser(updatedUser);
+      return updatedUser;
+    },
+    [user]
+  );
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      signIn,
-      signUp,
-      signInWithProvider,
-      signOut,
-      updateProfile,
-      updateAvatarUrl,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signIn,
+        signUp,
+        signInWithProvider,
+        signOut,
+        updateProfile,
+        updateAvatarUrl,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

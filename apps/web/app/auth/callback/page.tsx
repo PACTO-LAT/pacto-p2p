@@ -17,8 +17,10 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { data: { session }, error: sessionError } =
-          await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
         if (sessionError) {
           setError('Failed to verify your email. Please try again.');
@@ -34,15 +36,18 @@ export default function AuthCallbackPage() {
         // If we have hash params, wait a moment for client to process
         if (typeof window !== 'undefined' && window.location.hash) {
           await new Promise((resolve) => setTimeout(resolve, 500));
-          const { data: { session: retrySession } } =
-            await supabase.auth.getSession();
+          const {
+            data: { session: retrySession },
+          } = await supabase.auth.getSession();
           if (retrySession) {
             router.replace('/dashboard');
             return;
           }
         }
 
-        setError('Verification link may have expired. Please request a new one.');
+        setError(
+          'Verification link may have expired. Please request a new one.'
+        );
       } catch {
         setError('Something went wrong. Please try again.');
       }

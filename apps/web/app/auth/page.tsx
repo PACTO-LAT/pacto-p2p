@@ -23,7 +23,8 @@ export default function AuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showEmailConfirmationMessage, setShowEmailConfirmationMessage] = useState(false);
+  const [showEmailConfirmationMessage, setShowEmailConfirmationMessage] =
+    useState(false);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +43,8 @@ export default function AuthPage() {
             // Email confirmation required - show message
             setShowEmailConfirmationMessage(true);
             sileo.success({
-              title: 'Account created! Please check your email to confirm your account.',
+              title:
+                'Account created! Please check your email to confirm your account.',
               duration: 8000,
             });
             // Switch to login mode so they can sign in after confirming
@@ -75,20 +77,34 @@ export default function AuthPage() {
 
       // Check Supabase error code first (AuthApiError)
       if (err?.code === 'email_not_confirmed') {
-        message = 'Please check your email and confirm your account before signing in.';
+        message =
+          'Please check your email and confirm your account before signing in.';
       } else if (err?.code === 'invalid_credentials') {
         message =
           'Invalid email or password. If you just signed up, please check your email to confirm your account first.';
       } else if (err?.message) {
         message = err.message;
-        if (message.includes('User already registered') || message.includes('already registered')) {
+        if (
+          message.includes('User already registered') ||
+          message.includes('already registered')
+        ) {
           message = 'This email is already registered. Please sign in instead.';
-        } else if (message.includes('Email not confirmed') || message.includes('email_not_confirmed')) {
-          message = 'Please check your email and confirm your account before signing in.';
-        } else if (message.includes('Invalid login credentials') || message.includes('Invalid')) {
+        } else if (
+          message.includes('Email not confirmed') ||
+          message.includes('email_not_confirmed')
+        ) {
+          message =
+            'Please check your email and confirm your account before signing in.';
+        } else if (
+          message.includes('Invalid login credentials') ||
+          message.includes('Invalid')
+        ) {
           message =
             'Invalid email or password. If you just signed up, please check your email to confirm your account first.';
-        } else if (message.includes('Email rate limit') || message.includes('rate limit')) {
+        } else if (
+          message.includes('Email rate limit') ||
+          message.includes('rate limit')
+        ) {
           message = 'Too many requests. Please wait a moment and try again.';
         }
       }
@@ -133,8 +149,9 @@ export default function AuthPage() {
             {showEmailConfirmationMessage && (
               <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
                 <p className="text-sm text-emerald-400">
-                  <strong>Check your email!</strong> We've sent a confirmation link to{' '}
-                  <strong>{email}</strong>. Click the link in the email to activate your account.
+                  <strong>Check your email!</strong> We've sent a confirmation
+                  link to <strong>{email}</strong>. Click the link in the email
+                  to activate your account.
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
                   Don't see it? Check your spam folder.

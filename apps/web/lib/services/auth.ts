@@ -96,22 +96,33 @@ export class AuthService {
     return normalizeUserFromDb(data as Record<string, unknown>) ?? null;
   }
 
-  static async updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {
+  static async updateUserProfile(
+    userId: string,
+    updates: Partial<User>
+  ): Promise<User> {
     // Use the enhanced service for profile updates
     return EnhancedAuthService.updateUserProfile(userId, updates);
   }
 
   /** Direct avatar update - bypasses full validation for storage URLs */
-  static async updateAvatarUrl(userId: string, avatarUrl: string): Promise<User> {
+  static async updateAvatarUrl(
+    userId: string,
+    avatarUrl: string
+  ): Promise<User> {
     const { data, error } = await supabase
       .from('users')
-      .update({ avatar_url: avatarUrl || null, updated_at: new Date().toISOString() })
+      .update({
+        avatar_url: avatarUrl || null,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', userId)
       .select()
       .single();
 
     if (error) throw new Error(error.message);
-    return normalizeUserFromDb(data as Record<string, unknown>) ?? (data as User);
+    return (
+      normalizeUserFromDb(data as Record<string, unknown>) ?? (data as User)
+    );
   }
 
   static async linkWalletToUser(userId: string, stellarAddress: string) {
@@ -140,7 +151,9 @@ export class AuthService {
       if (error) {
         // If it's a unique constraint violation, profile might already exist (from trigger)
         if (error.code === '23505') {
-          console.log('User profile already exists (likely created by trigger)');
+          console.log(
+            'User profile already exists (likely created by trigger)'
+          );
           return;
         }
         // Log detailed error information

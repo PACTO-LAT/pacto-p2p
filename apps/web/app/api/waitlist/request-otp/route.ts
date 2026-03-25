@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Resend } from 'resend';
-import { createServerClient } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase';
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const json = await req.json();
     const input = bodySchema.parse(json);
 
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     const { data: existing, error: fetchError } = await supabase
       .from('waitlist_submissions')
       .select('id, email')

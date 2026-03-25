@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Resend } from 'resend';
-import { createServerClient } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase';
 
 const bodySchema = z.object({
   name: z.string().min(1),
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     const { error } = await supabase.from('waitlist_submissions').upsert(
       {
         name: input.name,

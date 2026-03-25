@@ -27,7 +27,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
     // getCurrentUser()/getUser() validates with server and can cause a flash of "logged out" on reload.
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setIsAuthenticated(!!session?.user);
       } catch {
         setIsAuthenticated(false);

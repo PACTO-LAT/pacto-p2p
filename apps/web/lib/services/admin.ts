@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase';
 import type { TokenOperation } from '@/lib/types';
 import type { MerchantApplication } from '@/lib/types/admin';
 import { StellarService } from './stellar';
@@ -12,7 +12,7 @@ export class AdminService {
     memo?: string,
     createdBy?: string
   ): Promise<TokenOperation> {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
 
     // Create operation record
     const { data: operation, error: insertError } = await supabase
@@ -73,7 +73,7 @@ export class AdminService {
     memo?: string,
     createdBy?: string
   ): Promise<TokenOperation> {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
 
     // Create operation record
     const { data: operation, error: insertError } = await supabase
@@ -123,7 +123,7 @@ export class AdminService {
   }
 
   static async getTokenOperations(): Promise<TokenOperation[]> {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from('token_operations')
@@ -135,7 +135,7 @@ export class AdminService {
   }
 
   static async getPlatformStats() {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
 
     const [usersResult, listingsResult, escrowsResult, tradesResult] =
       await Promise.all([
@@ -145,7 +145,9 @@ export class AdminService {
           .select('id', { count: 'exact' })
           .eq('status', 'active'),
         // Get all escrows for volume calculation (status is on-chain)
-        supabase.from('escrows').select('fiat_amount'),
+        supabase
+          .from('escrows')
+          .select('fiat_amount'),
         // Get completed trades count from trades table
         supabase
           .from('trades')
@@ -173,7 +175,7 @@ export class AdminService {
   }
 
   static async getMerchantApplications(status?: string) {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     let query = supabase
       .from('merchants')
       .select(
@@ -194,7 +196,7 @@ export class AdminService {
   }
 
   static async getMerchantApplicationById(id: string) {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('merchants')
       .select(`
@@ -221,7 +223,7 @@ export class AdminService {
     merchantId: string,
     status: 'verified' | 'rejected'
   ) {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('merchants')
       .update({
@@ -238,7 +240,7 @@ export class AdminService {
   }
 
   static async revokeMerchant(id: string) {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('merchants')
       .update({
