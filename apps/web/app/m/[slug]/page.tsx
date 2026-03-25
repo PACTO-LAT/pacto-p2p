@@ -46,15 +46,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       <div className="hero-shape hero-shape-2" />
       <div className="hero-shape hero-shape-3" />
       <div className="container mx-auto max-w-6xl space-y-6 p-4 sm:p-6 relative z-10">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
         <Link href="/dashboard/merchants">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-1 h-4 w-4" /> Back to Merchants
-          </Button>
-        </Link>
-        <Link href="/dashboard">
-          <Button variant="outline" size="sm">
-            Open Pacto Dashboard
           </Button>
         </Link>
       </div>

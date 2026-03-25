@@ -31,9 +31,6 @@ export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
 }) => (
   <Card className="glass-card">
     <CardContent className="p-12 text-center">
-      <div className="w-16 h-16 bg-muted/50 backdrop-blur-sm rounded-2xl mx-auto mb-4 flex items-center justify-center glow-emerald">
-        {icon}
-      </div>
       <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
       <p className="text-muted-foreground mb-6">{description}</p>
       {action && <div>{action}</div>}
