@@ -14,6 +14,9 @@ import {
   LogIn,
   Menu,
   X,
+  ChevronDown,
+  Copy,
+  Unplug,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -292,21 +295,53 @@ export function DashboardHeader() {
             {/* Connect Wallet Button (Desktop) - Positioned AFTER user avatar */}
             <div className="hidden md:block">
               {isConnected && address ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleWalletDisconnect}
-                  aria-label={`Disconnect wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
-                  title="Disconnect wallet"
-                  className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
-                >
-                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-500 rounded-full">
-                    <div className="absolute inset-0 bg-emerald-500 rounded-full animate-pulse" />
-                  </div>
-                  <span className="text-xs font-mono text-emerald-400 group-hover:text-emerald-300 ml-2">
-                    {address.slice(0, 6)}...{address.slice(-4)}
-                  </span>
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      aria-label={`Wallet options for ${address.slice(0, 6)}...${address.slice(-4)}`}
+                      className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
+                    >
+                      <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-500 rounded-full">
+                        <div className="absolute inset-0 bg-emerald-500 rounded-full animate-pulse" />
+                      </div>
+                      <span className="text-xs font-mono text-emerald-400 group-hover:text-emerald-300 ml-2">
+                        {address.slice(0, 6)}...{address.slice(-4)}
+                      </span>
+                      <ChevronDown className="w-3 h-3 ml-1.5 text-emerald-400/70 group-hover:text-emerald-300" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 glass-effect">
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col space-y-0.5">
+                        <p className="text-xs text-muted-foreground">Connected wallet</p>
+                        <p className="text-xs font-mono text-emerald-400 truncate">
+                          {address}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => {
+                        navigator.clipboard.writeText(address);
+                        sileo.success({ title: 'Address copied to clipboard' });
+                      }}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy Address
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleWalletDisconnect}
+                      className="cursor-pointer text-red-500 focus:text-red-500"
+                    >
+                      <Unplug className="w-4 h-4 mr-2" />
+                      Disconnect Wallet
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Button
                   size="sm"
