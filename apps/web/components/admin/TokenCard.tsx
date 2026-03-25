@@ -46,7 +46,12 @@ export function TokenCard({ token, onSettings, onMint }: TokenCardProps) {
             <div>
               <p className="text-sm text-gray-600">Status</p>
               <Badge
-                variant={token.status === 'active' ? 'default' : 'secondary'}
+                variant="outline"
+                className={
+                  token.status === 'active'
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400 dark:border-emerald-500/30'
+                    : 'bg-muted text-muted-foreground border-border'
+                }
               >
                 {token.status}
               </Badge>

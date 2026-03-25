@@ -57,7 +57,14 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
               ) : (
                 <AlertCircle className="w-5 h-5 text-yellow-500" />
               )}
-              <Badge variant={isCompleted ? 'default' : 'secondary'}>
+              <Badge
+                variant="outline"
+                className={
+                  isCompleted
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400 dark:border-emerald-500/30'
+                    : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/30 dark:text-yellow-400 dark:border-yellow-500/30'
+                }
+              >
                 {transaction.status}
               </Badge>
             </div>

@@ -24,11 +24,16 @@ export function MerchantApplicationFilters({
       {filters.map((filter) => (
         <Button
           key={filter.value}
-          variant={activeFilter === filter.value ? 'default' : 'outline'}
+          variant="outline"
           size="sm"
           onClick={() => onFilterChange(filter.value)}
           aria-pressed={activeFilter === filter.value}
           aria-label={`Filter by ${filter.label} status`}
+          className={
+            activeFilter === filter.value
+              ? 'btn-emerald border-emerald-500'
+              : ''
+          }
         >
           {filter.label}
         </Button>
