@@ -9,7 +9,7 @@ import { createAdminClient } from '@/lib/supabase';
  */
 export async function requireAdmin(
   request: NextRequest
-): Promise<{ userId: string } | NextResponse> {
+): Promise<{ userId: string; ipAddress?: string; userAgent?: string } | NextResponse> {
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.replace('Bearer ', '');
 
@@ -37,5 +37,17 @@ export async function requireAdmin(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  return { userId: user.id };
+  // Extract request metadata for audit logging
+  const ipAddress = request.ip || 
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    undefined;
+  
+  const userAgent = request.headers.get('user-agent') || undefined;
+
+  return { 
+    userId: user.id,
+    ipAddress,
+    userAgent
+  };
 }

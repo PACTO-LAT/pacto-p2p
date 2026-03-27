@@ -12,12 +12,26 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const { action } = await request.json();
+    const { action, reason } = await request.json();
+    
+    const auditContext = {
+      adminUserId: auth.userId,
+      ipAddress: auth.ipAddress,
+      userAgent: auth.userAgent,
+      reason,
+    };
+
     let data;
-    if (action === 'approve') data = await AdminService.approveMerchant(id);
-    else if (action === 'reject') data = await AdminService.rejectMerchant(id);
-    else if (action === 'revoke') data = await AdminService.revokeMerchant(id);
-    else return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    if (action === 'approve') {
+      data = await AdminService.approveMerchant(id, auditContext);
+    } else if (action === 'reject') {
+      data = await AdminService.rejectMerchant(id, auditContext);
+    } else if (action === 'revoke') {
+      data = await AdminService.revokeMerchant(id, auditContext);
+    } else {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
+    
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(

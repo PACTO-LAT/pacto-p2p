@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase';
 import type { TokenOperation } from '@/lib/types';
 import type { MerchantApplication } from '@/lib/types/admin';
 import { StellarService } from './stellar';
+import { AuditService } from './audit';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class AdminService {
@@ -10,7 +11,8 @@ export class AdminService {
     amount: number,
     recipient: string,
     memo?: string,
-    createdBy?: string
+    createdBy?: string,
+    auditContext?: { ipAddress?: string; userAgent?: string }
   ): Promise<TokenOperation> {
     const supabase = createAdminClient();
 
@@ -52,6 +54,26 @@ export class AdminService {
         .single();
 
       if (updateError) throw updateError;
+
+      // Log the successful mint operation
+      if (createdBy) {
+        await AuditService.logAdminAction({
+          adminUserId: createdBy,
+          action: 'token_minted',
+          targetType: 'token_operation',
+          targetId: updatedOperation.id,
+          metadata: {
+            token,
+            amount,
+            recipient,
+            memo,
+            transaction_hash: txHash,
+          },
+          ipAddress: auditContext?.ipAddress,
+          userAgent: auditContext?.userAgent,
+        });
+      }
+
       return updatedOperation;
     } catch (error) {
       // Update operation with failure
@@ -71,7 +93,8 @@ export class AdminService {
     amount: number,
     address: string,
     memo?: string,
-    createdBy?: string
+    createdBy?: string,
+    auditContext?: { ipAddress?: string; userAgent?: string }
   ): Promise<TokenOperation> {
     const supabase = createAdminClient();
 
@@ -108,6 +131,26 @@ export class AdminService {
         .single();
 
       if (updateError) throw updateError;
+
+      // Log the successful burn operation
+      if (createdBy) {
+        await AuditService.logAdminAction({
+          adminUserId: createdBy,
+          action: 'token_burned',
+          targetType: 'token_operation',
+          targetId: updatedOperation.id,
+          metadata: {
+            token,
+            amount,
+            address,
+            memo,
+            transaction_hash: txHash,
+          },
+          ipAddress: auditContext?.ipAddress,
+          userAgent: auditContext?.userAgent,
+        });
+      }
+
       return updatedOperation;
     } catch (error) {
       // Update operation with failure
@@ -210,12 +253,66 @@ export class AdminService {
     return data;
   }
 
-  static async approveMerchant(id: string) {
-    return AdminService.updateMerchantStatus(id, 'verified');
+  static async approveMerchant(
+    id: string, 
+    auditContext?: { 
+      adminUserId: string; 
+      ipAddress?: string; 
+      userAgent?: string; 
+      reason?: string; 
+    }
+  ) {
+    const result = await AdminService.updateMerchantStatus(id, 'verified');
+    
+    // Log the approval
+    if (auditContext?.adminUserId) {
+      await AuditService.logAdminAction({
+        adminUserId: auditContext.adminUserId,
+        action: 'merchant_approved',
+        targetType: 'merchant',
+        targetId: id,
+        metadata: {
+          reason: auditContext.reason,
+          merchant_slug: result.slug,
+          display_name: result.display_name,
+        },
+        ipAddress: auditContext.ipAddress,
+        userAgent: auditContext.userAgent,
+      });
+    }
+    
+    return result;
   }
 
-  static async rejectMerchant(id: string) {
-    return AdminService.updateMerchantStatus(id, 'rejected');
+  static async rejectMerchant(
+    id: string, 
+    auditContext?: { 
+      adminUserId: string; 
+      ipAddress?: string; 
+      userAgent?: string; 
+      reason?: string; 
+    }
+  ) {
+    const result = await AdminService.updateMerchantStatus(id, 'rejected');
+    
+    // Log the rejection
+    if (auditContext?.adminUserId) {
+      await AuditService.logAdminAction({
+        adminUserId: auditContext.adminUserId,
+        action: 'merchant_rejected',
+        targetType: 'merchant',
+        targetId: id,
+        metadata: {
+          reason: auditContext.reason,
+          merchant_slug: result.slug,
+          display_name: result.display_name,
+        },
+        ipAddress: auditContext.ipAddress,
+        userAgent: auditContext.userAgent,
+      });
+    }
+    
+    return result;
   }
 
   /** Unified method to approve or reject a merchant application */
@@ -239,7 +336,15 @@ export class AdminService {
     return data;
   }
 
-  static async revokeMerchant(id: string) {
+  static async revokeMerchant(
+    id: string, 
+    auditContext?: { 
+      adminUserId: string; 
+      ipAddress?: string; 
+      userAgent?: string; 
+      reason?: string; 
+    }
+  ) {
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('merchants')
@@ -253,6 +358,24 @@ export class AdminService {
       .single();
 
     if (error) throw error;
+
+    // Log the revocation
+    if (auditContext?.adminUserId) {
+      await AuditService.logAdminAction({
+        adminUserId: auditContext.adminUserId,
+        action: 'merchant_revoked',
+        targetType: 'merchant',
+        targetId: id,
+        metadata: {
+          reason: auditContext.reason,
+          merchant_slug: data.slug,
+          display_name: data.display_name,
+        },
+        ipAddress: auditContext.ipAddress,
+        userAgent: auditContext.userAgent,
+      });
+    }
+
     return data;
   }
 }
