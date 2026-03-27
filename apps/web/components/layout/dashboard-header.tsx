@@ -21,6 +21,7 @@ import {
 import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { usePendingActions } from '@/hooks/use-pending-actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,7 @@ export function DashboardHeader() {
   const pathname = usePathname();
   const { handleDisconnect, handleConnect } = useWallet();
   const { address, isConnected } = useGlobalAuthenticationStore();
+  const { pendingCount } = usePendingActions();
   const { user, signOut, updateProfile, loading: authLoading } = useAuth();
   const canSeeAdmin = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -170,9 +172,11 @@ export function DashboardHeader() {
   const NavLink = ({
     item,
     onClick,
+    badge,
   }: {
     item: (typeof navigation)[number];
     onClick?: () => void;
+    badge?: number;
   }) => (
     <Link
       href={item.href}
@@ -187,6 +191,11 @@ export function DashboardHeader() {
     >
       <item.icon className="w-4 h-4" />
       <span>{item.name}</span>
+      {badge ? (
+        <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          {badge > 9 ? '9+' : badge}
+        </span>
+      ) : null}
     </Link>
   );
 
@@ -211,7 +220,11 @@ export function DashboardHeader() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navigation.map((item) => (
-              <NavLink key={item.name} item={item} />
+              <NavLink
+                key={item.name}
+                item={item}
+                badge={item.href === '/dashboard/orders' && pendingCount > 0 ? pendingCount : undefined}
+              />
             ))}
             {canSeeAdmin && (
               <Link
@@ -435,6 +448,7 @@ export function DashboardHeader() {
                         key={item.name}
                         item={item}
                         onClick={() => setMobileMenuOpen(false)}
+                        badge={item.href === '/dashboard/orders' && pendingCount > 0 ? pendingCount : undefined}
                       />
                     ))}
                     {canSeeAdmin && (
