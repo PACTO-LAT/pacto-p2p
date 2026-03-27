@@ -203,13 +203,25 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       });
     }
 
-    // 4. Fast Release (Under 15 mins median)
-    if (kpis.median_release_minutes && kpis.median_release_minutes <= 15 && kpis.completed_trades >= 5) {
+    // 4. Low Dispute (Under 1% dispute rate with 20+ trades)
+    if (kpis.dispute_rate_pct < 1 && kpis.total_trades >= 20) {
       badges.push({
-        id: 'fast-release',
-        code: 'fast-release',
-        title: 'Fast Release',
-        description: 'Maintains a median release time under 15 minutes',
+        id: 'low-dispute',
+        code: 'low-dispute',
+        title: 'Low Dispute Rate',
+        description: 'Maintains a dispute rate below 1% with 20+ trades',
+        kind: 'programmatic',
+        earned_at: now,
+      });
+    }
+
+    // 5. High Volume ($10,000+ traded)
+    if (kpis.volume_30d >= 10000) {
+      badges.push({
+        id: 'high-volume',
+        code: 'high-volume',
+        title: 'High Volume Trader',
+        description: 'Traded $10,000+ in the last 30 days',
         kind: 'programmatic',
         earned_at: now,
       });
@@ -302,7 +314,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       seriesMap.set(date, (seriesMap.get(date) ?? 0) + Number(row.fiat_amount));
     });
 
-    return Array.from(seriesMap.entries()).map(([date, volume]) => ({ date, volume }));
+    return Array.from(seriesMap.entries()).map(([date, volume]) => ({ d: date, volume }));
   },
 
   async getSpeedHistogram(merchantId: string): Promise<SpeedBucket[]> {
@@ -339,7 +351,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       else buckets['> 60m']++;
     });
 
-    return Object.entries(buckets).map(([label, count]) => ({ label, count }));
+    return Object.entries(buckets).map(([bucketLabel, count]) => ({ bucketLabel, count }));
   },
 
   async getActiveListings(merchantId: string): Promise<MerchantListing[]> {

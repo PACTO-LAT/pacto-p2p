@@ -18,6 +18,7 @@ import type { CreateEscrowData } from '@/lib/types';
 import { signTransaction } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { getTrustline } from '@/utils/getTrustline';
+import { supabase } from '@/lib/supabase';
 
 export const useInitializeTrade = () => {
   const { deployEscrow } = useInitializeEscrow();
