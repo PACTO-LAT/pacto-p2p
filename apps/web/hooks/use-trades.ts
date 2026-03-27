@@ -17,7 +17,7 @@ import {
 import type { CreateEscrowData } from '@/lib/types';
 import { signTransaction } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { getTrustline } from '@/utils/getTrustline';
+import { getTrustline, getTrustlineName } from '@/utils/getTrustline';
 import { hasTrustline } from '@/utils/stellar/hasTrustline';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
 
@@ -234,8 +234,10 @@ export const useInitializeTrade = () => {
 
     // Validate trustlines before funding — seller (releaseSigner) must be able
     // to send the token, and buyer (receiver) must be able to receive it.
-    const escrowAssetCode = escrow.trustline.symbol;
+    // The TLW Trustline type only provides `address` (the issuer G... address).
+    // We derive the human-readable symbol from that address via getTrustlineName.
     const escrowAssetIssuer = escrow.trustline.address;
+    const escrowAssetCode = getTrustlineName(escrowAssetIssuer);
 
     if (escrowAssetCode && escrowAssetIssuer) {
       const [sellerHasTrustline, buyerHasTrustline] = await Promise.all([
