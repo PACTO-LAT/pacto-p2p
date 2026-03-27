@@ -15,7 +15,14 @@ export interface EscrowFlags {
 }
 
 export interface EscrowRoles {
+  // TW Role Inversion: approver = seller, serviceProvider = buyer
+  /**
+   * The address of the approver (seller in the Trust Wallet context).
+   */
   approver: string;
+  /**
+   * The address of the service provider (buyer in the Trust Wallet context).
+   */
   serviceProvider: string;
 }
 

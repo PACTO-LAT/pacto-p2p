@@ -326,8 +326,8 @@ export function useDisputeEscrow() {
       }
 
       const isParticipant =
-        address === escrow.roles.releaseSigner ||
-        address === escrow.roles.serviceProvider;
+        address === escrow.roles.releaseSigner || // = seller
+        address === escrow.roles.serviceProvider; // = buyer
       if (!isParticipant) {
         throw new Error('Only escrow participants can raise a dispute');
       }
