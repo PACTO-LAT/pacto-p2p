@@ -125,6 +125,7 @@ async function ensureUserProfile(userId: string): Promise<void> {
 }
 
 export const merchantSupabaseAdapter: MerchantAdapter = {
+
   async listPublicMerchants(): Promise<Merchant[]> {
     const { data, error } = await supabase
       .from('merchants')
@@ -333,15 +334,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       .not('completed_at', 'is', null);
 
     if (!data) return [];
-
-    const buckets: Record<string, number> = {
-      '< 5m': 0,
-      '5-15m': 0,
-      '15-30m': 0,
-      '30-60m': 0,
-      '> 60m': 0,
-    };
-
+    const buckets: Record<string, number> = { '< 5m': 0, '5-15m': 0, '15-30m': 0, '30-60m': 0, '> 60m': 0 };
     data.forEach(r => {
       const mins = (new Date(r.completed_at!).getTime() - new Date(r.created_at).getTime()) / 60000;
       if (mins < 5) buckets['< 5m']++;
@@ -350,7 +343,6 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       else if (mins < 60) buckets['30-60m']++;
       else buckets['> 60m']++;
     });
-
     return Object.entries(buckets).map(([bucketLabel, count]) => ({ bucketLabel, count }));
   },
 
