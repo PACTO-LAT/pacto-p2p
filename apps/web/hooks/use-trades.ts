@@ -96,7 +96,7 @@ export const useInitializeTrade = () => {
       ],
     };
 
-    const { unsignedTransaction } = await deployEscrow(
+    const { unsignedTransaction, contractId } = await deployEscrow(
       finalPayload,
       'single-release'
     );
@@ -121,6 +121,8 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
+
+    return { engagementId, contractId, listingId };
   };
 
   const reportPayment = async (

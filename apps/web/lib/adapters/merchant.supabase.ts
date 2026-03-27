@@ -178,19 +178,59 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
   },
 
   async getKpis(merchantId: string): Promise<MerchantKpis> {
-    // Compute from listings table as a proxy (until trades/escrows table is wired)
+    const { data: merchant } = await supabase
+      .from('merchants')
+      .select('user_id')
+      .eq('id', merchantId)
+      .single();
+
+    if (!merchant) throw new Error('Merchant not found');
+
     const { count: total, error } = await supabase
-      .from('listings')
+      .from('trades')
       .select('id', { count: 'exact', head: true })
-      .eq('merchant_id', merchantId);
+      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`);
+
     if (error) throw new Error(error.message);
+
+    const { count: completed } = await supabase
+      .from('trades')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'completed')
+      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`);
+
+    const { count: disputed } = await supabase
+      .from('trades')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'disputed')
+      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`);
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { data: volumeData } = await supabase
+      .from('trades')
+      .select('fiat_amount')
+      .eq('status', 'completed')
+      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+      .gte('created_at', thirtyDaysAgo.toISOString());
+
+    const volume30d =
+      volumeData?.reduce(
+        (acc: number, curr: { fiat_amount: string | number }) =>
+          acc + Number(curr.fiat_amount),
+        0
+      ) ?? 0;
+
     return {
       total_trades: total ?? 0,
-      completed_trades: 0,
-      disputed_trades: 0,
-      completion_rate_pct: 0,
-      dispute_rate_pct: 0,
-      volume_30d: 0,
+      completed_trades: completed ?? 0,
+      disputed_trades: disputed ?? 0,
+      completion_rate_pct: total
+        ? Math.round(((completed ?? 0) / total) * 100)
+        : 0,
+      dispute_rate_pct: total ? Math.round(((disputed ?? 0) / total) * 100) : 0,
+      volume_30d: volume30d,
       median_release_minutes: null,
     };
   },
@@ -214,7 +254,19 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
     const rows = data ?? [];
-    return rows.map((r) => ({
+    return rows.map((r: {
+      id: string;
+      type: string;
+      token: string;
+      rate: string | number;
+      fiat_currency: string;
+      amount: string | number;
+      min_amount: string | number | null;
+      max_amount: string | number | null;
+      description: string | null;
+      status: string;
+      created_at: string;
+    }) => ({
       id: r.id,
       side: r.type,
       asset_code: r.token,
@@ -389,7 +441,19 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
 
-    return (data ?? []).map((r) => ({
+    return (data ?? []).map((r: {
+      id: string;
+      type: string;
+      token: string;
+      rate: string | number;
+      fiat_currency: string;
+      amount: string | number;
+      min_amount: string | number | null;
+      max_amount: string | number | null;
+      description: string | null;
+      status: string;
+      created_at: string;
+    }) => ({
       id: r.id,
       side: r.type,
       asset_code: r.token,
