@@ -6,6 +6,7 @@ import { useInitializeTrade } from '@/hooks/use-trades';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import type { Escrow } from '@pacto-p2p/types';
 import { ReportPaymentData } from '@/lib/types/escrow';
+import { TrustlineError } from '@/utils/stellar/TrustlineError';
 
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
@@ -77,7 +78,10 @@ export function useEscrowActions() {
       });
       sileo.success({ title: 'Funds deposited successfully' });
       return true;
-    } catch {
+    } catch (error) {
+      // Re-throw TrustlineError so the UI layer can show the TrustlineBanner.
+      // Show a generic toast for all other errors.
+      if (error instanceof TrustlineError) throw error;
       sileo.error({ title: 'Error depositing funds' });
       return false;
     }
@@ -114,7 +118,9 @@ export function useEscrowActions() {
       });
       sileo.success({ title: 'Funds released successfully' });
       return true;
-    } catch {
+    } catch (error) {
+      // Re-throw TrustlineError so the UI layer can show the TrustlineBanner.
+      if (error instanceof TrustlineError) throw error;
       sileo.error({ title: 'Error releasing funds' });
       return false;
     }

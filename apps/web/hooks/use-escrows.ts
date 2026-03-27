@@ -16,6 +16,7 @@ import type { CreateEscrowData } from '@/lib/types';
 import { TradesService } from '@/lib/services/trades';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
+import { TrustlineError } from '@/utils/stellar/TrustlineError';
 
 const MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING = 1;
 

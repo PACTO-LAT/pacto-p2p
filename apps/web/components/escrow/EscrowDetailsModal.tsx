@@ -23,6 +23,8 @@ import { TradesService } from '@/lib/services/trades';
 import { getTrustlineName } from '@/utils/getTrustline';
 import { Escrow } from '@/lib/types/escrow';
 import { EscrowTransactionHashesDisplay } from './TransactionHashDisplay';
+import { TrustlineError } from '@/utils/stellar/TrustlineError';
+import { TrustlineBanner } from '@/components/shared/TrustlineBanner';
 
 interface EscrowDetailsModalProps {
   open: boolean;
@@ -49,6 +51,9 @@ export function EscrowDetailsModal({
 }: EscrowDetailsModalProps) {
   const [transactionHashes, setTransactionHashes] =
     useState<EscrowTransactionHashes | null>(null);
+  const [trustlineError, setTrustlineError] = useState<TrustlineError | null>(
+    null
+  );
 
   useEffect(() => {
     if (open && escrow?.engagementId) {
@@ -197,6 +202,12 @@ export function EscrowDetailsModal({
               Available Actions
             </h4>
 
+            {/* Trustline error banner — shown when depositFunds/releaseFunds
+                detects a missing trustline before hitting the blockchain */}
+            {trustlineError && (
+              <TrustlineBanner error={trustlineError} />
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {activeTab === 'buyer' &&
                 escrow.milestones[0].status !== 'pendingApproval' &&
@@ -229,7 +240,16 @@ export function EscrowDetailsModal({
                     !escrow.flags?.released &&
                     !escrow.flags?.resolved && (
                       <Button
-                        onClick={() => onDeposit(escrow)}
+                        onClick={async () => {
+                          setTrustlineError(null);
+                          try {
+                            await onDeposit(escrow);
+                          } catch (err) {
+                            if (err instanceof TrustlineError) {
+                              setTrustlineError(err);
+                            }
+                          }
+                        }}
                         className="w-full btn-emerald-outline"
                         variant="outline"
                       >
@@ -240,7 +260,16 @@ export function EscrowDetailsModal({
 
                   {escrow.milestones[0].approved && escrow.balance !== 0 && (
                     <Button
-                      onClick={() => onReleaseFunds(escrow)}
+                      onClick={async () => {
+                        setTrustlineError(null);
+                        try {
+                          await onReleaseFunds(escrow);
+                        } catch (err) {
+                          if (err instanceof TrustlineError) {
+                            setTrustlineError(err);
+                          }
+                        }
+                      }}
                       className="w-full btn-emerald-outline"
                       variant="outline"
                     >
