@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 import {
   FormControl,
@@ -10,11 +12,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { TokenPickerModal } from '@/components/merchant/TokenPickerModal';
 import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function TradeTypeStep() {
   const form = useFormContext<ListingFormValues>();
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -53,20 +56,24 @@ export function TradeTypeStep() {
             <FormItem>
               <FormLabel>Asset</FormLabel>
               <FormControl>
-                <select
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 mt-2"
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none hover:border-ring transition-colors"
                 >
-                  <option value="" disabled>Select token</option>
-                  {TRUSTLINES.filter((t) => !!t.address).map((t) => (
-                    <option key={t.symbol} value={t.name}>
-                      {t.symbol}
-                    </option>
-                  ))}
-                </select>
+                  <span className={field.value ? 'text-foreground' : 'text-muted-foreground'}>
+                    {field.value || 'Select token'}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </button>
               </FormControl>
               <FormMessage />
+              <TokenPickerModal
+                open={pickerOpen}
+                onClose={() => setPickerOpen(false)}
+                onSelect={field.onChange}
+                selected={field.value}
+              />
             </FormItem>
           )}
         />
