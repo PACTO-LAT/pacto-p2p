@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatAmount } from '@/lib/dashboard-utils';
 import type { EscrowTransactionHashes } from '@/lib/services/trades';
 import { TradesService } from '@/lib/services/trades';
@@ -36,6 +37,8 @@ import {
   getEscrowCancellationGraceHours,
   getEscrowCreatedAt,
 } from '@/lib/escrow-utils';
+import { TradeChatPanel } from '@/components/chat/TradeChatPanel';
+import { useAuth } from '@/hooks/use-auth';
 
 interface EscrowDetailsModalProps {
   open: boolean;
@@ -64,6 +67,7 @@ export function EscrowDetailsModal({
   onReleaseFunds,
   onCancelEscrow,
 }: EscrowDetailsModalProps) {
+  const { user } = useAuth();
   const [transactionHashes, setTransactionHashes] =
     useState<EscrowTransactionHashes | null>(null);
   const [trustlineError, setTrustlineError] = useState<TrustlineError | null>(
@@ -123,7 +127,23 @@ export function EscrowDetailsModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <Tabs defaultValue="details">
+          <TabsList className="mb-4">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="chat">Chat</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="chat">
+            {user && (
+              <TradeChatPanel
+                engagementId={escrow.engagementId}
+                currentUserId={user.id}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="details">
+          <div className="space-y-6">
           {/* Header Info */}
           <div className="bg-muted/50 backdrop-blur-sm p-6 rounded-lg border border-border/50">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -350,7 +370,9 @@ export function EscrowDetailsModal({
               )}
             </div>
           </div>
-        </div>
+          </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
