@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { sileo } from 'sileo';
 import { supabase } from '@/lib/supabase';
 import type { CreateEscrowData } from '@/lib/types';
+import { TradesService } from '@/lib/services/trades';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
 
@@ -229,6 +230,7 @@ export const useEscrowsBySignerQuery = ({
 export function useCreateEscrow(onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { address } = useGlobalAuthenticationStore();
   const { initializeTrade } = useInitializeTrade();
 
   return useMutation({
@@ -273,9 +275,9 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error('You already have an active trade for this listing.');
       }
 
-      const { engagementId, contractId } = await initializeTrade(escrowData);
+      const { txHash, engagementId, contractId } = await initializeTrade(escrowData);
 
-      // 1. Insert into escrows table
+      // 1. Insert into escrows table (include init tx hash if available)
       const { data: escrowRow, error: escrowError } = await supabase
         .from('escrows')
         .insert({
@@ -285,6 +287,7 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
           engagement_id: engagementId,
           contract_id: contractId,
           fiat_amount: escrowData.fiat_amount,
+          transaction_hashes: txHash ? { init: txHash } : {},
         })
         .select()
         .single();
@@ -306,6 +309,7 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         fiat_currency: escrowData.fiat_currency || escrowData.listing.fiat_currency,
         rate: escrowData.listing.rate,
         payment_method: escrowData.listing.payment_method,
+        stellar_transaction_hash: txHash ?? null,
         status: 'active',
       });
 
@@ -314,7 +318,7 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error(`Failed to save trade: ${tradeError.message}`);
       }
 
-      return { engagementId, contractId, listingId };
+      return { txHash, engagementId, contractId, listingId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
@@ -336,7 +340,7 @@ export function useReportPayment() {
   const { reportPayment } = useInitializeTrade();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       escrow,
       evidence,
     }: {
@@ -351,7 +355,23 @@ export function useReportPayment() {
         throw new Error('Payment evidence is required.');
       }
 
-      return reportPayment(escrow, evidence);
+      const result = await reportPayment(escrow, evidence);
+
+      // Persist the transaction hash to the database
+      if (result?.txHash && escrow.engagementId) {
+        const escrowRecord = await TradesService.getEscrowByEngagementId(
+          escrow.engagementId
+        );
+        if (escrowRecord?.id) {
+          await TradesService.updateEscrowTransactionHash(
+            escrowRecord.id,
+            'report',
+            result.txHash
+          );
+        }
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
@@ -364,12 +384,12 @@ export function useReportPayment() {
 }
 
 export function useDepositFunds() {
-  const { fundEscrow } = useFundEscrow();
   const { address } = useGlobalAuthenticationStore();
   const queryClient = useQueryClient();
+  const { depositFunds } = useInitializeTrade();
 
   return useMutation({
-    mutationFn: ({ escrow }: { escrow: Escrow }) => {
+    mutationFn: async ({ escrow }: { escrow: Escrow }) => {
       if (!address) {
         throw new Error('Wallet not connected');
       }
@@ -386,14 +406,23 @@ export function useDepositFunds() {
         throw new Error('Only the seller can deposit funds into this escrow');
       }
 
-      return fundEscrow(
-        {
-          contractId: escrow.contractId,
-          amount: escrow.amount,
-          signer: address,
-        },
-        'single-release'
-      );
+      const result = await depositFunds(escrow);
+
+      // Persist the transaction hash to the database
+      if (result?.txHash && escrow.engagementId) {
+        const escrowRecord = await TradesService.getEscrowByEngagementId(
+          escrow.engagementId
+        );
+        if (escrowRecord?.id) {
+          await TradesService.updateEscrowTransactionHash(
+            escrowRecord.id,
+            'fund',
+            result.txHash
+          );
+        }
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
@@ -406,12 +435,12 @@ export function useDepositFunds() {
 }
 
 export function useDisputeEscrow() {
-  const { disputeEscrow } = useInitializeTrade();
   const { address } = useGlobalAuthenticationStore();
   const queryClient = useQueryClient();
+  const { disputeEscrow } = useInitializeTrade();
 
   return useMutation({
-    mutationFn: ({ escrow }: { escrow: Escrow }) => {
+    mutationFn: async ({ escrow }: { escrow: Escrow }) => {
       if (!address) {
         throw new Error('Wallet not connected');
       }
@@ -427,7 +456,23 @@ export function useDisputeEscrow() {
         throw new Error('Only escrow participants can raise a dispute');
       }
 
-      return disputeEscrow(escrow);
+      const result = await disputeEscrow(escrow);
+
+      // Persist the transaction hash to the database
+      if (result?.txHash && escrow.engagementId) {
+        const escrowRecord = await TradesService.getEscrowByEngagementId(
+          escrow.engagementId
+        );
+        if (escrowRecord?.id) {
+          await TradesService.updateEscrowTransactionHash(
+            escrowRecord.id,
+            'dispute',
+            result.txHash
+          );
+        }
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
@@ -435,6 +480,62 @@ export function useDisputeEscrow() {
     },
     onError: (error: Error) => {
       sileo.error({ title: error.message || 'Failed to dispute escrow' });
+    },
+  });
+}
+
+export function useReleaseFunds() {
+  const { address } = useGlobalAuthenticationStore();
+  const queryClient = useQueryClient();
+  const { releaseFunds } = useInitializeTrade();
+
+  return useMutation({
+    mutationFn: async ({ escrow }: { escrow: Escrow }) => {
+      if (!address) {
+        throw new Error('Wallet not connected');
+      }
+
+      if (!escrow.contractId) {
+        throw new Error('Escrow contract ID is required.');
+      }
+
+      if (!escrow.roles.releaseSigner) {
+        throw new Error('Release signer address is required.');
+      }
+
+      const result = await releaseFunds(escrow);
+
+      // Persist the transaction hash to the database
+      if (result?.txHash && escrow.engagementId) {
+        const escrowRecord = await TradesService.getEscrowByEngagementId(
+          escrow.engagementId
+        );
+        if (escrowRecord?.id) {
+          await TradesService.updateEscrowTransactionHash(
+            escrowRecord.id,
+            'release',
+            result.txHash
+          );
+          // Also update the trade status to completed
+          const trade = await TradesService.getTradeByEscrowId(escrow.engagementId);
+          if (trade?.id) {
+            await TradesService.updateTrade(trade.id, {
+              status: 'completed',
+              stellar_transaction_hash: result.txHash,
+              completed_at: new Date().toISOString(),
+            });
+          }
+        }
+      }
+
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['escrows'] });
+      sileo.success({ title: 'Funds released successfully' });
+    },
+    onError: (error: Error) => {
+      sileo.error({ title: error.message || 'Failed to release funds' });
     },
   });
 }
