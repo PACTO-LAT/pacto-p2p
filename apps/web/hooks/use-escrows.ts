@@ -14,6 +14,7 @@ import { sileo } from 'sileo';
 import { supabase } from '@/lib/supabase';
 import type { CreateEscrowData } from '@/lib/types';
 import { TradesService } from '@/lib/services/trades';
+import { ChatService } from '@/lib/services/chat';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
@@ -525,6 +526,14 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error(`Failed to save trade: ${tradeError.message}`);
       }
 
+      // Create chat room and insert first system message (non-blocking)
+      await ChatService.createChatRoom({
+        escrowId: escrowRow.id,
+        engagementId,
+        buyerId: buyerUser.id,
+        sellerId: sellerUser.id,
+      });
+
       return { txHash, engagementId, contractId, listingId };
     },
     onSuccess: () => {
@@ -578,6 +587,14 @@ export function useReportPayment() {
         }
       }
 
+      // System message: payment reported
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'payment_reported',
+        });
+      }
+
       return result;
     },
     onSuccess: () => {
@@ -629,6 +646,16 @@ export function useDepositFunds() {
         }
       }
 
+      // System message: funds deposited
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'funds_deposited',
+          amount: escrow.amount,
+          token: escrow.trustline?.name,
+        });
+      }
+
       return result;
     },
     onSuccess: () => {
@@ -677,6 +704,14 @@ export function useDisputeEscrow() {
             result.txHash
           );
         }
+      }
+
+      // System message: dispute raised
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'dispute_raised',
+        });
       }
 
       return result;
@@ -733,6 +768,14 @@ export function useReleaseFunds() {
             });
           }
         }
+      }
+
+      // System message: funds released
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'funds_released',
+        });
       }
 
       return result;

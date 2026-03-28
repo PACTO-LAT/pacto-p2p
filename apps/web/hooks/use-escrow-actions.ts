@@ -8,6 +8,7 @@ import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import type { Escrow } from '@pacto-p2p/types';
 import { ReportPaymentData } from '@/lib/types/escrow';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
+import { ChatService } from '@/lib/services/chat';
 
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
@@ -62,6 +63,15 @@ export function useEscrowActions() {
           },
         ],
       });
+
+      // System message: payment confirmed
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'payment_confirmed',
+        });
+      }
+
       sileo.success({ title: 'Payment confirmed successfully' });
       return true;
     } catch (error) {
