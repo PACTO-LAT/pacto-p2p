@@ -40,19 +40,32 @@ export function useMintTokens() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       token,
       amount,
       recipient,
       memo,
-      createdBy,
     }: {
       token: string;
       amount: number;
       recipient: string;
       memo?: string;
-      createdBy?: string;
-    }) => AdminService.mintTokens(token, amount, recipient, memo, createdBy),
+    }) => {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({
+          operation: 'mint',
+          token,
+          amount,
+          address: recipient,
+          memo,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to mint tokens');
+      return res.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['token-operations'] });
       queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
@@ -64,19 +77,32 @@ export function useBurnTokens() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       token,
       amount,
       address,
       memo,
-      createdBy,
     }: {
       token: string;
       amount: number;
       address: string;
       memo?: string;
-      createdBy?: string;
-    }) => AdminService.burnTokens(token, amount, address, memo, createdBy),
+    }) => {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({
+          operation: 'burn',
+          token,
+          amount,
+          address,
+          memo,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to burn tokens');
+      return res.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['token-operations'] });
       queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
@@ -105,12 +131,12 @@ export function useMerchantApplicationDetails(id: string) {
   });
 }
 
-async function patchMerchant(id: string, action: string) {
+async function patchMerchant(id: string, action: string, reason?: string) {
   const authHeaders = await getAuthHeaders();
   const res = await fetch(`/api/admin/merchants/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...authHeaders },
-    body: JSON.stringify({ action }),
+    body: JSON.stringify({ action, reason }),
   });
   if (!res.ok) throw new Error(`Failed to ${action} merchant`);
   return res.json();
@@ -119,7 +145,8 @@ async function patchMerchant(id: string, action: string) {
 export function useApproveMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => patchMerchant(id, 'approve'),
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+      patchMerchant(id, 'approve', reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'merchant-applications'],
@@ -132,7 +159,8 @@ export function useApproveMerchant() {
 export function useRejectMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => patchMerchant(id, 'reject'),
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+      patchMerchant(id, 'reject', reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'merchant-applications'],
@@ -144,11 +172,43 @@ export function useRejectMerchant() {
 export function useRevokeMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => patchMerchant(id, 'revoke'),
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+      patchMerchant(id, 'revoke', reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'merchant-applications'],
       });
+    },
+  });
+}
+
+export function useAuditLogs({
+  adminUserId,
+  action,
+  targetType,
+  limit = 50,
+  offset = 0,
+}: {
+  adminUserId?: string;
+  action?: string;
+  targetType?: string;
+  limit?: number;
+  offset?: number;
+} = {}) {
+  return useQuery({
+    queryKey: ['admin', 'audit-logs', { adminUserId, action, targetType, limit, offset }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (adminUserId) params.set('admin_user_id', adminUserId);
+      if (action) params.set('action', action);
+      if (targetType) params.set('target_type', targetType);
+      params.set('limit', limit.toString());
+      params.set('offset', offset.toString());
+
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/admin/audit-logs?${params}`, { headers });
+      if (!res.ok) throw new Error('Failed to fetch audit logs');
+      return res.json();
     },
   });
 }
