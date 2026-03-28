@@ -56,7 +56,7 @@ Project maintainers are responsible for clarifying and enforcing our standards o
    ```
 3. **Add upstream remote**:
    ```bash
-   git remote add upstream https://github.com/ORIGINAL_OWNER/pacto-p2p.git
+   git remote add upstream https://github.com/PACTO-LAT/pacto-p2p.git
    ```
 4. **Install dependencies**:
    ```bash
@@ -93,7 +93,7 @@ Examples:
 
 ### Making Changes
 
-1. **Create a new branch** from `main`:
+1. **Create a new branch** from `develop` (the default integration branch):
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -116,7 +116,7 @@ Examples:
 5. **Keep your branch updated**:
    ```bash
    git fetch upstream
-   git rebase upstream/main
+   git rebase upstream/develop
    ```
 
 6. **Push to your fork**:
@@ -221,7 +221,7 @@ export function EscrowCard(props: any) {
 1. **Automated checks**: All CI checks must pass
 2. **Code review**: At least one maintainer must approve
 3. **Address feedback**: Make requested changes and push updates
-4. **Keep PR updated**: Rebase on `main` if conflicts arise
+4. **Keep PR updated**: Rebase on `develop` if conflicts arise
 
 ### After Approval
 
@@ -304,25 +304,7 @@ Fixes #456
 
 ## 🧪 Testing
 
-### Running Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm test -- --watch
-
-# Run tests for specific package
-npm test --workspace=@pacto-p2p/shared
-```
-
-### Writing Tests
-
-- Write tests for new features
-- Ensure existing tests pass
-- Aim for good test coverage
-- Test edge cases and error scenarios
+Automated test scripts are not wired up in the root `package.json` yet. Before opening a PR, run the quality checks listed in [Making Changes](#making-changes) (`type-check`, `biome:check`, `build`). When you add automated tests in a package, document the exact command in your PR description so reviewers can run them.
 
 ## 📖 Documentation
 
