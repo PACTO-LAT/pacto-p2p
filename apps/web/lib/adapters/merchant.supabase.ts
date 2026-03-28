@@ -125,6 +125,7 @@ async function ensureUserProfile(userId: string): Promise<void> {
 }
 
 export const merchantSupabaseAdapter: MerchantAdapter = {
+
   async listPublicMerchants(): Promise<Merchant[]> {
     const { data, error } = await supabase
       .from('merchants')
@@ -156,24 +157,77 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
     return data ? mapRowToMerchant(data) : null;
   },
 
-  async getBadges(merchantId: string): Promise<MerchantBadge[]> {
-    // Placeholder: compute simple badges from listings count
-    const { count, error } = await supabase
+  
+async getBadges(merchantId: string): Promise<MerchantBadge[]> {
+    const kpis = await this.getKpis(merchantId);
+    const badges: MerchantBadge[] = [];
+    const now = new Date().toISOString();
+
+    // 1. First Listing (Existing)
+    const { count: listingsCount } = await supabase
       .from('listings')
       .select('id', { count: 'exact', head: true })
       .eq('merchant_id', merchantId);
-    if (error) throw new Error(error.message);
-    const badges: MerchantBadge[] = [];
-    if ((count ?? 0) >= 1) {
+
+    if ((listingsCount ?? 0) >= 1) {
       badges.push({
         id: 'first-listing',
         code: 'first-listing',
         title: 'First Listing',
         description: 'Posted your first listing',
         kind: 'programmatic',
-        earned_at: new Date().toISOString(),
+        earned_at: now,
       });
     }
+
+    // 2. First Trade
+    if (kpis.completed_trades >= 1) {
+      badges.push({
+        id: 'first-trade',
+        code: 'first-trade',
+        title: 'First Trade',
+        description: 'Completed your first successful trade',
+        kind: 'programmatic',
+        earned_at: now,
+      });
+    }
+
+    // 3. Trusted 100
+    if (kpis.completed_trades >= 100) {
+      badges.push({
+        id: 'trusted-100',
+        code: 'trusted-100',
+        title: 'Trusted 100',
+        description: 'Completed 100+ successful trades',
+        kind: 'programmatic',
+        earned_at: now,
+      });
+    }
+
+    // 4. Low Dispute (Under 1% dispute rate with 20+ trades)
+    if (kpis.dispute_rate_pct < 1 && kpis.total_trades >= 20) {
+      badges.push({
+        id: 'low-dispute',
+        code: 'low-dispute',
+        title: 'Low Dispute Rate',
+        description: 'Maintains a dispute rate below 1% with 20+ trades',
+        kind: 'programmatic',
+        earned_at: now,
+      });
+    }
+
+    // 5. High Volume ($10,000+ traded)
+    if (kpis.volume_30d >= 10000) {
+      badges.push({
+        id: 'high-volume',
+        code: 'high-volume',
+        title: 'High Volume Trader',
+        description: 'Traded $10,000+ in the last 30 days',
+        kind: 'programmatic',
+        earned_at: now,
+      });
+    }
+
     return badges;
   },
 
@@ -186,63 +240,110 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
 
     if (!merchant) throw new Error('Merchant not found');
 
-    const { count: total, error } = await supabase
-      .from('trades')
-      .select('id', { count: 'exact', head: true })
-      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`);
-
-    if (error) throw new Error(error.message);
-
-    const { count: completed } = await supabase
-      .from('trades')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'completed')
-      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`);
-
-    const { count: disputed } = await supabase
-      .from('trades')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'disputed')
-      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`);
-
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const { data: volumeData } = await supabase
-      .from('trades')
-      .select('fiat_amount')
-      .eq('status', 'completed')
-      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
-      .gte('created_at', thirtyDaysAgo.toISOString());
+    const [totalRes, completedRes, disputedRes, volumeRes, speedRes] = await Promise.all([
+      supabase.from('trades').select('id', { count: 'exact', head: true })
+        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`),
+      supabase.from('trades').select('id', { count: 'exact', head: true })
+        .eq('status', 'completed')
+        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`),
+      supabase.from('trades').select('id', { count: 'exact', head: true })
+        .eq('status', 'disputed')
+        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`),
+      supabase.from('trades').select('fiat_amount')
+        .eq('status', 'completed')
+        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+        .gte('created_at', thirtyDaysAgo.toISOString()),
+      supabase.from('trades').select('created_at, completed_at')
+        .eq('status', 'completed')
+        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+        .not('completed_at', 'is', null),
+    ]);
 
-    const volume30d =
-      volumeData?.reduce(
-        (acc: number, curr: { fiat_amount: string | number }) =>
-          acc + Number(curr.fiat_amount),
-        0
-      ) ?? 0;
+    if (totalRes.error) throw new Error(totalRes.error.message);
+
+    const total = totalRes.count ?? 0;
+    const completed = completedRes.count ?? 0;
+    const disputed = disputedRes.count ?? 0;
+    const volume_30d = (volumeRes.data ?? []).reduce(
+      (acc: number, curr: { fiat_amount: string | number }) => acc + Number(curr.fiat_amount),
+      0
+    );
+
+    let median_release_minutes: number | null = null;
+    if (speedRes.data && speedRes.data.length > 0) {
+      const diffs = speedRes.data
+        .map(r => (new Date(r.completed_at!).getTime() - new Date(r.created_at).getTime()) / 60000)
+        .sort((a, b) => a - b);
+      const mid = Math.floor(diffs.length / 2);
+      median_release_minutes = diffs.length % 2 !== 0 ? diffs[mid] : (diffs[mid - 1] + diffs[mid]) / 2;
+    }
 
     return {
-      total_trades: total ?? 0,
-      completed_trades: completed ?? 0,
-      disputed_trades: disputed ?? 0,
-      completion_rate_pct: total
-        ? Math.round(((completed ?? 0) / total) * 100)
-        : 0,
-      dispute_rate_pct: total ? Math.round(((disputed ?? 0) / total) * 100) : 0,
-      volume_30d: volume30d,
-      median_release_minutes: null,
+      total_trades: total,
+      completed_trades: completed,
+      disputed_trades: disputed,
+      completion_rate_pct: total ? Math.round((completed / total) * 100) : 0,
+      dispute_rate_pct: total ? Math.round((disputed / total) * 100) : 0,
+      volume_30d,
+      median_release_minutes,
     };
   },
 
-  async getVolumeSeries(_merchantId: string): Promise<VolumePoint[]> {
-    void _merchantId;
-    return [];
+  async getVolumeSeries(merchantId: string): Promise<VolumePoint[]> {
+    const { data: merchant } = await supabase
+      .from('merchants')
+      .select('user_id')
+      .eq('id', merchantId)
+      .single();
+    if (!merchant) return [];
+
+    const { data, error } = await supabase
+      .from('trades')
+      .select('created_at, fiat_amount')
+      .eq('status', 'completed')
+      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+      .order('created_at', { ascending: true });
+
+    if (error || !data) return [];
+
+    const seriesMap = new Map<string, number>();
+    data.forEach(row => {
+      const date = row.created_at.split('T')[0];
+      seriesMap.set(date, (seriesMap.get(date) ?? 0) + Number(row.fiat_amount));
+    });
+
+    return Array.from(seriesMap.entries()).map(([date, volume]) => ({ d: date, volume }));
   },
 
-  async getSpeedHistogram(_merchantId: string): Promise<SpeedBucket[]> {
-    void _merchantId;
-    return [];
+  async getSpeedHistogram(merchantId: string): Promise<SpeedBucket[]> {
+    const { data: merchant } = await supabase
+      .from('merchants')
+      .select('user_id')
+      .eq('id', merchantId)
+      .single();
+    if (!merchant) return [];
+
+    const { data } = await supabase
+      .from('trades')
+      .select('created_at, completed_at')
+      .eq('status', 'completed')
+      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+      .not('completed_at', 'is', null);
+
+    if (!data) return [];
+    const buckets: Record<string, number> = { '< 5m': 0, '5-15m': 0, '15-30m': 0, '30-60m': 0, '> 60m': 0 };
+    data.forEach(r => {
+      const mins = (new Date(r.completed_at!).getTime() - new Date(r.created_at).getTime()) / 60000;
+      if (mins < 5) buckets['< 5m']++;
+      else if (mins < 15) buckets['5-15m']++;
+      else if (mins < 30) buckets['15-30m']++;
+      else if (mins < 60) buckets['30-60m']++;
+      else buckets['> 60m']++;
+    });
+    return Object.entries(buckets).map(([bucketLabel, count]) => ({ bucketLabel, count }));
   },
 
   async getActiveListings(merchantId: string): Promise<MerchantListing[]> {
