@@ -129,8 +129,8 @@ export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
                         <SelectValue placeholder="Select token" />
                       </SelectTrigger>
                       <SelectContent>
-                        {TRUSTLINES.map((t) => (
-                          <SelectItem key={t.address} value={t.name}>
+                        {TRUSTLINES.filter((t) => !!t.address).map((t) => (
+                          <SelectItem key={t.symbol} value={t.name}>
                             {t.name}
                           </SelectItem>
                         ))}
