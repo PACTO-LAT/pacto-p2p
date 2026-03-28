@@ -38,7 +38,7 @@ export async function requireAdmin(
   }
 
   // Extract request metadata for audit logging
-  const ipAddress = request.ip || 
+  const ipAddress =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     undefined;

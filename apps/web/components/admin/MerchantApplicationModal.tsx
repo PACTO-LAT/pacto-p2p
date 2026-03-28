@@ -63,7 +63,7 @@ export function MerchantApplicationModal({
 
   const handleApprove = async () => {
     try {
-      await approveMutation.mutateAsync(application.id);
+      await approveMutation.mutateAsync({ id: application.id });
       toast.success('Merchant application approved successfully');
       handleClose();
     } catch (error) {
@@ -74,7 +74,7 @@ export function MerchantApplicationModal({
 
   const handleReject = async () => {
     try {
-      await rejectMutation.mutateAsync(application.id);
+      await rejectMutation.mutateAsync({ id: application.id });
       toast.success('Merchant application rejected');
       handleClose();
     } catch (error) {
@@ -85,7 +85,7 @@ export function MerchantApplicationModal({
 
   const handleRevoke = async () => {
     try {
-      await revokeMutation.mutateAsync(application.id);
+      await revokeMutation.mutateAsync({ id: application.id });
       toast.success('Merchant verification revoked');
       handleClose();
     } catch (error) {

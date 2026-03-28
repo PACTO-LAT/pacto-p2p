@@ -56,7 +56,7 @@ export function EscrowTransactionHashesDisplay({
   const actions = [
     { key: 'init' as const, label: 'Initialize' },
     { key: 'fund' as const, label: 'Fund' },
-    { key: 'confirm' as const, label: 'Confirm' },
+    { key: 'report' as const, label: 'Report Payment' },
     { key: 'release' as const, label: 'Release' },
     { key: 'dispute' as const, label: 'Dispute' },
   ];
