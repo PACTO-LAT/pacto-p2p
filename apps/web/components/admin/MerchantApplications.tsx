@@ -45,7 +45,7 @@ export function MerchantApplications() {
 
   const handleApprove = async (application: MerchantApplication) => {
     try {
-      await approveMutation.mutateAsync(application.id);
+      await approveMutation.mutateAsync({ id: application.id });
       toast.success('Merchant application approved successfully');
     } catch {
       toast.error('Failed to approve merchant application');
@@ -54,7 +54,7 @@ export function MerchantApplications() {
 
   const handleReject = async (application: MerchantApplication) => {
     try {
-      await rejectMutation.mutateAsync(application.id);
+      await rejectMutation.mutateAsync({ id: application.id });
       toast.success('Merchant application rejected');
     } catch {
       toast.error('Failed to reject merchant application');

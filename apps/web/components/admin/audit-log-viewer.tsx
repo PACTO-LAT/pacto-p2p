@@ -110,17 +110,17 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
                       )}
                     </td>
                     <td className="border border-gray-300 px-4 py-2 text-sm">
-                      {log.metadata.reason && (
-                        <div><strong>Reason:</strong> {log.metadata.reason as string}</div>
+                      {!!log.metadata.reason && (
+                        <div><strong>Reason:</strong> {String(log.metadata.reason)}</div>
                       )}
-                      {log.metadata.amount && (
-                        <div><strong>Amount:</strong> {log.metadata.amount as number}</div>
+                      {!!log.metadata.amount && (
+                        <div><strong>Amount:</strong> {String(log.metadata.amount)}</div>
                       )}
-                      {log.metadata.token && (
-                        <div><strong>Token:</strong> {log.metadata.token as string}</div>
+                      {!!log.metadata.token && (
+                        <div><strong>Token:</strong> {String(log.metadata.token)}</div>
                       )}
-                      {log.metadata.display_name && (
-                        <div><strong>Merchant:</strong> {log.metadata.display_name as string}</div>
+                      {!!log.metadata.display_name && (
+                        <div><strong>Merchant:</strong> {String(log.metadata.display_name)}</div>
                       )}
                     </td>
                   </tr>

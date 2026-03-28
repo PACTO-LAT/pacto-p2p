@@ -369,7 +369,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       created_at: string;
     }) => ({
       id: r.id,
-      side: r.type,
+      side: r.type as 'buy' | 'sell',
       asset_code: r.token,
       price_rate: Number(r.rate),
       quote_currency: r.fiat_currency,
@@ -377,10 +377,10 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       min_amount: r.min_amount ? Number(r.min_amount) : undefined,
       max_amount: r.max_amount ? Number(r.max_amount) : undefined,
       description: r.description ?? undefined,
-      status: r.status,
+      status: r.status as MerchantListing['status'],
       created_at: r.created_at,
       payment_methods: [],
-    }));
+    })) as MerchantListing[];
   },
 
   async getMyMerchant(): Promise<Merchant | null> {
@@ -556,7 +556,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       created_at: string;
     }) => ({
       id: r.id,
-      side: r.type,
+      side: r.type as 'buy' | 'sell',
       asset_code: r.token,
       price_rate: Number(r.rate),
       quote_currency: r.fiat_currency,
@@ -564,10 +564,10 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       min_amount: r.min_amount ? Number(r.min_amount) : undefined,
       max_amount: r.max_amount ? Number(r.max_amount) : undefined,
       description: r.description ?? undefined,
-      status: r.status,
+      status: r.status as MerchantListing['status'],
       created_at: r.created_at,
       payment_methods: [],
-    }));
+    })) as MerchantListing[];
   },
 };
 

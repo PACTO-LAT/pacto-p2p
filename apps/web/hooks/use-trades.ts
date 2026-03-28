@@ -4,6 +4,7 @@ import {
   type ChangeMilestoneStatusPayload,
   type FundEscrowPayload,
   type InitializeSingleReleaseEscrowPayload,
+  type InitializeSingleReleaseEscrowResponse,
   type SingleReleaseReleaseFundsPayload,
   type SingleReleaseStartDisputePayload,
   useApproveMilestone,
@@ -134,7 +135,7 @@ export const useInitializeTrade = () => {
     const { unsignedTransaction, contractId } = await deployEscrow(
       finalPayload,
       'single-release'
-    );
+    ) as InitializeSingleReleaseEscrowResponse;
 
     if (!unsignedTransaction) {
       throw new Error(
