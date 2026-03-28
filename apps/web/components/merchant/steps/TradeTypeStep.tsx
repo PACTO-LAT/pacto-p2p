@@ -58,7 +58,7 @@ export function TradeTypeStep() {
           name="token"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Stablecoin</FormLabel>
+              <FormLabel>Asset</FormLabel>
               <FormControl>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>

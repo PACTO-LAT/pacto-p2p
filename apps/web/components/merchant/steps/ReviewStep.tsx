@@ -32,7 +32,7 @@ export function ReviewStep() {
           <span className="font-medium capitalize">{values.type}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Stablecoin</span>
+          <span className="text-muted-foreground">Asset</span>
           <span className="font-medium">{values.token}</span>
         </div>
         <div className="flex justify-between">
