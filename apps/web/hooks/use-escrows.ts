@@ -11,10 +11,35 @@ import {
 } from '@trustless-work/escrow';
 import { useRouter } from 'next/navigation';
 import { sileo } from 'sileo';
-import type { CreateEscrowData } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
+import type { CreateEscrowData } from '@/lib/types';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
+
+const MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING = 1;
+
+// Uses buyer UUID (not Stellar address) and queries the trades table
+// so we only count non-terminal trades (active/disputed), allowing a buyer
+// to re-trade with the same merchant after a previous trade completes.
+async function getActiveBuyerTradeCount(
+  buyerUserId: string,
+  listingId: string
+): Promise<number> {
+  const { count, error } = await supabase
+    .from('trades')
+    .select('id', { count: 'exact', head: true })
+    .eq('buyer_id', buyerUserId)
+    .eq('listing_id', listingId)
+    .not('status', 'in', '(completed,resolved)');
+
+  if (error) {
+    throw new Error(
+      `Unable to verify active trades for this listing: ${error.message}`
+    );
+  }
+
+  return count ?? 0;
+}
 
 interface UseEscrowsByRoleQueryParams
   extends GetEscrowsFromIndexerByRoleParams {
@@ -220,23 +245,11 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error('Token is required.');
       }
 
-      const { engagementId, contractId, listingId } =
-        await initializeTrade(escrowData);
-
-      // Resolve Stellar addresses to Supabase user UUIDs.
-      // escrowData.buyer_id / seller_id are Stellar public keys (G...),
-      // but the escrows and trades tables FK-reference users(id) which are UUIDs.
+      // Resolve Stellar addresses to Supabase user UUIDs before any DB or
+      // on-chain operation — fail fast if either party is not registered.
       const [{ data: buyerUser }, { data: sellerUser }] = await Promise.all([
-        supabase
-          .from('users')
-          .select('id')
-          .eq('stellar_address', escrowData.buyer_id)
-          .single(),
-        supabase
-          .from('users')
-          .select('id')
-          .eq('stellar_address', escrowData.seller_id)
-          .single(),
+        supabase.from('users').select('id').eq('stellar_address', escrowData.buyer_id).single(),
+        supabase.from('users').select('id').eq('stellar_address', escrowData.seller_id).single(),
       ]);
 
       if (!buyerUser) {
@@ -245,6 +258,22 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
       if (!sellerUser) {
         throw new Error('Seller account not found. The wallet address is not registered on this platform.');
       }
+
+      const listingId = String(
+        (escrowData.listing as { id?: string | number }).id ?? ''
+      );
+      if (!listingId) {
+        throw new Error('Listing ID is required to create an escrow.');
+      }
+
+      // Rate limit: block if buyer already has an active (non-completed) trade
+      // for this listing to prevent griefing with unfunded escrows.
+      const activeTradeCount = await getActiveBuyerTradeCount(buyerUser.id, listingId);
+      if (activeTradeCount >= MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING) {
+        throw new Error('You already have an active trade for this listing.');
+      }
+
+      const { engagementId, contractId } = await initializeTrade(escrowData);
 
       // 1. Insert into escrows table
       const { data: escrowRow, error: escrowError } = await supabase
