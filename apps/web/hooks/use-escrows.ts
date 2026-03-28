@@ -223,14 +223,38 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
       const { engagementId, contractId, listingId } =
         await initializeTrade(escrowData);
 
+      // Resolve Stellar addresses to Supabase user UUIDs.
+      // escrowData.buyer_id / seller_id are Stellar public keys (G...),
+      // but the escrows and trades tables FK-reference users(id) which are UUIDs.
+      const [{ data: buyerUser }, { data: sellerUser }] = await Promise.all([
+        supabase
+          .from('users')
+          .select('id')
+          .eq('stellar_address', escrowData.buyer_id)
+          .single(),
+        supabase
+          .from('users')
+          .select('id')
+          .eq('stellar_address', escrowData.seller_id)
+          .single(),
+      ]);
+
+      if (!buyerUser) {
+        throw new Error('Buyer account not found. The wallet address is not registered on this platform.');
+      }
+      if (!sellerUser) {
+        throw new Error('Seller account not found. The wallet address is not registered on this platform.');
+      }
+
       // 1. Insert into escrows table
       const { data: escrowRow, error: escrowError } = await supabase
         .from('escrows')
         .insert({
           listing_id: listingId,
-          buyer_id: escrowData.buyer_id,
-          seller_id: escrowData.seller_id,
+          buyer_id: buyerUser.id,
+          seller_id: sellerUser.id,
           engagement_id: engagementId,
+          contract_id: contractId,
           fiat_amount: escrowData.fiat_amount,
         })
         .select()
@@ -245,8 +269,8 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
       const { error: tradeError } = await supabase.from('trades').insert({
         escrow_id: escrowRow.id,
         listing_id: listingId,
-        buyer_id: escrowData.buyer_id,
-        seller_id: escrowData.seller_id,
+        buyer_id: buyerUser.id,
+        seller_id: sellerUser.id,
         token: escrowData.token || escrowData.listing.token,
         token_amount: escrowData.amount,
         fiat_amount: escrowData.fiat_amount,
@@ -258,7 +282,7 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
 
       if (tradeError) {
         console.error('Failed to persist trade to Supabase:', tradeError);
-        // Note: Escrow is already created on-chain and in Supabase escrows table.
+        throw new Error(`Failed to save trade: ${tradeError.message}`);
       }
 
       return { engagementId, contractId, listingId };
