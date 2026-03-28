@@ -24,6 +24,18 @@ export const TRUSTLINES = [
       'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
   },
   {
+    name: 'XLM',
+    // Native XLM wrapped as SAC (Stellar Asset Contract) on testnet
+    issuer:
+      process.env.NEXT_PUBLIC_XLM_SAC_ADDRESS ||
+      'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+    symbol: 'XLM',
+    decimals: 10000000,
+    address:
+      process.env.NEXT_PUBLIC_XLM_SAC_ADDRESS ||
+      'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+  },
+  {
     name: 'CRCX',
     issuer: process.env.NEXT_PUBLIC_CRCX_ISSUER_ADDRESS || '', // TODO: Add CRCX testnet issuer address
     symbol: 'CRCX',
