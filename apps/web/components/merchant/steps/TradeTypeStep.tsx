@@ -11,7 +11,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { TRUSTLINES } from '@/utils/constants/trustlines';
-import { cn } from '@/lib/utils';
 import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function TradeTypeStep() {
@@ -54,31 +53,18 @@ export function TradeTypeStep() {
             <FormItem>
               <FormLabel>Asset</FormLabel>
               <FormControl>
-                <RadioGroup
-                  className="flex flex-wrap gap-2"
+                <select
                   value={field.value}
-                  onValueChange={field.onChange}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
+                  <option value="" disabled>Select token</option>
                   {TRUSTLINES.filter((t) => !!t.address).map((t) => (
-                    <label
-                      key={t.symbol}
-                      htmlFor={`modal-token-${t.symbol}`}
-                      className={cn(
-                        'flex items-center gap-2 px-3 py-2 rounded-md border cursor-pointer text-sm transition-colors',
-                        field.value === t.name
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
-                          : 'border-border hover:border-emerald-400'
-                      )}
-                    >
-                      <RadioGroupItem
-                        value={t.name}
-                        id={`modal-token-${t.symbol}`}
-                        className="sr-only"
-                      />
+                    <option key={t.symbol} value={t.name}>
                       {t.symbol}
-                    </label>
+                    </option>
                   ))}
-                </RadioGroup>
+                </select>
               </FormControl>
               <FormMessage />
             </FormItem>
