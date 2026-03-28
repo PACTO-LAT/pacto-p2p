@@ -32,7 +32,7 @@ async function getActiveBuyerTradeCount(
     .select('id', { count: 'exact', head: true })
     .eq('buyer_id', buyerUserId)
     .eq('listing_id', listingId)
-    .not('status', 'in', '(completed,resolved)');
+    .not('status', 'in', '(completed,resolved,cancelled)');
 
   if (error) {
     throw new Error(
@@ -101,6 +101,24 @@ const handleRateLimitRetry = async (
     }
   }
   return false; // No retry
+};
+
+const syncEscrowsWithPlatformRecords = async (
+  escrows: Escrow[]
+): Promise<Escrow[]> => {
+  if (escrows.length === 0) {
+    return escrows;
+  }
+
+  await TradesService.recoverOrphanedEscrows(escrows);
+  const states = await TradesService.getEscrowStatesByEngagementIds(
+    escrows.map((escrow) => escrow.engagementId)
+  );
+
+  return escrows.filter((escrow) => {
+    const state = states.get(escrow.engagementId);
+    return !state || state.status === 'active';
+  });
 };
 
 /**
@@ -213,7 +231,7 @@ export const useEscrowsByRoleQuery = ({
             throw new Error('Failed to fetch escrows');
           }
 
-          return escrows;
+          return syncEscrowsWithPlatformRecords(escrows);
         } catch (error: unknown) {
           lastError = error;
 
@@ -368,7 +386,7 @@ export const useEscrowsBySignerQuery = ({
             throw new Error('Failed to fetch escrows');
           }
 
-          return escrows;
+          return syncEscrowsWithPlatformRecords(escrows);
         } catch (error: unknown) {
           lastError = error;
 

@@ -67,11 +67,13 @@ export default function DashboardPage() {
     useEscrowSelection();
   const {
     isReportPaymentLoading,
+    isCancelEscrowLoading,
     handleReportPayment,
     handleConfirmPayment,
     handleDeposit,
     handleDisputeEscrow,
     handleReleaseFunds,
+    handleCancelEscrow,
   } = useEscrowActions();
   const { reportPayment } = useInitializeTrade();
 
@@ -449,6 +451,7 @@ export default function DashboardPage() {
         }}
         escrow={selectedEscrow}
         activeTab="buyer"
+        isCancellingEscrow={isCancelEscrowLoading}
         onReportPayment={onReportPayment}
         onConfirmPayment={async (escrow) => {
           await handleConfirmPayment(escrow);
@@ -461,6 +464,13 @@ export default function DashboardPage() {
         }}
         onReleaseFunds={async (escrow) => {
           await handleReleaseFunds(escrow);
+        }}
+        onCancelEscrow={async (escrow) => {
+          const success = await handleCancelEscrow(escrow);
+          if (success) {
+            setIsEscrowModalOpen(false);
+            clearSelectedEscrow();
+          }
         }}
       />
 

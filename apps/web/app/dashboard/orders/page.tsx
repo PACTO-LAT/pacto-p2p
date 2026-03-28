@@ -28,11 +28,13 @@ export default function EscrowsPage() {
     useEscrowSelection();
   const {
     isReportPaymentLoading,
+    isCancelEscrowLoading,
     handleReportPayment,
     handleConfirmPayment,
     handleDeposit,
     handleDisputeEscrow,
     handleReleaseFunds,
+    handleCancelEscrow,
   } = useEscrowActions();
 
   // Determine role based on active tab
@@ -78,6 +80,14 @@ export default function EscrowsPage() {
 
   const onReleaseFunds = async (escrow: Escrow) => {
     await handleReleaseFunds(escrow);
+  };
+
+  const onCancelEscrow = async (escrow: Escrow) => {
+    const success = await handleCancelEscrow(escrow);
+    if (success) {
+      setIsEscrowModalOpen(false);
+      clearSelectedEscrow();
+    }
   };
 
   const openEscrowModal = (escrow: Escrow) => {
@@ -153,11 +163,13 @@ export default function EscrowsPage() {
         }}
         escrow={selectedEscrow}
         activeTab={activeTab}
+        isCancellingEscrow={isCancelEscrowLoading}
         onReportPayment={onReportPayment}
         onConfirmPayment={onConfirmPayment}
         onDeposit={onDeposit}
         onDisputeEscrow={onDisputeEscrow}
         onReleaseFunds={onReleaseFunds}
+        onCancelEscrow={onCancelEscrow}
       />
 
       {/* Report Payment Modal */}

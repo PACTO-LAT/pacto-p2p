@@ -21,6 +21,12 @@ import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { getTrustline, getTrustlineName } from '@/utils/getTrustline';
 import { hasTrustline } from '@/utils/stellar/hasTrustline';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
+import {
+  canCancel,
+  getEscrowRole,
+  getEscrowCancellationGraceHours,
+} from '@/lib/escrow-utils';
+import { TradesService } from '@/lib/services/trades';
 
 export const useInitializeTrade = () => {
   const { deployEscrow } = useInitializeEscrow();
@@ -445,6 +451,28 @@ export const useInitializeTrade = () => {
     return { txHash, contractId: escrow.contractId };
   };
 
+  const cancelEscrow = async (escrow: Escrow) => {
+    if (!address) {
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
+    }
+
+    const userRole = getEscrowRole(escrow, address);
+    if (!userRole) {
+      throw new Error('Only escrow participants can cancel this escrow.');
+    }
+
+    if (!canCancel(escrow, userRole)) {
+      throw new Error(
+        `This escrow can only be cancelled by the buyer after ${getEscrowCancellationGraceHours()} hours if it remains unfunded.`
+      );
+    }
+
+    await TradesService.cancelUnfundedEscrow(escrow.engagementId);
+    return { engagementId: escrow.engagementId };
+  };
+
   return {
     initializeTrade,
     reportPayment,
@@ -452,5 +480,6 @@ export const useInitializeTrade = () => {
     depositFunds,
     disputeEscrow,
     releaseFunds,
+    cancelEscrow,
   };
 };

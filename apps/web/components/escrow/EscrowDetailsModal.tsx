@@ -4,6 +4,7 @@ import {
   Banknote,
   CheckCircle,
   ExternalLink,
+  TimerReset,
   Unlock,
   User,
   XCircle,
@@ -25,17 +26,29 @@ import { Escrow } from '@/lib/types/escrow';
 import { EscrowTransactionHashesDisplay } from './TransactionHashDisplay';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
 import { TrustlineBanner } from '@/components/shared/TrustlineBanner';
+import {
+  canCancel,
+  canConfirmPayment,
+  canDeposit,
+  canDispute,
+  canReleaseFunds,
+  canReportPayment,
+  getEscrowCancellationGraceHours,
+  getEscrowCreatedAt,
+} from '@/lib/escrow-utils';
 
 interface EscrowDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   escrow: Escrow | null;
   activeTab: 'buyer' | 'seller';
+  isCancellingEscrow?: boolean;
   onReportPayment: (escrow: Escrow) => void;
   onConfirmPayment: (escrow: Escrow) => void;
   onDeposit: (escrow: Escrow) => void;
   onDisputeEscrow: (escrow: Escrow) => void;
   onReleaseFunds: (escrow: Escrow) => void;
+  onCancelEscrow: (escrow: Escrow) => Promise<void> | void;
 }
 
 export function EscrowDetailsModal({
@@ -43,11 +56,13 @@ export function EscrowDetailsModal({
   onOpenChange,
   escrow,
   activeTab,
+  isCancellingEscrow = false,
   onReportPayment,
   onConfirmPayment,
   onDeposit,
   onDisputeEscrow,
   onReleaseFunds,
+  onCancelEscrow,
 }: EscrowDetailsModalProps) {
   const [transactionHashes, setTransactionHashes] =
     useState<EscrowTransactionHashes | null>(null);
@@ -70,6 +85,10 @@ export function EscrowDetailsModal({
   }, [open, escrow?.engagementId]);
 
   if (!escrow) return null;
+
+  const cancellationGraceHours = getEscrowCancellationGraceHours();
+  const createdAt = getEscrowCreatedAt(escrow);
+  const userRole = activeTab;
 
   const getStatusInfo = () => {
     if (escrow.flags?.released) {
@@ -119,6 +138,9 @@ export function EscrowDetailsModal({
                 </h3>
                 <p className="text-muted-foreground mt-1 break-all">
                   Engagement ID: {escrow.engagementId}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  Created: {createdAt.toLocaleString()}
                 </p>
               </div>
               <div className="flex items-center gap-2 sm:justify-end">
@@ -210,9 +232,7 @@ export function EscrowDetailsModal({
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {activeTab === 'buyer' &&
-                escrow.milestones[0].status !== 'pendingApproval' &&
-                !escrow.flags?.resolved &&
-                !escrow.flags?.released && (
+                canReportPayment(escrow, userRole) && (
                   <Button
                     onClick={() => onReportPayment(escrow)}
                     className="w-full btn-emerald-outline"
@@ -225,7 +245,7 @@ export function EscrowDetailsModal({
 
               {activeTab === 'seller' && (
                 <>
-                  {!escrow.milestones[0].approved && (
+                  {canConfirmPayment(escrow, userRole) && (
                     <Button
                       onClick={() => onConfirmPayment(escrow)}
                       className="w-full btn-emerald-outline"
@@ -236,29 +256,27 @@ export function EscrowDetailsModal({
                     </Button>
                   )}
 
-                  {escrow.balance === 0 &&
-                    !escrow.flags?.released &&
-                    !escrow.flags?.resolved && (
-                      <Button
-                        onClick={async () => {
-                          setTrustlineError(null);
-                          try {
-                            await onDeposit(escrow);
-                          } catch (err) {
-                            if (err instanceof TrustlineError) {
-                              setTrustlineError(err);
-                            }
+                  {canDeposit(escrow, userRole) && (
+                    <Button
+                      onClick={async () => {
+                        setTrustlineError(null);
+                        try {
+                          await onDeposit(escrow);
+                        } catch (err) {
+                          if (err instanceof TrustlineError) {
+                            setTrustlineError(err);
                           }
-                        }}
-                        className="w-full btn-emerald-outline"
-                        variant="outline"
-                      >
-                        <Banknote className="w-4 h-4 mr-2" />
-                        Deposit
-                      </Button>
-                    )}
+                        }
+                      }}
+                      className="w-full btn-emerald-outline"
+                      variant="outline"
+                    >
+                      <Banknote className="w-4 h-4 mr-2" />
+                      Deposit
+                    </Button>
+                  )}
 
-                  {escrow.milestones[0].approved && escrow.balance !== 0 && (
+                  {canReleaseFunds(escrow, userRole) && (
                     <Button
                       onClick={async () => {
                         setTrustlineError(null);
@@ -280,19 +298,40 @@ export function EscrowDetailsModal({
                 </>
               )}
 
-              {!escrow.flags?.disputed &&
+              {canCancel(escrow, userRole) && (
+                <Button
+                  onClick={() => onCancelEscrow(escrow)}
+                  className="w-full btn-emerald-outline"
+                  variant="outline"
+                  disabled={isCancellingEscrow}
+                >
+                  <TimerReset className="w-4 h-4 mr-2" />
+                  {isCancellingEscrow ? 'Cancelling...' : 'Cancel Trade'}
+                </Button>
+              )}
+
+              {!canCancel(escrow, userRole) &&
+                activeTab === 'buyer' &&
+                escrow.balance === 0 &&
+                !escrow.flags?.disputed &&
                 !escrow.flags?.resolved &&
-                !escrow.flags?.released &&
-                escrow.balance !== 0 && (
-                  <Button
-                    onClick={() => onDisputeEscrow(escrow)}
-                    className="w-full btn-emerald-outline"
-                    variant="outline"
-                  >
-                    <XCircle className="w-4 h-4 mr-2" />
-                    Dispute
-                  </Button>
+                !escrow.flags?.released && (
+                  <p className="text-sm text-muted-foreground md:col-span-2 lg:col-span-3">
+                    Unfunded escrows can be cancelled by the buyer after{' '}
+                    {cancellationGraceHours} hours.
+                  </p>
                 )}
+
+              {canDispute(escrow) && (
+                <Button
+                  onClick={() => onDisputeEscrow(escrow)}
+                  className="w-full btn-emerald-outline"
+                  variant="outline"
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Dispute
+                </Button>
+              )}
 
               {escrow.contractId && (
                 <Button
