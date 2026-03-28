@@ -8,6 +8,7 @@ import {
   User,
   XCircle,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,8 +18,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { formatAmount } from '@/lib/dashboard-utils';
+import type { EscrowTransactionHashes } from '@/lib/services/trades';
+import { TradesService } from '@/lib/services/trades';
 import { getTrustlineName } from '@/utils/getTrustline';
 import { Escrow } from '@/lib/types/escrow';
+import { EscrowTransactionHashesDisplay } from './TransactionHashDisplay';
 
 interface EscrowDetailsModalProps {
   open: boolean;
@@ -43,6 +47,23 @@ export function EscrowDetailsModal({
   onDisputeEscrow,
   onReleaseFunds,
 }: EscrowDetailsModalProps) {
+  const [transactionHashes, setTransactionHashes] =
+    useState<EscrowTransactionHashes | null>(null);
+
+  useEffect(() => {
+    if (open && escrow?.engagementId) {
+      TradesService.getEscrowByEngagementId(escrow.engagementId)
+        .then((result) => {
+          if (result?.transaction_hashes) {
+            setTransactionHashes(result.transaction_hashes);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to fetch transaction hashes:', error);
+        });
+    }
+  }, [open, escrow?.engagementId]);
+
   if (!escrow) return null;
 
   const getStatusInfo = () => {
@@ -163,6 +184,12 @@ export function EscrowDetailsModal({
               </div>
             </div>
           </div>
+
+          {/* Transaction Hashes */}
+          <EscrowTransactionHashesDisplay
+            transactionHashes={transactionHashes}
+            network="testnet"
+          />
 
           {/* Action Buttons */}
           <div className="space-y-4 pt-6 border-t border-border/50">

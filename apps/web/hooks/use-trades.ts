@@ -30,6 +30,21 @@ export const useInitializeTrade = () => {
   const { sendTransaction } = useSendTransaction();
   const { address } = useGlobalAuthenticationStore();
 
+  /**
+   * Extracts transaction hash from sendTransaction response
+   * Trustless Work returns the hash in the `txHash` field
+   */
+  const extractTxHash = (response: unknown): string | null => {
+    if (!response || typeof response !== 'object') return null;
+    const resp = response as Record<string, unknown>;
+    return (
+      (resp.txHash as string) ??
+      (resp.hash as string) ??
+      (resp.transactionHash as string) ??
+      null
+    );
+  };
+
   const initializeTrade = async (payload: CreateEscrowData) => {
     if (!address) {
       throw new Error(
@@ -126,7 +141,8 @@ export const useInitializeTrade = () => {
       throw new Error('Transaction failed to send');
     }
 
-    return { engagementId, contractId, listingId };
+    const txHash = extractTxHash(response);
+    return { txHash, engagementId, contractId, listingId };
   };
 
   const reportPayment = async (
@@ -180,6 +196,9 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
+
+    const txHash = extractTxHash(response);
+    return { txHash, contractId: escrow.contractId };
   };
 
   const depositFunds = async (escrow: Escrow) => {
@@ -228,6 +247,9 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
+
+    const txHash = extractTxHash(response);
+    return { txHash, contractId: escrow.contractId };
   };
 
   const disputeEscrow = async (escrow: Escrow) => {
@@ -271,6 +293,9 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
+
+    const txHash = extractTxHash(response);
+    return { txHash, contractId: escrow.contractId };
   };
 
   const releaseFunds = async (escrow: Escrow) => {
@@ -318,6 +343,9 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
+
+    const txHash = extractTxHash(response);
+    return { txHash, contractId: escrow.contractId };
   };
 
   const confirmPayment = async (escrow: Escrow) => {
@@ -366,6 +394,9 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
+
+    const txHash = extractTxHash(response);
+    return { txHash, contractId: escrow.contractId };
   };
 
   return {
