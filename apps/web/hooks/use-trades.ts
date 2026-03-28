@@ -80,6 +80,9 @@ export const useInitializeTrade = () => {
       },
       title: `${payload.listing.token} trade - ${listingId}`,
       roles: {
+        // TW Role Inversion: Seller acts as 'approver' to maintain authorization
+        // over the crypto release. Buyer acts as 'serviceProvider' to submit
+        // the off-chain fiat payment evidence.
         approver: seller, // seller
         releaseSigner: seller, // seller
         serviceProvider: buyer, // buyer

@@ -123,7 +123,7 @@ export function EscrowDetailsModal({
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Seller</p>
+                  <p className="text-sm text-muted-foreground mb-1">Seller (releases crypto)</p>
                   <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-all">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="font-mono text-sm text-foreground">
@@ -134,7 +134,7 @@ export function EscrowDetailsModal({
                 </div>
 
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Buyer</p>
+                  <p className="text-sm text-muted-foreground mb-1">Buyer (confirms fiat payment)</p>
                   <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-all">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="font-mono text-sm text-foreground">
