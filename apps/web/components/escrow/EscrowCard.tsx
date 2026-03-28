@@ -78,7 +78,7 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
             <div className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Seller Address (TW Approver)
+                  Seller Address (releases crypto)
                 </p>
                 <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md break-all">
                   <span className="font-mono text-xs text-foreground">
@@ -89,7 +89,7 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Buyer Address (TW Service Provider)
+                  Buyer Address (confirms fiat payment)
                 </p>
                 <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md break-all">
                   <span className="font-mono text-xs text-foreground">
