@@ -10,14 +10,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { cn } from '@/lib/utils';
 import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function TradeTypeStep() {
@@ -60,18 +54,31 @@ export function TradeTypeStep() {
             <FormItem>
               <FormLabel>Asset</FormLabel>
               <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select token" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TRUSTLINES.filter((t) => !!t.address).map((t) => (
-                      <SelectItem key={t.symbol} value={t.name}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <RadioGroup
+                  className="flex flex-wrap gap-2"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  {TRUSTLINES.filter((t) => !!t.address).map((t) => (
+                    <label
+                      key={t.symbol}
+                      htmlFor={`modal-token-${t.symbol}`}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-2 rounded-md border cursor-pointer text-sm transition-colors',
+                        field.value === t.name
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
+                          : 'border-border hover:border-emerald-400'
+                      )}
+                    >
+                      <RadioGroupItem
+                        value={t.name}
+                        id={`modal-token-${t.symbol}`}
+                        className="sr-only"
+                      />
+                      {t.symbol}
+                    </label>
+                  ))}
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
