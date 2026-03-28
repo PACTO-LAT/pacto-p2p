@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { sileo } from 'sileo';
 import type { CreateEscrowData } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
 
@@ -219,7 +220,72 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error('Token is required.');
       }
 
-      return initializeTrade(escrowData);
+      const { engagementId, contractId, listingId } =
+        await initializeTrade(escrowData);
+
+      // Resolve Stellar addresses to Supabase user UUIDs.
+      // escrowData.buyer_id / seller_id are Stellar public keys (G...),
+      // but the escrows and trades tables FK-reference users(id) which are UUIDs.
+      const [{ data: buyerUser }, { data: sellerUser }] = await Promise.all([
+        supabase
+          .from('users')
+          .select('id')
+          .eq('stellar_address', escrowData.buyer_id)
+          .single(),
+        supabase
+          .from('users')
+          .select('id')
+          .eq('stellar_address', escrowData.seller_id)
+          .single(),
+      ]);
+
+      if (!buyerUser) {
+        throw new Error('Buyer account not found. The wallet address is not registered on this platform.');
+      }
+      if (!sellerUser) {
+        throw new Error('Seller account not found. The wallet address is not registered on this platform.');
+      }
+
+      // 1. Insert into escrows table
+      const { data: escrowRow, error: escrowError } = await supabase
+        .from('escrows')
+        .insert({
+          listing_id: listingId,
+          buyer_id: buyerUser.id,
+          seller_id: sellerUser.id,
+          engagement_id: engagementId,
+          contract_id: contractId,
+          fiat_amount: escrowData.fiat_amount,
+        })
+        .select()
+        .single();
+
+      if (escrowError) {
+        console.error('Failed to persist escrow to Supabase:', escrowError);
+        throw new Error(`Failed to save escrow: ${escrowError.message}`);
+      }
+
+      // 2. Insert into trades table
+      const { error: tradeError } = await supabase.from('trades').insert({
+        escrow_id: escrowRow.id,
+        listing_id: listingId,
+        buyer_id: buyerUser.id,
+        seller_id: sellerUser.id,
+        token: escrowData.token || escrowData.listing.token,
+        token_amount: escrowData.amount,
+        fiat_amount: escrowData.fiat_amount,
+        fiat_currency: escrowData.fiat_currency || escrowData.listing.fiat_currency,
+        rate: escrowData.listing.rate,
+        payment_method: escrowData.listing.payment_method,
+        status: 'active',
+      });
+
+      if (tradeError) {
+        console.error('Failed to persist trade to Supabase:', tradeError);
+        throw new Error(`Failed to save trade: ${tradeError.message}`);
+      }
+
+      return { engagementId, contractId, listingId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['escrows'] });
