@@ -6,13 +6,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { formatAmount } from '@/lib/dashboard-utils';
 import { getTrustlineName } from '@/utils/getTrustline';
 import type { Escrow } from '@/lib/types/escrow';
+import { UnreadBadge } from '@/components/chat/UnreadBadge';
 
 interface EscrowCardProps {
   escrow: Escrow;
   onClick: (escrow: Escrow) => void;
+  unreadCount?: number;
 }
 
-export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
+export function EscrowCard({ escrow, onClick, unreadCount = 0 }: EscrowCardProps) {
   const getStatusText = () => {
     if (escrow.flags?.resolved || escrow.flags?.released) {
       return { text: 'Completed', color: 'text-emerald-600' };
@@ -32,9 +34,12 @@ export function EscrowCard({ escrow, onClick }: EscrowCardProps) {
           {/* Header */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
-              <p className="text-xl font-semibold text-foreground break-words">
-                {escrow.title}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-semibold text-foreground break-words">
+                  {escrow.title}
+                </p>
+                <UnreadBadge count={unreadCount} />
+              </div>
               <p className="text-sm text-muted-foreground break-all">
                 ID: {escrow.engagementId}
               </p>

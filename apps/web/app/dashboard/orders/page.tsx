@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
+import { useUnreadCount } from '@/hooks/use-chat';
+import { useAuth } from '@/hooks/use-auth';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import { useEscrowActions } from '@/hooks/use-escrow-actions';
@@ -23,7 +25,9 @@ export default function EscrowsPage() {
   const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
     useState(false);
 
+  const { user } = useAuth();
   const { address } = useGlobalAuthenticationStore();
+  const { unreadByEngagementId } = useUnreadCount(user?.id ?? null);
   const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
     useEscrowSelection();
   const {
@@ -147,6 +151,7 @@ export default function EscrowsPage() {
               key={escrow.engagementId}
               escrow={escrow}
               onClick={openEscrowModal}
+              unreadCount={unreadByEngagementId[escrow.engagementId] ?? 0}
             />
           ))
         )}

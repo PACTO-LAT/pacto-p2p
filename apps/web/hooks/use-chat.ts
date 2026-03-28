@@ -254,26 +254,29 @@ export function useMarkAsRead(chatId: string | null) {
 
 export function useUnreadCount(userId: string | null) {
   const [totalUnread, setTotalUnread] = useState(0);
-  const [unreadByChatId, setUnreadByChatId] = useState<
-    Record<string, number>
-  >({});
+  const [unreadByChatId, setUnreadByChatId] = useState<Record<string, number>>({});
+  const [unreadByEngagementId, setUnreadByEngagementId] = useState<Record<string, number>>({});
 
   const refresh = useCallback(async () => {
     if (!userId) return;
 
-    // Get all chats the user belongs to
+    // Get all chats the user belongs to, including engagement_id for mapping
     const { data: chats } = await supabase
       .from('trade_chats')
-      .select('id')
+      .select('id, engagement_id')
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
     if (!chats || chats.length === 0) {
       setTotalUnread(0);
       setUnreadByChatId({});
+      setUnreadByEngagementId({});
       return;
     }
 
     const chatIds = chats.map((c) => c.id);
+    const engagementById: Record<string, string> = Object.fromEntries(
+      chats.map((c) => [c.id, c.engagement_id])
+    );
 
     const { data: unreadMsgs } = await supabase
       .from('trade_messages')
@@ -284,13 +287,20 @@ export function useUnreadCount(userId: string | null) {
 
     if (!unreadMsgs) return;
 
-    const counts: Record<string, number> = {};
+    const countsByChatId: Record<string, number> = {};
+    const countsByEngagementId: Record<string, number> = {};
+
     for (const msg of unreadMsgs) {
-      counts[msg.chat_id] = (counts[msg.chat_id] ?? 0) + 1;
+      countsByChatId[msg.chat_id] = (countsByChatId[msg.chat_id] ?? 0) + 1;
+      const engId = engagementById[msg.chat_id];
+      if (engId) {
+        countsByEngagementId[engId] = (countsByEngagementId[engId] ?? 0) + 1;
+      }
     }
 
-    setUnreadByChatId(counts);
-    setTotalUnread(Object.values(counts).reduce((a, b) => a + b, 0));
+    setUnreadByChatId(countsByChatId);
+    setUnreadByEngagementId(countsByEngagementId);
+    setTotalUnread(Object.values(countsByChatId).reduce((a, b) => a + b, 0));
   }, [userId]);
 
   useEffect(() => {
@@ -312,5 +322,5 @@ export function useUnreadCount(userId: string | null) {
     };
   }, [userId, refresh]);
 
-  return { totalUnread, unreadByChatId };
+  return { totalUnread, unreadByChatId, unreadByEngagementId };
 }
