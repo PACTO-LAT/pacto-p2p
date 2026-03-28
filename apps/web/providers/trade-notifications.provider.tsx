@@ -4,12 +4,13 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { sileo } from 'sileo';
 import { supabase } from '@/lib/supabase';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useAuth } from '@/hooks/use-auth';
 
+// Matches actual trades.status values written to Supabase.
+// On-chain TrustlessWork states (funded, paymentReported, etc.) are not
+// persisted to trades.status — those transitions happen on-chain only.
 const TRADE_STATUS_MESSAGES: Record<string, string> = {
-  initialized: 'A new escrow has been created',
-  funded: 'Escrow has been funded — send your payment and report it',
-  paymentReported: 'Payment reported — confirm or dispute',
+  active: 'A new trade has been initiated',
   completed: 'Trade completed successfully',
   disputed: 'A dispute has been raised on this trade',
   resolved: 'Trade dispute has been resolved',
@@ -21,20 +22,21 @@ export function TradeNotificationsProvider({
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
-  const { address } = useGlobalAuthenticationStore();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!address) return;
+    if (!user?.id) return;
 
+    // Channel name is unique per user to avoid collisions on re-renders
     const channel = supabase
-      .channel('trade-notifications')
+      .channel(`trade-notifications-${user.id}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'trades',
-          filter: `buyer_id=eq.${address}`,
+          filter: `buyer_id=eq.${user.id}`,
         },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ['escrows'] });
@@ -51,7 +53,7 @@ export function TradeNotificationsProvider({
           event: '*',
           schema: 'public',
           table: 'trades',
-          filter: `seller_id=eq.${address}`,
+          filter: `seller_id=eq.${user.id}`,
         },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ['escrows'] });
@@ -67,7 +69,7 @@ export function TradeNotificationsProvider({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [address, queryClient]);
+  }, [user?.id, queryClient]);
 
   return <>{children}</>;
 }
