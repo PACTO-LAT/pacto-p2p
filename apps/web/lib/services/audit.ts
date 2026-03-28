@@ -107,7 +107,7 @@ export class AuditService {
 
     let query = supabase
       .from('admin_audit_logs')
-      .select('id', { count: 'exact' });
+      .select('*', { count: 'exact', head: true });
 
     if (adminUserId) {
       query = query.eq('admin_user_id', adminUserId);
