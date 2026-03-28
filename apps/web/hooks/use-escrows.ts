@@ -144,7 +144,9 @@ export const useEscrowsByRoleQuery = ({
   const resolvedValidateOnChain =
     validateOnChain !== undefined
       ? validateOnChain
-      : VALIDATE_ON_CHAIN[context];
+      : context === 'critical-flow' || context === 'detail-page'
+        ? VALIDATE_ON_CHAIN.CRITICAL_FLOW
+        : VALIDATE_ON_CHAIN.DASHBOARD_LIST;
 
   // Resolve staleTime based on context if not explicitly provided
   const resolvedStaleTime =
@@ -299,7 +301,9 @@ export const useEscrowsBySignerQuery = ({
   const resolvedValidateOnChain =
     validateOnChain !== undefined
       ? validateOnChain
-      : VALIDATE_ON_CHAIN[context];
+      : context === 'critical-flow' || context === 'detail-page'
+        ? VALIDATE_ON_CHAIN.CRITICAL_FLOW
+        : VALIDATE_ON_CHAIN.DASHBOARD_LIST;
 
   // Resolve staleTime based on context if not explicitly provided
   const resolvedStaleTime =
