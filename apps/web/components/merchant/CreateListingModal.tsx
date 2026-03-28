@@ -207,7 +207,14 @@ export function CreateListingModal({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
+      {/* Manual backdrop — needed because modal={false} disables the Radix overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50"
+          onClick={() => handleOpenChange(false)}
+        />
+      )}
+      <Dialog open={open} onOpenChange={handleOpenChange} modal={false}>
         <DialogContent
           className="fixed inset-0 w-full max-h-[100dvh] rounded-none border-0 sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:rounded-lg sm:border sm:p-6 gap-4 overflow-y-auto"
           onPointerDownOutside={(e) => {
