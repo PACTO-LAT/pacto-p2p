@@ -43,16 +43,80 @@ async function getActiveBuyerTradeCount(
   return count ?? 0;
 }
 
+// Rate limit handling constants
+const RATE_LIMIT_RETRY_DELAY = 1000; // 1 second
+const RATE_LIMIT_MAX_RETRIES = 3;
+const RATE_LIMIT_BACKOFF_MULTIPLIER = 2;
+
+// Context-aware staleTime and validateOnChain defaults (issue #107)
+const STALE_TIME = {
+  DASHBOARD_LIST: 1000 * 60 * 5, // 5 minutes: sufficient for display
+  DETAIL_PAGE: 1000 * 30, // 30 seconds: slightly fresher for detail views
+  CRITICAL_FLOW: 0, // Immediate: before any financial action
+} as const;
+
+const VALIDATE_ON_CHAIN = {
+  DASHBOARD_LIST: false, // Indexer data sufficient for display
+  DETAIL_PAGE: true, // User is about to view details
+  CRITICAL_FLOW: true, // Must have current state before action
+  BACKGROUND_REFETCH: false, // Reduces load; validation on interaction
+} as const;
+
 interface UseEscrowsByRoleQueryParams
   extends GetEscrowsFromIndexerByRoleParams {
   enabled?: boolean;
+  validateOnChain?: boolean;
+  staleTime?: number;
+  context?: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch';
 }
 
 interface UseEscrowsBySignerQueryParams
   extends GetEscrowsFromIndexerBySignerParams {
   enabled?: boolean;
+  validateOnChain?: boolean;
+  staleTime?: number;
+  context?: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch';
 }
 
+/**
+ * Exponential backoff retry handler for TrustlessWork rate limits (429)
+ * Implements rate limit consideration from issue #107
+ */
+const handleRateLimitRetry = async (
+  error: unknown,
+  retryCount: number
+): Promise<boolean> => {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'statusCode' in error &&
+    error.statusCode === 429
+  ) {
+    if (retryCount < RATE_LIMIT_MAX_RETRIES) {
+      const delay =
+        RATE_LIMIT_RETRY_DELAY *
+        Math.pow(RATE_LIMIT_BACKOFF_MULTIPLIER, retryCount);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return true; // Signal retry
+    }
+  }
+  return false; // No retry
+};
+
+/**
+ * Hook to fetch escrows by role with configurable on-chain validation
+ * @param validateOnChain - Whether to verify on-chain (default: false for dashboard, true for critical flows)
+ * @param staleTime - Time in ms before data is considered stale (default: 5 minutes)
+ * @param context - Query context: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch'
+ *
+ * Context examples:
+ * - 'dashboard-list': Dashboard showing list of escrows → validateOnChain: false
+ * - 'detail-page': User viewing escrow details → validateOnChain: true
+ * - 'critical-flow': Before deposit/confirm/release → validateOnChain: true
+ * - 'background-refetch': Polling/background update → validateOnChain: false
+ *
+ * Issue #107: Made validateOnChain configurable to reduce rate limit risk
+ */
 export const useEscrowsByRoleQuery = ({
   role,
   roleAddress,
@@ -69,9 +133,30 @@ export const useEscrowsByRoleQuery = ({
   status,
   type,
   enabled = true,
+  validateOnChain,
+  staleTime,
+  context = 'dashboard-list',
 }: UseEscrowsByRoleQueryParams) => {
   const { getEscrowsByRole } = useGetEscrowsFromIndexerByRole();
   const apiKey = process.env.NEXT_PUBLIC_TLW_API_KEY;
+
+  // Resolve validateOnChain based on context if not explicitly provided
+  const resolvedValidateOnChain =
+    validateOnChain !== undefined
+      ? validateOnChain
+      : VALIDATE_ON_CHAIN[context];
+
+  // Resolve staleTime based on context if not explicitly provided
+  const resolvedStaleTime =
+    staleTime !== undefined
+      ? staleTime
+      : STALE_TIME[
+          context === 'critical-flow'
+            ? 'CRITICAL_FLOW'
+            : context === 'detail-page'
+              ? 'DETAIL_PAGE'
+              : 'DASHBOARD_LIST'
+        ];
 
   return useQuery({
     queryKey: [
@@ -90,6 +175,7 @@ export const useEscrowsByRoleQuery = ({
       engagementId,
       status,
       type,
+      resolvedValidateOnChain,
     ],
     queryFn: async (): Promise<Escrow[]> => {
       if (!apiKey) {
@@ -98,50 +184,95 @@ export const useEscrowsByRoleQuery = ({
         );
       }
 
-      try {
-        const escrows = await getEscrowsByRole({
-          role,
-          roleAddress,
-          isActive,
-          page,
-          orderDirection,
-          orderBy,
-          startDate,
-          endDate,
-          maxAmount,
-          minAmount,
-          title,
-          engagementId,
-          status,
-          type: 'single-release',
-          validateOnChain: true,
-        });
+      let retryCount = 0;
+      let lastError: unknown;
 
-        if (!escrows) {
-          throw new Error('Failed to fetch escrows');
-        }
+      while (retryCount <= RATE_LIMIT_MAX_RETRIES) {
+        try {
+          const escrows = await getEscrowsByRole({
+            role,
+            roleAddress,
+            isActive,
+            page,
+            orderDirection,
+            orderBy,
+            startDate,
+            endDate,
+            maxAmount,
+            minAmount,
+            title,
+            engagementId,
+            status,
+            type: 'single-release',
+            validateOnChain: resolvedValidateOnChain,
+          });
 
-        return escrows;
-      } catch (error: unknown) {
-        // Handle 401 Unauthorized errors
-        if (
-          error &&
-          typeof error === 'object' &&
-          'statusCode' in error &&
-          error.statusCode === 401
-        ) {
-          throw new Error(
-            'Unauthorized: Invalid or missing Trustless Work API key. Please check your NEXT_PUBLIC_TLW_API_KEY environment variable.'
-          );
+          if (!escrows) {
+            throw new Error('Failed to fetch escrows');
+          }
+
+          return escrows;
+        } catch (error: unknown) {
+          lastError = error;
+
+          // Handle 401 Unauthorized errors
+          if (
+            error &&
+            typeof error === 'object' &&
+            'statusCode' in error &&
+            error.statusCode === 401
+          ) {
+            throw new Error(
+              'Unauthorized: Invalid or missing Trustless Work API key. Please check your NEXT_PUBLIC_TLW_API_KEY environment variable.'
+            );
+          }
+
+          // Handle 429 Rate Limit with exponential backoff
+          const shouldRetry = await handleRateLimitRetry(error, retryCount);
+          if (shouldRetry) {
+            retryCount++;
+            continue;
+          }
+
+          // For any other error, throw immediately
+          throw error;
         }
-        throw error;
       }
+
+      // If we exhausted retries, throw the last rate limit error
+      if (
+        lastError &&
+        typeof lastError === 'object' &&
+        'statusCode' in lastError &&
+        lastError.statusCode === 429
+      ) {
+        throw new Error(
+          `Rate limited by TrustlessWork after ${RATE_LIMIT_MAX_RETRIES} retries. Please try again in a moment.`
+        );
+      }
+
+      throw lastError || new Error('Failed to fetch escrows');
     },
     enabled: enabled && !!roleAddress && !!role && !!apiKey,
-    staleTime: 1000 * 60 * 5,
+    staleTime: resolvedStaleTime,
+    retry: false,
   });
 };
 
+/**
+ * Hook to fetch escrows by signer with configurable on-chain validation
+ * @param validateOnChain - Whether to verify on-chain (default: false for dashboard, true for critical flows)
+ * @param staleTime - Time in ms before data is considered stale (default: 5 minutes)
+ * @param context - Query context: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch'
+ *
+ * Context examples:
+ * - 'dashboard-list': Dashboard showing list of escrows → validateOnChain: false
+ * - 'detail-page': User viewing escrow details → validateOnChain: true
+ * - 'critical-flow': Before deposit/confirm/release → validateOnChain: true
+ * - 'background-refetch': Polling/background update → validateOnChain: false
+ *
+ * Issue #107: Made validateOnChain configurable to reduce rate limit risk
+ */
 export const useEscrowsBySignerQuery = ({
   signer,
   isActive = true,
@@ -157,9 +288,30 @@ export const useEscrowsBySignerQuery = ({
   status,
   type,
   enabled = true,
+  validateOnChain,
+  staleTime,
+  context = 'dashboard-list',
 }: UseEscrowsBySignerQueryParams) => {
   const { getEscrowsBySigner } = useGetEscrowsFromIndexerBySigner();
   const apiKey = process.env.NEXT_PUBLIC_TLW_API_KEY;
+
+  // Resolve validateOnChain based on context if not explicitly provided
+  const resolvedValidateOnChain =
+    validateOnChain !== undefined
+      ? validateOnChain
+      : VALIDATE_ON_CHAIN[context];
+
+  // Resolve staleTime based on context if not explicitly provided
+  const resolvedStaleTime =
+    staleTime !== undefined
+      ? staleTime
+      : STALE_TIME[
+          context === 'critical-flow'
+            ? 'CRITICAL_FLOW'
+            : context === 'detail-page'
+              ? 'DETAIL_PAGE'
+              : 'DASHBOARD_LIST'
+        ];
 
   return useQuery({
     queryKey: [
@@ -177,6 +329,7 @@ export const useEscrowsBySignerQuery = ({
       engagementId,
       status,
       type,
+      resolvedValidateOnChain,
     ],
     queryFn: async () => {
       if (!apiKey) {
@@ -185,46 +338,77 @@ export const useEscrowsBySignerQuery = ({
         );
       }
 
-      try {
-        const escrows = await getEscrowsBySigner({
-          signer,
-          isActive,
-          page,
-          orderDirection,
-          orderBy,
-          startDate,
-          endDate,
-          maxAmount,
-          minAmount,
-          title,
-          engagementId,
-          status,
-          type: 'single-release',
-          validateOnChain: true,
-        });
+      let retryCount = 0;
+      let lastError: unknown;
 
-        if (!escrows) {
-          throw new Error('Failed to fetch escrows');
-        }
+      while (retryCount <= RATE_LIMIT_MAX_RETRIES) {
+        try {
+          const escrows = await getEscrowsBySigner({
+            signer,
+            isActive,
+            page,
+            orderDirection,
+            orderBy,
+            startDate,
+            endDate,
+            maxAmount,
+            minAmount,
+            title,
+            engagementId,
+            status,
+            type: 'single-release',
+            validateOnChain: resolvedValidateOnChain,
+          });
 
-        return escrows;
-      } catch (error: unknown) {
-        // Handle 401 Unauthorized errors
-        if (
-          error &&
-          typeof error === 'object' &&
-          'statusCode' in error &&
-          error.statusCode === 401
-        ) {
-          throw new Error(
-            'Unauthorized: Invalid or missing Trustless Work API key. Please check your NEXT_PUBLIC_TLW_API_KEY environment variable.'
-          );
+          if (!escrows) {
+            throw new Error('Failed to fetch escrows');
+          }
+
+          return escrows;
+        } catch (error: unknown) {
+          lastError = error;
+
+          // Handle 401 Unauthorized errors
+          if (
+            error &&
+            typeof error === 'object' &&
+            'statusCode' in error &&
+            error.statusCode === 401
+          ) {
+            throw new Error(
+              'Unauthorized: Invalid or missing Trustless Work API key. Please check your NEXT_PUBLIC_TLW_API_KEY environment variable.'
+            );
+          }
+
+          // Handle 429 Rate Limit with exponential backoff
+          const shouldRetry = await handleRateLimitRetry(error, retryCount);
+          if (shouldRetry) {
+            retryCount++;
+            continue;
+          }
+
+          // For any other error, throw immediately
+          throw error;
         }
-        throw error;
       }
+
+      // If we exhausted retries, throw the last rate limit error
+      if (
+        lastError &&
+        typeof lastError === 'object' &&
+        'statusCode' in lastError &&
+        lastError.statusCode === 429
+      ) {
+        throw new Error(
+          `Rate limited by TrustlessWork after ${RATE_LIMIT_MAX_RETRIES} retries. Please try again in a moment.`
+        );
+      }
+
+      throw lastError || new Error('Failed to fetch escrows');
     },
     enabled: enabled && !!signer && !!apiKey,
-    staleTime: 1000 * 60 * 5, // 5 min
+    staleTime: resolvedStaleTime,
+    retry: false,
   });
 };
 
