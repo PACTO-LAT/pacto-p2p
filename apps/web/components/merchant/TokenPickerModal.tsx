@@ -94,7 +94,7 @@ export function TokenPickerModal({
                 <div>
                   <p className="text-sm font-medium leading-none">{t.name}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {t.symbol}
+                    {t.issuerName ?? t.symbol}
                   </p>
                 </div>
                 {selected === t.name && (
