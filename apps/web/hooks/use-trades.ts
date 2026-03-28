@@ -17,8 +17,9 @@ import {
 import type { CreateEscrowData } from '@/lib/types';
 import { signTransaction } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { getTrustline } from '@/utils/getTrustline';
-import { supabase } from '@/lib/supabase';
+import { getTrustline, getTrustlineName } from '@/utils/getTrustline';
+import { hasTrustline } from '@/utils/stellar/hasTrustline';
+import { TrustlineError } from '@/utils/stellar/TrustlineError';
 
 export const useInitializeTrade = () => {
   const { deployEscrow } = useInitializeEscrow();
@@ -85,6 +86,21 @@ export const useInitializeTrade = () => {
         ? String(payload.listing.id)
         : crypto.randomUUID();
     const engagementId = `${listingId}-${Date.now()}`;
+
+    // Validate that both parties have the required Stellar trustline before
+    // attempting any on-chain operation. A missing trustline causes an opaque
+    // `op_no_trust` error from Stellar — we surface a clear message instead.
+    const [sellerHasTrustline, buyerHasTrustline] = await Promise.all([
+      hasTrustline(seller, trustline.symbol, trustline.address),
+      hasTrustline(buyer, trustline.symbol, trustline.address),
+    ]);
+
+    if (!sellerHasTrustline) {
+      throw new TrustlineError('seller', trustline.symbol);
+    }
+    if (!buyerHasTrustline) {
+      throw new TrustlineError('buyer', trustline.symbol);
+    }
 
     const finalPayload = {
       signer: address,
@@ -214,6 +230,35 @@ export const useInitializeTrade = () => {
 
     if (!escrow.amount || escrow.amount <= 0) {
       throw new Error('Invalid escrow amount.');
+    }
+
+    // Validate trustlines before funding — seller (releaseSigner) must be able
+    // to send the token, and buyer (receiver) must be able to receive it.
+    // The TLW Trustline type only provides `address` (the issuer G... address).
+    // We derive the human-readable symbol from that address via getTrustlineName.
+    const escrowAssetIssuer = escrow.trustline.address;
+    const escrowAssetCode = getTrustlineName(escrowAssetIssuer);
+
+    if (escrowAssetCode && escrowAssetIssuer) {
+      const [sellerHasTrustline, buyerHasTrustline] = await Promise.all([
+        hasTrustline(
+          escrow.roles.releaseSigner,
+          escrowAssetCode,
+          escrowAssetIssuer
+        ),
+        hasTrustline(
+          escrow.roles.receiver,
+          escrowAssetCode,
+          escrowAssetIssuer
+        ),
+      ]);
+
+      if (!sellerHasTrustline) {
+        throw new TrustlineError('seller', escrowAssetCode);
+      }
+      if (!buyerHasTrustline) {
+        throw new TrustlineError('buyer', escrowAssetCode);
+      }
     }
 
     const finalPayload: FundEscrowPayload = {
