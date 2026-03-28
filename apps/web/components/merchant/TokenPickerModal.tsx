@@ -3,13 +3,9 @@
 import { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 
 const AVAILABLE = TRUSTLINES.filter((t) => !!t.address);
-
-const TOKEN_ICONS: Record<string, string> = {
-  USDC: '💵',
-  XLM: '✨',
-};
 
 interface TokenPickerModalProps {
   open: boolean;
@@ -94,9 +90,7 @@ export function TokenPickerModal({
                   selected === t.name ? 'bg-emerald-500/10' : ''
                 }`}
               >
-                <span className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-lg shrink-0">
-                  {TOKEN_ICONS[t.symbol] ?? '🪙'}
-                </span>
+                <TokenIcon token={t.symbol} size="md" className="shrink-0" />
                 <div>
                   <p className="text-sm font-medium leading-none">{t.name}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
