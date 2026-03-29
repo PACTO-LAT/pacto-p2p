@@ -93,6 +93,7 @@ const STALE_TIME = {
   DASHBOARD_LIST: 1000 * 60 * 5, // 5 minutes: sufficient for display
   DETAIL_PAGE: 1000 * 30, // 30 seconds: slightly fresher for detail views
   CRITICAL_FLOW: 0, // Immediate: before any financial action
+  ACTIVE_ESCROW_POLLING: 1000 * 15, // 15 seconds: keep active trades fresh
 } as const;
 
 const VALIDATE_ON_CHAIN = {
@@ -102,11 +103,16 @@ const VALIDATE_ON_CHAIN = {
   BACKGROUND_REFETCH: false, // Reduces load; validation on interaction
 } as const;
 
+const REFETCH_INTERVAL = {
+  ACTIVE_ESCROW_POLLING: 1000 * 30, // 30 seconds polling for active escrows
+} as const;
+
 interface UseEscrowsByRoleQueryParams
   extends GetEscrowsFromIndexerByRoleParams {
   enabled?: boolean;
   validateOnChain?: boolean;
   staleTime?: number;
+  refetchInterval?: number | false;
   context?: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch';
 }
 
@@ -115,6 +121,7 @@ interface UseEscrowsBySignerQueryParams
   enabled?: boolean;
   validateOnChain?: boolean;
   staleTime?: number;
+  refetchInterval?: number | false;
   context?: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch';
 }
 
@@ -212,6 +219,7 @@ export const useEscrowsByRoleQuery = ({
   enabled = true,
   validateOnChain,
   staleTime,
+  refetchInterval,
   context = 'dashboard-list',
 }: UseEscrowsByRoleQueryParams) => {
   const { getEscrowsByRole } = useGetEscrowsFromIndexerByRole();
@@ -230,6 +238,8 @@ export const useEscrowsByRoleQuery = ({
   const resolvedStaleTime =
     staleTime !== undefined
       ? staleTime
+      : context === 'dashboard-list' && isActive
+        ? STALE_TIME.ACTIVE_ESCROW_POLLING
       : STALE_TIME[
           context === 'critical-flow'
             ? 'CRITICAL_FLOW'
@@ -237,6 +247,15 @@ export const useEscrowsByRoleQuery = ({
               ? 'DETAIL_PAGE'
               : 'DASHBOARD_LIST'
         ];
+
+  const resolvedRefetchInterval =
+    refetchInterval !== undefined
+      ? refetchInterval
+      : context === 'dashboard-list' &&
+          isActive &&
+          resolvedValidateOnChain === VALIDATE_ON_CHAIN.BACKGROUND_REFETCH
+        ? REFETCH_INTERVAL.ACTIVE_ESCROW_POLLING
+        : false;
 
   return useQuery({
     queryKey: [
@@ -339,6 +358,8 @@ export const useEscrowsByRoleQuery = ({
     },
     enabled: enabled && !!roleAddress && !!role && !!apiKey,
     staleTime: resolvedStaleTime,
+    refetchInterval: resolvedRefetchInterval,
+    refetchIntervalInBackground: false,
     retry: false,
   });
 };
@@ -374,6 +395,7 @@ export const useEscrowsBySignerQuery = ({
   enabled = true,
   validateOnChain,
   staleTime,
+  refetchInterval,
   context = 'dashboard-list',
 }: UseEscrowsBySignerQueryParams) => {
   const { getEscrowsBySigner } = useGetEscrowsFromIndexerBySigner();
@@ -392,6 +414,8 @@ export const useEscrowsBySignerQuery = ({
   const resolvedStaleTime =
     staleTime !== undefined
       ? staleTime
+      : context === 'dashboard-list' && isActive
+        ? STALE_TIME.ACTIVE_ESCROW_POLLING
       : STALE_TIME[
           context === 'critical-flow'
             ? 'CRITICAL_FLOW'
@@ -399,6 +423,15 @@ export const useEscrowsBySignerQuery = ({
               ? 'DETAIL_PAGE'
               : 'DASHBOARD_LIST'
         ];
+
+  const resolvedRefetchInterval =
+    refetchInterval !== undefined
+      ? refetchInterval
+      : context === 'dashboard-list' &&
+          isActive &&
+          resolvedValidateOnChain === VALIDATE_ON_CHAIN.BACKGROUND_REFETCH
+        ? REFETCH_INTERVAL.ACTIVE_ESCROW_POLLING
+        : false;
 
   return useQuery({
     queryKey: [
@@ -499,6 +532,8 @@ export const useEscrowsBySignerQuery = ({
     },
     enabled: enabled && !!signer && !!apiKey,
     staleTime: resolvedStaleTime,
+    refetchInterval: resolvedRefetchInterval,
+    refetchIntervalInBackground: false,
     retry: false,
   });
 };
