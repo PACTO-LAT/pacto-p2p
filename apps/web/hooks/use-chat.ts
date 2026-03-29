@@ -93,7 +93,7 @@ export function useTradeChat(engagementId: string | null) {
           setOtherPartyOnline(others.length > 0);
         })
         .on('presence', { event: 'leave' }, (payload) => {
-          const left = (payload.leftPresences as Array<{ userId: string; lastSeen: string }>)
+          const left = (payload.leftPresences as unknown as Array<{ userId: string; lastSeen: string }>)
             .filter((p) => p.userId !== user.id);
           if (left.length > 0) {
             setOtherPartyLastSeen(new Date());
