@@ -15,7 +15,7 @@ interface TradeChatPanelProps {
 }
 
 export function TradeChatPanel({ engagementId, currentUserId }: TradeChatPanelProps) {
-  const { chat, messages, isLoading, otherPartyOnline, otherPartyTyping } =
+  const { chat, messages, isLoading, otherPartyOnline, otherPartyLastSeen, otherPartyTyping } =
     useTradeChat(engagementId);
 
   const { sendText, sendAttachment, isSending } = useSendMessage(chat?.id ?? null);
@@ -59,7 +59,7 @@ export function TradeChatPanel({ engagementId, currentUserId }: TradeChatPanelPr
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30 shrink-0">
         <span className="text-sm font-medium text-foreground">Trade Chat</span>
-        <OnlineStatusDot online={otherPartyOnline} />
+        <OnlineStatusDot online={otherPartyOnline} lastSeen={otherPartyLastSeen} />
       </div>
 
       {/* Message list */}
