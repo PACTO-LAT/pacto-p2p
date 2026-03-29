@@ -12,6 +12,7 @@ import {
   useFundEscrow,
   useInitializeEscrow,
   useReleaseFunds,
+  useResolveDispute,
   useSendTransaction,
   useStartDispute,
 } from '@trustless-work/escrow';
@@ -28,11 +29,17 @@ import {
 } from '@/lib/escrow-utils';
 import { TradesService } from '@/lib/services/trades';
 
+export interface DisputeDistribution {
+  address: string;
+  amount: number;
+}
+
 export const useInitializeTrade = () => {
   const { deployEscrow } = useInitializeEscrow();
   const { changeMilestoneStatus } = useChangeMilestoneStatus();
   const { fundEscrow } = useFundEscrow();
   const { startDispute } = useStartDispute();
+  const { resolveDispute: resolveDisputeEscrow } = useResolveDispute();
   const { approveMilestone } = useApproveMilestone();
   const { releaseFunds: releaseFundsEscrow } = useReleaseFunds();
   const { sendTransaction } = useSendTransaction();
@@ -473,12 +480,70 @@ export const useInitializeTrade = () => {
     return { engagementId: escrow.engagementId };
   };
 
+  const resolveDispute = async (
+    escrow: Escrow,
+    distributions: DisputeDistribution[]
+  ) => {
+    if (!address) {
+      throw new Error(
+        'Wallet address is required. Please connect your wallet.'
+      );
+    }
+
+    if (!escrow.contractId) {
+      throw new Error('Escrow contract ID is required.');
+    }
+
+    const disputeResolver = process.env.NEXT_PUBLIC_ROLE_ADDRESS;
+    if (!disputeResolver) {
+      throw new Error(
+        'Platform address is not configured. Set NEXT_PUBLIC_ROLE_ADDRESS environment variable.'
+      );
+    }
+
+    const finalPayload = {
+      contractId: escrow.contractId,
+      disputeResolver,
+      distributions: distributions as [{ address: string; amount: number }],
+    };
+
+    const { unsignedTransaction } = await resolveDisputeEscrow(
+      finalPayload,
+      'single-release'
+    );
+
+    if (!unsignedTransaction) {
+      throw new Error(
+        'Unsigned transaction is missing from resolveDispute response.'
+      );
+    }
+
+    const signedTxXdr = await signTransaction({
+      unsignedTransaction,
+      address,
+    });
+
+    if (!signedTxXdr) {
+      throw new Error('Signed transaction is missing.');
+    }
+
+    const response = await sendTransaction(signedTxXdr);
+
+    if (response.status !== 'SUCCESS') {
+      throw new Error('Transaction failed to send');
+    }
+
+    const txHash = extractTxHash(response);
+    return { txHash, contractId: escrow.contractId };
+  };
+
   return {
     initializeTrade,
     reportPayment,
     confirmPayment,
     depositFunds,
     disputeEscrow,
+    resolveDispute,
     releaseFunds,
     cancelEscrow,
   };

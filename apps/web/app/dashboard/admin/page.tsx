@@ -12,6 +12,7 @@ import {
   TransactionList,
   UserManagement,
   MerchantApplications,
+  DisputeManagement,
 } from '@/components/admin';
 import {
   getDefaultTokens,
@@ -104,6 +105,9 @@ export default function AdminPage() {
           <TabsTrigger value="merchant-applications" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">
             Merchant Applications
           </TabsTrigger>
+          <TabsTrigger value="disputes" className="bg-card/60 hover:bg-card/80 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap">
+            Disputes
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tokens">
@@ -137,6 +141,10 @@ export default function AdminPage() {
 
         <TabsContent value="merchant-applications">
           <MerchantApplications />
+        </TabsContent>
+
+        <TabsContent value="disputes">
+          <DisputeManagement />
         </TabsContent>
       </Tabs>
     </div>

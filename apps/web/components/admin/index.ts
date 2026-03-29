@@ -10,3 +10,5 @@ export { MerchantApplications } from './MerchantApplications';
 export { MerchantApplicationCard } from './MerchantApplicationCard';
 export { MerchantApplicationModal } from './MerchantApplicationModal';
 export { MerchantApplicationFilters } from './MerchantApplicationFilters';
+export { DisputeManagement } from './DisputeManagement';
+export { DisputeResolutionModal } from './DisputeResolutionModal';

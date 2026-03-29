@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { sileo } from 'sileo';
-import { useInitializeTrade } from '@/hooks/use-trades';
+import { useInitializeTrade, type DisputeDistribution } from '@/hooks/use-trades';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import type { Escrow } from '@pacto-p2p/types';
 import { ReportPaymentData } from '@/lib/types/escrow';
@@ -12,12 +12,14 @@ import { TrustlineError } from '@/utils/stellar/TrustlineError';
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
   const [isCancelEscrowLoading, setIsCancelEscrowLoading] = useState(false);
+  const [isResolveDisputeLoading, setIsResolveDisputeLoading] = useState(false);
   const queryClient = useQueryClient();
   const { selectEscrow } = useEscrowSelection();
   const {
     reportPayment,
     depositFunds,
     disputeEscrow,
+    resolveDispute,
     releaseFunds,
     confirmPayment,
     cancelEscrow,
@@ -109,6 +111,38 @@ export function useEscrowActions() {
     }
   };
 
+  const handleResolveDispute = async (
+    escrow: Escrow,
+    distributions: DisputeDistribution[]
+  ) => {
+    setIsResolveDisputeLoading(true);
+    try {
+      await resolveDispute(escrow, distributions);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['escrows'] }),
+        queryClient.invalidateQueries({ queryKey: ['trades'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'disputed-escrows'] }),
+      ]);
+      selectEscrow({
+        ...escrow,
+        flags: {
+          ...escrow.flags,
+          resolved: true,
+        },
+      });
+      sileo.success({ title: 'Dispute resolved successfully' });
+      return true;
+    } catch (error) {
+      sileo.error({
+        title: 'Error resolving dispute',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+      return false;
+    } finally {
+      setIsResolveDisputeLoading(false);
+    }
+  };
+
   const handleReleaseFunds = async (escrow: Escrow) => {
     try {
       await releaseFunds(escrow);
@@ -159,12 +193,14 @@ export function useEscrowActions() {
     // State
     isReportPaymentLoading,
     isCancelEscrowLoading,
+    isResolveDisputeLoading,
 
     // Actions
     handleReportPayment,
     handleConfirmPayment,
     handleDeposit,
     handleDisputeEscrow,
+    handleResolveDispute,
     handleReleaseFunds,
     handleCancelEscrow,
   };
