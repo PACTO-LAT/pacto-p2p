@@ -49,7 +49,7 @@ export function canReportPayment(
   if (userRole !== 'buyer') return false;
   if (escrow.flags?.resolved || escrow.flags?.released) return false;
   if (escrow.milestones[0].status === 'pendingApproval') return false;
-  if (escrow.balance === 0) return false;
+  if ((escrow.balance ?? 0) <= 0) return false;
   return true;
 }
 
