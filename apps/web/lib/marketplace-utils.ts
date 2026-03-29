@@ -25,21 +25,46 @@ export function filterListings(
   });
 }
 
-export function getMarketStats(listings: MarketplaceListing[]) {
-  const totalVolume24h = listings.reduce((sum, listing) => {
-    return sum + listing.amount * listing.rate;
-  }, 0);
+function pctChange(current: number, previous: number): number {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100);
+}
 
-  const avgTradeSize =
-    listings.length > 0 ? totalVolume24h / listings.length : 0;
+export function getMarketStats(listings: MarketplaceListing[]) {
+  const now = Date.now();
+  const ms7d = 7 * 24 * 60 * 60 * 1000;
+  const ms24h = 24 * 60 * 60 * 1000;
+
+  // Split listings by age
+  const thisWeek = listings.filter((l) => now - new Date(l.created).getTime() < ms7d);
+  const lastWeek = listings.filter((l) => {
+    const age = now - new Date(l.created).getTime();
+    return age >= ms7d && age < ms7d * 2;
+  });
+
+  const last24h = listings.filter((l) => now - new Date(l.created).getTime() < ms24h);
+  const prev24h = listings.filter((l) => {
+    const age = now - new Date(l.created).getTime();
+    return age >= ms24h && age < ms24h * 2;
+  });
+
+  const totalValue = listings.reduce((sum, l) => sum + l.amount * l.rate, 0);
+  const last24hValue = last24h.reduce((sum, l) => sum + l.amount * l.rate, 0);
+  const prev24hValue = prev24h.reduce((sum, l) => sum + l.amount * l.rate, 0);
+
+  const avgCurrent = listings.length > 0 ? totalValue / listings.length : 0;
+  const avgLastWeek =
+    lastWeek.length > 0
+      ? lastWeek.reduce((sum, l) => sum + l.amount * l.rate, 0) / lastWeek.length
+      : 0;
 
   return {
     activeListings: listings.length,
-    totalVolume24h,
-    avgTradeSize,
-    activeListingsChange: 12, // Mock data - in real app this would come from API
-    volumeChange: 8, // Mock data
-    tradeSizeChange: -3, // Mock data
+    totalVolume24h: totalValue,
+    avgTradeSize: avgCurrent,
+    activeListingsChange: pctChange(thisWeek.length, lastWeek.length),
+    volumeChange: pctChange(last24hValue, prev24hValue),
+    tradeSizeChange: pctChange(avgCurrent, avgLastWeek),
   };
 }
 
@@ -55,7 +80,7 @@ export function mapDbListingToMarketplace(
     rate: Number(listing.rate),
     fiatCurrency: listing.fiat_currency,
     paymentMethod: listing.payment_method,
-    seller: user?.stellar_address || user?.email || listing.user_id,
+    seller: listing.seller_address || user?.stellar_address || user?.email || listing.user_id,
     buyer: '',
     reputation: user?.reputation_score ?? 0,
     trades: user?.total_trades ?? 0,
@@ -64,6 +89,8 @@ export function mapDbListingToMarketplace(
     description: listing.description || '',
     avatarUrl: user?.avatar_url,
     fullName: user?.full_name,
+    amountRemaining: listing.amount_remaining != null ? Number(listing.amount_remaining) : Number(listing.amount),
+    creatorUserId: listing.user_id,
   };
 }
 
@@ -77,6 +104,7 @@ export type UIListingFormInput = {
   minAmount?: string;
   maxAmount?: string;
   description?: string;
+  sellerAddress?: string; // connected wallet address at listing creation time
 };
 
 export function toCreateListingData(input: UIListingFormInput) {
@@ -91,6 +119,10 @@ export function toCreateListingData(input: UIListingFormInput) {
     throw new Error('Rate must be greater than 0');
   }
 
+  const totalFiat = amount * rate;
+  const minAmount = input.minAmount ? Number.parseFloat(input.minAmount) : 0;
+  const maxAmount = input.maxAmount ? Number.parseFloat(input.maxAmount) : totalFiat;
+
   return {
     type: input.type,
     token: input.token,
@@ -98,12 +130,9 @@ export function toCreateListingData(input: UIListingFormInput) {
     rate,
     fiat_currency: input.fiatCurrency,
     payment_method: input.paymentMethod,
-    min_amount: input.minAmount
-      ? Number.parseFloat(input.minAmount)
-      : undefined,
-    max_amount: input.maxAmount
-      ? Number.parseFloat(input.maxAmount)
-      : undefined,
+    min_amount: minAmount,
+    max_amount: maxAmount,
     description: input.description?.trim() || undefined,
+    seller_address: input.sellerAddress || undefined,
   };
 }

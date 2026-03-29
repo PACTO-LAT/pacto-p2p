@@ -17,14 +17,19 @@ export class ListingsService {
         user:users(*)
       `
       )
-      .eq('status', 'active')
       .order('created_at', { ascending: false });
+
+    if (!filters?.status || filters.status === 'all') {
+      // no status filter — fetch everything
+    } else {
+      query = query.eq('status', filters.status);
+    }
 
     if (filters?.token && filters.token !== 'all') {
       query = query.eq('token', filters.token);
     }
 
-    if (filters?.type && filters.type !== 'buy') {
+    if (filters?.type) {
       query = query.eq('type', filters.type);
     }
 
@@ -79,6 +84,8 @@ export class ListingsService {
         ...listingData,
         user_id: userId,
         merchant_id: merchant.id,
+        status: 'active',
+        amount_remaining: listingData.amount,
       })
       .select(
         `

@@ -32,6 +32,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let unsub: { unsubscribe: () => void } | null = null;
+    // Track the last user id we loaded so we don't re-fetch on redundant events
+    let loadedUserId: string | null = null;
+
+    const loadProfile = async (userId: string) => {
+      if (loadedUserId === userId) return; // already loaded for this user
+      loadedUserId = userId;
+      const profile = await AuthService.getUserProfile(userId);
+      setUser(profile);
+      setLoading(false);
+    };
 
     const bootstrap = async () => {
       try {
@@ -39,8 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         if (session?.user) {
-          const profile = await AuthService.getUserProfile(session.user.id);
-          if (profile) setUser(profile);
+          await loadProfile(session.user.id);
         } else {
           setUser(null);
         }
@@ -50,14 +59,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      } = supabase.auth.onAuthStateChange(async (event, session) => {
+        // These events don't require re-fetching the profile
+        if (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') return;
+
         if (session?.user) {
-          const profile = await AuthService.getUserProfile(session.user.id);
-          setUser(profile);
+          await loadProfile(session.user.id);
         } else {
+          loadedUserId = null;
           setUser(null);
+          setLoading(false);
         }
-        setLoading(false);
       });
 
       unsub = { unsubscribe: () => subscription.unsubscribe() };

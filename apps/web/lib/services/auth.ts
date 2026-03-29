@@ -65,14 +65,36 @@ export class AuthService {
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows returned
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
-    return normalizeUserFromDb(data as Record<string, unknown>);
+    // Profile exists — return it
+    if (data) return normalizeUserFromDb(data as Record<string, unknown>);
+
+    // Profile missing — create it once from the current session.
+    // (Users created before the handle_new_user trigger won't have a public.users row.)
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user || session.user.id !== userId) return null;
+
+    // Only auto-create when we are looking up our own profile
+    const email = session.user.email ?? `${userId}@auth.local`;
+    await supabase.from('users').insert({
+      id: userId,
+      email,
+      reputation_score: 0,
+      total_trades: 0,
+      total_volume: 0,
+    });
+    // Ignore errors: 23505 = row already exists (race condition), anything else we silently skip
+
+    const { data: created } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+
+    return created ? normalizeUserFromDb(created as Record<string, unknown>) : null;
   }
 
   static async getUserByWallet(stellarAddress: string): Promise<User | null> {
@@ -80,19 +102,11 @@ export class AuthService {
       .from('users')
       .select('*')
       .eq('stellar_address', stellarAddress)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      const e = error as unknown as {
-        code?: string;
-        details?: string;
-        message?: string;
-      };
-      if (e.code === 'PGRST116') return null;
-      if (e.message?.includes('No rows found')) return null;
-      if (e.details?.includes('Results contain 0')) return null;
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+
     return normalizeUserFromDb(data as Record<string, unknown>) ?? null;
   }
 
