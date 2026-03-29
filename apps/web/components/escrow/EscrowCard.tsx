@@ -1,153 +1,137 @@
 'use client';
 
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, MessageCircle, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { formatAmount } from '@/lib/dashboard-utils';
 import { getTrustlineName } from '@/utils/getTrustline';
 import type { Escrow } from '@/lib/types/escrow';
 import { UnreadBadge } from '@/components/chat/UnreadBadge';
+import {
+  canReportPayment,
+  canConfirmPayment,
+  canDeposit,
+  canReleaseFunds,
+} from '@/lib/escrow-utils';
 
 interface EscrowCardProps {
   escrow: Escrow;
   onClick: (escrow: Escrow) => void;
   unreadCount?: number;
+  role?: 'buyer' | 'seller';
 }
 
-export function EscrowCard({ escrow, onClick, unreadCount = 0 }: EscrowCardProps) {
-  const getStatusText = () => {
-    if (escrow.flags?.resolved || escrow.flags?.released) {
-      return { text: 'Completed', color: 'text-emerald-600' };
-    }
-    return { text: 'In Progress', color: 'text-muted-foreground' };
-  };
+export function EscrowCard({ escrow, onClick, unreadCount = 0, role = 'buyer' }: EscrowCardProps) {
+  const isCompleted = escrow.flags?.resolved || escrow.flags?.released;
+  const isDisputed = escrow.flags?.disputed;
+  const token = getTrustlineName(escrow.trustline.address);
+  const userRole = role;
 
-  const status = getStatusText();
+  const statusLabel = isCompleted ? 'Completed' : isDisputed ? 'Disputed' : 'In Progress';
+  const statusStyles = isCompleted
+    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+    : isDisputed
+    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+    : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+
+  // Determine what action is needed
+  const getActionNeeded = () => {
+    if (canDeposit(escrow, userRole)) return { label: 'Deposit needed', color: 'text-orange-400' };
+    if (canReportPayment(escrow, userRole)) return { label: 'Awaiting your payment', color: 'text-blue-400' };
+    if (canConfirmPayment(escrow, userRole)) return { label: 'Confirm payment received', color: 'text-blue-400' };
+    if (canReleaseFunds(escrow, userRole)) return { label: 'Ready to release', color: 'text-emerald-400' };
+    return null;
+  };
+  const actionNeeded = getActionNeeded();
+
+  const counterpartyLabel = role === 'buyer' ? 'Seller' : 'Buyer';
+  const counterpartyAddress = role === 'buyer' ? escrow.roles.approver : escrow.roles.serviceProvider;
 
   return (
-    <Card
-      className="card hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 animate-fade-in cursor-pointer"
+    <div
+      className="rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-200 cursor-pointer p-5"
       onClick={() => onClick(escrow)}
     >
-      <CardContent className="p-6">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <p className="text-xl font-semibold text-foreground break-words">
-                  {escrow.title}
-                </p>
-                <UnreadBadge count={unreadCount} />
-              </div>
-              <p className="text-sm text-muted-foreground break-all">
-                ID: {escrow.engagementId}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 sm:justify-end">
-              <span className={`text-lg font-bold ${status.color}`}>
-                {status.text}
+      {/* Top row */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3 min-w-0">
+          {/* Direction icon */}
+          <div className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${role === 'buyer' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+            {role === 'buyer'
+              ? <ArrowDownLeft className="w-4 h-4" />
+              : <ArrowUpRight className="w-4 h-4" />
+            }
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xl font-bold text-white">
+                {formatAmount(escrow.amount)} {token}
               </span>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Description</p>
-            <p className="font-medium text-foreground">{escrow.description}</p>
-          </div>
-
-          {/* Amount and Details */}
-          <div className="bg-muted/50 backdrop-blur-sm p-4 rounded-lg border border-border/50">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Amount</p>
-                <p className="text-2xl font-bold text-emerald-600 break-words">
-                  {formatAmount(escrow.amount)}{' '}
-                  {getTrustlineName(escrow.trustline.address)}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Balance</p>
-                <p className="text-2xl font-bold text-emerald-600 break-words">
-                  {formatAmount(escrow.balance || 0)}{' '}
-                  {getTrustlineName(escrow.trustline.address)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Key Information */}
-          <div className="grid grid-cols-1 gap-4 pt-4 border-t border-border/50 md:grid-cols-2">
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Seller Address (releases crypto)
-                </p>
-                <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md break-all">
-                  <span className="font-mono text-xs text-foreground">
-                    {escrow.roles.approver.slice(0, 8)}...
-                    {escrow.roles.approver.slice(-8)}
-                  </span>
+              {unreadCount > 0 && (
+                <div className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  <MessageCircle className="w-3 h-3" />
+                  <UnreadBadge count={unreadCount} />
                 </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Buyer Address (confirms fiat payment)
-                </p>
-                <div className="flex items-center gap-2 p-2 bg-muted/50 backdrop-blur-sm rounded-md break-all">
-                  <span className="font-mono text-xs text-foreground">
-                    {escrow.roles.serviceProvider.slice(0, 8)}...
-                    {escrow.roles.serviceProvider.slice(-8)}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Asset</p>
-                <div className="p-2 bg-muted/50 backdrop-blur-sm rounded-md">
-                  <span className="font-mono text-xs text-foreground">
-                    {getTrustlineName(escrow.trustline.address)}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Engagement ID
-                </p>
-                <div className="p-2 bg-emerald-50/80 backdrop-blur-sm rounded-md">
-                  <span className="font-mono text-sm font-medium text-emerald-700">
-                    {escrow.engagementId}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-col gap-3 pt-4 border-t border-border/50 sm:flex-row sm:flex-wrap">
-            {escrow.contractId && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="btn-emerald-outline w-full sm:w-auto"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(
-                    `https://viewer.trustlesswork.com/${escrow.contractId}`,
-                    '_blank'
-                  );
-                }}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                View on Escrow Viewer
-              </Button>
+            {escrow.description || escrow.title ? (
+              <p className="text-sm text-muted-foreground truncate max-w-md mt-0.5">
+                {escrow.description || escrow.title}
+              </p>
+            ) : null}
+            {actionNeeded && !isCompleted && !isDisputed && (
+              <p className={`text-xs mt-1 font-medium ${actionNeeded.color}`}>
+                {actionNeeded.label}
+              </p>
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Status pill */}
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border shrink-0 ${statusStyles}`}>
+          {statusLabel}
+        </span>
+      </div>
+
+      {/* Info row */}
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="bg-white/[0.04] rounded-lg px-3 py-2">
+          <p className="text-xs text-muted-foreground mb-0.5">{counterpartyLabel}</p>
+          <p className="font-mono text-xs text-foreground">
+            {counterpartyAddress.slice(0, 6)}…{counterpartyAddress.slice(-6)}
+          </p>
+        </div>
+        <div className="bg-white/[0.04] rounded-lg px-3 py-2">
+          <p className="text-xs text-muted-foreground mb-0.5">Balance</p>
+          <p className="font-mono text-xs text-foreground">
+            {formatAmount(escrow.balance ?? 0)} {token}
+          </p>
+        </div>
+        <div className="bg-white/[0.04] rounded-lg px-3 py-2">
+          <p className="text-xs text-muted-foreground mb-0.5">Role</p>
+          <p className="text-xs text-foreground capitalize">{role}</p>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground/50 truncate font-mono">
+          {escrow.engagementId}
+        </p>
+        {escrow.contractId && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-emerald-400 shrink-0 px-2 h-7"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(`https://viewer.trustlesswork.com/${escrow.contractId}`, '_blank');
+            }}
+          >
+            <ExternalLink className="w-3.5 h-3.5 mr-1" />
+            <span className="text-xs">Escrow Viewer</span>
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

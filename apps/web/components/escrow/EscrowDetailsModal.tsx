@@ -4,9 +4,9 @@ import {
   Banknote,
   CheckCircle,
   ExternalLink,
+  Loader2,
   TimerReset,
   Unlock,
-  User,
   XCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -52,6 +51,7 @@ interface EscrowDetailsModalProps {
   onDisputeEscrow: (escrow: Escrow) => void;
   onReleaseFunds: (escrow: Escrow) => void;
   onCancelEscrow: (escrow: Escrow) => Promise<void> | void;
+  isReportPaymentLoading?: boolean;
 }
 
 export function EscrowDetailsModal({
@@ -66,13 +66,12 @@ export function EscrowDetailsModal({
   onDisputeEscrow,
   onReleaseFunds,
   onCancelEscrow,
+  isReportPaymentLoading,
 }: EscrowDetailsModalProps) {
   const { user } = useAuth();
   const [transactionHashes, setTransactionHashes] =
     useState<EscrowTransactionHashes | null>(null);
-  const [trustlineError, setTrustlineError] = useState<TrustlineError | null>(
-    null
-  );
+  const [trustlineError, setTrustlineError] = useState<TrustlineError | null>(null);
 
   useEffect(() => {
     if (open && escrow?.engagementId) {
@@ -82,9 +81,7 @@ export function EscrowDetailsModal({
             setTransactionHashes(result.transaction_hashes);
           }
         })
-        .catch((error) => {
-          console.error('Failed to fetch transaction hashes:', error);
-        });
+        .catch(() => {});
     }
   }, [open, escrow?.engagementId]);
 
@@ -93,6 +90,7 @@ export function EscrowDetailsModal({
   const cancellationGraceHours = getEscrowCancellationGraceHours();
   const createdAt = getEscrowCreatedAt(escrow);
   const userRole = activeTab;
+  const token = getTrustlineName(escrow.trustline.address);
 
   const getStatusInfo = () => {
     if (escrow.flags?.released) {
@@ -113,18 +111,15 @@ export function EscrowDetailsModal({
     return { text: 'Active', color: 'text-blue-600' };
   };
 
-  const status = getStatusInfo();
+  const statusInfo = getStatusInfo();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-card !max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl font-bold text-emerald-gradient leading-tight">
+      <DialogContent className="glass-card !max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-xl font-bold text-emerald-gradient">
             Escrow Details
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Complete information and available actions for this escrow contract
-          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="details">
@@ -133,133 +128,86 @@ export function EscrowDetailsModal({
             <TabsTrigger value="chat">Chat</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat">
-            {user && (
-              <TradeChatPanel
-                engagementId={escrow.engagementId}
-                currentUserId={user.id}
-              />
-            )}
-          </TabsContent>
+          {/* ── DETAILS TAB ── */}
+          <TabsContent value="details" className="space-y-5">
 
-          <TabsContent value="details">
-          <div className="space-y-6">
-          {/* Header Info */}
-          <div className="bg-muted/50 backdrop-blur-sm p-6 rounded-lg border border-border/50">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-emerald-600 leading-snug">
-                  {formatAmount(escrow.amount)}{' '}
-                  {getTrustlineName(escrow.trustline.address)}
-                  <span className="text-muted-foreground block text-base font-semibold">
-                    Balance: {formatAmount(escrow.balance || 0)}{' '}
-                    {getTrustlineName(escrow.trustline.address)}
-                  </span>
-                </h3>
-                <p className="text-muted-foreground mt-1 break-all">
-                  Engagement ID: {escrow.engagementId}
+            {/* Amount + status hero */}
+            <div className="flex items-center justify-between bg-muted/40 rounded-lg px-5 py-4">
+              <div>
+                <p className="text-3xl font-bold text-emerald-500">
+                  {formatAmount(escrow.amount)} {token}
+                </p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Balance: {formatAmount(escrow.balance || 0)} {token}
                 </p>
                 <p className="text-muted-foreground text-sm">
                   Created: {createdAt.toLocaleString()}
                 </p>
               </div>
-              <div className="flex items-center gap-2 sm:justify-end">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className={`font-semibold ${status.color}`}>
-                  {status.text}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-lg text-foreground">
-              Description
-            </h4>
-            <p className="text-foreground bg-muted/50 backdrop-blur-sm p-4 rounded-lg">
-              {escrow.description}
-            </p>
-          </div>
-
-          {/* Detailed Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h4 className="font-semibold text-lg text-foreground">
-                Contract Information
-              </h4>
-
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Seller (releases crypto)</p>
-                  <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-all">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-mono text-sm text-foreground">
-                      {escrow.roles.approver.slice(0, 8)}...
-                      {escrow.roles.approver.slice(-8)}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Buyer (confirms fiat payment)</p>
-                  <div className="flex items-center gap-2 p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-all">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-mono text-sm text-foreground">
-                      {escrow.roles.serviceProvider.slice(0, 8)}...
-                      {escrow.roles.serviceProvider.slice(-8)}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <span className={`text-sm font-semibold ${statusInfo.color}`}>
+                {statusInfo.text}
+              </span>
             </div>
 
-            <div className="space-y-4">
-              <h4 className="font-semibold text-lg text-foreground">
-                Technical Details
-              </h4>
-
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Asset</p>
-                  <div className="p-3 bg-muted/50 backdrop-blur-sm rounded-lg break-words">
-                    <span className="font-mono text-sm text-foreground leading-relaxed">
-                      {getTrustlineName(escrow.trustline.address)}
-                    </span>
-                  </div>
-                </div>
+            {/* Description */}
+            {escrow.description && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Description</p>
+                <p className="text-sm text-foreground bg-muted/30 rounded-md px-3 py-2">
+                  {escrow.description}
+                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Transaction Hashes */}
-          <EscrowTransactionHashesDisplay
-            transactionHashes={transactionHashes}
-            network="testnet"
-          />
-
-          {/* Action Buttons */}
-          <div className="space-y-4 pt-6 border-t border-border/50">
-            <h4 className="font-semibold text-lg text-foreground">
-              Available Actions
-            </h4>
-
-            {/* Trustline error banner — shown when depositFunds/releaseFunds
-                detects a missing trustline before hitting the blockchain */}
-            {trustlineError && (
-              <TrustlineBanner error={trustlineError} />
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* Parties */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-muted/40 rounded-md px-3 py-2.5">
+                <p className="text-xs text-muted-foreground mb-1">Seller (releases crypto)</p>
+                <p className="font-mono text-xs text-foreground break-all">
+                  {escrow.roles.approver}
+                </p>
+              </div>
+              <div className="bg-muted/40 rounded-md px-3 py-2.5">
+                <p className="text-xs text-muted-foreground mb-1">Buyer (pays fiat)</p>
+                <p className="font-mono text-xs text-foreground break-all">
+                  {escrow.roles.serviceProvider}
+                </p>
+              </div>
+            </div>
+
+            {/* Engagement ID */}
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Engagement ID</p>
+              <p className="font-mono text-xs text-foreground bg-muted/30 rounded-md px-3 py-2 break-all">
+                {escrow.engagementId}
+              </p>
+            </div>
+
+            {/* Transaction hashes */}
+            <EscrowTransactionHashesDisplay
+              transactionHashes={transactionHashes}
+              network="testnet"
+            />
+
+            {/* Trustline error */}
+            {trustlineError && <TrustlineBanner error={trustlineError} />}
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
               {activeTab === 'buyer' &&
                 canReportPayment(escrow, userRole) && (
                   <Button
                     onClick={() => onReportPayment(escrow)}
-                    className="w-full btn-emerald-outline"
+                    className="btn-emerald-outline flex-1"
                     variant="outline"
+                    disabled={isReportPaymentLoading}
                   >
-                    <Banknote className="w-4 h-4 mr-2" />
-                    Report Payment
+                    {isReportPaymentLoading ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Banknote className="w-4 h-4 mr-2" />
+                    )}
+                    I&apos;ve Sent Payment
                   </Button>
                 )}
 
@@ -268,7 +216,7 @@ export function EscrowDetailsModal({
                   {canConfirmPayment(escrow, userRole) && (
                     <Button
                       onClick={() => onConfirmPayment(escrow)}
-                      className="w-full btn-emerald-outline"
+                      className="btn-emerald-outline flex-1"
                       variant="outline"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
@@ -288,7 +236,7 @@ export function EscrowDetailsModal({
                           }
                         }
                       }}
-                      className="w-full btn-emerald-outline"
+                      className="btn-emerald-outline flex-1"
                       variant="outline"
                     >
                       <Banknote className="w-4 h-4 mr-2" />
@@ -303,12 +251,10 @@ export function EscrowDetailsModal({
                         try {
                           await onReleaseFunds(escrow);
                         } catch (err) {
-                          if (err instanceof TrustlineError) {
-                            setTrustlineError(err);
-                          }
+                          if (err instanceof TrustlineError) setTrustlineError(err);
                         }
                       }}
-                      className="w-full btn-emerald-outline"
+                      className="btn-emerald-outline flex-1"
                       variant="outline"
                     >
                       <Unlock className="w-4 h-4 mr-2" />
@@ -356,21 +302,29 @@ export function EscrowDetailsModal({
               {escrow.contractId && (
                 <Button
                   variant="outline"
-                  className="w-full btn-emerald-outline"
-                  onClick={() => {
+                  className="btn-emerald-outline flex-1"
+                  onClick={() =>
                     window.open(
                       `https://viewer.trustlesswork.com/${escrow.contractId}`,
                       '_blank'
-                    );
-                  }}
+                    )
+                  }
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  View on Escrow Viewer
+                  Escrow Viewer
                 </Button>
               )}
             </div>
-          </div>
-          </div>
+          </TabsContent>
+
+          {/* ── CHAT TAB ── */}
+          <TabsContent value="chat">
+            {user && (
+              <TradeChatPanel
+                engagementId={escrow.engagementId}
+                currentUserId={user.id}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
