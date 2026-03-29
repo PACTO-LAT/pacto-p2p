@@ -145,20 +145,39 @@ const handleRateLimitRetry = async (
 
 const syncEscrowsWithPlatformRecords = async (
   escrows: Escrow[]
-): Promise<Escrow[]> => {
+): Promise<{ escrows: Escrow[]; didSyncCompletions: boolean }> => {
   if (escrows.length === 0) {
-    return escrows;
+    return { escrows, didSyncCompletions: false };
   }
 
-  await TradesService.recoverOrphanedEscrows(escrows);
+  const didRecoverOrphans = await TradesService.recoverOrphanedEscrows(escrows);
   const states = await TradesService.getEscrowStatesByEngagementIds(
     escrows.map((escrow) => escrow.engagementId)
   );
 
-  return escrows.filter((escrow) => {
+  // Sync completed status back to Supabase for escrows TW says are released/resolved
+  let didSyncCompletions = didRecoverOrphans;
+  await Promise.all(
+    escrows.map(async (escrow) => {
+      const state = states.get(escrow.engagementId);
+      if (state?.status === 'active' && (escrow.flags?.released || escrow.flags?.resolved)) {
+        try {
+          await TradesService.syncCompletedStatus(escrow.engagementId);
+          didSyncCompletions = true;
+        } catch {
+          // Non-blocking: best-effort sync
+        }
+      }
+    })
+  );
+
+  // Only hide cancelled escrows — completed ones still show in Orders (Completed tab)
+  const filtered = escrows.filter((escrow) => {
     const state = states.get(escrow.engagementId);
-    return !state || state.status === 'active';
+    return !state || state.status !== 'cancelled';
   });
+
+  return { escrows: filtered, didSyncCompletions };
 };
 
 /**
@@ -196,6 +215,7 @@ export const useEscrowsByRoleQuery = ({
   context = 'dashboard-list',
 }: UseEscrowsByRoleQueryParams) => {
   const { getEscrowsByRole } = useGetEscrowsFromIndexerByRole();
+  const queryClient = useQueryClient();
   const apiKey = process.env.NEXT_PUBLIC_TLW_API_KEY;
 
   // Resolve validateOnChain based on context if not explicitly provided
@@ -271,7 +291,11 @@ export const useEscrowsByRoleQuery = ({
             throw new Error('Failed to fetch escrows');
           }
 
-          return syncEscrowsWithPlatformRecords(escrows);
+          const { escrows: synced, didSyncCompletions } = await syncEscrowsWithPlatformRecords(escrows);
+          if (didSyncCompletions) {
+            queryClient.invalidateQueries({ queryKey: ['trades'] });
+          }
+          return synced;
         } catch (error: unknown) {
           lastError = error;
 
@@ -353,6 +377,7 @@ export const useEscrowsBySignerQuery = ({
   context = 'dashboard-list',
 }: UseEscrowsBySignerQueryParams) => {
   const { getEscrowsBySigner } = useGetEscrowsFromIndexerBySigner();
+  const queryClient = useQueryClient();
   const apiKey = process.env.NEXT_PUBLIC_TLW_API_KEY;
 
   // Resolve validateOnChain based on context if not explicitly provided
@@ -426,7 +451,11 @@ export const useEscrowsBySignerQuery = ({
             throw new Error('Failed to fetch escrows');
           }
 
-          return syncEscrowsWithPlatformRecords(escrows);
+          const { escrows: synced, didSyncCompletions } = await syncEscrowsWithPlatformRecords(escrows);
+          if (didSyncCompletions) {
+            queryClient.invalidateQueries({ queryKey: ['trades'] });
+          }
+          return synced;
         } catch (error: unknown) {
           lastError = error;
 

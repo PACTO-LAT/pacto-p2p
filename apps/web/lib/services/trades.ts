@@ -129,9 +129,9 @@ export class TradesService {
     );
   }
 
-  static async recoverOrphanedEscrows(escrows: Escrow[]): Promise<void> {
+  static async recoverOrphanedEscrows(escrows: Escrow[]): Promise<boolean> {
     if (escrows.length === 0) {
-      return;
+      return false;
     }
 
     const engagementIds = escrows.map((escrow) => escrow.engagementId);
@@ -141,7 +141,7 @@ export class TradesService {
     );
 
     if (orphanedEscrows.length === 0) {
-      return;
+      return false;
     }
 
     const listingIds = Array.from(
@@ -262,6 +262,34 @@ export class TradesService {
         }
       }
     }
+
+    return true;
+  }
+
+  /**
+   * Syncs on-chain status back to Supabase for a given engagement ID.
+   * Called when TW indicates an escrow is released/resolved but Supabase still shows active.
+   */
+  static async syncCompletedStatus(engagementId: string): Promise<void> {
+    const { data: escrowRow } = await supabase
+      .from('escrows')
+      .select('id')
+      .eq('engagement_id', engagementId)
+      .maybeSingle();
+
+    if (!escrowRow?.id) return;
+
+    const completedAt = new Date().toISOString();
+
+    await supabase
+      .from('escrows')
+      .update({ status: 'completed' })
+      .eq('id', escrowRow.id);
+
+    await supabase
+      .from('trades')
+      .update({ status: 'completed', completed_at: completedAt })
+      .eq('escrow_id', escrowRow.id);
   }
 
   static async cancelUnfundedEscrow(engagementId: string): Promise<void> {
