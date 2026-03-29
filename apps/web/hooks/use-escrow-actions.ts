@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { sileo } from 'sileo';
 import { useInitializeTrade } from '@/hooks/use-trades';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
@@ -10,6 +11,8 @@ import { TrustlineError } from '@/utils/stellar/TrustlineError';
 
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
+  const [isCancelEscrowLoading, setIsCancelEscrowLoading] = useState(false);
+  const queryClient = useQueryClient();
   const { selectEscrow } = useEscrowSelection();
   const {
     reportPayment,
@@ -17,6 +20,7 @@ export function useEscrowActions() {
     disputeEscrow,
     releaseFunds,
     confirmPayment,
+    cancelEscrow,
   } = useInitializeTrade();
 
   const handleReportPayment = async (
@@ -126,9 +130,35 @@ export function useEscrowActions() {
     }
   };
 
+  const handleCancelEscrow = async (escrow: Escrow) => {
+    setIsCancelEscrowLoading(true);
+    try {
+      await cancelEscrow(escrow);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['escrows'] }),
+        queryClient.invalidateQueries({ queryKey: ['trades'] }),
+      ]);
+      selectEscrow({
+        ...escrow,
+        isActive: false,
+      });
+      sileo.success({ title: 'Trade cancelled successfully' });
+      return true;
+    } catch (error) {
+      sileo.error({
+        title: 'Error cancelling trade',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+      return false;
+    } finally {
+      setIsCancelEscrowLoading(false);
+    }
+  };
+
   return {
     // State
     isReportPaymentLoading,
+    isCancelEscrowLoading,
 
     // Actions
     handleReportPayment,
@@ -136,5 +166,6 @@ export function useEscrowActions() {
     handleDeposit,
     handleDisputeEscrow,
     handleReleaseFunds,
+    handleCancelEscrow,
   };
 }

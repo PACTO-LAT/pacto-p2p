@@ -1,5 +1,31 @@
 import { Escrow } from '@/lib/types/escrow';
 
+const DEFAULT_ESCROW_CANCELLATION_GRACE_HOURS = 24;
+
+export function getEscrowCreatedAt(escrow: Escrow): Date {
+  const seconds = escrow.createdAt?._seconds ?? 0;
+  const nanoseconds = escrow.createdAt?._nanoseconds ?? 0;
+  return new Date(seconds * 1000 + Math.floor(nanoseconds / 1_000_000));
+}
+
+export function getEscrowCancellationGraceHours(): number {
+  const configuredHours = Number(
+    process.env.NEXT_PUBLIC_ESCROW_CANCELLATION_GRACE_HOURS
+  );
+
+  if (Number.isFinite(configuredHours) && configuredHours > 0) {
+    return configuredHours;
+  }
+
+  return DEFAULT_ESCROW_CANCELLATION_GRACE_HOURS;
+}
+
+export function hasEscrowCancellationGraceElapsed(escrow: Escrow): boolean {
+  const createdAt = getEscrowCreatedAt(escrow);
+  const graceMs = getEscrowCancellationGraceHours() * 60 * 60 * 1000;
+  return Date.now() - createdAt.getTime() >= graceMs;
+}
+
 export function getEscrowRole(
   escrow: Escrow,
   userAddress: string
@@ -23,6 +49,7 @@ export function canReportPayment(
   if (userRole !== 'buyer') return false;
   if (escrow.flags?.resolved || escrow.flags?.released) return false;
   if (escrow.milestones[0].status === 'pendingApproval') return false;
+  if (escrow.balance === 0) return false;
   return true;
 }
 
@@ -32,7 +59,10 @@ export function canConfirmPayment(
 ): boolean {
   // Only seller (TW approver) verifies fiat receipt
   if (userRole !== 'seller') return false;
-  return !escrow.milestones[0].approved;
+  if (escrow.flags?.resolved || escrow.flags?.released) return false;
+  if (escrow.balance === 0) return false;
+  if (escrow.milestones[0].approved) return false;
+  return escrow.milestones[0].status === 'pendingApproval';
 }
 
 export function canDeposit(
@@ -63,4 +93,16 @@ export function canDispute(escrow: Escrow): boolean {
   )
     return false;
   return escrow.balance !== 0;
+}
+
+export function canCancel(
+  escrow: Escrow,
+  userRole: 'buyer' | 'seller'
+): boolean {
+  if (userRole !== 'buyer') return false;
+  if (escrow.flags?.disputed || escrow.flags?.resolved || escrow.flags?.released) {
+    return false;
+  }
+  if (escrow.balance !== 0) return false;
+  return hasEscrowCancellationGraceElapsed(escrow);
 }
