@@ -122,15 +122,15 @@ export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
               name="token"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Stablecoin</FormLabel>
+                  <FormLabel>Asset</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select token" />
                       </SelectTrigger>
                       <SelectContent>
-                        {TRUSTLINES.map((t) => (
-                          <SelectItem key={t.address} value={t.name}>
+                        {TRUSTLINES.filter((t) => !!t.address).map((t) => (
+                          <SelectItem key={t.symbol} value={t.name}>
                             {t.name}
                           </SelectItem>
                         ))}

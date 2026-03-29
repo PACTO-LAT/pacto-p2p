@@ -112,7 +112,7 @@ export const useInitializeTrade = () => {
     const finalPayload = {
       signer: address,
       engagementId,
-      description: payload.listing.description || '',
+      description: payload.listing.description || `${payload.listing.token}/${payload.listing.fiat_currency} P2P trade`,
       trustline: {
         address: trustline.address, // Issuer address (G...)
         symbol: trustline.symbol, // Token symbol (e.g., "USDC")
@@ -133,15 +133,23 @@ export const useInitializeTrade = () => {
       amount: payload.amount,
       milestones: [
         {
-          description: payload.listing.description || '',
+          description: payload.listing.description || `${payload.listing.token}/${payload.listing.fiat_currency} P2P trade`,
         },
       ],
     };
 
-    const { unsignedTransaction, contractId } = await deployEscrow(
-      finalPayload,
-      'single-release'
-    ) as InitializeSingleReleaseEscrowResponse;
+    let deployResult: InitializeSingleReleaseEscrowResponse;
+    try {
+      deployResult = await deployEscrow(
+        finalPayload,
+        'single-release'
+      ) as InitializeSingleReleaseEscrowResponse;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } }; message?: string };
+      const apiMessage = axiosErr?.response?.data?.message;
+      throw new Error(apiMessage || axiosErr?.message || 'Failed to deploy escrow');
+    }
+    const { unsignedTransaction, contractId } = deployResult;
 
     if (!unsignedTransaction) {
       throw new Error(
@@ -158,10 +166,24 @@ export const useInitializeTrade = () => {
       throw new Error('Signed transaction is missing.');
     }
 
-    const response = await sendTransaction(signedTxXdr);
+    let response: Awaited<ReturnType<typeof sendTransaction>>;
+    try {
+      response = await sendTransaction(signedTxXdr);
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string; details?: unknown } }; message?: string };
+      const apiMsg = axiosErr?.response?.data?.message;
+      const details = axiosErr?.response?.data?.details;
+      console.error('[sendTransaction] error:', axiosErr?.response?.data ?? err);
+      throw new Error(
+        details
+          ? `Transaction failed: ${JSON.stringify(details)}`
+          : apiMsg || axiosErr?.message || 'Failed to send transaction'
+      );
+    }
 
     if (response.status !== 'SUCCESS') {
-      throw new Error('Transaction failed to send');
+      console.error('[sendTransaction] non-success status:', response);
+      throw new Error(`Transaction failed with status: ${response.status}`);
     }
 
     const txHash = extractTxHash(response);
@@ -421,10 +443,26 @@ export const useInitializeTrade = () => {
       approver: escrow.roles.approver,
     };
 
-    const { unsignedTransaction } = await approveMilestone(
-      finalPayload,
-      'single-release'
-    );
+    // Milestone must be in 'pendingApproval' before the approver can approve.
+    if (escrow.milestones[0]?.status !== 'pendingApproval') {
+      throw new Error(
+        'The buyer has not reported payment yet. Wait for the buyer to mark the milestone as completed before confirming.'
+      );
+    }
+
+    let approveMilestoneResult: { unsignedTransaction?: string };
+    try {
+      approveMilestoneResult = await approveMilestone(finalPayload, 'single-release');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string; details?: unknown } }; message?: string };
+      const apiMsg = axiosErr?.response?.data?.message;
+      const details = axiosErr?.response?.data?.details;
+      throw new Error(
+        details ? `Approve milestone failed: ${JSON.stringify(details)}` : apiMsg || axiosErr?.message || 'Failed to approve milestone'
+      );
+    }
+
+    const { unsignedTransaction } = approveMilestoneResult;
 
     if (!unsignedTransaction) {
       throw new Error(

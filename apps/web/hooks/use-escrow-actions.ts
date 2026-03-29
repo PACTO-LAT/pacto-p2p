@@ -8,6 +8,8 @@ import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import type { Escrow } from '@pacto-p2p/types';
 import { ReportPaymentData } from '@/lib/types/escrow';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
+import { ChatService } from '@/lib/services/chat';
+import { TradesService } from '@/lib/services/trades';
 
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
@@ -62,6 +64,15 @@ export function useEscrowActions() {
           },
         ],
       });
+
+      // System message: payment confirmed
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'payment_confirmed',
+        });
+      }
+
       sileo.success({ title: 'Payment confirmed successfully' });
       return true;
     } catch (error) {
@@ -111,7 +122,28 @@ export function useEscrowActions() {
 
   const handleReleaseFunds = async (escrow: Escrow) => {
     try {
-      await releaseFunds(escrow);
+      const result = await releaseFunds(escrow);
+
+      // Persist release hash + mark trade as completed in DB
+      if (result?.txHash && escrow.engagementId) {
+        try {
+          const escrowRecord = await TradesService.getEscrowByEngagementId(escrow.engagementId);
+          if (escrowRecord?.id) {
+            await TradesService.updateEscrowTransactionHash(escrowRecord.id, 'release', result.txHash);
+            const trade = await TradesService.getTradeByEscrowId(escrow.engagementId);
+            if (trade?.id) {
+              await TradesService.updateTrade(trade.id, {
+                status: 'completed',
+                stellar_transaction_hash: result.txHash,
+                completed_at: new Date().toISOString(),
+              });
+            }
+          }
+        } catch {
+          // Non-blocking: on-chain release succeeded, DB sync is best-effort
+        }
+      }
+
       selectEscrow({
         ...escrow,
         flags: {

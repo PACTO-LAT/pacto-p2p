@@ -5,7 +5,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type GetEscrowsFromIndexerByRoleParams,
   type GetEscrowsFromIndexerBySignerParams,
-  useFundEscrow,
   useGetEscrowsFromIndexerByRole,
   useGetEscrowsFromIndexerBySigner,
 } from '@trustless-work/escrow';
@@ -14,10 +13,9 @@ import { sileo } from 'sileo';
 import { supabase } from '@/lib/supabase';
 import type { CreateEscrowData } from '@/lib/types';
 import { TradesService } from '@/lib/services/trades';
+import { ChatService } from '@/lib/services/chat';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
-import { TrustlineError } from '@/utils/stellar/TrustlineError';
-
 const MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING = 1;
 
 // Uses buyer UUID (not Stellar address) and queries the trades table
@@ -27,9 +25,10 @@ async function getActiveBuyerTradeCount(
   buyerUserId: string,
   listingId: string
 ): Promise<number> {
-  const { count, error } = await supabase
+  // Step 1: get non-terminal trades for this buyer+listing
+  const { data: trades, error } = await supabase
     .from('trades')
-    .select('id', { count: 'exact', head: true })
+    .select('id, escrow_id')
     .eq('buyer_id', buyerUserId)
     .eq('listing_id', listingId)
     .not('status', 'in', '(completed,resolved,cancelled)');
@@ -40,7 +39,48 @@ async function getActiveBuyerTradeCount(
     );
   }
 
-  return count ?? 0;
+  if (!trades || trades.length === 0) return 0;
+
+  // Step 2: check if linked escrows were released on-chain
+  const linkedEscrowIds = trades.map((t) => t.escrow_id).filter(Boolean) as string[];
+
+  // Step 3: also fetch ALL escrows for this buyer+listing by buyer_id+listing_id
+  // to handle legacy trades where escrow_id was never stored on the trade row
+  const [linkedResult, allResult] = await Promise.all([
+    linkedEscrowIds.length > 0
+      ? supabase.from('escrows').select('id, transaction_hashes').in('id', linkedEscrowIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; transaction_hashes: unknown }> }),
+    supabase
+      .from('escrows')
+      .select('id, transaction_hashes')
+      .eq('buyer_id', buyerUserId)
+      .eq('listing_id', listingId),
+  ]);
+
+  const hasRelease = (e: { transaction_hashes: unknown }) =>
+    !!(e.transaction_hashes as Record<string, string> | null)?.release;
+
+  // IDs of escrows confirmed released via direct link
+  const releasedLinkedIds = new Set(
+    (linkedResult.data ?? []).filter(hasRelease).map((e) => e.id)
+  );
+
+  // Whether any escrow by buyer+listing lookup was released (covers legacy trades)
+  const anyReleasedByLookup = (allResult.data ?? []).some(hasRelease);
+
+  let count = 0;
+  for (const trade of trades) {
+    if (trade.escrow_id) {
+      // Linked trade: released if escrow has release hash
+      if (!releasedLinkedIds.has(trade.escrow_id)) count++;
+    } else {
+      // Legacy trade (no escrow_id): if any escrow for this buyer+listing was
+      // released, treat this orphaned trade as done
+      if (!anyReleasedByLookup) count++;
+    }
+  }
+
+  return count;
 }
 
 // Rate limit handling constants
@@ -437,7 +477,6 @@ export const useEscrowsBySignerQuery = ({
 export function useCreateEscrow(onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { address } = useGlobalAuthenticationStore();
   const { initializeTrade } = useInitializeTrade();
 
   return useMutation({
@@ -454,18 +493,25 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error('Token is required.');
       }
 
-      // Resolve Stellar addresses to Supabase user UUIDs before any DB or
-      // on-chain operation — fail fast if either party is not registered.
-      const [{ data: buyerUser }, { data: sellerUser }] = await Promise.all([
-        supabase.from('users').select('id').eq('stellar_address', escrowData.buyer_id).single(),
-        supabase.from('users').select('id').eq('stellar_address', escrowData.seller_id).single(),
-      ]);
+      // Resolve user UUIDs for DB inserts.
+      // Prefer the explicitly passed UUIDs (buyer_uuid/seller_uuid).
+      // Fall back to looking up by stellar_address for backwards compatibility.
+      let buyerUuid = escrowData.buyer_uuid;
+      let sellerUuid = escrowData.seller_uuid;
 
-      if (!buyerUser) {
-        throw new Error('Buyer account not found. The wallet address is not registered on this platform.');
-      }
-      if (!sellerUser) {
-        throw new Error('Seller account not found. The wallet address is not registered on this platform.');
+      if (!buyerUuid || !sellerUuid) {
+        const [{ data: buyerUser }, { data: sellerUser }] = await Promise.all([
+          buyerUuid
+            ? Promise.resolve({ data: { id: buyerUuid } })
+            : supabase.from('users').select('id').eq('stellar_address', escrowData.buyer_id).maybeSingle(),
+          sellerUuid
+            ? Promise.resolve({ data: { id: sellerUuid } })
+            : supabase.from('users').select('id').eq('stellar_address', escrowData.seller_id).maybeSingle(),
+        ]);
+        if (!buyerUser) throw new Error('Buyer account not found.');
+        if (!sellerUser) throw new Error('Seller account not found.');
+        buyerUuid = buyerUser.id;
+        sellerUuid = sellerUser.id;
       }
 
       const listingId = String(
@@ -475,9 +521,12 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error('Listing ID is required to create an escrow.');
       }
 
+      if (!buyerUuid) throw new Error('Buyer UUID could not be resolved.');
+      if (!sellerUuid) throw new Error('Seller UUID could not be resolved.');
+
       // Rate limit: block if buyer already has an active (non-completed) trade
       // for this listing to prevent griefing with unfunded escrows.
-      const activeTradeCount = await getActiveBuyerTradeCount(buyerUser.id, listingId);
+      const activeTradeCount = await getActiveBuyerTradeCount(buyerUuid, listingId);
       if (activeTradeCount >= MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING) {
         throw new Error('You already have an active trade for this listing.');
       }
@@ -489,8 +538,8 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         .from('escrows')
         .insert({
           listing_id: listingId,
-          buyer_id: buyerUser.id,
-          seller_id: sellerUser.id,
+          buyer_id: buyerUuid,
+          seller_id: sellerUuid,
           engagement_id: engagementId,
           contract_id: contractId,
           fiat_amount: escrowData.fiat_amount,
@@ -508,8 +557,8 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
       const { error: tradeError } = await supabase.from('trades').insert({
         escrow_id: escrowRow.id,
         listing_id: listingId,
-        buyer_id: buyerUser.id,
-        seller_id: sellerUser.id,
+        buyer_id: buyerUuid,
+        seller_id: sellerUuid,
         token: escrowData.token || escrowData.listing.token,
         token_amount: escrowData.amount,
         fiat_amount: escrowData.fiat_amount,
@@ -524,6 +573,32 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         console.error('Failed to persist trade to Supabase:', tradeError);
         throw new Error(`Failed to save trade: ${tradeError.message}`);
       }
+
+      // Decrement amount_remaining on the listing and close it if fully consumed
+      const { data: listingRow } = await supabase
+        .from('listings')
+        .select('amount_remaining')
+        .eq('id', listingId)
+        .maybeSingle();
+
+      if (listingRow) {
+        const newRemaining = Math.max(0, (listingRow.amount_remaining ?? 0) - escrowData.amount);
+        await supabase
+          .from('listings')
+          .update({
+            amount_remaining: newRemaining,
+            ...(newRemaining <= 0 ? { status: 'completed' } : {}),
+          })
+          .eq('id', listingId);
+      }
+
+      // Create chat room and insert first system message (non-blocking)
+      await ChatService.createChatRoom({
+        escrowId: escrowRow.id,
+        engagementId,
+        buyerId: buyerUuid,
+        sellerId: sellerUuid,
+      });
 
       return { txHash, engagementId, contractId, listingId };
     },
@@ -578,6 +653,14 @@ export function useReportPayment() {
         }
       }
 
+      // System message: payment reported
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'payment_reported',
+        });
+      }
+
       return result;
     },
     onSuccess: () => {
@@ -629,6 +712,16 @@ export function useDepositFunds() {
         }
       }
 
+      // System message: funds deposited
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'funds_deposited',
+          amount: escrow.amount,
+          token: escrow.trustline?.name,
+        });
+      }
+
       return result;
     },
     onSuccess: () => {
@@ -677,6 +770,14 @@ export function useDisputeEscrow() {
             result.txHash
           );
         }
+      }
+
+      // System message: dispute raised
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'dispute_raised',
+        });
       }
 
       return result;
@@ -733,6 +834,14 @@ export function useReleaseFunds() {
             });
           }
         }
+      }
+
+      // System message: funds released
+      if (escrow.engagementId) {
+        await ChatService.insertSystemMessage({
+          engagementId: escrow.engagementId,
+          event: 'funds_released',
+        });
       }
 
       return result;

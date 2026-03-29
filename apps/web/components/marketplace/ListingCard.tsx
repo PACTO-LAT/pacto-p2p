@@ -1,6 +1,8 @@
 'use client';
 
-import { User } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2 } from 'lucide-react';
+import { sileo } from 'sileo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +13,7 @@ import { formatAmount, formatDate } from '@/lib/dashboard-utils';
 import { MarketplaceListing } from '@/lib/types/marketplace';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useAuth } from '@/hooks/use-auth';
+import { useDeleteListing } from '@/hooks/use-listings';
 
 interface ListingCardProps {
   listing: MarketplaceListing;
@@ -20,11 +23,29 @@ interface ListingCardProps {
 export function ListingCard({ listing, onTrade }: ListingCardProps) {
   const { address } = useGlobalAuthenticationStore();
   const { user } = useAuth();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const deleteListing = useDeleteListing();
+
   const isOwnListing =
     listing.seller === address ||
     listing.seller === user?.id ||
     listing.buyer === address ||
     listing.buyer === user?.id;
+
+  const handleDelete = async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    try {
+      await deleteListing.mutateAsync(listing.id);
+      sileo.success({ title: 'Listing deleted' });
+    } catch {
+      sileo.error({ title: 'Failed to delete listing' });
+    } finally {
+      setConfirmDelete(false);
+    }
+  };
 
   return (
     <Card className="card hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 animate-fade-in">
@@ -41,11 +62,16 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                 <div>
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-3">
                     <h3 className="text-3xl font-bold text-foreground">
-                      {formatAmount(listing.amount)}
+                      {formatAmount(listing.amountRemaining ?? listing.amount)}
                     </h3>
                     <span className="text-xl font-semibold text-muted-foreground">
                       {listing.token}
                     </span>
+                    {listing.amountRemaining != null && listing.amountRemaining < listing.amount && (
+                      <span className="text-sm text-muted-foreground">
+                        of {formatAmount(listing.amount)} total
+                      </span>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                     <div>
@@ -118,7 +144,7 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                   Total Value
                 </p>
                 <p className="text-3xl font-bold text-foreground">
-                  {formatAmount(listing.amount * listing.rate)}
+                  {formatAmount((listing.amountRemaining ?? listing.amount) * listing.rate)}
                 </p>
                 <p className="text-lg font-semibold text-muted-foreground">
                   {listing.fiatCurrency}
@@ -153,6 +179,23 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                   Published: {formatDate(listing.created)}
                 </span>
               </div>
+
+              {isOwnListing && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDelete}
+                  disabled={deleteListing.isPending}
+                  className={`gap-2 text-sm ${
+                    confirmDelete
+                      ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10'
+                      : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/10'
+                  }`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {confirmDelete ? 'Confirm delete' : 'Delete listing'}
+                </Button>
+              )}
             </div>
           </div>
         </div>

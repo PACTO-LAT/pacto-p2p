@@ -12,16 +12,29 @@ export const TRUSTLINES = [
   // TESTNET
   {
     name: 'USDC',
-    // Issuer address (G...) - API will resolve to SAC address automatically
+    issuerName: 'Circle',
+    logoFile: 'usdc.svg',
     issuer:
       process.env.NEXT_PUBLIC_USDC_ISSUER_ADDRESS ||
-      'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5', // Testnet issuer
+      'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
     symbol: 'USDC',
     decimals: 10000000,
-    // Keep address for backward compatibility (now points to issuer, not SAC)
     address:
       process.env.NEXT_PUBLIC_USDC_ISSUER_ADDRESS ||
       'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
+  },
+  {
+    name: 'XLM',
+    issuerName: 'Stellar',
+    logoFile: 'xlm.png',
+    issuer:
+      process.env.NEXT_PUBLIC_XLM_SAC_ADDRESS ||
+      'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+    symbol: 'XLM',
+    decimals: 10000000,
+    address:
+      process.env.NEXT_PUBLIC_XLM_SAC_ADDRESS ||
+      'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
   },
   {
     name: 'CRCX',

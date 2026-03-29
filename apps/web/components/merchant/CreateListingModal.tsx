@@ -17,6 +17,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { useCreateListing } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useMeMerchant } from '../../hooks/useMerchant';
 import {
   listingFormSchema,
@@ -62,8 +63,12 @@ export function CreateListingModal({
     mode: 'onTouched',
   });
 
+  const tradeType = form.watch('type');
+  const modalTitle = tradeType === 'buy' ? 'Create Buy Listing' : 'Create Sell Listing';
+
   const createListing = useCreateListing();
   const { user } = useAuth();
+  const walletAddress = useGlobalAuthenticationStore((s) => s.address);
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
   const isDirty = form.formState.isDirty;
 
@@ -123,6 +128,7 @@ export function CreateListingModal({
   }, [step]);
 
   async function onSubmit(values: ListingFormValues) {
+    if (step !== 4) return;
     if (merchantLoading) return;
     if (!merchant) {
       sileo.error({
@@ -131,11 +137,21 @@ export function CreateListingModal({
       return;
     }
     if (!user?.id) {
-      sileo.error({ title: 'Connect your wallet first' });
+      sileo.error({ title: 'You must be logged in to create a listing.' });
+      return;
+    }
+    if (!walletAddress) {
+      sileo.error({
+        title: 'Connect your Stellar wallet first.',
+        description: 'Use the wallet button in the header to connect before creating a listing.',
+      });
       return;
     }
     try {
-      const listingData = toCreateListingData(values as UIListingFormInput);
+      const listingData = toCreateListingData({
+        ...(values as UIListingFormInput),
+        sellerAddress: walletAddress,
+      });
       await createListing.mutateAsync({ userId: user.id, listingData });
       sileo.success({ title: 'Listing created' });
       form.reset(LISTING_FORM_DEFAULT_VALUES);
@@ -207,7 +223,14 @@ export function CreateListingModal({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
+      {/* Manual backdrop — needed because modal={false} disables the Radix overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50"
+          onClick={() => handleOpenChange(false)}
+        />
+      )}
+      <Dialog open={open} onOpenChange={handleOpenChange} modal={false}>
         <DialogContent
           className="fixed inset-0 w-full max-h-[100dvh] rounded-none border-0 sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:rounded-lg sm:border sm:p-6 gap-4 overflow-y-auto"
           onPointerDownOutside={(e) => {
@@ -222,16 +245,18 @@ export function CreateListingModal({
           }}
         >
           <DialogHeader>
-            <DialogTitle>Create Listing</DialogTitle>
+            <DialogTitle>{modalTitle}</DialogTitle>
             <DialogDescription>
-              Complete the steps below to create your OTC trade listing.
+              {tradeType === 'buy'
+                ? 'Set up your buy order — you will pay fiat and receive crypto.'
+                : 'Set up your sell order — you will receive fiat and send crypto.'}
             </DialogDescription>
           </DialogHeader>
 
           <FormProvider {...form}>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={(e) => e.preventDefault()}
                 className="space-y-4"
                 noValidate
               >
@@ -265,7 +290,8 @@ export function CreateListingModal({
                       </Button>
                     ) : (
                       <Button
-                        type="submit"
+                        type="button"
+                        onClick={form.handleSubmit(onSubmit)}
                         disabled={createListing.isPending}
                         aria-label="Create listing"
                       >
