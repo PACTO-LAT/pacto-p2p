@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 import { formatAmount, formatCurrency } from '@/lib/dashboard-utils';
 import type { MarketplaceListing } from '@/lib/types/marketplace';
 import { cn } from '@/lib/utils';
@@ -47,8 +48,11 @@ export function TradeConfirmationDialog({
 
   const fiatAmount = parseFloat(amount) || 0;
   const cryptoAmount = fiatAmount / selectedListing.rate;
+  const availableAmount = selectedListing.amountRemaining ?? selectedListing.amount;
   const maxAvailable =
-    selectedListing.maxAmount || selectedListing.amount * selectedListing.rate;
+    selectedListing.maxAmount != null
+      ? Math.min(selectedListing.maxAmount, availableAmount * selectedListing.rate)
+      : availableAmount * selectedListing.rate;
   const minAmount = selectedListing.minAmount || 0;
   const isAmountValid =
     amount !== '' && fiatAmount >= minAmount && fiatAmount <= maxAvailable;
@@ -81,10 +85,18 @@ export function TradeConfirmationDialog({
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content className="fixed top-[50%] left-[50%] z-50 w-[90vw] max-w-[1200px] max-h-[85vh] translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-background p-0 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200 overflow-y-auto">
+        <DialogPrimitive.Content className="fixed top-[50%] left-[50%] z-50 w-[90vw] max-w-[1200px] max-h-[85vh] translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-background p-0 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200 flex flex-col">
           <DialogPrimitive.Title className="sr-only">
             Buy {selectedListing.token} - Trade Confirmation
           </DialogPrimitive.Title>
+          {/* Close button — fixed to top-right, outside scroll area */}
+          <div className="flex items-center justify-end px-4 py-2 shrink-0 border-b border-border/30">
+            <DialogPrimitive.Close className="flex items-center justify-center w-8 h-8 rounded-md bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <XIcon className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          </div>
+          <div className="overflow-y-auto flex-1">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 h-full">
             {/* Left Section - Advertisers' Terms */}
             <div className="p-6 border-r border-border/50 lg:col-span-2">
@@ -201,7 +213,7 @@ export function TradeConfirmationDialog({
                         <span className="text-sm font-medium text-foreground">
                           {selectedListing.token}
                         </span>
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full"></div>
+                        <TokenIcon token={selectedListing.token} size="sm" />
                       </div>
                     </div>
                     <div className="text-3xl font-bold text-foreground">
@@ -305,11 +317,7 @@ export function TradeConfirmationDialog({
               </div>
             </div>
           </div>
-
-          <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-            <XIcon className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
+          </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

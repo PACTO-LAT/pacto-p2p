@@ -39,7 +39,7 @@ export function MarketplaceFilters({
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
           <div className="flex-1 min-w-[220px]">
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search by token or currency..."
                 value={filters.searchTerm}
