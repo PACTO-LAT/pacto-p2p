@@ -1,35 +1,50 @@
 'use client';
 
-import { useState } from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useMemo } from 'react';
+import { ArrowDownLeft, ArrowUpRight, ExternalLink, MessageCircle } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
 import { useUnreadCount } from '@/hooks/use-chat';
 import { useAuth } from '@/hooks/use-auth';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { supabase } from '@/lib/supabase';
 import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import { useEscrowActions } from '@/hooks/use-escrow-actions';
 import {
-  EscrowCard,
   EscrowDetailsModal,
-  ReportPaymentModal,
-  EmptyState,
   LoadingState,
   ErrorState,
 } from '@/components/escrow';
+import { UnreadBadge } from '@/components/chat/UnreadBadge';
+import { Button } from '@/components/ui/button';
+import { formatAmount } from '@/lib/dashboard-utils';
+import { getTrustlineName } from '@/utils/getTrustline';
+import {
+  canReportPayment,
+  canConfirmPayment,
+  canDeposit,
+  canReleaseFunds,
+} from '@/lib/escrow-utils';
 import type { Escrow } from '@pacto-p2p/types';
-import type { ReportPaymentData } from '@/lib/types/escrow';
+
+type RoleTab = 'buyer' | 'seller';
+type StatusTab = 'all' | 'active' | 'completed' | 'disputed';
+
+function getEscrowStatus(escrow: Escrow): StatusTab {
+  if (escrow.flags?.disputed) return 'disputed';
+  if (escrow.flags?.resolved || escrow.flags?.released) return 'completed';
+  return 'active';
+}
 
 export default function EscrowsPage() {
-  const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
+  const [roleTab, setRoleTab] = useState<RoleTab>('buyer');
+  const [statusTab, setStatusTab] = useState<StatusTab>('all');
   const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
-  const [isReportPaymentModalOpen, setIsReportPaymentModalOpen] =
-    useState(false);
 
   const { user } = useAuth();
   const { address } = useGlobalAuthenticationStore();
   const { unreadByEngagementId } = useUnreadCount(user?.id ?? null);
-  const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
-    useEscrowSelection();
+  const { selectedEscrow, selectEscrow, clearSelectedEscrow } = useEscrowSelection();
   const {
     isReportPaymentLoading,
     isCancelEscrowLoading,
@@ -41,51 +56,66 @@ export default function EscrowsPage() {
     handleCancelEscrow,
   } = useEscrowActions();
 
-  // Determine role based on active tab
-  const role = activeTab === 'seller' ? 'approver' : 'serviceProvider';
+  const role = roleTab === 'seller' ? 'approver' : 'serviceProvider';
 
-  // Fetch escrows where the user is involved in any role
   const {
     data: escrows = [],
     isLoading,
     error,
   } = useEscrowsByRoleQuery({
-    role: role,
+    role,
     roleAddress: address,
     isActive: true,
     enabled: !!address,
   });
 
-  const onReportPayment = (escrow: Escrow) => {
-    selectEscrow(escrow);
-    setIsReportPaymentModalOpen(true);
-  };
+  const engagementIds = useMemo(() => escrows.map((e) => e.engagementId), [escrows]);
 
-  const onSubmitReportPayment = async (data: ReportPaymentData) => {
-    if (selectedEscrow) {
-      const success = await handleReportPayment(selectedEscrow, data);
-      if (success) {
-        setIsReportPaymentModalOpen(false);
+  const { data: fiatCurrencyMap = {} } = useQuery<Record<string, string>>({
+    queryKey: ['trades-fiat-currency', engagementIds],
+    queryFn: async () => {
+      if (engagementIds.length === 0) return {};
+      const { data } = await supabase
+        .from('escrows')
+        .select('engagement_id, trades(fiat_currency)')
+        .in('engagement_id', engagementIds);
+      const map: Record<string, string> = {};
+      for (const row of data ?? []) {
+        const fiat = Array.isArray(row.trades)
+          ? row.trades[0]?.fiat_currency
+          : (row.trades as { fiat_currency?: string } | null)?.fiat_currency;
+        if (row.engagement_id && fiat) {
+          map[row.engagement_id] = fiat;
+        }
       }
-    }
+      return map;
+    },
+    enabled: engagementIds.length > 0,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const counts = useMemo(() => ({
+    all: escrows.length,
+    active: escrows.filter((e) => getEscrowStatus(e) === 'active').length,
+    completed: escrows.filter((e) => getEscrowStatus(e) === 'completed').length,
+    disputed: escrows.filter((e) => getEscrowStatus(e) === 'disputed').length,
+  }), [escrows]);
+
+  const filtered = useMemo(() =>
+    statusTab === 'all' ? escrows : escrows.filter((e) => getEscrowStatus(e) === statusTab),
+    [escrows, statusTab]
+  );
+
+  const openEscrowModal = (escrow: Escrow) => {
+    selectEscrow(escrow);
+    setIsEscrowModalOpen(true);
   };
 
-  const onConfirmPayment = async (escrow: Escrow) => {
-    await handleConfirmPayment(escrow);
-  };
-
-  const onDeposit = async (escrow: Escrow) => {
-    await handleDeposit(escrow);
-  };
-
-  const onDisputeEscrow = async (escrow: Escrow) => {
-    await handleDisputeEscrow(escrow);
-  };
-
-  const onReleaseFunds = async (escrow: Escrow) => {
-    await handleReleaseFunds(escrow);
-  };
-
+  const onReportPayment = async (escrow: Escrow) => handleReportPayment(escrow, { evidence: '' });
+  const onConfirmPayment = async (escrow: Escrow) => handleConfirmPayment(escrow);
+  const onDeposit = async (escrow: Escrow) => handleDeposit(escrow);
+  const onDisputeEscrow = async (escrow: Escrow) => handleDisputeEscrow(escrow);
+  const onReleaseFunds = async (escrow: Escrow) => handleReleaseFunds(escrow);
   const onCancelEscrow = async (escrow: Escrow) => {
     const success = await handleCancelEscrow(escrow);
     if (success) {
@@ -94,80 +124,231 @@ export default function EscrowsPage() {
     }
   };
 
-  const openEscrowModal = (escrow: Escrow) => {
-    selectEscrow(escrow);
-    setIsEscrowModalOpen(true);
-  };
-
-  if (isLoading) {
-    return <LoadingState />;
-  }
-
-  if (error) {
-    return <ErrorState error={error} />;
-  }
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller')}
-        className="space-y-4"
-      >
-        {/* Header row: title left, tabs right */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
-              Orders
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-              Monitor and manage your active escrow contracts
-            </p>
-          </div>
-          <TabsList className="flex flex-row h-auto p-1 bg-muted/30 backdrop-blur-sm rounded-lg border border-border/50 gap-1 w-full sm:w-auto">
-            <TabsTrigger
-              value="buyer"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
-            >
-              Buyer
-            </TabsTrigger>
-            <TabsTrigger
-              value="seller"
-              className="bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap"
-            >
-              Seller
-            </TabsTrigger>
-          </TabsList>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-white">Orders</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Monitor and manage your escrow contracts
+          </p>
         </div>
-      </Tabs>
 
-      {/* Escrows List */}
-      <div className="space-y-4 sm:space-y-6">
-        {escrows.length === 0 ? (
-          <EmptyState />
+        {/* Role tabs */}
+        <div className="flex h-9 p-1 bg-white/[0.04] rounded-lg border border-white/[0.07] gap-1 w-fit translate-y-6">
+          {(['buyer', 'seller'] as RoleTab[]).map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRoleTab(r)}
+              className={`px-4 py-1 rounded-md text-sm font-medium capitalize transition-all duration-150 cursor-pointer ${
+                roleTab === r
+                  ? 'bg-emerald-500 text-white'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Status filter tabs */}
+      <div className="flex gap-1 border-b border-white/[0.06] pb-0">
+        {([
+          { key: 'all', label: 'All' },
+          { key: 'active', label: 'In Progress' },
+          { key: 'completed', label: 'Completed' },
+          { key: 'disputed', label: 'Disputed' },
+        ] as { key: StatusTab; label: string }[]).map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setStatusTab(key)}
+            className={`px-4 py-2.5 text-sm font-medium transition-all duration-150 border-b-2 -mb-px cursor-pointer ${
+              statusTab === key
+                ? 'text-white border-emerald-500'
+                : 'text-muted-foreground border-transparent hover:text-foreground hover:border-white/[0.2]'
+            }`}
+          >
+            {label}
+            {counts[key] > 0 && (
+              <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
+                statusTab === key ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/[0.08] text-muted-foreground'
+              }`}>
+                {counts[key]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="rounded-2xl bg-white/[0.03] border border-white/[0.07] overflow-hidden">
+        {filtered.length === 0 ? (
+          <EmptyTableState roleTab={roleTab} statusTab={statusTab} />
         ) : (
-          escrows.map((escrow) => (
-            <EscrowCard
-              key={escrow.engagementId}
-              escrow={escrow}
-              onClick={openEscrowModal}
-              unreadCount={unreadByEngagementId[escrow.engagementId] ?? 0}
-            />
-          ))
+          <>
+            {/* Table header */}
+            <div className="hidden sm:grid grid-cols-[2fr_1.2fr_1fr_1fr_1fr_100px_64px] gap-6 px-5 py-3 border-b border-white/[0.06]">
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">Order</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide pl-10">Counterparty</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">Balance</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-4">Status</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-4">Needed</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-6">Action</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">Viewer</p>
+            </div>
+
+            {/* Rows */}
+            {filtered.map((escrow, i) => {
+              const token = getTrustlineName(escrow.trustline.address);
+              const isCompleted = escrow.flags?.resolved || escrow.flags?.released;
+              const isDisputed = escrow.flags?.disputed;
+              const counterparty = roleTab === 'buyer' ? escrow.roles.approver : escrow.roles.serviceProvider;
+              const unread = unreadByEngagementId[escrow.engagementId] ?? 0;
+              const fiatCurrency = fiatCurrencyMap[escrow.engagementId];
+              const tradeLabel = fiatCurrency ? `${token}/${fiatCurrency} P2P Trade` : `${token} P2P Trade`;
+
+              const actionNeeded = (() => {
+                if (canDeposit(escrow, roleTab)) return { label: 'Deposit needed', color: 'text-orange-400' };
+                if (canReportPayment(escrow, roleTab)) return { label: 'Pay now', color: 'text-blue-400' };
+                if (canConfirmPayment(escrow, roleTab)) return { label: 'Confirm receipt', color: 'text-blue-400' };
+                if (canReleaseFunds(escrow, roleTab)) return { label: 'Release funds', color: 'text-emerald-400' };
+                return null;
+              })();
+
+              const statusStyles = isCompleted
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : isDisputed
+                ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+
+              const statusLabel = isCompleted ? 'Completed' : isDisputed ? 'Disputed' : 'In Progress';
+
+              return (
+                <div
+                  key={escrow.engagementId}
+                  className={`grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_1fr_1fr_1fr_100px_64px] gap-6 items-center px-5 py-4 hover:bg-white/[0.03] transition-colors ${
+                    i < filtered.length - 1 ? 'border-b border-white/[0.05]' : ''
+                  }`}
+                >
+                  {/* Order */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      roleTab === 'buyer' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'
+                    }`}>
+                      {roleTab === 'buyer'
+                        ? <ArrowDownLeft className="w-4 h-4" />
+                        : <ArrowUpRight className="w-4 h-4" />
+                      }
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-white">
+                          {formatAmount(escrow.amount)} {token}
+                        </span>
+                        {unread > 0 && (
+                          <span className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            <MessageCircle className="w-3 h-3" />
+                            <UnreadBadge count={unread} />
+                          </span>
+                        )}
+                      </div>
+                      {tradeLabel && (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
+                          {tradeLabel}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground/40 font-mono truncate mt-0.5">
+                        {escrow.engagementId}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Counterparty */}
+                  <div className="pl-12">
+                    <p className="text-xs text-muted-foreground sm:hidden mb-0.5">Counterparty</p>
+                    <p className="font-mono text-xs text-foreground">
+                      {counterparty.slice(0, 6)}…{counterparty.slice(-4)}
+                    </p>
+                  </div>
+
+                  {/* Balance */}
+                  <div>
+                    <p className="text-xs text-muted-foreground sm:hidden mb-0.5">Balance</p>
+                    <p className="font-mono text-xs text-foreground">
+                      {formatAmount(escrow.balance ?? 0)} {token}
+                    </p>
+                  </div>
+
+                  {/* Status */}
+                  <div className="-ml-8">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${statusStyles}`}>
+                      {statusLabel}
+                    </span>
+                  </div>
+
+                  {/* Needed */}
+                  <div className="-ml-4">
+                    {actionNeeded && !isCompleted && !isDisputed ? (
+                      <span className={`text-xs font-medium ${actionNeeded.color}`}>
+                        {actionNeeded.label}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/30">—</span>
+                    )}
+                  </div>
+
+                  {/* Open */}
+                  <div className="flex justify-start -ml-8">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-white border border-white/[0.10] hover:border-white/[0.22] px-4 h-8 text-xs font-medium"
+                      onClick={() => openEscrowModal(escrow)}
+                    >
+                      Open
+                    </Button>
+                  </div>
+
+                  {/* Viewer */}
+                  <div>
+                    {escrow.contractId ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground hover:text-emerald-400 px-2 h-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`https://viewer.trustlesswork.com/${escrow.contractId}`, '_blank');
+                        }}
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Button>
+                    ) : (
+                      <span className="w-9 inline-block" />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
 
-      {/* Escrow Details Modal */}
       <EscrowDetailsModal
         open={isEscrowModalOpen}
         onOpenChange={(open) => {
           setIsEscrowModalOpen(open);
-          if (!open) {
-            clearSelectedEscrow();
-          }
+          if (!open) clearSelectedEscrow();
         }}
         escrow={selectedEscrow}
-        activeTab={activeTab}
+        activeTab={roleTab}
         isCancellingEscrow={isCancelEscrowLoading}
         onReportPayment={onReportPayment}
         onConfirmPayment={onConfirmPayment}
@@ -175,22 +356,22 @@ export default function EscrowsPage() {
         onDisputeEscrow={onDisputeEscrow}
         onReleaseFunds={onReleaseFunds}
         onCancelEscrow={onCancelEscrow}
+        isReportPaymentLoading={isReportPaymentLoading}
       />
+    </div>
+  );
+}
 
-      {/* Report Payment Modal */}
-      <ReportPaymentModal
-        open={isReportPaymentModalOpen}
-        onOpenChange={(open) => {
-          if (!isReportPaymentLoading) {
-            setIsReportPaymentModalOpen(open);
-            if (!open) {
-              clearSelectedEscrow();
-            }
-          }
-        }}
-        onSubmit={onSubmitReportPayment}
-        isLoading={isReportPaymentLoading}
-      />
+function EmptyTableState({ roleTab, statusTab }: { roleTab: RoleTab; statusTab: StatusTab }) {
+  const messages: Record<StatusTab, string> = {
+    all: `No ${roleTab} orders yet`,
+    active: 'No orders in progress',
+    completed: 'No completed orders',
+    disputed: 'No disputed orders',
+  };
+  return (
+    <div className="px-5 py-12 text-center text-xs text-muted-foreground/60">
+      {messages[statusTab]}
     </div>
   );
 }

@@ -10,12 +10,10 @@ import {
   TradeConfirmationDialog,
 } from '@/components/marketplace';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/use-auth';
 import { useCreateEscrow } from '@/hooks/use-escrows';
+import { useAuth } from '@/hooks/use-auth';
 import { useMarketplaceListings } from '@/hooks/use-listings';
 import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
-import { AuthService } from '@/lib/services/auth';
-import { supabase } from '@/lib/supabase';
 import { useMerchantStatus } from '@/hooks/useMerchant';
 import { CreateListingModal } from '@/components/merchant/CreateListingModal';
 import type {
@@ -58,8 +56,11 @@ export default function ListingsPage() {
     status: 'active',
   });
 
+  // Fetch all listings regardless of status for accurate stats calculation
+  const { data: allListings = [] } = useMarketplaceListings({ status: 'all' });
+
   const filteredListings = filterListings(listings, filters);
-  const marketStats = getMarketStats(listings);
+  const marketStats = getMarketStats(allListings);
 
   const handleTrade = (listing: MarketplaceListing) => {
     setSelectedListing(listing);
@@ -79,9 +80,11 @@ export default function ListingsPage() {
 
     // Validate amount is within listing bounds
     const minAmount = selectedListing.minAmount || 0;
+    const availableAmount = selectedListing.amountRemaining ?? selectedListing.amount;
     const maxAvailable =
-      selectedListing.maxAmount ||
-      selectedListing.amount * selectedListing.rate;
+      selectedListing.maxAmount != null
+        ? Math.min(selectedListing.maxAmount, availableAmount * selectedListing.rate)
+        : availableAmount * selectedListing.rate;
 
     if (fiatAmount < minAmount || fiatAmount > maxAvailable) {
       sileo.error({
@@ -90,8 +93,8 @@ export default function ListingsPage() {
       return;
     }
 
-    // Get current user's wallet address
-    const currentUserAddress = address || user?.stellar_address;
+    // Wallet address comes from the connected wallet store
+    const currentUserAddress = address;
 
     if (!currentUserAddress) {
       sileo.error({
@@ -107,73 +110,12 @@ export default function ListingsPage() {
       return;
     }
 
-    if (!selectedListing.seller) {
-      sileo.error({ title: 'Invalid listing: seller address is missing' });
-      return;
-    }
+    // Listing creator's address is stored on the listing at creation time
+    const listingCreatorAddress = selectedListing.seller;
 
-    // Get the listing creator's Stellar address
-    let listingCreatorAddress = selectedListing.seller;
-
-    // If seller is not a valid Stellar address (might be UUID or email), fetch it
-    if (!isValidStellarAddress(listingCreatorAddress)) {
-      try {
-        // Try to fetch user by ID (if it's a UUID)
-        // UUIDs are typically in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        const isUUID =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-            listingCreatorAddress
-          );
-
-        if (isUUID) {
-          const listingUser = await AuthService.getUserProfile(
-            listingCreatorAddress
-          ).catch(() => null);
-          if (listingUser?.stellar_address) {
-            listingCreatorAddress = listingUser.stellar_address;
-          } else {
-            sileo.error({
-              title:
-                'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.',
-            });
-            return;
-          }
-        } else {
-          // If it's an email or other identifier, query users table by email
-          const { data: userData, error: queryError } = await supabase
-            .from('users')
-            .select('stellar_address')
-            .eq('email', listingCreatorAddress)
-            .maybeSingle();
-
-          if (queryError && queryError.code !== 'PGRST116') {
-            // PGRST116 means no rows found, which is fine - we'll handle it below
-            throw queryError;
-          }
-
-          if (userData?.stellar_address) {
-            listingCreatorAddress = userData.stellar_address;
-          } else {
-            sileo.error({
-              title:
-                'Listing creator does not have a Stellar wallet address linked. They need to connect their wallet first.',
-            });
-            return;
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching listing creator address:', error);
-        sileo.error({
-          title:
-            'Failed to get listing creator wallet address. Please ensure they have linked their wallet.',
-        });
-        return;
-      }
-    }
-
-    if (!isValidStellarAddress(listingCreatorAddress)) {
+    if (!listingCreatorAddress || !isValidStellarAddress(listingCreatorAddress)) {
       sileo.error({
-        title: 'Listing creator does not have a valid Stellar wallet address',
+        title: 'This listing does not have a valid Stellar wallet address. The creator needs to recreate it with a connected wallet.',
       });
       return;
     }
@@ -204,6 +146,8 @@ export default function ListingsPage() {
       amount: cryptoAmount,
       buyer_id,
       seller_id,
+      buyer_uuid: selectedListing.type === 'sell' ? user?.id : selectedListing.creatorUserId,
+      seller_uuid: selectedListing.type === 'sell' ? selectedListing.creatorUserId : user?.id,
       token: selectedListing.token,
       fiat_amount: fiatAmount,
       fiat_currency: selectedListing.fiatCurrency,
@@ -241,8 +185,6 @@ export default function ListingsPage() {
         <ListingsTabs
           listings={filteredListings}
           onTrade={handleTrade}
-          canCreateListing={isVerifiedMerchant}
-          onCreateListing={() => setCreateOpen(true)}
         />
       )}
 
