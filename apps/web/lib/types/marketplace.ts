@@ -17,6 +17,8 @@ export interface MarketplaceListing {
   fullName?: string;
   minAmount?: number;
   maxAmount?: number;
+  amountRemaining?: number;
+  creatorUserId?: string;
   terms?: Array<{
     type: 'positive' | 'negative';
     text: string;

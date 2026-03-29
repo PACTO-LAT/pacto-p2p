@@ -12,6 +12,8 @@ export interface DbListing {
   min_amount?: number | null;
   max_amount?: number | null;
   description?: string | null;
+  seller_address?: string | null;
+  amount_remaining?: number | null;
   status: 'active' | 'paused' | 'completed' | 'cancelled';
   created_at: string;
   updated_at: string;

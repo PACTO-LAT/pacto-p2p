@@ -82,8 +82,10 @@ export interface CreateListingData {
 
 export interface CreateEscrowData {
   listing: CreateListingData; // Using the existing CreateListingData interface
-  buyer_id: string;
-  seller_id: string;
+  buyer_id: string;   // Stellar address — used for on-chain escrow
+  seller_id: string;  // Stellar address — used for on-chain escrow
+  buyer_uuid?: string; // Supabase user UUID — used for DB inserts
+  seller_uuid?: string; // Supabase user UUID — used for DB inserts
   token: string;
   amount: number;
   fiat_amount: number;
