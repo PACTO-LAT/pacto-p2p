@@ -450,7 +450,7 @@ export const useInitializeTrade = () => {
       );
     }
 
-    let approveMilestoneResult: { unsignedTransaction: string };
+    let approveMilestoneResult: { unsignedTransaction?: string };
     try {
       approveMilestoneResult = await approveMilestone(finalPayload, 'single-release');
     } catch (err: unknown) {
