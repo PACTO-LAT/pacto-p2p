@@ -110,7 +110,9 @@ export function DashboardHeader() {
       const connectedAddress = await handleConnect();
       if (connectedAddress) {
         if (user) {
-          await updateProfile({ stellar_address: connectedAddress });
+          await updateProfile({ stellar_address: connectedAddress }).catch(() => {
+            // Ignore DB linking errors (e.g. address already saved on another account)
+          });
         }
         sileo.success({ title: 'Wallet connected successfully' });
       }
@@ -141,7 +143,9 @@ export function DashboardHeader() {
       const connectedAddress = await handleConnect();
       if (connectedAddress) {
         if (user) {
-          await updateProfile({ stellar_address: connectedAddress });
+          await updateProfile({ stellar_address: connectedAddress }).catch(() => {
+            // Ignore DB linking errors (e.g. address already saved on another account)
+          });
         }
         sileo.success({ title: 'Wallet connected successfully' });
       }
@@ -245,135 +249,119 @@ export function DashboardHeader() {
             )}
           </nav>
 
-          {/* Right Side: User Menu & Actions */}
+          {/* Right Side: unified user + wallet menu */}
           <div className="flex items-center gap-3">
-            {/* User Dropdown Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-10 w-10 rounded-full p-0 hover:bg-glass-hover"
-                >
-                  {authLoading ? (
-                    <div className="relative w-10 h-10 rounded-full bg-muted/50 border-2 border-emerald-500/20 flex items-center justify-center animate-pulse" />
-                  ) : user?.avatar_url ? (
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500/30">
-                      <Image
-                        src={user.avatar_url}
-                        alt={getUserDisplayName()}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover"
-                      />
-                      {isConnected && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background">
-                          <div className="w-full h-full bg-emerald-500 rounded-full animate-pulse" />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center border-2 border-emerald-500/30">
-                      <span className="text-white font-semibold text-sm">
-                        {getUserInitials()}
-                      </span>
-                      {isConnected && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background">
-                          <div className="w-full h-full bg-emerald-500 rounded-full animate-pulse" />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 glass-effect">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-semibold">
-                      {getUserDisplayName()}
-                    </p>
-                    {user?.email && (
-                      <p className="text-xs text-muted-foreground">
-                        {user.email}
-                      </p>
-                    )}
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {user && (
-                  <DropdownMenuItem
-                    onClick={handleSignOut}
-                    className="cursor-pointer text-red-600 focus:text-red-600"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Connect Wallet Button (Desktop) - Positioned AFTER user avatar */}
+            {/* Combined User + Wallet Dropdown */}
             <div className="hidden md:block">
-              {isConnected && address ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      aria-label={`Wallet options for ${address.slice(0, 6)}...${address.slice(-4)}`}
-                      className="relative glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
-                    >
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2.5 h-10 px-3 glass-effect border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all group"
+                  >
+                    {/* Avatar */}
+                    {authLoading ? (
+                      <div className="relative w-7 h-7 rounded-full bg-muted/50 animate-pulse shrink-0" />
+                    ) : user?.avatar_url ? (
+                      <div className="relative w-7 h-7 rounded-full overflow-hidden border border-emerald-500/30 shrink-0">
+                        <Image
+                          src={user.avatar_url}
+                          alt={getUserDisplayName()}
+                          width={28}
+                          height={28}
+                          className="w-full h-full object-cover"
+                        />
+                        {isConnected && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background" />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="relative w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center border border-emerald-500/30 shrink-0">
+                        <span className="text-white font-semibold text-xs">
+                          {getUserInitials()}
+                        </span>
+                        {isConnected && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background" />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Wallet address or name */}
+                    {isConnected && address ? (
                       <span className="text-xs font-mono text-emerald-400 group-hover:text-emerald-300">
                         {address.slice(0, 6)}...{address.slice(-4)}
                       </span>
-                      <ChevronDown className="w-3 h-3 ml-1.5 text-emerald-400/70 group-hover:text-emerald-300" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-56 glass-effect"
-                  >
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-0.5">
-                        <p className="text-xs text-muted-foreground">
-                          Connected wallet
-                        </p>
-                        <p className="text-xs font-mono text-emerald-400 truncate">
-                          {address}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                    ) : (
+                      <span className="text-xs text-muted-foreground group-hover:text-foreground">
+                        {getUserDisplayName()}
+                      </span>
+                    )}
+
+                    <ChevronDown className="w-3 h-3 text-muted-foreground group-hover:text-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-60 glass-effect">
+                  {/* User info */}
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-0.5">
+                      <p className="text-sm font-semibold">{getUserDisplayName()}</p>
+                      {user?.email && (
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      )}
+                    </div>
+                  </DropdownMenuLabel>
+
+                  {/* Wallet section */}
+                  {isConnected && address ? (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>
+                        <div className="flex flex-col space-y-0.5">
+                          <p className="text-xs text-muted-foreground">Connected wallet</p>
+                          <p className="text-xs font-mono text-emerald-400 truncate">{address}</p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                          navigator.clipboard.writeText(address);
+                          sileo.success({ title: 'Address copied to clipboard' });
+                        }}
+                      >
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Address
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleWalletDisconnect}
+                        className="cursor-pointer text-red-500 focus:text-red-500"
+                      >
+                        <Unplug className="w-4 h-4 mr-2" />
+                        Disconnect Wallet
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleWalletConnect} className="cursor-pointer">
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Connect Wallet
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  <DropdownMenuSeparator />
+                  {user && (
                     <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => {
-                        navigator.clipboard.writeText(address);
-                        sileo.success({ title: 'Address copied to clipboard' });
-                      }}
+                      onClick={handleSignOut}
+                      className="cursor-pointer text-red-600 focus:text-red-600"
                     >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Address
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleWalletDisconnect}
-                      className="cursor-pointer text-red-500 focus:text-red-500"
-                    >
-                      <Unplug className="w-4 h-4 mr-2" />
-                      Disconnect Wallet
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={handleWalletConnect}
-                  aria-label="Connect wallet"
-                  className="bg-gradient-emerald hover:shadow-emerald-glow transition-all duration-300 text-white font-medium"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Connect Wallet
-                </Button>
-              )}
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Mobile Menu Button */}

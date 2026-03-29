@@ -87,7 +87,9 @@ export function AppSidebar() {
       const connectedAddress = await handleConnect();
       if (connectedAddress) {
         if (user) {
-          await updateProfile({ stellar_address: connectedAddress });
+          await updateProfile({ stellar_address: connectedAddress }).catch(() => {
+            // Ignore DB linking errors (e.g. address already saved on another account)
+          });
         }
         sileo.success({ title: 'Wallet connected successfully' });
       }
