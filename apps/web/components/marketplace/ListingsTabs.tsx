@@ -26,7 +26,7 @@ export const GenericEmptyState: React.FC<GenericEmptyStateProps> = ({
   action,
   iconContainerClassName = '',
 }) => (
-  <Card className="glass-card">
+  <Card className="rounded-xl border border-border/50 bg-card/60">
     <CardContent className="p-12 text-center">
       <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
       <p className="text-muted-foreground mb-6">{description}</p>
