@@ -14,6 +14,7 @@ export function useTradeChat(engagementId: string | null) {
   const [messages, setMessages] = useState<TradeMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [otherPartyOnline, setOtherPartyOnline] = useState(false);
+  const [otherPartyLastSeen, setOtherPartyLastSeen] = useState<Date | null>(null);
   const [otherPartyTyping, setOtherPartyTyping] = useState(false);
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -85,15 +86,23 @@ export function useTradeChat(engagementId: string | null) {
           );
         })
         .on('presence', { event: 'sync' }, () => {
-          const state = channel.presenceState<{ userId: string }>();
+          const state = channel.presenceState<{ userId: string; lastSeen: string }>();
           const others = Object.values(state)
             .flat()
             .filter((p) => p.userId !== user.id);
           setOtherPartyOnline(others.length > 0);
         })
+        .on('presence', { event: 'leave' }, (payload) => {
+          const left = (payload.leftPresences as Array<{ userId: string; lastSeen: string }>)
+            .filter((p) => p.userId !== user.id);
+          if (left.length > 0) {
+            setOtherPartyLastSeen(new Date());
+            setOtherPartyOnline(false);
+          }
+        })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await channel.track({ userId: user.id });
+            await channel.track({ userId: user.id, lastSeen: new Date().toISOString() });
           }
         });
 
@@ -111,7 +120,7 @@ export function useTradeChat(engagementId: string | null) {
     };
   }, [engagementId]);
 
-  return { chat, messages, isLoading, otherPartyOnline, otherPartyTyping };
+  return { chat, messages, isLoading, otherPartyOnline, otherPartyLastSeen, otherPartyTyping };
 }
 
 // ---------------------------------------------------------------------------
