@@ -8,11 +8,13 @@ import {
   Clock,
   Shield,
   TrendingUp,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useTrades } from '@/hooks/use-trades-history';
 import { useUserListings } from '@/hooks/use-listings';
 import { useMerchantStatus } from '@/hooks/useMerchant';
+import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
 import { WalletConnectionPrompt } from '@/components/shared/WalletConnectionPrompt';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { formatAmount } from '@/lib/dashboard-utils';
@@ -30,14 +32,33 @@ export default function DashboardPage() {
   const { data: trades = [] } = useTrades(user?.id);
   const { data: userListings = [] } = useUserListings(user?.id);
 
-  // Use Supabase trades (platform-specific) — not TrustlessWork indexer
-  const activeOrders = trades.filter((t) => t.status === 'active').length;
+  // Active orders: use TW indexer (filtered by user address) for real-time accuracy.
+  // Results are already cached in React Query from the header's usePendingActions fetch.
+  const { data: sellerEscrows = [] } = useEscrowsByRoleQuery({
+    role: 'approver',
+    roleAddress: address ?? '',
+    isActive: true,
+    enabled: !!address,
+  });
+  const { data: buyerEscrows = [] } = useEscrowsByRoleQuery({
+    role: 'serviceProvider',
+    roleAddress: address ?? '',
+    isActive: true,
+    enabled: !!address,
+  });
+  const activeOrders = [...sellerEscrows, ...buyerEscrows].filter(
+    (e) => !e.flags?.released && !e.flags?.resolved
+  ).length;
   const activeListings = userListings.filter((l) => l.status === 'active').length;
   const completedTrades = trades.filter((t) => t.status === 'completed' || t.status === 'resolved').length;
   const totalVolume = trades
     .filter((t) => t.status === 'completed' || t.status === 'resolved')
     .reduce((sum, t) => sum + (t.amount ?? 0), 0);
-  const activeTrades = trades.filter((t) => t.status === 'active').slice(0, 3);
+  // Active orders panel: derive from TW escrows (already cached from header fetch)
+  const activeEscrows = [...sellerEscrows, ...buyerEscrows]
+    .filter((e) => !e.flags?.released && !e.flags?.resolved)
+    .slice(0, 3);
+  const recentCompletedTrades = trades.filter((t) => t.status === 'completed' || t.status === 'resolved').slice(0, 4);
 
   const displayName =
     user?.full_name || user?.username || user?.email?.split('@')[0] || 'Trader';
@@ -120,32 +141,35 @@ export default function DashboardPage() {
               View all <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>
-          {activeTrades.length === 0 ? (
+          {activeEscrows.length === 0 ? (
             <div className="px-5 py-8 text-center text-xs text-muted-foreground/60">
               No active orders
             </div>
           ) : (
             <div>
-              {activeTrades.map((trade, i) => (
-                <div
-                  key={trade.id}
-                  className={`flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.03] transition-colors ${
-                    i < activeTrades.length - 1 ? 'border-b border-white/[0.04]' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Clock className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
-                    <span className="text-sm text-foreground font-medium">
-                      {formatAmount(trade.amount ?? 0)}{' '}
-                      <span className="text-muted-foreground font-normal">{trade.token}</span>
-                    </span>
-                    <span className="text-xs text-muted-foreground/60 capitalize hidden sm:inline">
-                      {trade.type}
-                    </span>
+              {activeEscrows.map((escrow, i) => {
+                const isSeller = escrow.roles.approver === address;
+                return (
+                  <div
+                    key={escrow.engagementId}
+                    className={`flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.03] transition-colors ${
+                      i < activeEscrows.length - 1 ? 'border-b border-white/[0.04]' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Clock className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
+                      <span className="text-sm text-foreground font-medium">
+                        {formatAmount(Number(escrow.amount) ?? 0)}{' '}
+                        <span className="text-muted-foreground font-normal">{getTrustlineName(escrow.trustline?.address ?? '')}</span>
+                      </span>
+                      <span className="text-xs text-muted-foreground/60 capitalize hidden sm:inline">
+                        {isSeller ? 'sell' : 'buy'}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-yellow-400 shrink-0">In progress</span>
                   </div>
-                  <span className="text-xs font-medium text-yellow-400 shrink-0">In progress</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -158,32 +182,46 @@ export default function DashboardPage() {
               View all <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>
-          {trades.length === 0 ? (
+          {recentCompletedTrades.length === 0 ? (
             <div className="px-5 py-8 text-center text-xs text-muted-foreground/60">
               No completed trades yet
             </div>
           ) : (
             <div>
-              {trades.slice(0, 4).map((trade, i) => (
-                <div
-                  key={trade.id}
-                  className={`flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.03] transition-colors ${
-                    i < Math.min(trades.length, 4) - 1 ? 'border-b border-white/[0.04]' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span className="text-sm text-foreground">
-                      {formatAmount(trade.amount ?? 0)}{' '}
-                      <span className="text-muted-foreground">{trade.token}</span>
-                    </span>
-                    <span className="text-xs text-muted-foreground/60 capitalize hidden sm:inline">
-                      {trade.type}
+              {recentCompletedTrades.map((trade, i) => {
+                const isCompleted = trade.status === 'completed' || trade.status === 'resolved';
+                const isDisputed = trade.status === 'disputed';
+                const isActive = trade.status === 'active';
+                return (
+                  <div
+                    key={trade.id}
+                    className={`flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.03] transition-colors ${
+                      i < recentCompletedTrades.length - 1 ? 'border-b border-white/[0.04]' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {isCompleted
+                        ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        : isDisputed
+                        ? <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                        : <Clock className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
+                      }
+                      <span className="text-sm text-foreground">
+                        {formatAmount(trade.amount ?? 0)}{' '}
+                        <span className="text-muted-foreground">{trade.token}</span>
+                      </span>
+                      <span className="text-xs text-muted-foreground/60 capitalize hidden sm:inline">
+                        {trade.type}
+                      </span>
+                    </div>
+                    <span className={`text-xs ${
+                      isCompleted ? 'text-emerald-400' : isDisputed ? 'text-red-400' : 'text-yellow-400'
+                    }`}>
+                      {isCompleted ? 'Completed' : isDisputed ? 'Disputed' : 'In progress'}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">Completed</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
