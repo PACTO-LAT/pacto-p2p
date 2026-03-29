@@ -5,7 +5,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type GetEscrowsFromIndexerByRoleParams,
   type GetEscrowsFromIndexerBySignerParams,
-  useFundEscrow,
   useGetEscrowsFromIndexerByRole,
   useGetEscrowsFromIndexerBySigner,
 } from '@trustless-work/escrow';
@@ -17,8 +16,6 @@ import { TradesService } from '@/lib/services/trades';
 import { ChatService } from '@/lib/services/chat';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
-import { TrustlineError } from '@/utils/stellar/TrustlineError';
-
 const MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING = 1;
 
 // Uses buyer UUID (not Stellar address) and queries the trades table
@@ -480,7 +477,6 @@ export const useEscrowsBySignerQuery = ({
 export function useCreateEscrow(onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { address } = useGlobalAuthenticationStore();
   const { initializeTrade } = useInitializeTrade();
 
   return useMutation({
@@ -526,6 +522,7 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
       }
 
       if (!buyerUuid) throw new Error('Buyer UUID could not be resolved.');
+      if (!sellerUuid) throw new Error('Seller UUID could not be resolved.');
 
       // Rate limit: block if buyer already has an active (non-completed) trade
       // for this listing to prevent griefing with unfunded escrows.
