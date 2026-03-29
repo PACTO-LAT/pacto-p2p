@@ -525,6 +525,8 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         throw new Error('Listing ID is required to create an escrow.');
       }
 
+      if (!buyerUuid) throw new Error('Buyer UUID could not be resolved.');
+
       // Rate limit: block if buyer already has an active (non-completed) trade
       // for this listing to prevent griefing with unfunded escrows.
       const activeTradeCount = await getActiveBuyerTradeCount(buyerUuid, listingId);
