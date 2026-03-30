@@ -19,6 +19,8 @@ export type Merchant = {
   rating: number;
   total_trades: number;
   volume_traded: number; // 30d or lifetime; we’ll show clearly which
+  status_message?: string;
+  status_updated_at?: string;
 };
 
 export type MerchantBadge = {

@@ -254,15 +254,15 @@ export class AdminService {
   }
 
   static async approveMerchant(
-    id: string, 
-    auditContext?: { 
-      adminUserId: string; 
-      ipAddress?: string; 
-      userAgent?: string; 
-      reason?: string; 
+    id: string,
+    auditContext?: {
+      adminUserId: string;
+      ipAddress?: string;
+      userAgent?: string;
+      reason?: string;
     }
   ) {
-    const result = await AdminService.updateMerchantStatus(id, 'verified');
+    const result = await AdminService.updateMerchantStatus(id, 'verified', auditContext?.reason);
     
     // Log the approval
     if (auditContext?.adminUserId) {
@@ -285,15 +285,15 @@ export class AdminService {
   }
 
   static async rejectMerchant(
-    id: string, 
-    auditContext?: { 
-      adminUserId: string; 
-      ipAddress?: string; 
-      userAgent?: string; 
-      reason?: string; 
+    id: string,
+    auditContext?: {
+      adminUserId: string;
+      ipAddress?: string;
+      userAgent?: string;
+      reason?: string;
     }
   ) {
-    const result = await AdminService.updateMerchantStatus(id, 'rejected');
+    const result = await AdminService.updateMerchantStatus(id, 'rejected', auditContext?.reason);
     
     // Log the rejection
     if (auditContext?.adminUserId) {
@@ -318,15 +318,19 @@ export class AdminService {
   /** Unified method to approve or reject a merchant application */
   static async updateMerchantStatus(
     merchantId: string,
-    status: 'verified' | 'rejected'
+    status: 'verified' | 'rejected',
+    statusMessage?: string
   ) {
     const supabase = createAdminClient();
+    const now = new Date().toISOString();
     const { data, error } = await supabase
       .from('merchants')
       .update({
         verification_status: status,
         is_public: status === 'verified',
-        updated_at: new Date().toISOString(),
+        status_message: statusMessage ?? null,
+        status_updated_at: now,
+        updated_at: now,
       })
       .eq('id', merchantId)
       .select()
@@ -337,21 +341,24 @@ export class AdminService {
   }
 
   static async revokeMerchant(
-    id: string, 
-    auditContext?: { 
-      adminUserId: string; 
-      ipAddress?: string; 
-      userAgent?: string; 
-      reason?: string; 
+    id: string,
+    auditContext?: {
+      adminUserId: string;
+      ipAddress?: string;
+      userAgent?: string;
+      reason?: string;
     }
   ) {
     const supabase = createAdminClient();
+    const now = new Date().toISOString();
     const { data, error } = await supabase
       .from('merchants')
       .update({
         verification_status: 'revoked',
         is_public: false,
-        updated_at: new Date().toISOString(),
+        status_message: auditContext?.reason ?? null,
+        status_updated_at: now,
+        updated_at: now,
       })
       .eq('id', id)
       .select()

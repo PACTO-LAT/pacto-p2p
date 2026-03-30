@@ -20,9 +20,12 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   useApproveMerchant,
   useRejectMerchant,
@@ -30,6 +33,8 @@ import {
 } from '@/hooks/use-admin';
 import { toast } from 'sonner';
 import type { MerchantApplication } from '@/lib/types/admin';
+
+type PendingAction = 'reject' | 'revoke' | null;
 
 interface MerchantApplicationModalProps {
   application: MerchantApplication;
@@ -52,6 +57,8 @@ export function MerchantApplicationModal({
   onClose,
 }: MerchantApplicationModalProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [statusMessage, setStatusMessage] = useState('');
   const approveMutation = useApproveMerchant();
   const rejectMutation = useRejectMerchant();
   const revokeMutation = useRevokeMerchant();
@@ -72,24 +79,21 @@ export function MerchantApplicationModal({
     }
   };
 
-  const handleReject = async () => {
+  const handleConfirmAction = async () => {
+    if (!pendingAction || !statusMessage.trim()) return;
     try {
-      await rejectMutation.mutateAsync({ id: application.id });
-      toast.success('Merchant application rejected');
+      if (pendingAction === 'reject') {
+        await rejectMutation.mutateAsync({ id: application.id, reason: statusMessage.trim() });
+        toast.success('Merchant application rejected');
+      } else {
+        await revokeMutation.mutateAsync({ id: application.id, reason: statusMessage.trim() });
+        toast.success('Merchant verification revoked');
+      }
+      setPendingAction(null);
+      setStatusMessage('');
       handleClose();
     } catch (error) {
-      toast.error('Failed to reject merchant application');
-      console.error(error);
-    }
-  };
-
-  const handleRevoke = async () => {
-    try {
-      await revokeMutation.mutateAsync({ id: application.id });
-      toast.success('Merchant verification revoked');
-      handleClose();
-    } catch (error) {
-      toast.error('Failed to revoke merchant verification');
+      toast.error(pendingAction === 'reject' ? 'Failed to reject merchant application' : 'Failed to revoke merchant verification');
       console.error(error);
     }
   };
@@ -99,7 +103,56 @@ export function MerchantApplicationModal({
     rejectMutation.isPending ||
     revokeMutation.isPending;
 
+  const isConfirming = rejectMutation.isPending || revokeMutation.isPending;
+
   return (
+    <>
+    <Dialog
+      open={pendingAction !== null}
+      onOpenChange={(open) => { if (!open) { setPendingAction(null); setStatusMessage(''); } }}
+    >
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {pendingAction === 'reject' ? 'Reject Application' : 'Revoke Verification'}
+          </DialogTitle>
+          <DialogDescription>
+            {pendingAction === 'reject'
+              ? 'Provide a reason so the merchant knows what to improve.'
+              : 'Provide a reason for revoking this merchant\'s verification.'}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2 py-2">
+          <Label htmlFor="status-message">
+            Reason <span className="text-destructive">*</span>
+          </Label>
+          <Textarea
+            id="status-message"
+            placeholder="e.g. Your profile bio is incomplete. Please add more details about your trading experience."
+            value={statusMessage}
+            onChange={(e) => setStatusMessage(e.target.value)}
+            rows={4}
+          />
+        </div>
+        <DialogFooter>
+          <Button
+            variant="ghost"
+            onClick={() => { setPendingAction(null); setStatusMessage(''); }}
+            disabled={isConfirming}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleConfirmAction}
+            disabled={!statusMessage.trim() || isConfirming}
+          >
+            {isConfirming ? 'Processing...' : pendingAction === 'reject' ? 'Reject' : 'Revoke'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -270,43 +323,25 @@ export function MerchantApplicationModal({
                   )}
                 </Button>
                 <Button
-                  onClick={handleReject}
+                  onClick={() => setPendingAction('reject')}
                   disabled={isLoading}
                   variant="destructive"
                   className="flex-1"
                 >
-                  {rejectMutation.isPending ? (
-                    <>
-                      <span className="animate-spin mr-2">⏳</span>
-                      Rejecting...
-                    </>
-                  ) : (
-                    <>
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Reject
-                    </>
-                  )}
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Reject
                 </Button>
               </>
             )}
             {application.verification_status === 'verified' && (
               <Button
-                onClick={handleRevoke}
+                onClick={() => setPendingAction('revoke')}
                 disabled={isLoading}
                 variant="destructive"
                 className="flex-1"
               >
-                {revokeMutation.isPending ? (
-                  <>
-                    <span className="animate-spin mr-2">⏳</span>
-                    Revoking...
-                  </>
-                ) : (
-                  <>
-                    <Ban className="w-4 h-4 mr-2" />
-                    Revoke Verification
-                  </>
-                )}
+                <Ban className="w-4 h-4 mr-2" />
+                Revoke Verification
               </Button>
             )}
             {(application.verification_status === 'rejected' ||
@@ -333,5 +368,6 @@ export function MerchantApplicationModal({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

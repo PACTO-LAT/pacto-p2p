@@ -1,0 +1,3 @@
+ALTER TABLE merchants
+  ADD COLUMN IF NOT EXISTS status_message TEXT,
+  ADD COLUMN IF NOT EXISTS status_updated_at TIMESTAMPTZ;
