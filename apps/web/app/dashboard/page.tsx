@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowUpRight,
@@ -15,6 +15,7 @@ import { useTrades } from '@/hooks/use-trades-history';
 import { useUserListings } from '@/hooks/use-listings';
 import { useMerchantStatus } from '@/hooks/useMerchant';
 import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
+import { usePactoEscrowIds } from '@/hooks/use-pacto-escrow-ids';
 import { WalletConnectionPrompt } from '@/components/shared/WalletConnectionPrompt';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { formatAmount } from '@/lib/dashboard-utils';
@@ -46,7 +47,19 @@ export default function DashboardPage() {
     isActive: true,
     enabled: !!address,
   });
-  const activeOrders = [...sellerEscrows, ...buyerEscrows].filter(
+
+  const allEngagementIds = useMemo(
+    () => [...sellerEscrows, ...buyerEscrows].map((e) => e.engagementId),
+    [sellerEscrows, buyerEscrows]
+  );
+  const pactoIds = usePactoEscrowIds(allEngagementIds);
+
+  const allPactoEscrows = useMemo(
+    () => [...sellerEscrows, ...buyerEscrows].filter((e) => pactoIds.has(e.engagementId)),
+    [sellerEscrows, buyerEscrows, pactoIds]
+  );
+
+  const activeOrders = allPactoEscrows.filter(
     (e) => !e.flags?.released && !e.flags?.resolved
   ).length;
   const activeListings = userListings.filter((l) => l.status === 'active').length;
@@ -54,8 +67,7 @@ export default function DashboardPage() {
   const totalVolume = trades
     .filter((t) => t.status === 'completed' || t.status === 'resolved')
     .reduce((sum, t) => sum + (t.amount ?? 0), 0);
-  // Active orders panel: derive from TW escrows (already cached from header fetch)
-  const activeEscrows = [...sellerEscrows, ...buyerEscrows]
+  const activeEscrows = allPactoEscrows
     .filter((e) => !e.flags?.released && !e.flags?.resolved)
     .slice(0, 3);
   const recentCompletedTrades = trades.filter((t) => t.status === 'completed' || t.status === 'resolved').slice(0, 4);

@@ -71,39 +71,48 @@ export default function EscrowsPage() {
 
   const engagementIds = useMemo(() => escrows.map((e) => e.engagementId), [escrows]);
 
-  const { data: fiatCurrencyMap = {} } = useQuery<Record<string, string>>({
-    queryKey: ['trades-fiat-currency', engagementIds],
+  const { data: platformData = { fiatCurrencyMap: {} as Record<string, string>, pactoIds: new Set<string>() } } = useQuery({
+    queryKey: ['trades-platform-data', engagementIds],
     queryFn: async () => {
-      if (engagementIds.length === 0) return {};
+      if (engagementIds.length === 0) return { fiatCurrencyMap: {} as Record<string, string>, pactoIds: new Set<string>() };
       const { data } = await supabase
         .from('escrows')
         .select('engagement_id, trades(fiat_currency)')
         .in('engagement_id', engagementIds);
-      const map: Record<string, string> = {};
+      const fiatCurrencyMap: Record<string, string> = {};
+      const pactoIds = new Set<string>();
       for (const row of data ?? []) {
+        if (!row.engagement_id) continue;
+        pactoIds.add(row.engagement_id);
         const fiat = Array.isArray(row.trades)
           ? row.trades[0]?.fiat_currency
           : (row.trades as { fiat_currency?: string } | null)?.fiat_currency;
-        if (row.engagement_id && fiat) {
-          map[row.engagement_id] = fiat;
-        }
+        if (fiat) fiatCurrencyMap[row.engagement_id] = fiat;
       }
-      return map;
+      return { fiatCurrencyMap, pactoIds };
     },
     enabled: engagementIds.length > 0,
     staleTime: 1000 * 60 * 5,
   });
 
+  const { fiatCurrencyMap, pactoIds } = platformData;
+
+  // Only show escrows that belong to Pacto (have a record in our DB)
+  const pactoEscrows = useMemo(
+    () => escrows.filter((e) => pactoIds.has(e.engagementId)),
+    [escrows, pactoIds]
+  );
+
   const counts = useMemo(() => ({
-    all: escrows.length,
-    active: escrows.filter((e) => getEscrowStatus(e) === 'active').length,
-    completed: escrows.filter((e) => getEscrowStatus(e) === 'completed').length,
-    disputed: escrows.filter((e) => getEscrowStatus(e) === 'disputed').length,
-  }), [escrows]);
+    all: pactoEscrows.length,
+    active: pactoEscrows.filter((e) => getEscrowStatus(e) === 'active').length,
+    completed: pactoEscrows.filter((e) => getEscrowStatus(e) === 'completed').length,
+    disputed: pactoEscrows.filter((e) => getEscrowStatus(e) === 'disputed').length,
+  }), [pactoEscrows]);
 
   const filtered = useMemo(() =>
-    statusTab === 'all' ? escrows : escrows.filter((e) => getEscrowStatus(e) === statusTab),
-    [escrows, statusTab]
+    statusTab === 'all' ? pactoEscrows : pactoEscrows.filter((e) => getEscrowStatus(e) === statusTab),
+    [pactoEscrows, statusTab]
   );
 
   const openEscrowModal = (escrow: Escrow) => {
