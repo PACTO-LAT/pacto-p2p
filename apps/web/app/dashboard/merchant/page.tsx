@@ -42,8 +42,22 @@ export default function MerchantDashboardPage() {
     );
   }
 
+  const isRejectedOrRevoked =
+    me.data?.verification_status === 'rejected' ||
+    me.data?.verification_status === 'revoked';
+
   return (
     <div className="mx-auto space-y-8 p-4 sm:p-6">
+      {isRejectedOrRevoked && me.data?.status_message && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm">
+          <p className="font-semibold text-destructive mb-1">
+            {me.data.verification_status === 'rejected'
+              ? 'Application Rejected'
+              : 'Verification Revoked'}
+          </p>
+          <p className="text-destructive/90">{me.data.status_message}</p>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div className="text-4xl font-bold text-foreground">Merchant</div>
         <div className="flex gap-2">

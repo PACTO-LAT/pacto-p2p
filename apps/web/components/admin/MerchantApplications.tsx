@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { Loader2, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { MerchantApplicationModal } from './MerchantApplicationModal';
 import { MerchantApplicationFilters } from './MerchantApplicationFilters';
 import {
@@ -32,6 +42,8 @@ export function MerchantApplications() {
   const [activeFilter, setActiveFilter] = useState('pending');
   const [selectedApplication, setSelectedApplication] =
     useState<MerchantApplication | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<MerchantApplication | null>(null);
+  const [rejectMessage, setRejectMessage] = useState('');
 
   const {
     data: applications,
@@ -52,10 +64,13 @@ export function MerchantApplications() {
     }
   };
 
-  const handleReject = async (application: MerchantApplication) => {
+  const handleConfirmReject = async () => {
+    if (!rejectTarget || !rejectMessage.trim()) return;
     try {
-      await rejectMutation.mutateAsync({ id: application.id });
+      await rejectMutation.mutateAsync({ id: rejectTarget.id, reason: rejectMessage.trim() });
       toast.success('Merchant application rejected');
+      setRejectTarget(null);
+      setRejectMessage('');
     } catch {
       toast.error('Failed to reject merchant application');
     }
@@ -169,7 +184,7 @@ export function MerchantApplications() {
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleReject(application)}
+                            onClick={() => setRejectTarget(application)}
                             disabled={
                               approveMutation.isPending ||
                               rejectMutation.isPending
@@ -195,6 +210,48 @@ export function MerchantApplications() {
           onClose={() => setSelectedApplication(null)}
         />
       )}
+
+      <Dialog
+        open={rejectTarget !== null}
+        onOpenChange={(open) => { if (!open) { setRejectTarget(null); setRejectMessage(''); } }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reject Application</DialogTitle>
+            <DialogDescription>
+              Provide a reason so the merchant knows what to improve.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="reject-message">
+              Reason <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
+              id="reject-message"
+              placeholder="e.g. Your profile bio is incomplete. Please add more details about your trading experience."
+              value={rejectMessage}
+              onChange={(e) => setRejectMessage(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => { setRejectTarget(null); setRejectMessage(''); }}
+              disabled={rejectMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmReject}
+              disabled={!rejectMessage.trim() || rejectMutation.isPending}
+            >
+              {rejectMutation.isPending ? 'Rejecting...' : 'Reject'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

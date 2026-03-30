@@ -46,6 +46,8 @@ export interface MerchantApplication {
   rating: number;
   total_trades: number;
   volume_traded: number;
+  status_message?: string;
+  status_updated_at?: string;
   created_at: string;
   updated_at: string;
   user?: {
