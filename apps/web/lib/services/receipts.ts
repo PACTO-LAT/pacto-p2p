@@ -10,6 +10,7 @@ const ACCEPTED_TYPES = [
 ];
 
 export async function uploadReceipt(
+  userId: string,
   escrowId: string,
   file: File
 ): Promise<string> {
@@ -22,7 +23,7 @@ export async function uploadReceipt(
   }
 
   const ext = file.name.split('.').pop() || 'bin';
-  const path = `${escrowId}/${Date.now()}_${crypto.randomUUID()}.${ext}`;
+  const path = `${userId}/${escrowId}/${Date.now()}_${crypto.randomUUID()}.${ext}`;
 
   const { error } = await supabase.storage
     .from(RECEIPTS_BUCKET)
