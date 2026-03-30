@@ -100,9 +100,17 @@ export default function DashboardPage() {
             <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
               {displayName}
             </h1>
-            {isVerifiedMerchant && (
+            {user?.user_type === 'admin' ? (
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">
+                Admin
+              </span>
+            ) : isVerifiedMerchant ? (
               <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
                 Merchant
+              </span>
+            ) : (
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                User
               </span>
             )}
           </div>
