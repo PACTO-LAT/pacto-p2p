@@ -21,8 +21,6 @@ Run from the repo root:
 - `npm run type-check`: TypeScript strict type checking.
 - `npm run clean`: clear build artifacts and Turbo cache.
 
-Mock mode for local UI work: set `NEXT_PUBLIC_USE_MOCK=1` in `apps/web` to use `/api/mock/*`.
-
 ## Coding Style & Naming Conventions
 
 - TypeScript strict mode is enabled (`tsconfig.json`). Avoid `any`.
