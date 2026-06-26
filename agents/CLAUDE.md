@@ -43,8 +43,6 @@ import { Button } from '@pacto-p2p/ui'
 import { EscrowType } from '@pacto-p2p/types'
 ```
 
-**Mock mode**: Set `NEXT_PUBLIC_USE_MOCK=1` to use local mock API (`/api/mock/*`) instead of real backends. Swap adapters in `apps/web/lib/adapters/`.
-
 **State management**: Zustand stores in `apps/web/store/` (e.g., `wallet.store.ts`)
 
 **Data fetching**: TanStack Query with hooks in `apps/web/hooks/` (e.g., `use-escrows.ts`, `use-listings.ts`)
