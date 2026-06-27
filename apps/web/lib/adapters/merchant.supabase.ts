@@ -245,20 +245,20 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
 
     const [totalRes, completedRes, disputedRes, volumeRes, speedRes] = await Promise.all([
       supabase.from('trades').select('id', { count: 'exact', head: true })
-        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`),
+        .eq('seller_id', merchant.user_id),
       supabase.from('trades').select('id', { count: 'exact', head: true })
         .eq('status', 'completed')
-        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`),
+        .eq('seller_id', merchant.user_id),
       supabase.from('trades').select('id', { count: 'exact', head: true })
         .eq('status', 'disputed')
-        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`),
+        .eq('seller_id', merchant.user_id),
       supabase.from('trades').select('fiat_amount')
         .eq('status', 'completed')
-        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+        .eq('seller_id', merchant.user_id)
         .gte('created_at', thirtyDaysAgo.toISOString()),
       supabase.from('trades').select('created_at, completed_at')
         .eq('status', 'completed')
-        .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+        .eq('seller_id', merchant.user_id)
         .not('completed_at', 'is', null),
     ]);
 
@@ -304,7 +304,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       .from('trades')
       .select('created_at, fiat_amount')
       .eq('status', 'completed')
-      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+      .eq('seller_id', merchant.user_id)
       .order('created_at', { ascending: true });
 
     if (error || !data) return [];
@@ -330,7 +330,7 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       .from('trades')
       .select('created_at, completed_at')
       .eq('status', 'completed')
-      .or(`seller_id.eq.${merchant.user_id},buyer_id.eq.${merchant.user_id}`)
+      .eq('seller_id', merchant.user_id)
       .not('completed_at', 'is', null);
 
     if (!data) return [];

@@ -11,6 +11,7 @@ import { VolumeChart } from '@/components/merchant/VolumeChart';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { merchantAdapter } from '@/lib/adapters';
+import { backendFetch } from '@/lib/services/backend';
 import type {
   MerchantBadge,
   MerchantKpis,
@@ -35,6 +36,24 @@ export default async function Page({
   const { slug } = await params;
   const merchant = await merchantAdapter.getPublicMerchantBySlug(slug);
   if (!merchant || !merchant.is_public) return notFound();
+
+  // Core stats from the backend (best-effort). Falls back to the merchant row
+  // values already loaded, with 0 for completion/dispute on failure.
+  let coreStats: CoreStats = {
+    rating: merchant.rating,
+    total_trades: merchant.total_trades,
+    volume_traded: merchant.volume_traded,
+    completion_rate: 0,
+    dispute_rate: 0,
+  };
+  try {
+    const res = await backendFetch(`/v1/merchants/${merchant.id}/stats`);
+    if (res.ok) {
+      coreStats = (await res.json()) as CoreStats;
+    }
+  } catch {
+    // best-effort: fall back to the merchant row values already loaded
+  }
 
   const kpisPromise = merchantAdapter.getKpis(merchant.id);
   const badgesPromise = merchantAdapter.getBadges(merchant.id);
@@ -64,7 +83,7 @@ export default async function Page({
 
         <section className="space-y-3">
           <Suspense fallback={<KpiCardsSkeleton />}>
-            <KpisSection promise={kpisPromise} />
+            <KpisSection promise={kpisPromise} coreStats={coreStats} />
           </Suspense>
           <Card className="rounded-2xl p-4">
             <div className="text-xs text-muted-foreground">
@@ -111,9 +130,31 @@ export default async function Page({
   );
 }
 
-async function KpisSection({ promise }: { promise: Promise<MerchantKpis> }) {
+type CoreStats = {
+  rating: number;
+  total_trades: number;
+  volume_traded: number;
+  completion_rate: number;
+  dispute_rate: number;
+};
+
+async function KpisSection({
+  promise,
+  coreStats,
+}: {
+  promise: Promise<MerchantKpis>;
+  coreStats: CoreStats;
+}) {
   const kpis = await promise;
-  return <KpiCards kpis={kpis} />;
+  // Core figures (total trades, completion %, dispute %) come from the backend.
+  // 30d volume + median release time still come from the client-side adapter.
+  const mergedKpis: MerchantKpis = {
+    ...kpis,
+    total_trades: coreStats.total_trades,
+    completion_rate_pct: coreStats.completion_rate,
+    dispute_rate_pct: coreStats.dispute_rate,
+  };
+  return <KpiCards kpis={mergedKpis} />;
 }
 
 async function BadgesSection({
