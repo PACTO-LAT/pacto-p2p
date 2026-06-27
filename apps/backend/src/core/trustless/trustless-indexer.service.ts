@@ -33,10 +33,20 @@ export class TrustlessIndexerService {
     url.searchParams.set('roleAddress', roleAddress);
     url.searchParams.set('type', 'single-release');
 
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch (err) {
+      this.logger.warn(`TLW request failed: ${(err as Error).message}`);
+      throw new Error(`TLW request failed: ${(err as Error).message}`);
+    }
     if (!res.ok) {
+      this.logger.warn(
+        `TLW get-escrows-by-role non-ok: ${res.status} ${res.statusText}`
+      );
       throw new Error(
         `TLW get-escrows-by-role failed: ${res.status} ${res.statusText}`
       );
