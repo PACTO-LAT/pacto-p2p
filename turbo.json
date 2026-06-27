@@ -32,7 +32,7 @@
       "cache": false
     },
     "type-check": {
-      "dependsOn": ["^type-check"]
+      "dependsOn": ["^build", "^type-check"]
     },
     "biome:check": {
       "dependsOn": ["^biome:check"]
