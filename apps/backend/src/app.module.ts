@@ -5,6 +5,7 @@ import { PlatformModule } from '@domains/platform/platform.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { LoggerModule } from 'nestjs-pino';
@@ -15,6 +16,7 @@ import { LoggerModule } from 'nestjs-pino';
       isGlobal: true,
       validationSchema: envValidationSchema,
     }),
+    ScheduleModule.forRoot(),
     LoggerModule.forRoot({
       pinoHttp: {
         customProps: (req) => ({

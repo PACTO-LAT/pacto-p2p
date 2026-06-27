@@ -18,4 +18,8 @@ export const envValidationSchema = Joi.object({
   REPUTATION_DECAY: Joi.number().min(0).max(1).default(0.9),
   REPUTATION_VOLUME_WEIGHT: Joi.number().min(0).max(1).default(0.05),
   REPUTATION_VOLUME_SAT: Joi.number().positive().default(10000),
+  CRON_ENABLED: Joi.boolean().default(true),
+  RECONCILE_CRON: Joi.string().default('0 3 * * *'),
+  DISPUTE_SLA_CRON: Joi.string().default('0 * * * *'),
+  DISPUTE_SLA_HOURS: Joi.number().positive().default(48),
 });
