@@ -172,8 +172,10 @@ export function useEscrowActions() {
                 stellar_transaction_hash: result.txHash,
                 completed_at: new Date().toISOString(),
               });
-              // Best-effort: recompute stats now that the trade is completed.
-              void triggerStatsRecompute();
+              // Best-effort: recompute stats for both parties now that the trade is completed.
+              void triggerStatsRecompute(
+                [trade.buyer_id, trade.seller_id].filter(Boolean) as string[]
+              );
             }
           }
         } catch {

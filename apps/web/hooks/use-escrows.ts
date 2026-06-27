@@ -173,6 +173,8 @@ const syncEscrowsWithPlatformRecords = async (
           await TradesService.syncCompletedStatus(escrow.engagementId);
           didSyncCompletions = true;
           // Best-effort: recompute stats now that the trade is completed.
+          // Caller-only here: neither the escrow object nor syncCompletedStatus
+          // exposes both party user ids, so we don't fabricate them.
           void triggerStatsRecompute();
         } catch {
           // Non-blocking: best-effort sync
@@ -899,8 +901,10 @@ export function useReleaseFunds() {
               stellar_transaction_hash: result.txHash,
               completed_at: new Date().toISOString(),
             });
-            // Best-effort: recompute stats now that the trade is completed.
-            void triggerStatsRecompute();
+            // Best-effort: recompute stats for both parties now that the trade is completed.
+            void triggerStatsRecompute(
+              [trade.buyer_id, trade.seller_id].filter(Boolean) as string[]
+            );
           }
         }
       }
