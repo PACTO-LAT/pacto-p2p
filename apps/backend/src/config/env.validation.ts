@@ -12,7 +12,7 @@ export const envValidationSchema = Joi.object({
   TRUST_PROXY_HOPS: Joi.number().default(1),
   REPUTATION_W_COMPLETION: Joi.number().default(1.0),
   REPUTATION_W_DISPUTE: Joi.number().default(1.5),
-  REPUTATION_SMOOTHING_K: Joi.number().default(8),
+  REPUTATION_SMOOTHING_K: Joi.number().positive().default(8),
   REPUTATION_NEUTRAL: Joi.number().min(0).max(1).default(0.6),
   REPUTATION_RECENCY_DAYS: Joi.number().default(90),
   REPUTATION_DECAY: Joi.number().min(0).max(1).default(0.9),
