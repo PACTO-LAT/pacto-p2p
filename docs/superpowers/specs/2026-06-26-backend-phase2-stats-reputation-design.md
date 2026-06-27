@@ -233,8 +233,8 @@ scripts.)
 - **Multi-currency (FX) normalization of `fiat_amount`** — summed as-is across currencies,
   mirroring current behavior. **No issue tracks this today**, and #144 will *add* more fiat
   currencies (BRL/COP/ARS) — so `volume_traded`/`total_volume` mix currencies and the problem
-  grows. A **new dedicated issue should be opened** for FX normalization (draft text below);
-  this phase does not attempt it. #142 only removes the CRCX/MXNX *tokens*, not fiat currencies.
+  grows. Tracked in **#149** (feat(stats): normalize multi-currency `fiat_amount`); this phase
+  does not attempt it. #142 only removes the CRCX/MXNX *tokens*, not fiat currencies.
 - Moving the client-side charts (volume-series/speed/badges) to the backend — they already
   compute from real trades (#106/#102, closed). This phase only **aligns their trade filter to
   seller-only**, not their location.
