@@ -4,6 +4,9 @@ import { CoreModule } from '@core/core.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import type { Request } from 'express';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -11,8 +14,26 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
       validationSchema: envValidationSchema,
     }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        customProps: (req) => ({
+          traceId: (req as Request & { traceId?: string }).traceId,
+        }),
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty' }
+            : undefined,
+      },
+    }),
+    ThrottlerModule.forRoot([
+      { name: 'short', ttl: 1000, limit: 20 },
+      { name: 'default', ttl: 60000, limit: 60 },
+    ]),
     CoreModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: InternalApiKeyGuard }],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: InternalApiKeyGuard },
+  ],
 })
 export class AppModule {}
