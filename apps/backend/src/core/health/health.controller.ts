@@ -1,3 +1,4 @@
+import { SkipAuth } from '@common/decorators/skip-auth.decorator';
 // SupabaseHealthIndicator must be a value import: NestJS DI relies on the runtime
 // constructor metadata emitted by emitDecoratorMetadata.
 // biome-ignore lint/style/useImportType: required for NestJS dependency injection
@@ -16,6 +17,7 @@ export class HealthController {
   ) {}
 
   @Get()
+  @SkipAuth()
   @HealthCheck()
   check() {
     return this.health.check([
