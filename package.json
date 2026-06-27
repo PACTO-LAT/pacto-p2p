@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev --filter=@pacto-p2p/web",
+    "dev:backend": "turbo run dev --filter=@pacto-p2p/backend",
     "build": "turbo run build",
     "start": "turbo run start --filter=@pacto-p2p/web",
     "lint": "turbo run lint",
