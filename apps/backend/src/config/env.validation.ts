@@ -22,4 +22,8 @@ export const envValidationSchema = Joi.object({
   RECONCILE_CRON: Joi.string().default('0 3 * * *'),
   DISPUTE_SLA_CRON: Joi.string().default('0 * * * *'),
   DISPUTE_SLA_HOURS: Joi.number().positive().default(48),
+  TLW_API_KEY: Joi.string().allow('').default(''),
+  TLW_NETWORK: Joi.string().valid('testnet', 'mainnet').default('testnet'),
+  PLATFORM_ROLE_ADDRESS: Joi.string().allow('').default(''),
+  ESCROW_INDEX_CRON: Joi.string().default('*/2 * * * *'),
 });
