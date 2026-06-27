@@ -1,0 +1,49 @@
+{
+  "name": "@pacto-p2p/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build && tsc-alias -p tsconfig.build.json",
+    "start": "node dist/main",
+    "dev": "npm run build && concurrently -k \"tsc -p tsconfig.build.json -w --preserveWatchOutput\" \"tsc-alias -p tsconfig.build.json -w\" \"node --watch dist/main\"",
+    "type-check": "tsc --noEmit",
+    "lint": "biome lint .",
+    "biome:check": "biome check .",
+    "biome:format": "biome format . --write",
+    "biome:lint": "biome lint .",
+    "biome:fix": "biome check --write .",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "@nestjs/terminus": "^11.0.0",
+    "@nestjs/throttler": "^6.0.0",
+    "@pacto-p2p/types": "*",
+    "@supabase/supabase-js": "^2.50.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "compression": "^1.7.4",
+    "helmet": "^8.0.0",
+    "joi": "^17.13.0",
+    "nestjs-pino": "^4.1.0",
+    "pino-http": "^10.0.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.1",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@types/compression": "^1.7.5",
+    "@types/express": "^5.0.0",
+    "@types/node": "^20",
+    "concurrently": "^9.0.0",
+    "pino-pretty": "^13.0.0",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5"
+  }
+}
