@@ -12,6 +12,11 @@ module.exports = {
     '^@shared/(.*)$': '<rootDir>/shared/$1',
   },
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: { experimentalDecorators: true, emitDecoratorMetadata: true } }],
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: { experimentalDecorators: true, emitDecoratorMetadata: true },
+      },
+    ],
   },
 };
