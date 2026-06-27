@@ -3,14 +3,22 @@
 import { Star, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useUserStats } from '@/hooks/use-user-stats';
 
-import { ProfileStatsData } from './types';
+import type { ProfileStatsData } from './types';
 
 interface ProfileStatsProps {
   stats: ProfileStatsData;
 }
 
 export function ProfileStats({ stats }: ProfileStatsProps) {
+  const { data: userStats } = useUserStats();
+
+  const reputation_score =
+    userStats?.reputation_score ?? stats.reputation_score;
+  const total_trades = userStats?.total_trades ?? stats.total_trades;
+  const total_volume = userStats?.total_volume ?? stats.total_volume;
+
   return (
     <Card className="feature-card">
       <CardHeader>
@@ -27,7 +35,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             <span className="text-sm font-medium text-foreground">
-              {stats.reputation_score}
+              {reputation_score}
             </span>
           </div>
         </div>
@@ -37,7 +45,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
             Total Trades
           </span>
           <span className="text-sm font-medium text-foreground">
-            {stats.total_trades}
+            {total_trades}
           </span>
         </div>
         <Separator />
@@ -46,7 +54,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
             Total Volume
           </span>
           <span className="text-sm font-medium text-foreground">
-            ${stats.total_volume.toLocaleString()}
+            ${total_volume.toLocaleString()}
           </span>
         </div>
         <Separator />

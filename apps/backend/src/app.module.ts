@@ -1,6 +1,7 @@
 import { InternalApiKeyGuard } from '@common/guards/internal-api-key.guard';
 import { envValidationSchema } from '@config/env.validation';
 import { CoreModule } from '@core/core.module';
+import { PlatformModule } from '@domains/platform/platform.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -30,6 +31,7 @@ import { LoggerModule } from 'nestjs-pino';
       { name: 'default', ttl: 60000, limit: 60 },
     ]),
     CoreModule,
+    PlatformModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
