@@ -12,7 +12,13 @@
         "POSTGRES_HOST",
         "POSTGRES_DATABASE",
         "SUPABASE_SERVICE_ROLE_KEY",
-        "SUPABASE_JWT_SECRET"
+        "SUPABASE_JWT_SECRET",
+        "SUPABASE_URL",
+        "INTERNAL_API_KEY",
+        "CORS_ORIGINS",
+        "TRUST_PROXY_HOPS",
+        "PORT",
+        "NODE_ENV"
       ]
     },
     "lint": {
