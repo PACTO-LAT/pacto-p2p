@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import type { CreateEscrowData } from '@/lib/types';
 import { TradesService } from '@/lib/services/trades';
 import { ChatService } from '@/lib/services/chat';
+import { triggerStatsRecompute } from '@/lib/services/stats-trigger';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
 const MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING = 1;
@@ -171,6 +172,8 @@ const syncEscrowsWithPlatformRecords = async (
         try {
           await TradesService.syncCompletedStatus(escrow.engagementId);
           didSyncCompletions = true;
+          // Best-effort: recompute stats now that the trade is completed.
+          void triggerStatsRecompute();
         } catch {
           // Non-blocking: best-effort sync
         }
@@ -896,6 +899,8 @@ export function useReleaseFunds() {
               stellar_transaction_hash: result.txHash,
               completed_at: new Date().toISOString(),
             });
+            // Best-effort: recompute stats now that the trade is completed.
+            void triggerStatsRecompute();
           }
         }
       }

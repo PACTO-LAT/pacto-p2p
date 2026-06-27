@@ -10,6 +10,7 @@ import { ReportPaymentData } from '@/lib/types/escrow';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
 import { ChatService } from '@/lib/services/chat';
 import { TradesService } from '@/lib/services/trades';
+import { triggerStatsRecompute } from '@/lib/services/stats-trigger';
 
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
@@ -171,6 +172,8 @@ export function useEscrowActions() {
                 stellar_transaction_hash: result.txHash,
                 completed_at: new Date().toISOString(),
               });
+              // Best-effort: recompute stats now that the trade is completed.
+              void triggerStatsRecompute();
             }
           }
         } catch {

@@ -16,7 +16,6 @@ import {
   useSendTransaction,
   useStartDispute,
 } from '@trustless-work/escrow';
-import { supabase } from '@/lib/supabase';
 import type { CreateEscrowData } from '@/lib/types';
 import { signTransaction } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
@@ -33,32 +32,6 @@ import { TradesService } from '@/lib/services/trades';
 export interface DisputeDistribution {
   address: string;
   amount: number;
-}
-
-/**
- * Fire-and-forget trigger to recompute the caller's stats/reputation after a
- * trade reaches a terminal state (completion or dispute). Best-effort only:
- * it must never block or throw into the trade flow. The Phase 3 nightly
- * reconcile is the backstop if this call fails.
- */
-async function triggerStatsRecompute() {
-  try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    await fetch('/api/stats/recompute', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(session?.access_token
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : {}),
-      },
-      body: JSON.stringify({ userIds: [] }), // route defaults to the caller's id
-    });
-  } catch {
-    // best-effort: nightly reconcile (Phase 3) is the backstop
-  }
 }
 
 export const useInitializeTrade = () => {
@@ -402,9 +375,6 @@ export const useInitializeTrade = () => {
       throw new Error('Transaction failed to send');
     }
 
-    // Best-effort: refresh the caller's stats/reputation after a dispute.
-    void triggerStatsRecompute();
-
     const txHash = extractTxHash(response);
     return { txHash, contractId: escrow.contractId };
   };
@@ -454,9 +424,6 @@ export const useInitializeTrade = () => {
     if (response.status !== 'SUCCESS') {
       throw new Error('Transaction failed to send');
     }
-
-    // Best-effort: refresh the caller's stats/reputation after completion.
-    void triggerStatsRecompute();
 
     const txHash = extractTxHash(response);
     return { txHash, contractId: escrow.contractId };
