@@ -1,4 +1,5 @@
 import { envValidationSchema } from '@config/env.validation';
+import { CoreModule } from '@core/core.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
@@ -8,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       validationSchema: envValidationSchema,
     }),
+    CoreModule,
   ],
 })
 export class AppModule {}
