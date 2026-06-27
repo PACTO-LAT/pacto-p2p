@@ -74,6 +74,11 @@ describe('StatsService.recomputeForUser', () => {
     const b = makeSupabase(completed(5), { id: 'm1', user_id: 'u1' });
     await new StatsService(a.service, reputation).recomputeForUser('u1');
     await new StatsService(b.service, reputation).recomputeForUser('u1');
-    expect(a.updates).toEqual(b.updates);
+    const strip = (us: typeof a.updates) =>
+      us.map(({ table, payload: { updated_at: _updated_at, ...rest } }) => ({
+        table,
+        payload: rest,
+      }));
+    expect(strip(a.updates)).toEqual(strip(b.updates));
   });
 });
