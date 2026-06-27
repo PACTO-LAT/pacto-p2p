@@ -67,8 +67,17 @@ to `main.ts`.
 
 ## Reputation engine (configurable; 0–5)
 
-Same engine for `users.reputation_score` and `merchants.rating`. Per entity, over its trades
-(buyer **or** seller), excluding self-trades (`buyer_id === seller_id`) and zero-amount trades:
+Same engine for `users.reputation_score` and `merchants.rating`, applied over **different trade
+sets** (excluding self-trades `buyer_id === seller_id` and zero-amount trades):
+
+- **User** (`users.reputation_score`): trades where the user is **buyer OR seller** — reputation
+  reflects all of the user's trading activity in either role.
+- **Merchant** (`merchants.rating` + rates): trades where the merchant's user is the **seller
+  only** — a merchant's rating reflects their selling track record. This aligns with the
+  documented intent in #106 (`COUNT WHERE seller_id = merchantUserId`). As a result a merchant's
+  `rating` can legitimately differ from the underlying user's `reputation_score`.
+
+Inputs per trade set:
 
 ```
 C = #completed,  D = #(disputed|resolved),  X = #(cancelled|failed),  F = C+D+X
@@ -114,8 +123,9 @@ shared helper) so both the score and the persisted rates use one definition.
   2. `total_trades = C` (completed count), `total_volume = Σ fiat_amount(completed)`.
   3. `reputation_score = ReputationService.score(...)`.
   4. `UPDATE users SET reputation_score, total_trades, total_volume, updated_at`.
-  5. If a merchant row exists for `userId`, recompute it too: `rating` (same engine),
-     `total_trades`, `volume_traded`, `completion_rate`, `dispute_rate` → `UPDATE merchants`.
+  5. If a merchant row exists for `userId`, recompute it over the **seller-only** trade set
+     (trades where `seller_id = userId`): `rating` (same engine), `total_trades`,
+     `volume_traded`, `completion_rate`, `dispute_rate` → `UPDATE merchants`.
 - `recomputeForUsers(userIds[])`: loop (dedup).
 - `recomputeAll()`: page through all users, `recomputeForUser` each (covers merchants). Used by
   the Phase 3 nightly cron later.
@@ -171,6 +181,12 @@ go through Next.js server routes / server components.
 - **`app/m/[slug]/page.tsx`** (server component): fetch `/v1/merchants/:id/stats` via
   `backendFetch` for the core numbers (rating, total_trades, volume_traded, completion_rate,
   dispute_rate). Charts/badges keep their current client-side computation.
+- **Seller-only consistency for the client charts:** the client-side `getKpis`/`getVolumeSeries`/
+  `getSpeedHistogram` in `apps/web/lib/adapters/merchant.supabase.ts` currently filter trades by
+  `buyer OR seller`. Change that filter to **seller-only** (`seller_id = merchant.user_id`) — a
+  one-line definitional fix so the page's chart metrics match the backend's seller-only
+  completion/dispute rates and align with #106's intent. (This is a filter alignment, not the
+  out-of-scope move of chart computation to the backend.)
 
 The persisted columns remain the source of truth; the read API is a thin read over them, so the
 web "reads from the backend API" (AC) while staying consistent with what the backend writes.
@@ -214,8 +230,35 @@ scripts.)
 
 ## Out of scope
 
-- Multi-currency normalization of `fiat_amount` (summed as-is, mirroring current behavior).
-- Moving the client-side charts (volume-series/speed/badges) to the backend.
+- **Multi-currency (FX) normalization of `fiat_amount`** — summed as-is across currencies,
+  mirroring current behavior. **No issue tracks this today**, and #144 will *add* more fiat
+  currencies (BRL/COP/ARS) — so `volume_traded`/`total_volume` mix currencies and the problem
+  grows. A **new dedicated issue should be opened** for FX normalization (draft text below);
+  this phase does not attempt it. #142 only removes the CRCX/MXNX *tokens*, not fiat currencies.
+- Moving the client-side charts (volume-series/speed/badges) to the backend — they already
+  compute from real trades (#106/#102, closed). This phase only **aligns their trade filter to
+  seller-only**, not their location.
 - The nightly reconcile **schedule** (Phase 3, #137) — this phase provides the `recompute-all`
-  endpoint it will call.
+  endpoint it will call. No Supabase DB-webhook/queue is added (web-triggered + nightly reconcile
+  is the chosen mechanism); a DB webhook is a possible future hardening with no issue today.
+- Reputation-model refinements not in this engine (distinct-counterparty anti-gaming, continuous
+  time-decay, hard minimum-sample cutoff) — no issue tracks these; future hardening.
 - Removing the denormalized columns vs compute-on-read (revisit later).
+
+### Suggested new issue — FX normalization for volume metrics
+
+> **Title:** feat(stats): normalize multi-currency `fiat_amount` for volume/reputation metrics
+>
+> **Context:** `trades.fiat_amount` is denominated in `trades.fiat_currency` (CRC, MXN, and —
+> after #144 — BRL/COP/ARS). The Phase 2 stats pipeline (#136) and the legacy client KPIs sum
+> `fiat_amount` across currencies without conversion, so `merchants.volume_traded`,
+> `users.total_volume`, and the volume component of reputation mix currencies and are not
+> comparable. #142 removes CRCX/MXNX tokens but explicitly leaves fiat codes as-is.
+>
+> **Scope:** introduce an FX source (table or provider) and a canonical reporting currency
+> (e.g. USD); convert `fiat_amount → fiat_amount_usd` at trade-completion time (persisted) or in
+> the stats recompute; update the recompute pipeline and read API to report normalized volume;
+> backfill existing rows. Decide persisted-converted-column vs on-the-fly conversion.
+>
+> **Acceptance:** volume metrics are expressed in one currency; a recompute over mixed-currency
+> trades yields comparable totals; documented FX source + as-of semantics.
