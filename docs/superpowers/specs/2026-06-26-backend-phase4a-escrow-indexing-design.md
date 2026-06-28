@@ -90,9 +90,14 @@ apps/backend/src/
   recover-orphans handles creation; 4a only enriches existing rows) — or optionally upserts a
   minimal row; default: enrich existing only, log unmatched count.
 - **`escrow.service.ts`**: `getEscrowsForUser(userId)` → select indexed `escrows` rows where
-  `buyer_id=userId OR seller_id=userId`, returning the persisted on-chain state.
-- **`escrow.controller.ts`**: `GET /v1/escrows/me?userId=<uuid>` (ParseUUIDPipe), behind the
-  global `InternalApiKeyGuard`. Returns the indexed rows.
+  `buyer_id=userId OR seller_id=userId`, returning the persisted on-chain state **including the
+  full `on_chain_snapshot`** (the complete TLW `Escrow`, so the web renders the real shape).
+- **`escrow.controller.ts`**: `GET /v1/escrows/users/:id` (ParseUUIDPipe), behind the global
+  `InternalApiKeyGuard`. Returns `{ escrows: [...] }` (the indexed rows + snapshots).
+
+> Note (implemented): the read path serves the full `on_chain_snapshot` JSONB so the web
+> dashboard list renders real `Escrow[]` (decision made during implementation; the migration
+> `20260627110000_add_escrow_snapshot.sql` adds the column).
 - **`escrow-index.cron.ts`**: registers via `SchedulerRegistry` in `onModuleInit` using
   `ESCROW_INDEX_CRON` (default `*/2 * * * *`), `CRON_ENABLED`-gated, overlap-guarded, never-throws
   — same pattern as #137's crons.
