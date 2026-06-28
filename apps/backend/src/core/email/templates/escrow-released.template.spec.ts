@@ -11,6 +11,7 @@ describe('renderEscrowReleasedEmail', () => {
     expect(out.subject).toMatch(/liberad/i);
     expect(out.text).toContain('Alice');
     expect(out.text).toContain('eng1');
+    expect(out.text).toContain('250');
     expect(out.html).toContain('eng1');
   });
 

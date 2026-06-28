@@ -15,16 +15,19 @@ export type EmailSendStatus = 'sent' | 'failed' | 'skipped';
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
+  private readonly resend: Resend | null;
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) {
+    const apiKey = this.config.get<string>('RESEND_API_KEY', '');
+    this.resend = apiKey ? new Resend(apiKey) : null;
+  }
 
   isEnabled(): boolean {
-    return !!this.config.get<string>('RESEND_API_KEY');
+    return this.resend !== null;
   }
 
   async send(input: SendEmailInput): Promise<{ status: EmailSendStatus }> {
-    const apiKey = this.config.get<string>('RESEND_API_KEY', '');
-    if (!apiKey) {
+    if (this.resend === null) {
       return { status: 'skipped' };
     }
     const from = this.config.get<string>(
@@ -32,8 +35,7 @@ export class EmailService {
       'Pacto <no-reply@pacto.app>'
     );
     try {
-      const resend = new Resend(apiKey);
-      const { error } = await resend.emails.send({
+      const { error } = await this.resend.emails.send({
         from,
         to: input.to,
         subject: input.subject,
