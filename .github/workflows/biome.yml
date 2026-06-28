@@ -35,4 +35,5 @@ jobs:
           npx --no-install @biomejs/biome ci
           --changed
           --since=${{ github.event.pull_request.base.sha }}
+          --no-errors-on-unmatched
           .
