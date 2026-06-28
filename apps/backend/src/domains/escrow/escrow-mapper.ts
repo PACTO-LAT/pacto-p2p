@@ -5,6 +5,7 @@ export interface EscrowPatch {
   token_amount: number;
   on_chain_flags: Record<string, boolean>;
   on_chain_status: string;
+  on_chain_snapshot: Escrow;
   last_indexed_at: string;
 }
 
@@ -31,6 +32,7 @@ export function toEscrowPatch(escrow: Escrow, now: number): EscrowPatch {
     token_amount: Number.isFinite(tokenAmount) ? tokenAmount : 0,
     on_chain_flags: flags,
     on_chain_status: status,
+    on_chain_snapshot: escrow,
     last_indexed_at: new Date(now).toISOString(),
   };
 }

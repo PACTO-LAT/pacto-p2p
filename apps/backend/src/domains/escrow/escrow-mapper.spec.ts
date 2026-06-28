@@ -24,6 +24,13 @@ describe('toEscrowPatch', () => {
     expect(p.last_indexed_at).toBe(new Date(NOW).toISOString());
   });
 
+  it('persists the full input escrow as on_chain_snapshot', () => {
+    const e = escrow({ amount: 250, balance: 250, flags: { disputed: true } });
+    const p = toEscrowPatch(e, NOW);
+    expect(p.on_chain_snapshot).toBe(e);
+    expect(p.on_chain_snapshot).toEqual(e);
+  });
+
   it('derives on_chain_status by flag precedence then funding', () => {
     expect(
       toEscrowPatch(escrow({ flags: { resolved: true } }), NOW).on_chain_status

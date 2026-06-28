@@ -3,7 +3,7 @@ import { SupabaseService } from '@core/supabase/supabase.service';
 import { Injectable } from '@nestjs/common';
 
 const ESCROW_COLUMNS =
-  'id, engagement_id, contract_id, status, fiat_amount, balance, token_amount, on_chain_flags, on_chain_status, last_indexed_at, buyer_id, seller_id, listing_id, created_at, updated_at';
+  'id, engagement_id, contract_id, status, fiat_amount, balance, token_amount, on_chain_flags, on_chain_status, on_chain_snapshot, last_indexed_at, buyer_id, seller_id, listing_id, created_at, updated_at';
 
 @Injectable()
 export class EscrowService {
