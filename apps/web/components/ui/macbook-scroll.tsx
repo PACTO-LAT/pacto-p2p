@@ -619,6 +619,7 @@ export const OptionKey = ({ className }: { className: string }) => {
       viewBox="0 0 32 32"
       className={className}
     >
+      <title>Option key</title>
       <rect
         stroke="currentColor"
         strokeWidth={2}

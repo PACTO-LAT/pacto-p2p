@@ -136,6 +136,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
               </div>
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => handlePageChange(Math.max(0, filters.offset - filters.limit))}
                   disabled={filters.offset === 0}
                   className="px-3 py-1 border rounded disabled:opacity-50"
@@ -143,6 +144,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
                   Previous
                 </button>
                 <button
+                  type="button"
                   onClick={() => handlePageChange(filters.offset + filters.limit)}
                   disabled={filters.offset + filters.limit >= data.total}
                   className="px-3 py-1 border rounded disabled:opacity-50"

@@ -359,7 +359,6 @@ export const LogoLoop = React.memo<LogoLoopProps>(
                 scaleOnHover && 'overflow-visible group/item'
               )}
               key={key}
-              role="listitem"
             >
               {renderItem(item, key)}
             </li>
@@ -436,7 +435,6 @@ export const LogoLoop = React.memo<LogoLoopProps>(
               scaleOnHover && 'overflow-visible group/item'
             )}
             key={key}
-            role="listitem"
           >
             {inner}
           </li>

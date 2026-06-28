@@ -21,7 +21,7 @@ export async function PATCH(
       reason,
     };
 
-    let data;
+    let data: unknown;
     if (action === 'approve') {
       data = await AdminService.approveMerchant(id, auditContext);
     } else if (action === 'reject') {
