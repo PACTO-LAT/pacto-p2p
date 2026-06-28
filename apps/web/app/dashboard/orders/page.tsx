@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { ArrowDownLeft, ArrowUpRight, ExternalLink, MessageCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useEscrowsByRoleQuery } from '@/hooks/use-escrows';
+import { useIndexedEscrows } from '@/hooks/use-indexed-escrows';
 import { useUnreadCount } from '@/hooks/use-chat';
 import { useAuth } from '@/hooks/use-auth';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
@@ -59,15 +59,18 @@ export default function EscrowsPage() {
   const role = roleTab === 'seller' ? 'approver' : 'serviceProvider';
 
   const {
-    data: escrows = [],
+    data: allEscrows = [],
     isLoading,
     error,
-  } = useEscrowsByRoleQuery({
-    role,
-    roleAddress: address,
-    isActive: true,
-    enabled: !!address,
-  });
+  } = useIndexedEscrows(!!address);
+
+  // Scope the backend-served snapshots to the role selected by the tab,
+  // matching the user's wallet address (previously done server-side).
+  const escrows = useMemo(
+    () =>
+      address ? allEscrows.filter((e) => e.roles[role] === address) : [],
+    [allEscrows, address, role]
+  );
 
   const engagementIds = useMemo(() => escrows.map((e) => e.engagementId), [escrows]);
 
