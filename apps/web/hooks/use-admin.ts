@@ -29,87 +29,6 @@ export function usePlatformStats() {
   });
 }
 
-export function useTokenOperations() {
-  return useQuery({
-    queryKey: ['token-operations'],
-    queryFn: AdminService.getTokenOperations,
-  });
-}
-
-export function useMintTokens() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      token,
-      amount,
-      recipient,
-      memo,
-    }: {
-      token: string;
-      amount: number;
-      recipient: string;
-      memo?: string;
-    }) => {
-      const headers = await getAuthHeaders();
-      const res = await fetch('/api/admin/tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({
-          operation: 'mint',
-          token,
-          amount,
-          address: recipient,
-          memo,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to mint tokens');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['token-operations'] });
-      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
-    },
-  });
-}
-
-export function useBurnTokens() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      token,
-      amount,
-      address,
-      memo,
-    }: {
-      token: string;
-      amount: number;
-      address: string;
-      memo?: string;
-    }) => {
-      const headers = await getAuthHeaders();
-      const res = await fetch('/api/admin/tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({
-          operation: 'burn',
-          token,
-          amount,
-          address,
-          memo,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to burn tokens');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['token-operations'] });
-      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
-    },
-  });
-}
-
 export function useMerchantApplications(status?: string) {
   return useQuery({
     queryKey: ['admin', 'merchant-applications', status],
@@ -145,7 +64,7 @@ async function patchMerchant(id: string, action: string, reason?: string) {
 export function useApproveMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       patchMerchant(id, 'approve', reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -159,7 +78,7 @@ export function useApproveMerchant() {
 export function useRejectMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       patchMerchant(id, 'reject', reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -172,7 +91,7 @@ export function useRejectMerchant() {
 export function useRevokeMerchant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       patchMerchant(id, 'revoke', reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -196,7 +115,11 @@ export function useAuditLogs({
   offset?: number;
 } = {}) {
   return useQuery({
-    queryKey: ['admin', 'audit-logs', { adminUserId, action, targetType, limit, offset }],
+    queryKey: [
+      'admin',
+      'audit-logs',
+      { adminUserId, action, targetType, limit, offset },
+    ],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (adminUserId) params.set('admin_user_id', adminUserId);
