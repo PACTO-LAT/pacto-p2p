@@ -7,6 +7,8 @@ export function useIndexedEscrows(enabled = true) {
     queryKey: ['indexed-escrows'],
     enabled,
     staleTime: 15_000,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<Escrow[]> => {
       const {
         data: { session },
