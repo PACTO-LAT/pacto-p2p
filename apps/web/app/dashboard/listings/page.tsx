@@ -9,13 +9,13 @@ import {
   MarketStats,
   TradeConfirmationDialog,
 } from '@/components/marketplace';
-import { Button } from '@/components/ui/button';
-import { useCreateEscrow } from '@/hooks/use-escrows';
-import { useAuth } from '@/hooks/use-auth';
-import { useMarketplaceListings } from '@/hooks/use-listings';
-import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
-import { useMerchantStatus } from '@/hooks/useMerchant';
 import { CreateListingModal } from '@/components/merchant/CreateListingModal';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { useCreateEscrow } from '@/hooks/use-escrows';
+import { useMarketplaceListings } from '@/hooks/use-listings';
+import { useMerchantStatus } from '@/hooks/useMerchant';
+import { filterListings, getMarketStats } from '@/lib/marketplace-utils';
 import type {
   ListingFilters,
   MarketplaceListing,
@@ -80,10 +80,14 @@ export default function ListingsPage() {
 
     // Validate amount is within listing bounds
     const minAmount = selectedListing.minAmount || 0;
-    const availableAmount = selectedListing.amountRemaining ?? selectedListing.amount;
+    const availableAmount =
+      selectedListing.amountRemaining ?? selectedListing.amount;
     const maxAvailable =
       selectedListing.maxAmount != null
-        ? Math.min(selectedListing.maxAmount, availableAmount * selectedListing.rate)
+        ? Math.min(
+            selectedListing.maxAmount,
+            availableAmount * selectedListing.rate
+          )
         : availableAmount * selectedListing.rate;
 
     if (fiatAmount < minAmount || fiatAmount > maxAvailable) {
@@ -113,9 +117,13 @@ export default function ListingsPage() {
     // Listing creator's address is stored on the listing at creation time
     const listingCreatorAddress = selectedListing.seller;
 
-    if (!listingCreatorAddress || !isValidStellarAddress(listingCreatorAddress)) {
+    if (
+      !listingCreatorAddress ||
+      !isValidStellarAddress(listingCreatorAddress)
+    ) {
       sileo.error({
-        title: 'This listing does not have a valid Stellar wallet address. The creator needs to recreate it with a connected wallet.',
+        title:
+          'This listing does not have a valid Stellar wallet address. The creator needs to recreate it with a connected wallet.',
       });
       return;
     }
@@ -146,8 +154,14 @@ export default function ListingsPage() {
       amount: cryptoAmount,
       buyer_id,
       seller_id,
-      buyer_uuid: selectedListing.type === 'sell' ? user?.id : selectedListing.creatorUserId,
-      seller_uuid: selectedListing.type === 'sell' ? selectedListing.creatorUserId : user?.id,
+      buyer_uuid:
+        selectedListing.type === 'sell'
+          ? user?.id
+          : selectedListing.creatorUserId,
+      seller_uuid:
+        selectedListing.type === 'sell'
+          ? selectedListing.creatorUserId
+          : user?.id,
       token: selectedListing.token,
       fiat_amount: fiatAmount,
       fiat_currency: selectedListing.fiatCurrency,
@@ -182,10 +196,7 @@ export default function ListingsPage() {
       {isLoading ? (
         <div className="text-muted-foreground">Loading listings...</div>
       ) : (
-        <ListingsTabs
-          listings={filteredListings}
-          onTrade={handleTrade}
-        />
+        <ListingsTabs listings={filteredListings} onTrade={handleTrade} />
       )}
 
       {/* Trade Confirmation Dialog */}

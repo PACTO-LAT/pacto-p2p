@@ -1,7 +1,9 @@
 'use client';
 
 import { Wallet } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { sileo } from 'sileo';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,11 +11,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useWallet } from '@/hooks/use-wallet';
 import { AuthService } from '@/lib/services/auth';
-import { sileo } from 'sileo';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface WalletConnectionPromptProps {

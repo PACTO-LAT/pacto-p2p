@@ -1,16 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { sileo } from 'sileo';
-import { useInitializeTrade, type DisputeDistribution } from '@/hooks/use-trades';
-import { useEscrowSelection } from '@/hooks/use-escrow-selection';
 import type { Escrow } from '@pacto-p2p/types';
-import { ReportPaymentData } from '@/lib/types/escrow';
-import { TrustlineError } from '@/utils/stellar/TrustlineError';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { sileo } from 'sileo';
+import { useEscrowSelection } from '@/hooks/use-escrow-selection';
+import {
+  type DisputeDistribution,
+  useInitializeTrade,
+} from '@/hooks/use-trades';
 import { ChatService } from '@/lib/services/chat';
-import { TradesService } from '@/lib/services/trades';
 import { triggerStatsRecompute } from '@/lib/services/stats-trigger';
+import { TradesService } from '@/lib/services/trades';
+import type { ReportPaymentData } from '@/lib/types/escrow';
+import { TrustlineError } from '@/utils/stellar/TrustlineError';
 
 export function useEscrowActions() {
   const [isReportPaymentLoading, setIsReportPaymentLoading] = useState(false);
@@ -133,7 +136,9 @@ export function useEscrowActions() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['escrows'] }),
         queryClient.invalidateQueries({ queryKey: ['trades'] }),
-        queryClient.invalidateQueries({ queryKey: ['admin', 'disputed-escrows'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['admin', 'disputed-escrows'],
+        }),
       ]);
       selectEscrow({
         ...escrow,
@@ -162,10 +167,18 @@ export function useEscrowActions() {
       // Persist release hash + mark trade as completed in DB
       if (result?.txHash && escrow.engagementId) {
         try {
-          const escrowRecord = await TradesService.getEscrowByEngagementId(escrow.engagementId);
+          const escrowRecord = await TradesService.getEscrowByEngagementId(
+            escrow.engagementId
+          );
           if (escrowRecord?.id) {
-            await TradesService.updateEscrowTransactionHash(escrowRecord.id, 'release', result.txHash);
-            const trade = await TradesService.getTradeByEscrowId(escrow.engagementId);
+            await TradesService.updateEscrowTransactionHash(
+              escrowRecord.id,
+              'release',
+              result.txHash
+            );
+            const trade = await TradesService.getTradeByEscrowId(
+              escrow.engagementId
+            );
             if (trade?.id) {
               await TradesService.updateTrade(trade.id, {
                 status: 'completed',

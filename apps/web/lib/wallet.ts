@@ -1,5 +1,5 @@
-import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { defaultModules } from '@creit-tech/stellar-wallets-kit/modules/utils';
+import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { Networks } from '@stellar/stellar-sdk';
 
 // Initialize flag to prevent multiple initializations

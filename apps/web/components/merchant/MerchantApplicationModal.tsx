@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { sileo } from 'sileo';
 import { z } from 'zod';
@@ -21,9 +22,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { useMerchantApplication } from '@/hooks/useMerchant';
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2 } from 'lucide-react';
+import { useMerchantApplication } from '@/hooks/useMerchant';
 
 const applicationSchema = z.object({
   bio: z

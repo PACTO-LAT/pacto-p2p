@@ -16,18 +16,18 @@ import {
   useSendTransaction,
   useStartDispute,
 } from '@trustless-work/escrow';
+import {
+  canCancel,
+  getEscrowCancellationGraceHours,
+  getEscrowRole,
+} from '@/lib/escrow-utils';
+import { TradesService } from '@/lib/services/trades';
 import type { CreateEscrowData } from '@/lib/types';
 import { signTransaction } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { getTrustline, getTrustlineName } from '@/utils/getTrustline';
 import { hasTrustline } from '@/utils/stellar/hasTrustline';
 import { TrustlineError } from '@/utils/stellar/TrustlineError';
-import {
-  canCancel,
-  getEscrowRole,
-  getEscrowCancellationGraceHours,
-} from '@/lib/escrow-utils';
-import { TradesService } from '@/lib/services/trades';
 
 export interface DisputeDistribution {
   address: string;
@@ -119,7 +119,9 @@ export const useInitializeTrade = () => {
     const finalPayload = {
       signer: address,
       engagementId,
-      description: payload.listing.description || `${payload.listing.token}/${payload.listing.fiat_currency} P2P trade`,
+      description:
+        payload.listing.description ||
+        `${payload.listing.token}/${payload.listing.fiat_currency} P2P trade`,
       trustline: {
         address: trustline.address, // Issuer address (G...)
         symbol: trustline.symbol, // Token symbol (e.g., "USDC")
@@ -140,21 +142,28 @@ export const useInitializeTrade = () => {
       amount: payload.amount,
       milestones: [
         {
-          description: payload.listing.description || `${payload.listing.token}/${payload.listing.fiat_currency} P2P trade`,
+          description:
+            payload.listing.description ||
+            `${payload.listing.token}/${payload.listing.fiat_currency} P2P trade`,
         },
       ],
     };
 
     let deployResult: InitializeSingleReleaseEscrowResponse;
     try {
-      deployResult = await deployEscrow(
+      deployResult = (await deployEscrow(
         finalPayload,
         'single-release'
-      ) as InitializeSingleReleaseEscrowResponse;
+      )) as InitializeSingleReleaseEscrowResponse;
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string } }; message?: string };
+      const axiosErr = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const apiMessage = axiosErr?.response?.data?.message;
-      throw new Error(apiMessage || axiosErr?.message || 'Failed to deploy escrow');
+      throw new Error(
+        apiMessage || axiosErr?.message || 'Failed to deploy escrow'
+      );
     }
     const { unsignedTransaction, contractId } = deployResult;
 
@@ -177,10 +186,16 @@ export const useInitializeTrade = () => {
     try {
       response = await sendTransaction(signedTxXdr);
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string; details?: unknown } }; message?: string };
+      const axiosErr = err as {
+        response?: { data?: { message?: string; details?: unknown } };
+        message?: string;
+      };
       const apiMsg = axiosErr?.response?.data?.message;
       const details = axiosErr?.response?.data?.details;
-      console.error('[sendTransaction] error:', axiosErr?.response?.data ?? err);
+      console.error(
+        '[sendTransaction] error:',
+        axiosErr?.response?.data ?? err
+      );
       throw new Error(
         details
           ? `Transaction failed: ${JSON.stringify(details)}`
@@ -282,11 +297,7 @@ export const useInitializeTrade = () => {
           escrowAssetCode,
           escrowAssetIssuer
         ),
-        hasTrustline(
-          escrow.roles.receiver,
-          escrowAssetCode,
-          escrowAssetIssuer
-        ),
+        hasTrustline(escrow.roles.receiver, escrowAssetCode, escrowAssetIssuer),
       ]);
 
       if (!sellerHasTrustline) {
@@ -459,13 +470,21 @@ export const useInitializeTrade = () => {
 
     let approveMilestoneResult: { unsignedTransaction?: string };
     try {
-      approveMilestoneResult = await approveMilestone(finalPayload, 'single-release');
+      approveMilestoneResult = await approveMilestone(
+        finalPayload,
+        'single-release'
+      );
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string; details?: unknown } }; message?: string };
+      const axiosErr = err as {
+        response?: { data?: { message?: string; details?: unknown } };
+        message?: string;
+      };
       const apiMsg = axiosErr?.response?.data?.message;
       const details = axiosErr?.response?.data?.details;
       throw new Error(
-        details ? `Approve milestone failed: ${JSON.stringify(details)}` : apiMsg || axiosErr?.message || 'Failed to approve milestone'
+        details
+          ? `Approve milestone failed: ${JSON.stringify(details)}`
+          : apiMsg || axiosErr?.message || 'Failed to approve milestone'
       );
     }
 

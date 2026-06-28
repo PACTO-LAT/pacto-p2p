@@ -1,11 +1,11 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle } from 'lucide-react';
 import { useMeMerchant, usePublicMerchants } from '@/hooks/useMerchant';
 
 export default function MerchantsPage() {

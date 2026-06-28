@@ -1,5 +1,9 @@
 import { createAdminClient } from '@/lib/supabase';
-import type { AuditLogEntry, AuditAction, AuditTargetType } from '@/lib/types/audit';
+import type {
+  AuditAction,
+  AuditLogEntry,
+  AuditTargetType,
+} from '@/lib/types/audit';
 
 export class AuditService {
   /**
@@ -24,17 +28,15 @@ export class AuditService {
   }): Promise<void> {
     const supabase = createAdminClient();
 
-    const { error } = await supabase
-      .from('admin_audit_logs')
-      .insert({
-        admin_user_id: adminUserId,
-        action,
-        target_type: targetType,
-        target_id: targetId || null,
-        metadata,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      });
+    const { error } = await supabase.from('admin_audit_logs').insert({
+      admin_user_id: adminUserId,
+      action,
+      target_type: targetType,
+      target_id: targetId || null,
+      metadata,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
 
     if (error) {
       console.error('Failed to log admin action:', error);

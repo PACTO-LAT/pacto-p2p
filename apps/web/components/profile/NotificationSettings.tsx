@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 
-import { NotificationSettingsData } from './types';
+import type { NotificationSettingsData } from './types';
 
 interface NotificationSettingsProps {
   notifications: NotificationSettingsData;

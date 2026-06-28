@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
+import { TokenPickerModal } from '@/components/merchant/TokenPickerModal';
+import { TokenIcon } from '@/components/shared/TokenIcon';
 import {
   FormControl,
   FormField,
@@ -12,8 +14,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { TokenPickerModal } from '@/components/merchant/TokenPickerModal';
-import { TokenIcon } from '@/components/shared/TokenIcon';
 import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
 
 export function TradeTypeStep() {
@@ -52,11 +52,13 @@ export function TradeTypeStep() {
       />
 
       {/* Context banner */}
-      <div className={`rounded-lg px-4 py-3 text-sm border ${
-        isSell
-          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
-          : 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400'
-      }`}>
+      <div
+        className={`rounded-lg px-4 py-3 text-sm border ${
+          isSell
+            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+            : 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400'
+        }`}
+      >
         {isSell
           ? 'You are offering to sell your crypto — buyers will pay you in fiat.'
           : 'You are looking to buy crypto — you will pay sellers in fiat.'}
@@ -101,7 +103,9 @@ export function TradeTypeStep() {
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{isSell ? 'Amount to sell' : 'Amount to buy'}</FormLabel>
+              <FormLabel>
+                {isSell ? 'Amount to sell' : 'Amount to buy'}
+              </FormLabel>
               <FormControl>
                 <Input type="number" placeholder="0.00" {...field} />
               </FormControl>

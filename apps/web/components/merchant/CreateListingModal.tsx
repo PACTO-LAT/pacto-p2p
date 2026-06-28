@@ -2,9 +2,17 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FormProvider, useForm, type Resolver } from 'react-hook-form';
+import { FormProvider, type Resolver, useForm } from 'react-hook-form';
 import { sileo } from 'sileo';
+import { CreateListingProgress } from '@/components/merchant/CreateListingProgress';
+import {
+  PaymentLimitsStep,
+  PricingStep,
+  ReviewStep,
+  TradeTypeStep,
+} from '@/components/merchant/steps';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,30 +23,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { useCreateListing } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { useMeMerchant } from '../../hooks/useMerchant';
-import {
-  listingFormSchema,
-  LISTING_FORM_DEFAULT_VALUES,
-  STEP_1_FIELDS,
-  STEP_2_FIELDS,
-  STEP_3_FIELDS,
-  type ListingFormValues,
-} from '@/lib/schemas/listing/listing-form-schema';
+import { useCreateListing } from '@/hooks/use-listings';
 import {
   toCreateListingData,
   type UIListingFormInput,
 } from '@/lib/marketplace-utils';
-import { CreateListingProgress } from '@/components/merchant/CreateListingProgress';
 import {
-  TradeTypeStep,
-  PricingStep,
-  PaymentLimitsStep,
-  ReviewStep,
-} from '@/components/merchant/steps';
-import Link from 'next/link';
+  LISTING_FORM_DEFAULT_VALUES,
+  type ListingFormValues,
+  listingFormSchema,
+  STEP_1_FIELDS,
+  STEP_2_FIELDS,
+  STEP_3_FIELDS,
+} from '@/lib/schemas/listing/listing-form-schema';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { useMeMerchant } from '../../hooks/useMerchant';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -64,7 +64,8 @@ export function CreateListingModal({
   });
 
   const tradeType = form.watch('type');
-  const modalTitle = tradeType === 'buy' ? 'Create Buy Listing' : 'Create Sell Listing';
+  const modalTitle =
+    tradeType === 'buy' ? 'Create Buy Listing' : 'Create Sell Listing';
 
   const createListing = useCreateListing();
   const { user } = useAuth();
@@ -143,7 +144,8 @@ export function CreateListingModal({
     if (!walletAddress) {
       sileo.error({
         title: 'Connect your Stellar wallet first.',
-        description: 'Use the wallet button in the header to connect before creating a listing.',
+        description:
+          'Use the wallet button in the header to connect before creating a listing.',
       });
       return;
     }

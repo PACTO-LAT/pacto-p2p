@@ -2,9 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { sileo } from 'sileo';
+import { useAuth } from '@/hooks/use-auth';
 import { merchantAdapter } from '@/lib/adapters';
 import { applyAsMerchant } from '@/lib/services/merchants';
-import { useAuth } from '@/hooks/use-auth';
 import type {
   Merchant,
   MerchantBadge,

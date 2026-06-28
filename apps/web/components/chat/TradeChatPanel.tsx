@@ -1,24 +1,40 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useTradeChat, useSendMessage, useTypingIndicator, useMarkAsRead } from '@/hooks/use-chat';
-import { ChatMessage } from './ChatMessage';
+import {
+  useMarkAsRead,
+  useSendMessage,
+  useTradeChat,
+  useTypingIndicator,
+} from '@/hooks/use-chat';
 import { ChatInput } from './ChatInput';
-import { TypingIndicator } from './TypingIndicator';
+import { ChatMessage } from './ChatMessage';
 import { OnlineStatusDot } from './OnlineStatusDot';
+import { TypingIndicator } from './TypingIndicator';
 
 interface TradeChatPanelProps {
   engagementId: string;
   currentUserId: string;
 }
 
-export function TradeChatPanel({ engagementId, currentUserId }: TradeChatPanelProps) {
-  const { chat, messages, isLoading, otherPartyOnline, otherPartyLastSeen, otherPartyTyping } =
-    useTradeChat(engagementId);
+export function TradeChatPanel({
+  engagementId,
+  currentUserId,
+}: TradeChatPanelProps) {
+  const {
+    chat,
+    messages,
+    isLoading,
+    otherPartyOnline,
+    otherPartyLastSeen,
+    otherPartyTyping,
+  } = useTradeChat(engagementId);
 
-  const { sendText, sendAttachment, isSending } = useSendMessage(chat?.id ?? null);
+  const { sendText, sendAttachment, isSending } = useSendMessage(
+    chat?.id ?? null
+  );
   const { setTyping } = useTypingIndicator(chat?.id ?? null);
   const { markRead } = useMarkAsRead(chat?.id ?? null);
 
@@ -59,7 +75,10 @@ export function TradeChatPanel({ engagementId, currentUserId }: TradeChatPanelPr
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30 shrink-0">
         <span className="text-sm font-medium text-foreground">Trade Chat</span>
-        <OnlineStatusDot online={otherPartyOnline} lastSeen={otherPartyLastSeen} />
+        <OnlineStatusDot
+          online={otherPartyOnline}
+          lastSeen={otherPartyLastSeen}
+        />
       </div>
 
       {/* Message list */}
@@ -70,7 +89,9 @@ export function TradeChatPanel({ engagementId, currentUserId }: TradeChatPanelPr
       >
         {isLoading && (
           <div className="flex justify-center py-8">
-            <span className="text-sm text-muted-foreground">Loading messages…</span>
+            <span className="text-sm text-muted-foreground">
+              Loading messages…
+            </span>
           </div>
         )}
 

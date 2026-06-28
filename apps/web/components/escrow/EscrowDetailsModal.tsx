@@ -10,6 +10,8 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { TradeChatPanel } from '@/components/chat/TradeChatPanel';
+import { TrustlineBanner } from '@/components/shared/TrustlineBanner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,14 +20,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
 import { formatAmount } from '@/lib/dashboard-utils';
-import type { EscrowTransactionHashes } from '@/lib/services/trades';
-import { TradesService } from '@/lib/services/trades';
-import { getTrustlineName } from '@/utils/getTrustline';
-import { Escrow } from '@/lib/types/escrow';
-import { EscrowTransactionHashesDisplay } from './TransactionHashDisplay';
-import { TrustlineError } from '@/utils/stellar/TrustlineError';
-import { TrustlineBanner } from '@/components/shared/TrustlineBanner';
 import {
   canCancel,
   canConfirmPayment,
@@ -36,8 +32,12 @@ import {
   getEscrowCancellationGraceHours,
   getEscrowCreatedAt,
 } from '@/lib/escrow-utils';
-import { TradeChatPanel } from '@/components/chat/TradeChatPanel';
-import { useAuth } from '@/hooks/use-auth';
+import type { EscrowTransactionHashes } from '@/lib/services/trades';
+import { TradesService } from '@/lib/services/trades';
+import type { Escrow } from '@/lib/types/escrow';
+import { getTrustlineName } from '@/utils/getTrustline';
+import { TrustlineError } from '@/utils/stellar/TrustlineError';
+import { EscrowTransactionHashesDisplay } from './TransactionHashDisplay';
 
 interface EscrowDetailsModalProps {
   open: boolean;
@@ -71,7 +71,9 @@ export function EscrowDetailsModal({
   const { user } = useAuth();
   const [transactionHashes, setTransactionHashes] =
     useState<EscrowTransactionHashes | null>(null);
-  const [trustlineError, setTrustlineError] = useState<TrustlineError | null>(null);
+  const [trustlineError, setTrustlineError] = useState<TrustlineError | null>(
+    null
+  );
 
   useEffect(() => {
     if (open && escrow?.engagementId) {
@@ -130,7 +132,6 @@ export function EscrowDetailsModal({
 
           {/* ── DETAILS TAB ── */}
           <TabsContent value="details" className="space-y-5">
-
             {/* Amount + status hero */}
             <div className="flex items-center justify-between bg-muted/40 rounded-lg px-5 py-4">
               <div>
@@ -152,7 +153,9 @@ export function EscrowDetailsModal({
             {/* Description */}
             {escrow.description && (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Description</p>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Description
+                </p>
                 <p className="text-sm text-foreground bg-muted/30 rounded-md px-3 py-2">
                   {escrow.description}
                 </p>
@@ -162,13 +165,17 @@ export function EscrowDetailsModal({
             {/* Parties */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-muted/40 rounded-md px-3 py-2.5">
-                <p className="text-xs text-muted-foreground mb-1">Seller (releases crypto)</p>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Seller (releases crypto)
+                </p>
                 <p className="font-mono text-xs text-foreground break-all">
                   {escrow.roles.approver}
                 </p>
               </div>
               <div className="bg-muted/40 rounded-md px-3 py-2.5">
-                <p className="text-xs text-muted-foreground mb-1">Buyer (pays fiat)</p>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Buyer (pays fiat)
+                </p>
                 <p className="font-mono text-xs text-foreground break-all">
                   {escrow.roles.serviceProvider}
                 </p>
@@ -177,7 +184,9 @@ export function EscrowDetailsModal({
 
             {/* Engagement ID */}
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Engagement ID</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                Engagement ID
+              </p>
               <p className="font-mono text-xs text-foreground bg-muted/30 rounded-md px-3 py-2 break-all">
                 {escrow.engagementId}
               </p>
@@ -194,22 +203,21 @@ export function EscrowDetailsModal({
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
-              {activeTab === 'buyer' &&
-                canReportPayment(escrow, userRole) && (
-                  <Button
-                    onClick={() => onReportPayment(escrow)}
-                    className="btn-emerald-outline flex-1"
-                    variant="outline"
-                    disabled={isReportPaymentLoading}
-                  >
-                    {isReportPaymentLoading ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Banknote className="w-4 h-4 mr-2" />
-                    )}
-                    I&apos;ve Sent Payment
-                  </Button>
-                )}
+              {activeTab === 'buyer' && canReportPayment(escrow, userRole) && (
+                <Button
+                  onClick={() => onReportPayment(escrow)}
+                  className="btn-emerald-outline flex-1"
+                  variant="outline"
+                  disabled={isReportPaymentLoading}
+                >
+                  {isReportPaymentLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Banknote className="w-4 h-4 mr-2" />
+                  )}
+                  I&apos;ve Sent Payment
+                </Button>
+              )}
 
               {activeTab === 'seller' && (
                 <>
@@ -251,7 +259,8 @@ export function EscrowDetailsModal({
                         try {
                           await onReleaseFunds(escrow);
                         } catch (err) {
-                          if (err instanceof TrustlineError) setTrustlineError(err);
+                          if (err instanceof TrustlineError)
+                            setTrustlineError(err);
                         }
                       }}
                       className="btn-emerald-outline flex-1"

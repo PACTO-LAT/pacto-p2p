@@ -1,8 +1,8 @@
 'use client';
 
 import type { Escrow } from '@pacto-p2p/types';
-import { useGetEscrowsFromIndexerByRole } from '@trustless-work/escrow';
 import { useQuery } from '@tanstack/react-query';
+import { useGetEscrowsFromIndexerByRole } from '@trustless-work/escrow';
 
 /**
  * Fetches all escrows where the platform is the disputeResolver and status=disputed.

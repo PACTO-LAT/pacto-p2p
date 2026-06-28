@@ -1,11 +1,11 @@
-import { supabase } from '@/lib/supabase';
 import type { MerchantAdapter } from '@/lib/adapters/merchant';
+import { supabase } from '@/lib/supabase';
 import type {
   Merchant,
-  MerchantVerificationStatus,
   MerchantBadge,
   MerchantKpis,
   MerchantListing,
+  MerchantVerificationStatus,
   SpeedBucket,
   VolumePoint,
 } from '@/lib/types/merchant';
@@ -125,7 +125,6 @@ async function ensureUserProfile(userId: string): Promise<void> {
 }
 
 export const merchantSupabaseAdapter: MerchantAdapter = {
-
   async listPublicMerchants(): Promise<Merchant[]> {
     const { data, error } = await supabase
       .from('merchants')
@@ -157,8 +156,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
     return data ? mapRowToMerchant(data) : null;
   },
 
-  
-async getBadges(merchantId: string): Promise<MerchantBadge[]> {
+  async getBadges(merchantId: string): Promise<MerchantBadge[]> {
     const kpis = await this.getKpis(merchantId);
     const badges: MerchantBadge[] = [];
     const now = new Date().toISOString();
@@ -243,24 +241,35 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [totalRes, completedRes, disputedRes, volumeRes, speedRes] = await Promise.all([
-      supabase.from('trades').select('id', { count: 'exact', head: true })
-        .eq('seller_id', merchant.user_id),
-      supabase.from('trades').select('id', { count: 'exact', head: true })
-        .eq('status', 'completed')
-        .eq('seller_id', merchant.user_id),
-      supabase.from('trades').select('id', { count: 'exact', head: true })
-        .eq('status', 'disputed')
-        .eq('seller_id', merchant.user_id),
-      supabase.from('trades').select('fiat_amount')
-        .eq('status', 'completed')
-        .eq('seller_id', merchant.user_id)
-        .gte('created_at', thirtyDaysAgo.toISOString()),
-      supabase.from('trades').select('created_at, completed_at')
-        .eq('status', 'completed')
-        .eq('seller_id', merchant.user_id)
-        .not('completed_at', 'is', null),
-    ]);
+    const [totalRes, completedRes, disputedRes, volumeRes, speedRes] =
+      await Promise.all([
+        supabase
+          .from('trades')
+          .select('id', { count: 'exact', head: true })
+          .eq('seller_id', merchant.user_id),
+        supabase
+          .from('trades')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'completed')
+          .eq('seller_id', merchant.user_id),
+        supabase
+          .from('trades')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'disputed')
+          .eq('seller_id', merchant.user_id),
+        supabase
+          .from('trades')
+          .select('fiat_amount')
+          .eq('status', 'completed')
+          .eq('seller_id', merchant.user_id)
+          .gte('created_at', thirtyDaysAgo.toISOString()),
+        supabase
+          .from('trades')
+          .select('created_at, completed_at')
+          .eq('status', 'completed')
+          .eq('seller_id', merchant.user_id)
+          .not('completed_at', 'is', null),
+      ]);
 
     if (totalRes.error) throw new Error(totalRes.error.message);
 
@@ -268,17 +277,24 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
     const completed = completedRes.count ?? 0;
     const disputed = disputedRes.count ?? 0;
     const volume_30d = (volumeRes.data ?? []).reduce(
-      (acc: number, curr: { fiat_amount: string | number }) => acc + Number(curr.fiat_amount),
+      (acc: number, curr: { fiat_amount: string | number }) =>
+        acc + Number(curr.fiat_amount),
       0
     );
 
     let median_release_minutes: number | null = null;
     if (speedRes.data && speedRes.data.length > 0) {
       const diffs = speedRes.data
-        .map(r => (new Date(r.completed_at!).getTime() - new Date(r.created_at).getTime()) / 60000)
+        .map(
+          (r) =>
+            (new Date(r.completed_at!).getTime() -
+              new Date(r.created_at).getTime()) /
+            60000
+        )
         .sort((a, b) => a - b);
       const mid = Math.floor(diffs.length / 2);
-      median_release_minutes = diffs.length % 2 !== 0 ? diffs[mid] : (diffs[mid - 1] + diffs[mid]) / 2;
+      median_release_minutes =
+        diffs.length % 2 !== 0 ? diffs[mid] : (diffs[mid - 1] + diffs[mid]) / 2;
     }
 
     return {
@@ -310,12 +326,15 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
     if (error || !data) return [];
 
     const seriesMap = new Map<string, number>();
-    data.forEach(row => {
+    data.forEach((row) => {
       const date = row.created_at.split('T')[0];
       seriesMap.set(date, (seriesMap.get(date) ?? 0) + Number(row.fiat_amount));
     });
 
-    return Array.from(seriesMap.entries()).map(([date, volume]) => ({ d: date, volume }));
+    return Array.from(seriesMap.entries()).map(([date, volume]) => ({
+      d: date,
+      volume,
+    }));
   },
 
   async getSpeedHistogram(merchantId: string): Promise<SpeedBucket[]> {
@@ -334,16 +353,28 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       .not('completed_at', 'is', null);
 
     if (!data) return [];
-    const buckets: Record<string, number> = { '< 5m': 0, '5-15m': 0, '15-30m': 0, '30-60m': 0, '> 60m': 0 };
-    data.forEach(r => {
-      const mins = (new Date(r.completed_at!).getTime() - new Date(r.created_at).getTime()) / 60000;
+    const buckets: Record<string, number> = {
+      '< 5m': 0,
+      '5-15m': 0,
+      '15-30m': 0,
+      '30-60m': 0,
+      '> 60m': 0,
+    };
+    data.forEach((r) => {
+      const mins =
+        (new Date(r.completed_at!).getTime() -
+          new Date(r.created_at).getTime()) /
+        60000;
       if (mins < 5) buckets['< 5m']++;
       else if (mins < 15) buckets['5-15m']++;
       else if (mins < 30) buckets['15-30m']++;
       else if (mins < 60) buckets['30-60m']++;
       else buckets['> 60m']++;
     });
-    return Object.entries(buckets).map(([bucketLabel, count]) => ({ bucketLabel, count }));
+    return Object.entries(buckets).map(([bucketLabel, count]) => ({
+      bucketLabel,
+      count,
+    }));
   },
 
   async getActiveListings(merchantId: string): Promise<MerchantListing[]> {
@@ -355,32 +386,34 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
     const rows = data ?? [];
-    return rows.map((r: {
-      id: string;
-      type: string;
-      token: string;
-      rate: string | number;
-      fiat_currency: string;
-      amount: string | number;
-      min_amount: string | number | null;
-      max_amount: string | number | null;
-      description: string | null;
-      status: string;
-      created_at: string;
-    }) => ({
-      id: r.id,
-      side: r.type as 'buy' | 'sell',
-      asset_code: r.token,
-      price_rate: Number(r.rate),
-      quote_currency: r.fiat_currency,
-      amount: Number(r.amount),
-      min_amount: r.min_amount ? Number(r.min_amount) : undefined,
-      max_amount: r.max_amount ? Number(r.max_amount) : undefined,
-      description: r.description ?? undefined,
-      status: r.status as MerchantListing['status'],
-      created_at: r.created_at,
-      payment_methods: [],
-    })) as MerchantListing[];
+    return rows.map(
+      (r: {
+        id: string;
+        type: string;
+        token: string;
+        rate: string | number;
+        fiat_currency: string;
+        amount: string | number;
+        min_amount: string | number | null;
+        max_amount: string | number | null;
+        description: string | null;
+        status: string;
+        created_at: string;
+      }) => ({
+        id: r.id,
+        side: r.type as 'buy' | 'sell',
+        asset_code: r.token,
+        price_rate: Number(r.rate),
+        quote_currency: r.fiat_currency,
+        amount: Number(r.amount),
+        min_amount: r.min_amount ? Number(r.min_amount) : undefined,
+        max_amount: r.max_amount ? Number(r.max_amount) : undefined,
+        description: r.description ?? undefined,
+        status: r.status as MerchantListing['status'],
+        created_at: r.created_at,
+        payment_methods: [],
+      })
+    ) as MerchantListing[];
   },
 
   async getMyMerchant(): Promise<Merchant | null> {
@@ -542,32 +575,34 @@ async getBadges(merchantId: string): Promise<MerchantBadge[]> {
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
 
-    return (data ?? []).map((r: {
-      id: string;
-      type: string;
-      token: string;
-      rate: string | number;
-      fiat_currency: string;
-      amount: string | number;
-      min_amount: string | number | null;
-      max_amount: string | number | null;
-      description: string | null;
-      status: string;
-      created_at: string;
-    }) => ({
-      id: r.id,
-      side: r.type as 'buy' | 'sell',
-      asset_code: r.token,
-      price_rate: Number(r.rate),
-      quote_currency: r.fiat_currency,
-      amount: Number(r.amount),
-      min_amount: r.min_amount ? Number(r.min_amount) : undefined,
-      max_amount: r.max_amount ? Number(r.max_amount) : undefined,
-      description: r.description ?? undefined,
-      status: r.status as MerchantListing['status'],
-      created_at: r.created_at,
-      payment_methods: [],
-    })) as MerchantListing[];
+    return (data ?? []).map(
+      (r: {
+        id: string;
+        type: string;
+        token: string;
+        rate: string | number;
+        fiat_currency: string;
+        amount: string | number;
+        min_amount: string | number | null;
+        max_amount: string | number | null;
+        description: string | null;
+        status: string;
+        created_at: string;
+      }) => ({
+        id: r.id,
+        side: r.type as 'buy' | 'sell',
+        asset_code: r.token,
+        price_rate: Number(r.rate),
+        quote_currency: r.fiat_currency,
+        amount: Number(r.amount),
+        min_amount: r.min_amount ? Number(r.min_amount) : undefined,
+        max_amount: r.max_amount ? Number(r.max_amount) : undefined,
+        description: r.description ?? undefined,
+        status: r.status as MerchantListing['status'],
+        created_at: r.created_at,
+        payment_methods: [],
+      })
+    ) as MerchantListing[];
   },
 };
 

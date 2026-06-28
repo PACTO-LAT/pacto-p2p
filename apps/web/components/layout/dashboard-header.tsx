@@ -1,27 +1,26 @@
 'use client';
 
+import {
+  ChevronDown,
+  Copy,
+  Home,
+  List,
+  LogIn,
+  LogOut,
+  Menu,
+  Settings,
+  Shield,
+  Unplug,
+  User,
+  Users,
+  X,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Home,
-  List,
-  Users,
-  Shield,
-  User,
-  Settings,
-  LogOut,
-  LogIn,
-  Menu,
-  X,
-  ChevronDown,
-  Copy,
-  Unplug,
-} from 'lucide-react';
-import { useState, useEffect } from 'react';
-
+import { useEffect, useState } from 'react';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
-import { usePendingActions } from '@/hooks/use-pending-actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,11 +30,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useWallet } from '@/hooks/use-wallet';
 import { useAuth } from '@/hooks/use-auth';
+import { usePendingActions } from '@/hooks/use-pending-actions';
+import { useWallet } from '@/hooks/use-wallet';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { sileo } from 'sileo';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -110,9 +109,11 @@ export function DashboardHeader() {
       const connectedAddress = await handleConnect();
       if (connectedAddress) {
         if (user) {
-          await updateProfile({ stellar_address: connectedAddress }).catch(() => {
-            // Ignore DB linking errors (e.g. address already saved on another account)
-          });
+          await updateProfile({ stellar_address: connectedAddress }).catch(
+            () => {
+              // Ignore DB linking errors (e.g. address already saved on another account)
+            }
+          );
         }
         sileo.success({ title: 'Wallet connected successfully' });
       }
@@ -143,9 +144,11 @@ export function DashboardHeader() {
       const connectedAddress = await handleConnect();
       if (connectedAddress) {
         if (user) {
-          await updateProfile({ stellar_address: connectedAddress }).catch(() => {
-            // Ignore DB linking errors (e.g. address already saved on another account)
-          });
+          await updateProfile({ stellar_address: connectedAddress }).catch(
+            () => {
+              // Ignore DB linking errors (e.g. address already saved on another account)
+            }
+          );
         }
         sileo.success({ title: 'Wallet connected successfully' });
       }
@@ -227,7 +230,11 @@ export function DashboardHeader() {
               <NavLink
                 key={item.name}
                 item={item}
-                badge={item.href === '/dashboard/orders' && pendingCount > 0 ? pendingCount : undefined}
+                badge={
+                  item.href === '/dashboard/orders' && pendingCount > 0
+                    ? pendingCount
+                    : undefined
+                }
               />
             ))}
             {canSeeAdmin && (
@@ -305,9 +312,13 @@ export function DashboardHeader() {
                   {/* User info */}
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-0.5">
-                      <p className="text-sm font-semibold">{getUserDisplayName()}</p>
+                      <p className="text-sm font-semibold">
+                        {getUserDisplayName()}
+                      </p>
                       {user?.email && (
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {user.email}
+                        </p>
                       )}
                     </div>
                   </DropdownMenuLabel>
@@ -318,15 +329,21 @@ export function DashboardHeader() {
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel>
                         <div className="flex flex-col space-y-0.5">
-                          <p className="text-xs text-muted-foreground">Connected wallet</p>
-                          <p className="text-xs font-mono text-emerald-400 truncate">{address}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Connected wallet
+                          </p>
+                          <p className="text-xs font-mono text-emerald-400 truncate">
+                            {address}
+                          </p>
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => {
                           navigator.clipboard.writeText(address);
-                          sileo.success({ title: 'Address copied to clipboard' });
+                          sileo.success({
+                            title: 'Address copied to clipboard',
+                          });
                         }}
                       >
                         <Copy className="w-4 h-4 mr-2" />
@@ -343,7 +360,10 @@ export function DashboardHeader() {
                   ) : (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleWalletConnect} className="cursor-pointer">
+                      <DropdownMenuItem
+                        onClick={handleWalletConnect}
+                        className="cursor-pointer"
+                      >
                         <LogIn className="w-4 h-4 mr-2" />
                         Connect Wallet
                       </DropdownMenuItem>
@@ -436,7 +456,11 @@ export function DashboardHeader() {
                         key={item.name}
                         item={item}
                         onClick={() => setMobileMenuOpen(false)}
-                        badge={item.href === '/dashboard/orders' && pendingCount > 0 ? pendingCount : undefined}
+                        badge={
+                          item.href === '/dashboard/orders' && pendingCount > 0
+                            ? pendingCount
+                            : undefined
+                        }
                       />
                     ))}
                     {canSeeAdmin && (

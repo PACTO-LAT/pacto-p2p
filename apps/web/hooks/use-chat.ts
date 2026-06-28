@@ -14,7 +14,9 @@ export function useTradeChat(engagementId: string | null) {
   const [messages, setMessages] = useState<TradeMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [otherPartyOnline, setOtherPartyOnline] = useState(false);
-  const [otherPartyLastSeen, setOtherPartyLastSeen] = useState<Date | null>(null);
+  const [otherPartyLastSeen, setOtherPartyLastSeen] = useState<Date | null>(
+    null
+  );
   const [otherPartyTyping, setOtherPartyTyping] = useState(false);
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,15 +88,22 @@ export function useTradeChat(engagementId: string | null) {
           );
         })
         .on('presence', { event: 'sync' }, () => {
-          const state = channel.presenceState<{ userId: string; lastSeen: string }>();
+          const state = channel.presenceState<{
+            userId: string;
+            lastSeen: string;
+          }>();
           const others = Object.values(state)
             .flat()
             .filter((p) => p.userId !== user.id);
           setOtherPartyOnline(others.length > 0);
         })
         .on('presence', { event: 'leave' }, (payload) => {
-          const left = (payload.leftPresences as unknown as Array<{ userId: string; lastSeen: string }>)
-            .filter((p) => p.userId !== user.id);
+          const left = (
+            payload.leftPresences as unknown as Array<{
+              userId: string;
+              lastSeen: string;
+            }>
+          ).filter((p) => p.userId !== user.id);
           if (left.length > 0) {
             setOtherPartyLastSeen(new Date());
             setOtherPartyOnline(false);
@@ -102,7 +111,10 @@ export function useTradeChat(engagementId: string | null) {
         })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await channel.track({ userId: user.id, lastSeen: new Date().toISOString() });
+            await channel.track({
+              userId: user.id,
+              lastSeen: new Date().toISOString(),
+            });
           }
         });
 
@@ -120,7 +132,14 @@ export function useTradeChat(engagementId: string | null) {
     };
   }, [engagementId]);
 
-  return { chat, messages, isLoading, otherPartyOnline, otherPartyLastSeen, otherPartyTyping };
+  return {
+    chat,
+    messages,
+    isLoading,
+    otherPartyOnline,
+    otherPartyLastSeen,
+    otherPartyTyping,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -263,8 +282,12 @@ export function useMarkAsRead(chatId: string | null) {
 
 export function useUnreadCount(userId: string | null) {
   const [totalUnread, setTotalUnread] = useState(0);
-  const [unreadByChatId, setUnreadByChatId] = useState<Record<string, number>>({});
-  const [unreadByEngagementId, setUnreadByEngagementId] = useState<Record<string, number>>({});
+  const [unreadByChatId, setUnreadByChatId] = useState<Record<string, number>>(
+    {}
+  );
+  const [unreadByEngagementId, setUnreadByEngagementId] = useState<
+    Record<string, number>
+  >({});
 
   const refresh = useCallback(async () => {
     if (!userId) return;

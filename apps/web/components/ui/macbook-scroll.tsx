@@ -1,6 +1,4 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import { MotionValue, motion, useScroll, useTransform } from 'motion/react';
 import {
   ChevronDown,
   ChevronLeft,
@@ -19,8 +17,16 @@ import {
   Volume1,
   Volume2,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import {
+  type MotionValue,
+  motion,
+  useScroll,
+  useTransform,
+} from 'motion/react';
 import Image from 'next/image';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export const MacbookScroll = ({
   src,
@@ -619,6 +625,7 @@ export const OptionKey = ({ className }: { className: string }) => {
       viewBox="0 0 32 32"
       className={className}
     >
+      <title>Option key</title>
       <rect
         stroke="currentColor"
         strokeWidth={2}

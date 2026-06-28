@@ -1,18 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import type { Escrow } from '@pacto-p2p/types';
 import { AlertTriangle, Loader2, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
-import type { Escrow } from '@pacto-p2p/types';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useEscrowActions } from '@/hooks/use-escrow-actions';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 
@@ -109,7 +109,8 @@ export function DisputeResolutionModal({
             <div className="flex items-start gap-2 rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
               <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                Connect the platform wallet ({platformAddress || 'not configured'}) to resolve disputes.
+                Connect the platform wallet (
+                {platformAddress || 'not configured'}) to resolve disputes.
                 Currently connected: {address || 'none'}
               </span>
             </div>

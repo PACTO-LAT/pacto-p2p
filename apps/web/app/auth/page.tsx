@@ -2,8 +2,9 @@
 
 import { ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,7 +16,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AuthService } from '@/lib/services/auth';
-import { sileo } from 'sileo';
 
 export default function AuthPage() {
   const router = useRouter();

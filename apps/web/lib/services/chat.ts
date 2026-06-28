@@ -13,8 +13,7 @@ const SYSTEM_MESSAGES: Record<
     '📤 Buyer has reported payment. Awaiting seller confirmation.',
   payment_confirmed: () =>
     '✅ Seller confirmed payment receipt. Releasing funds…',
-  funds_released: () =>
-    '🎉 Trade complete. Funds have been released to buyer.',
+  funds_released: () => '🎉 Trade complete. Funds have been released to buyer.',
   dispute_raised: () =>
     '⚠️ A dispute has been raised. Platform support will review this trade.',
 };

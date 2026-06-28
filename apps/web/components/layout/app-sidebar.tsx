@@ -1,20 +1,20 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   Home,
   List,
-  Users,
+  LogIn,
+  LogOut,
+  Settings,
   Shield,
   User,
-  Settings,
+  Users,
   Wallet,
-  LogOut,
-  LogIn,
 } from 'lucide-react';
-
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -35,12 +35,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useWallet } from '@/hooks/use-wallet';
 import { useAuth } from '@/hooks/use-auth';
+import { useWallet } from '@/hooks/use-wallet';
+import { useMerchantStatus } from '@/hooks/useMerchant';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { sileo } from 'sileo';
-import { useMerchantStatus } from '@/hooks/useMerchant';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -87,9 +86,11 @@ export function AppSidebar() {
       const connectedAddress = await handleConnect();
       if (connectedAddress) {
         if (user) {
-          await updateProfile({ stellar_address: connectedAddress }).catch(() => {
-            // Ignore DB linking errors (e.g. address already saved on another account)
-          });
+          await updateProfile({ stellar_address: connectedAddress }).catch(
+            () => {
+              // Ignore DB linking errors (e.g. address already saved on another account)
+            }
+          );
         }
         sileo.success({ title: 'Wallet connected successfully' });
       }

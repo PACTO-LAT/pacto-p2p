@@ -1,7 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type Resolver } from 'react-hook-form';
+import Link from 'next/link';
+import { type Resolver, useForm } from 'react-hook-form';
 import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -23,20 +24,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { TRUSTLINES } from '@/utils/constants/trustlines';
-import { useCreateListing } from '@/hooks/use-listings';
 import { useAuth } from '@/hooks/use-auth';
-import { useMeMerchant } from '../../hooks/useMerchant';
-import {
-  listingFormSchema,
-  LISTING_FORM_DEFAULT_VALUES,
-  type ListingFormValues,
-} from '@/lib/schemas/listing/listing-form-schema';
+import { useCreateListing } from '@/hooks/use-listings';
 import {
   toCreateListingData,
   type UIListingFormInput,
 } from '@/lib/marketplace-utils';
-import Link from 'next/link';
+import {
+  LISTING_FORM_DEFAULT_VALUES,
+  type ListingFormValues,
+  listingFormSchema,
+} from '@/lib/schemas/listing/listing-form-schema';
+import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { useMeMerchant } from '../../hooks/useMerchant';
 
 export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();

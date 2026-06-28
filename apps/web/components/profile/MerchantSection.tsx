@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { MerchantApplicationModal } from '@/components/merchant/MerchantApplicationModal';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,10 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useMeMerchant } from '@/hooks/useMerchant';
-import { MerchantApplicationModal } from '@/components/merchant/MerchantApplicationModal';
-import { Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 export function MerchantSection() {
   const [showApplicationModal, setShowApplicationModal] = useState(false);

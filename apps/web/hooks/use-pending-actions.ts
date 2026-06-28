@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
 import type { Escrow } from '@pacto-p2p/types';
+import { useMemo } from 'react';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useEscrowsByRoleQuery } from './use-escrows';
 import { usePactoEscrowIds } from './use-pacto-escrow-ids';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 export function usePendingActions() {
   const { address } = useGlobalAuthenticationStore();
@@ -32,10 +32,17 @@ export function usePendingActions() {
   );
   const pactoIds = usePactoEscrowIds(allEngagementIds);
 
-  const pactoSellerEscrows = sellerEscrows.filter((e) => pactoIds.has(e.engagementId));
-  const pactoBuyerEscrows = buyerEscrows.filter((e) => pactoIds.has(e.engagementId));
+  const pactoSellerEscrows = sellerEscrows.filter((e) =>
+    pactoIds.has(e.engagementId)
+  );
+  const pactoBuyerEscrows = buyerEscrows.filter((e) =>
+    pactoIds.has(e.engagementId)
+  );
 
-  const pendingCount = countPendingActions(pactoSellerEscrows, pactoBuyerEscrows);
+  const pendingCount = countPendingActions(
+    pactoSellerEscrows,
+    pactoBuyerEscrows
+  );
 
   return { pendingCount };
 }

@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 
-import { SecuritySettingsData } from './types';
+import type { SecuritySettingsData } from './types';
 
 interface SecuritySettingsProps {
   security: SecuritySettingsData;

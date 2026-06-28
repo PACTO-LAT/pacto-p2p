@@ -20,7 +20,11 @@ function formatLastSeen(date: Date): string {
   return 'Active recently';
 }
 
-export function OnlineStatusDot({ online, lastSeen, className }: OnlineStatusDotProps) {
+export function OnlineStatusDot({
+  online,
+  lastSeen,
+  className,
+}: OnlineStatusDotProps) {
   // Re-render every minute so the relative time stays fresh
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -32,8 +36,8 @@ export function OnlineStatusDot({ online, lastSeen, className }: OnlineStatusDot
   const label = online
     ? 'Online'
     : lastSeen
-    ? formatLastSeen(lastSeen)
-    : 'Offline';
+      ? formatLastSeen(lastSeen)
+      : 'Offline';
 
   return (
     <span className={cn('flex items-center gap-1 text-xs', className)}>

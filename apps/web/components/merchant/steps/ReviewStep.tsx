@@ -28,11 +28,13 @@ export function ReviewStep() {
   return (
     <div className="space-y-4">
       {/* Direction badge */}
-      <div className={`rounded-lg px-4 py-3 text-sm font-medium border ${
-        isSell
-          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
-          : 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400'
-      }`}>
+      <div
+        className={`rounded-lg px-4 py-3 text-sm font-medium border ${
+          isSell
+            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+            : 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400'
+        }`}
+      >
         {isSell
           ? `You are selling ${values.amount || '—'} ${values.token || '—'} — receiving ${total} ${fiatCurrency}`
           : `You are buying ${values.amount || '—'} ${values.token || '—'} — paying ${total} ${fiatCurrency}`}
@@ -48,17 +50,23 @@ export function ReviewStep() {
           <span className="font-medium">{values.token}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">{isSell ? 'Amount to sell' : 'Amount to buy'}</span>
+          <span className="text-muted-foreground">
+            {isSell ? 'Amount to sell' : 'Amount to buy'}
+          </span>
           <span className="font-medium">{values.amount || '—'}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">{isSell ? 'Rate (you receive)' : 'Rate (you pay)'}</span>
+          <span className="text-muted-foreground">
+            {isSell ? 'Rate (you receive)' : 'Rate (you pay)'}
+          </span>
           <span className="font-medium">
             {values.rate || '—'} {fiatCurrency}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">{isSell ? 'Total to receive' : 'Total to pay'}</span>
+          <span className="text-muted-foreground">
+            {isSell ? 'Total to receive' : 'Total to pay'}
+          </span>
           <span className="font-medium">
             {total} {fiatCurrency}
           </span>
@@ -71,7 +79,8 @@ export function ReviewStep() {
           <div className="flex justify-between">
             <span className="text-muted-foreground">Order Limits</span>
             <span className="font-medium">
-              {values.minAmount || '—'} / {values.maxAmount || '—'} {fiatCurrency}
+              {values.minAmount || '—'} / {values.maxAmount || '—'}{' '}
+              {fiatCurrency}
             </span>
           </div>
         )}

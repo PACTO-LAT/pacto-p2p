@@ -3,10 +3,9 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Check, ChevronDown, RefreshCw, X, XIcon } from 'lucide-react';
 import { useState } from 'react';
-
+import { TokenIcon } from '@/components/shared/TokenIcon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { TokenIcon } from '@/components/shared/TokenIcon';
 import { formatAmount, formatCurrency } from '@/lib/dashboard-utils';
 import type { MarketplaceListing } from '@/lib/types/marketplace';
 import { cn } from '@/lib/utils';
@@ -48,10 +47,14 @@ export function TradeConfirmationDialog({
 
   const fiatAmount = parseFloat(amount) || 0;
   const cryptoAmount = fiatAmount / selectedListing.rate;
-  const availableAmount = selectedListing.amountRemaining ?? selectedListing.amount;
+  const availableAmount =
+    selectedListing.amountRemaining ?? selectedListing.amount;
   const maxAvailable =
     selectedListing.maxAmount != null
-      ? Math.min(selectedListing.maxAmount, availableAmount * selectedListing.rate)
+      ? Math.min(
+          selectedListing.maxAmount,
+          availableAmount * selectedListing.rate
+        )
       : availableAmount * selectedListing.rate;
   const minAmount = selectedListing.minAmount || 0;
   const isAmountValid =
@@ -97,226 +100,234 @@ export function TradeConfirmationDialog({
             </DialogPrimitive.Close>
           </div>
           <div className="overflow-y-auto flex-1">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 h-full">
-            {/* Left Section - Advertisers' Terms */}
-            <div className="p-6 border-r border-border/50 lg:col-span-2">
-              {(selectedListing.description || getTerms().length > 0) && (
-                <h4 className="text-lg font-semibold text-foreground mb-4">
-                  Advertisers&apos; Terms
-                </h4>
-              )}
-
-              <div className="space-y-3 text-sm">
-                {selectedListing.description && (
-                  <div className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5"></span>
-                    <p className="text-muted-foreground">
-                      {selectedListing.description}
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 h-full">
+              {/* Left Section - Advertisers' Terms */}
+              <div className="p-6 border-r border-border/50 lg:col-span-2">
+                {(selectedListing.description || getTerms().length > 0) && (
+                  <h4 className="text-lg font-semibold text-foreground mb-4">
+                    Advertisers&apos; Terms
+                  </h4>
                 )}
 
-                {getTerms().map((term, index) => (
-                  <div
-                    key={`term-${term.type}-${index}`}
-                    className="flex items-start gap-2"
-                  >
-                    {term.type === 'positive' ? (
-                      <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                    )}
-                    <p className="text-muted-foreground">{term.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Section - Transaction Form */}
-            <div className="p-6 bg-muted/20 lg:col-span-3">
-              <div className="h-full flex flex-col justify-center max-w-4xl mx-auto">
-                {/* Price Display */}
-                <div className="flex items-center justify-between p-4 bg-card/50 rounded-lg mb-6">
-                  <span className="text-sm text-muted-foreground">Price</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-foreground">
-                      {selectedListing.fiatCurrency === 'CRC' ? '₡' : '$'}{' '}
-                      {Number(selectedListing.rate).toFixed(2)}{' '}
-                      {selectedListing.fiatCurrency}
-                    </span>
-                    <RefreshCw className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-emerald-500 transition-colors" />
-                  </div>
-                </div>
-
-                {/* Horizontal Form Fields */}
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                  {/* You Pay Input */}
-                  <div className="bg-card/50 border border-border/50 rounded-lg p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        You Pay
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-4 text-xs"
-                        onClick={handleMaxAmount}
-                      >
-                        All
-                      </Button>
+                <div className="space-y-3 text-sm">
+                  {selectedListing.description && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5"></span>
+                      <p className="text-muted-foreground">
+                        {selectedListing.description}
+                      </p>
                     </div>
-                    <Input
-                      type="text"
-                      value={amount}
-                      onChange={(e) => handleAmountChange(e.target.value)}
-                      className="text-3xl font-bold border-none bg-transparent p-0 h-auto focus-visible:ring-0"
-                      placeholder="0.00"
-                      onFocus={(e) => e.target.select()}
-                    />
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {selectedListing.fiatCurrency} (Range:{' '}
-                      {formatCurrency(minAmount, selectedListing.fiatCurrency)}{' '}
-                      -{' '}
+                  )}
+
+                  {getTerms().map((term, index) => (
+                    <div
+                      key={`term-${term.type}-${index}`}
+                      className="flex items-start gap-2"
+                    >
+                      {term.type === 'positive' ? (
+                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      )}
+                      <p className="text-muted-foreground">{term.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Section - Transaction Form */}
+              <div className="p-6 bg-muted/20 lg:col-span-3">
+                <div className="h-full flex flex-col justify-center max-w-4xl mx-auto">
+                  {/* Price Display */}
+                  <div className="flex items-center justify-between p-4 bg-card/50 rounded-lg mb-6">
+                    <span className="text-sm text-muted-foreground">Price</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">
+                        {selectedListing.fiatCurrency === 'CRC' ? '₡' : '$'}{' '}
+                        {Number(selectedListing.rate).toFixed(2)}{' '}
+                        {selectedListing.fiatCurrency}
+                      </span>
+                      <RefreshCw className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-emerald-500 transition-colors" />
+                    </div>
+                  </div>
+
+                  {/* Horizontal Form Fields */}
+                  <div className="grid grid-cols-2 gap-6 mb-6">
+                    {/* You Pay Input */}
+                    <div className="bg-card/50 border border-border/50 rounded-lg p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          You Pay
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-4 text-xs"
+                          onClick={handleMaxAmount}
+                        >
+                          All
+                        </Button>
+                      </div>
+                      <Input
+                        type="text"
+                        value={amount}
+                        onChange={(e) => handleAmountChange(e.target.value)}
+                        className="text-3xl font-bold border-none bg-transparent p-0 h-auto focus-visible:ring-0"
+                        placeholder="0.00"
+                        onFocus={(e) => e.target.select()}
+                      />
+                      <div className="text-sm text-muted-foreground mt-2">
+                        {selectedListing.fiatCurrency} (Range:{' '}
+                        {formatCurrency(
+                          minAmount,
+                          selectedListing.fiatCurrency
+                        )}{' '}
+                        -{' '}
+                        {formatCurrency(
+                          maxAvailable,
+                          selectedListing.fiatCurrency
+                        )}
+                        )
+                        {amount !== '' && fiatAmount < minAmount && (
+                          <div className="text-red-500 text-xs mt-1">
+                            Minimum amount is{' '}
+                            {formatCurrency(
+                              minAmount,
+                              selectedListing.fiatCurrency
+                            )}
+                          </div>
+                        )}
+                        {amount !== '' && fiatAmount > maxAvailable && (
+                          <div className="text-red-500 text-xs mt-1">
+                            Maximum amount is{' '}
+                            {formatCurrency(
+                              maxAvailable,
+                              selectedListing.fiatCurrency
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* You Receive Input */}
+                    <div className="bg-card/50 border border-border/50 rounded-lg p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          You Receive
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-foreground">
+                            {selectedListing.token}
+                          </span>
+                          <TokenIcon token={selectedListing.token} size="sm" />
+                        </div>
+                      </div>
+                      <div className="text-3xl font-bold text-foreground">
+                        {formatAmount(cryptoAmount)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Available Amount Display */}
+                  <div className="text-center mb-6">
+                    <div className="text-2xl font-bold text-foreground">
                       {formatCurrency(
                         maxAvailable,
                         selectedListing.fiatCurrency
                       )}
-                      )
-                      {amount !== '' && fiatAmount < minAmount && (
-                        <div className="text-red-500 text-xs mt-1">
-                          Minimum amount is{' '}
-                          {formatCurrency(
-                            minAmount,
-                            selectedListing.fiatCurrency
-                          )}
-                        </div>
-                      )}
-                      {amount !== '' && fiatAmount > maxAvailable && (
-                        <div className="text-red-500 text-xs mt-1">
-                          Maximum amount is{' '}
-                          {formatCurrency(
-                            maxAvailable,
-                            selectedListing.fiatCurrency
-                          )}
-                        </div>
-                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Max available from seller
                     </div>
                   </div>
 
-                  {/* You Receive Input */}
-                  <div className="bg-card/50 border border-border/50 rounded-lg p-5">
-                    <div className="flex items-center justify-between mb-3">
+                  {/* Payment Method Selection */}
+                  <div className="bg-card/50 border border-border/50 rounded-lg p-5 mb-6">
+                    <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-muted-foreground">
-                        You Receive
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">
-                          {selectedListing.token}
-                        </span>
-                        <TokenIcon token={selectedListing.token} size="sm" />
-                      </div>
-                    </div>
-                    <div className="text-3xl font-bold text-foreground">
-                      {formatAmount(cryptoAmount)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Available Amount Display */}
-                <div className="text-center mb-6">
-                  <div className="text-2xl font-bold text-foreground">
-                    {formatCurrency(maxAvailable, selectedListing.fiatCurrency)}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Max available from seller
-                  </div>
-                </div>
-
-                {/* Payment Method Selection */}
-                <div className="bg-card/50 border border-border/50 rounded-lg p-5 mb-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {selectedPaymentMethod
-                        ? `${paymentMethods.find((m) => m.id === selectedPaymentMethod)?.name} - ${selectedListing.fiatCurrency}`
-                        : 'Set my payment method'}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowPaymentMethods(!showPaymentMethods)}
-                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                    >
-                      <span>
                         {selectedPaymentMethod
-                          ? paymentMethods.length - 1
-                          : paymentMethods.length}
+                          ? `${paymentMethods.find((m) => m.id === selectedPaymentMethod)?.name} - ${selectedListing.fiatCurrency}`
+                          : 'Set my payment method'}
                       </span>
-                      <ChevronDown
-                        className={cn(
-                          'w-4 h-4 transition-transform',
-                          showPaymentMethods && 'rotate-180'
-                        )}
-                      />
-                    </Button>
-                  </div>
-
-                  {showPaymentMethods && (
-                    <div className="mt-4 space-y-2">
-                      {paymentMethods.map((method) => (
-                        <button
-                          key={method.id}
-                          type="button"
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setShowPaymentMethods(!showPaymentMethods)
+                        }
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        <span>
+                          {selectedPaymentMethod
+                            ? paymentMethods.length - 1
+                            : paymentMethods.length}
+                        </span>
+                        <ChevronDown
                           className={cn(
-                            'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors w-full text-left',
-                            selectedPaymentMethod === method.id
-                              ? 'bg-emerald-500/10 border border-emerald-500/20'
-                              : 'hover:bg-muted/50'
+                            'w-4 h-4 transition-transform',
+                            showPaymentMethods && 'rotate-180'
                           )}
-                          onClick={() => {
-                            setSelectedPaymentMethod(method.id);
-                            setShowPaymentMethods(false);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
+                        />
+                      </Button>
+                    </div>
+
+                    {showPaymentMethods && (
+                      <div className="mt-4 space-y-2">
+                        {paymentMethods.map((method) => (
+                          <button
+                            key={method.id}
+                            type="button"
+                            className={cn(
+                              'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors w-full text-left',
+                              selectedPaymentMethod === method.id
+                                ? 'bg-emerald-500/10 border border-emerald-500/20'
+                                : 'hover:bg-muted/50'
+                            )}
+                            onClick={() => {
                               setSelectedPaymentMethod(method.id);
                               setShowPaymentMethods(false);
-                            }
-                          }}
-                        >
-                          <span className="text-lg"></span>
-                          <span className="text-sm font-medium">
-                            {method.name}
-                          </span>
-                          {selectedPaymentMethod === method.id && (
-                            <Check className="w-4 h-4 text-emerald-500 ml-auto" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                setSelectedPaymentMethod(method.id);
+                                setShowPaymentMethods(false);
+                              }
+                            }}
+                          >
+                            <span className="text-lg"></span>
+                            <span className="text-sm font-medium">
+                              {method.name}
+                            </span>
+                            {selectedPaymentMethod === method.id && (
+                              <Check className="w-4 h-4 text-emerald-500 ml-auto" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                {/* Buy Button */}
-                <Button
-                  onClick={() =>
-                    onConfirm({
-                      fiatAmount,
-                      cryptoAmount,
-                      paymentMethod: selectedPaymentMethod,
-                    })
-                  }
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-lg text-lg"
-                  disabled={
-                    isPending || !isAmountValid || !selectedPaymentMethod
-                  }
-                >
-                  {isPending
-                    ? 'Creating Escrow...'
-                    : `Buy ${selectedListing.token}`}
-                </Button>
+                  {/* Buy Button */}
+                  <Button
+                    onClick={() =>
+                      onConfirm({
+                        fiatAmount,
+                        cryptoAmount,
+                        paymentMethod: selectedPaymentMethod,
+                      })
+                    }
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-lg text-lg"
+                    disabled={
+                      isPending || !isAmountValid || !selectedPaymentMethod
+                    }
+                  >
+                    {isPending
+                      ? 'Creating Escrow...'
+                      : `Buy ${selectedListing.token}`}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

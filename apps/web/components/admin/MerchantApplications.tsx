@@ -1,7 +1,8 @@
 'use client';
 
+import { CheckCircle, Eye, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { Loader2, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,17 +13,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MerchantApplicationModal } from './MerchantApplicationModal';
-import { MerchantApplicationFilters } from './MerchantApplicationFilters';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  useMerchantApplications,
   useApproveMerchant,
+  useMerchantApplications,
   useRejectMerchant,
 } from '@/hooks/use-admin';
-import { toast } from 'sonner';
 import type { MerchantApplication } from '@/lib/types/admin';
+import { MerchantApplicationFilters } from './MerchantApplicationFilters';
+import { MerchantApplicationModal } from './MerchantApplicationModal';
 
 const statusVariants: Record<
   MerchantApplication['verification_status'],
@@ -42,7 +42,9 @@ export function MerchantApplications() {
   const [activeFilter, setActiveFilter] = useState('pending');
   const [selectedApplication, setSelectedApplication] =
     useState<MerchantApplication | null>(null);
-  const [rejectTarget, setRejectTarget] = useState<MerchantApplication | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<MerchantApplication | null>(
+    null
+  );
   const [rejectMessage, setRejectMessage] = useState('');
 
   const {
@@ -67,7 +69,10 @@ export function MerchantApplications() {
   const handleConfirmReject = async () => {
     if (!rejectTarget || !rejectMessage.trim()) return;
     try {
-      await rejectMutation.mutateAsync({ id: rejectTarget.id, reason: rejectMessage.trim() });
+      await rejectMutation.mutateAsync({
+        id: rejectTarget.id,
+        reason: rejectMessage.trim(),
+      });
       toast.success('Merchant application rejected');
       setRejectTarget(null);
       setRejectMessage('');
@@ -213,7 +218,12 @@ export function MerchantApplications() {
 
       <Dialog
         open={rejectTarget !== null}
-        onOpenChange={(open) => { if (!open) { setRejectTarget(null); setRejectMessage(''); } }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRejectTarget(null);
+            setRejectMessage('');
+          }
+        }}
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -237,7 +247,10 @@ export function MerchantApplications() {
           <DialogFooter>
             <Button
               variant="ghost"
-              onClick={() => { setRejectTarget(null); setRejectMessage(''); }}
+              onClick={() => {
+                setRejectTarget(null);
+                setRejectMessage('');
+              }}
               disabled={rejectMutation.isPending}
             >
               Cancel

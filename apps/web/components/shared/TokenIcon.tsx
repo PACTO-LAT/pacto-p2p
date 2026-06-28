@@ -36,7 +36,11 @@ export function TokenIcon({ token, size = 'md', className }: TokenIconProps) {
         src={logoUrl}
         alt={symbol}
         onError={() => setImgError(true)}
-        className={cn('rounded-full object-cover', sizeClasses[size], className)}
+        className={cn(
+          'rounded-full object-cover',
+          sizeClasses[size],
+          className
+        )}
       />
     );
   }

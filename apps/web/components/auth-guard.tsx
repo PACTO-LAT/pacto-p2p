@@ -2,8 +2,8 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { supabase } from '@/lib/supabase';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface AuthGuardProps {
   children: React.ReactNode;

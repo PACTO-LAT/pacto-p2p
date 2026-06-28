@@ -1,7 +1,7 @@
 'use client';
 
+import { ArrowUpRight, ShieldOff } from 'lucide-react';
 import Link from 'next/link';
-import { ShieldOff, ArrowUpRight } from 'lucide-react';
 
 export function EmptyState() {
   return (
@@ -10,7 +10,9 @@ export function EmptyState() {
         <ShieldOff className="w-6 h-6 text-muted-foreground/50" />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-white mb-1">No orders found</h3>
+        <h3 className="text-sm font-semibold text-white mb-1">
+          No orders found
+        </h3>
         <p className="text-xs text-muted-foreground/60">
           You don&apos;t have any active escrow contracts yet.
         </p>

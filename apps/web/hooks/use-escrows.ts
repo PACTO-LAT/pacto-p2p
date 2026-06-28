@@ -10,13 +10,14 @@ import {
 } from '@trustless-work/escrow';
 import { useRouter } from 'next/navigation';
 import { sileo } from 'sileo';
-import { supabase } from '@/lib/supabase';
-import type { CreateEscrowData } from '@/lib/types';
-import { TradesService } from '@/lib/services/trades';
 import { ChatService } from '@/lib/services/chat';
 import { triggerStatsRecompute } from '@/lib/services/stats-trigger';
+import { TradesService } from '@/lib/services/trades';
+import { supabase } from '@/lib/supabase';
+import type { CreateEscrowData } from '@/lib/types';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useInitializeTrade } from './use-trades';
+
 const MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING = 1;
 
 // Uses buyer UUID (not Stellar address) and queries the trades table
@@ -43,14 +44,21 @@ async function getActiveBuyerTradeCount(
   if (!trades || trades.length === 0) return 0;
 
   // Step 2: check if linked escrows were released on-chain
-  const linkedEscrowIds = trades.map((t) => t.escrow_id).filter(Boolean) as string[];
+  const linkedEscrowIds = trades
+    .map((t) => t.escrow_id)
+    .filter(Boolean) as string[];
 
   // Step 3: also fetch ALL escrows for this buyer+listing by buyer_id+listing_id
   // to handle legacy trades where escrow_id was never stored on the trade row
   const [linkedResult, allResult] = await Promise.all([
     linkedEscrowIds.length > 0
-      ? supabase.from('escrows').select('id, transaction_hashes').in('id', linkedEscrowIds)
-      : Promise.resolve({ data: [] as Array<{ id: string; transaction_hashes: unknown }> }),
+      ? supabase
+          .from('escrows')
+          .select('id, transaction_hashes')
+          .in('id', linkedEscrowIds)
+      : Promise.resolve({
+          data: [] as Array<{ id: string; transaction_hashes: unknown }>,
+        }),
     supabase
       .from('escrows')
       .select('id, transaction_hashes')
@@ -114,7 +122,11 @@ interface UseEscrowsByRoleQueryParams
   validateOnChain?: boolean;
   staleTime?: number;
   refetchInterval?: number | false;
-  context?: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch';
+  context?:
+    | 'dashboard-list'
+    | 'detail-page'
+    | 'critical-flow'
+    | 'background-refetch';
 }
 
 interface UseEscrowsBySignerQueryParams
@@ -123,7 +135,11 @@ interface UseEscrowsBySignerQueryParams
   validateOnChain?: boolean;
   staleTime?: number;
   refetchInterval?: number | false;
-  context?: 'dashboard-list' | 'detail-page' | 'critical-flow' | 'background-refetch';
+  context?:
+    | 'dashboard-list'
+    | 'detail-page'
+    | 'critical-flow'
+    | 'background-refetch';
 }
 
 /**
@@ -142,9 +158,8 @@ const handleRateLimitRetry = async (
   ) {
     if (retryCount < RATE_LIMIT_MAX_RETRIES) {
       const delay =
-        RATE_LIMIT_RETRY_DELAY *
-        Math.pow(RATE_LIMIT_BACKOFF_MULTIPLIER, retryCount);
-      await new Promise(resolve => setTimeout(resolve, delay));
+        RATE_LIMIT_RETRY_DELAY * RATE_LIMIT_BACKOFF_MULTIPLIER ** retryCount;
+      await new Promise((resolve) => setTimeout(resolve, delay));
       return true; // Signal retry
     }
   }
@@ -168,7 +183,10 @@ const syncEscrowsWithPlatformRecords = async (
   await Promise.all(
     escrows.map(async (escrow) => {
       const state = states.get(escrow.engagementId);
-      if (state?.status === 'active' && (escrow.flags?.released || escrow.flags?.resolved)) {
+      if (
+        state?.status === 'active' &&
+        (escrow.flags?.released || escrow.flags?.resolved)
+      ) {
         try {
           await TradesService.syncCompletedStatus(escrow.engagementId);
           didSyncCompletions = true;
@@ -245,13 +263,13 @@ export const useEscrowsByRoleQuery = ({
       ? staleTime
       : context === 'dashboard-list' && isActive
         ? STALE_TIME.ACTIVE_ESCROW_POLLING
-      : STALE_TIME[
-          context === 'critical-flow'
-            ? 'CRITICAL_FLOW'
-            : context === 'detail-page'
-              ? 'DETAIL_PAGE'
-              : 'DASHBOARD_LIST'
-        ];
+        : STALE_TIME[
+            context === 'critical-flow'
+              ? 'CRITICAL_FLOW'
+              : context === 'detail-page'
+                ? 'DETAIL_PAGE'
+                : 'DASHBOARD_LIST'
+          ];
 
   const resolvedRefetchInterval =
     refetchInterval !== undefined
@@ -315,7 +333,8 @@ export const useEscrowsByRoleQuery = ({
             throw new Error('Failed to fetch escrows');
           }
 
-          const { escrows: synced, didSyncCompletions } = await syncEscrowsWithPlatformRecords(escrows);
+          const { escrows: synced, didSyncCompletions } =
+            await syncEscrowsWithPlatformRecords(escrows);
           if (didSyncCompletions) {
             queryClient.invalidateQueries({ queryKey: ['trades'] });
           }
@@ -421,13 +440,13 @@ export const useEscrowsBySignerQuery = ({
       ? staleTime
       : context === 'dashboard-list' && isActive
         ? STALE_TIME.ACTIVE_ESCROW_POLLING
-      : STALE_TIME[
-          context === 'critical-flow'
-            ? 'CRITICAL_FLOW'
-            : context === 'detail-page'
-              ? 'DETAIL_PAGE'
-              : 'DASHBOARD_LIST'
-        ];
+        : STALE_TIME[
+            context === 'critical-flow'
+              ? 'CRITICAL_FLOW'
+              : context === 'detail-page'
+                ? 'DETAIL_PAGE'
+                : 'DASHBOARD_LIST'
+          ];
 
   const resolvedRefetchInterval =
     refetchInterval !== undefined
@@ -489,7 +508,8 @@ export const useEscrowsBySignerQuery = ({
             throw new Error('Failed to fetch escrows');
           }
 
-          const { escrows: synced, didSyncCompletions } = await syncEscrowsWithPlatformRecords(escrows);
+          const { escrows: synced, didSyncCompletions } =
+            await syncEscrowsWithPlatformRecords(escrows);
           if (didSyncCompletions) {
             queryClient.invalidateQueries({ queryKey: ['trades'] });
           }
@@ -572,10 +592,18 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         const [{ data: buyerUser }, { data: sellerUser }] = await Promise.all([
           buyerUuid
             ? Promise.resolve({ data: { id: buyerUuid } })
-            : supabase.from('users').select('id').eq('stellar_address', escrowData.buyer_id).maybeSingle(),
+            : supabase
+                .from('users')
+                .select('id')
+                .eq('stellar_address', escrowData.buyer_id)
+                .maybeSingle(),
           sellerUuid
             ? Promise.resolve({ data: { id: sellerUuid } })
-            : supabase.from('users').select('id').eq('stellar_address', escrowData.seller_id).maybeSingle(),
+            : supabase
+                .from('users')
+                .select('id')
+                .eq('stellar_address', escrowData.seller_id)
+                .maybeSingle(),
         ]);
         if (!buyerUser) throw new Error('Buyer account not found.');
         if (!sellerUser) throw new Error('Seller account not found.');
@@ -595,12 +623,16 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
 
       // Rate limit: block if buyer already has an active (non-completed) trade
       // for this listing to prevent griefing with unfunded escrows.
-      const activeTradeCount = await getActiveBuyerTradeCount(buyerUuid, listingId);
+      const activeTradeCount = await getActiveBuyerTradeCount(
+        buyerUuid,
+        listingId
+      );
       if (activeTradeCount >= MAX_ACTIVE_ESCROWS_PER_BUYER_PER_LISTING) {
         throw new Error('You already have an active trade for this listing.');
       }
 
-      const { txHash, engagementId, contractId } = await initializeTrade(escrowData);
+      const { txHash, engagementId, contractId } =
+        await initializeTrade(escrowData);
 
       // 1. Insert into escrows table (include init tx hash if available)
       const { data: escrowRow, error: escrowError } = await supabase
@@ -631,7 +663,8 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         token: escrowData.token || escrowData.listing.token,
         token_amount: escrowData.amount,
         fiat_amount: escrowData.fiat_amount,
-        fiat_currency: escrowData.fiat_currency || escrowData.listing.fiat_currency,
+        fiat_currency:
+          escrowData.fiat_currency || escrowData.listing.fiat_currency,
         rate: escrowData.listing.rate,
         payment_method: escrowData.listing.payment_method,
         stellar_transaction_hash: txHash ?? null,
@@ -651,7 +684,10 @@ export function useCreateEscrow(onSuccessCallback?: () => void) {
         .maybeSingle();
 
       if (listingRow) {
-        const newRemaining = Math.max(0, (listingRow.amount_remaining ?? 0) - escrowData.amount);
+        const newRemaining = Math.max(
+          0,
+          (listingRow.amount_remaining ?? 0) - escrowData.amount
+        );
         await supabase
           .from('listings')
           .update({
@@ -894,7 +930,9 @@ export function useReleaseFunds() {
             result.txHash
           );
           // Also update the trade status to completed
-          const trade = await TradesService.getTradeByEscrowId(escrow.engagementId);
+          const trade = await TradesService.getTradeByEscrowId(
+            escrow.engagementId
+          );
           if (trade?.id) {
             await TradesService.updateTrade(trade.id, {
               status: 'completed',

@@ -74,7 +74,9 @@ export class AuthService {
 
     // Profile missing — create it once from the current session.
     // (Users created before the handle_new_user trigger won't have a public.users row.)
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session?.user || session.user.id !== userId) return null;
 
     // Only auto-create when we are looking up our own profile
@@ -94,7 +96,9 @@ export class AuthService {
       .eq('id', userId)
       .maybeSingle();
 
-    return created ? normalizeUserFromDb(created as Record<string, unknown>) : null;
+    return created
+      ? normalizeUserFromDb(created as Record<string, unknown>)
+      : null;
   }
 
   static async getUserByWallet(stellarAddress: string): Promise<User | null> {
@@ -141,13 +145,13 @@ export class AuthService {
 
   static async linkWalletToUser(userId: string, stellarAddress: string) {
     // Check if wallet is already linked to another user
-    const existingUser = await this.getUserByWallet(stellarAddress);
+    const existingUser = await AuthService.getUserByWallet(stellarAddress);
     if (existingUser && existingUser.id !== userId) {
       throw new Error('This wallet is already linked to another account');
     }
 
     // Update user profile with wallet address
-    return this.updateUserProfile(userId, {
+    return AuthService.updateUserProfile(userId, {
       stellar_address: stellarAddress,
     });
   }

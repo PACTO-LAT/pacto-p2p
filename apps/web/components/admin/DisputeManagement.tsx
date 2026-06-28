@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import type { Escrow } from '@pacto-p2p/types';
 import { Loader2, Scale } from 'lucide-react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useDisputedEscrows } from '@/hooks/use-disputed-escrows';
 import { DisputeResolutionModal } from './DisputeResolutionModal';
-import type { Escrow } from '@pacto-p2p/types';
 
 export function DisputeManagement() {
   const { data: escrows, isLoading, error, refetch } = useDisputedEscrows();

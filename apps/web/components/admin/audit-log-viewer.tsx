@@ -19,7 +19,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
   const { data, isLoading, error } = useAuditLogs(filters);
 
   const formatAction = (action: string) => {
-    return action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return action.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const formatDate = (dateString: string) => {
@@ -27,11 +27,11 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value, offset: 0 }));
+    setFilters((prev) => ({ ...prev, [key]: value, offset: 0 }));
   };
 
   const handlePageChange = (newOffset: number) => {
-    setFilters(prev => ({ ...prev, offset: newOffset }));
+    setFilters((prev) => ({ ...prev, offset: newOffset }));
   };
 
   if (error) {
@@ -46,7 +46,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
     <div className={`space-y-4 ${className}`}>
       <div className="flex gap-4 items-center">
         <h2 className="text-xl font-semibold">Admin Audit Log</h2>
-        
+
         <select
           value={filters.action}
           onChange={(e) => handleFilterChange('action', e.target.value)}
@@ -80,11 +80,21 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Admin</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Action</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Target</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Details</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Date
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Admin
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Action
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Target
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Details
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -94,7 +104,9 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
                       {formatDate(log.performed_at)}
                     </td>
                     <td className="border border-gray-300 px-4 py-2 text-sm">
-                      {log.admin_user?.full_name || log.admin_user?.email || 'Unknown'}
+                      {log.admin_user?.full_name ||
+                        log.admin_user?.email ||
+                        'Unknown'}
                     </td>
                     <td className="border border-gray-300 px-4 py-2 text-sm">
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
@@ -111,16 +123,25 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
                     </td>
                     <td className="border border-gray-300 px-4 py-2 text-sm">
                       {!!log.metadata.reason && (
-                        <div><strong>Reason:</strong> {String(log.metadata.reason)}</div>
+                        <div>
+                          <strong>Reason:</strong> {String(log.metadata.reason)}
+                        </div>
                       )}
                       {!!log.metadata.amount && (
-                        <div><strong>Amount:</strong> {String(log.metadata.amount)}</div>
+                        <div>
+                          <strong>Amount:</strong> {String(log.metadata.amount)}
+                        </div>
                       )}
                       {!!log.metadata.token && (
-                        <div><strong>Token:</strong> {String(log.metadata.token)}</div>
+                        <div>
+                          <strong>Token:</strong> {String(log.metadata.token)}
+                        </div>
                       )}
                       {!!log.metadata.display_name && (
-                        <div><strong>Merchant:</strong> {String(log.metadata.display_name)}</div>
+                        <div>
+                          <strong>Merchant:</strong>{' '}
+                          {String(log.metadata.display_name)}
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -132,18 +153,28 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
           {data?.total > filters.limit && (
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">
-                Showing {filters.offset + 1} to {Math.min(filters.offset + filters.limit, data.total)} of {data.total} entries
+                Showing {filters.offset + 1} to{' '}
+                {Math.min(filters.offset + filters.limit, data.total)} of{' '}
+                {data.total} entries
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => handlePageChange(Math.max(0, filters.offset - filters.limit))}
+                  type="button"
+                  onClick={() =>
+                    handlePageChange(
+                      Math.max(0, filters.offset - filters.limit)
+                    )
+                  }
                   disabled={filters.offset === 0}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() => handlePageChange(filters.offset + filters.limit)}
+                  type="button"
+                  onClick={() =>
+                    handlePageChange(filters.offset + filters.limit)
+                  }
                   disabled={filters.offset + filters.limit >= data.total}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >
