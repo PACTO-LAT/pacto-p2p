@@ -26,4 +26,6 @@ export const envValidationSchema = Joi.object({
   TLW_NETWORK: Joi.string().valid('testnet', 'mainnet').default('testnet'),
   PLATFORM_ROLE_ADDRESS: Joi.string().allow('').default(''),
   ESCROW_INDEX_CRON: Joi.string().default('*/2 * * * *'),
+  RESEND_API_KEY: Joi.string().allow('').default(''),
+  EMAIL_FROM: Joi.string().default('Pacto <no-reply@pacto.app>'),
 });
