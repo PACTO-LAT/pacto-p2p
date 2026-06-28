@@ -55,10 +55,15 @@ export class NotificationsService {
     }
 
     const status = await this.resolveEmail(draft, input);
-    await this.supabase.client
+    const { error: updErr } = await this.supabase.client
       .from('notifications')
       .update({ email_status: status })
       .eq('id', row.id);
+    if (updErr) {
+      this.logger.error(
+        `update email_status for ${row.id} failed: ${updErr.message}`
+      );
+    }
   }
 
   private async resolveEmail(
