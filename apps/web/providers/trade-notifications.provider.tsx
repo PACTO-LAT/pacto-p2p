@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { sileo } from 'sileo';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/lib/supabase';
 
 // Matches actual trades.status values written to Supabase.
 // On-chain TrustlessWork states (funded, paymentReported, etc.) are not

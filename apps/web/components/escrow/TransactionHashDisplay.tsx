@@ -21,7 +21,9 @@ export function TransactionHashLink({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground min-w-[80px]">{label}:</span>
+      <span className="text-sm text-muted-foreground min-w-[80px]">
+        {label}:
+      </span>
       <a
         href={explorerUrl}
         target="_blank"
@@ -61,9 +63,7 @@ export function EscrowTransactionHashesDisplay({
     { key: 'dispute' as const, label: 'Dispute' },
   ];
 
-  const hasAnyHash = actions.some(
-    (action) => transactionHashes[action.key]
-  );
+  const hasAnyHash = actions.some((action) => transactionHashes[action.key]);
 
   if (!hasAnyHash) return null;
 

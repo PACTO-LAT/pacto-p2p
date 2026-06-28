@@ -1,31 +1,36 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { ArrowDownLeft, ArrowUpRight, ExternalLink, MessageCircle } from 'lucide-react';
+import type { Escrow } from '@pacto-p2p/types';
 import { useQuery } from '@tanstack/react-query';
-import { useIndexedEscrows } from '@/hooks/use-indexed-escrows';
-import { useUnreadCount } from '@/hooks/use-chat';
-import { useAuth } from '@/hooks/use-auth';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { supabase } from '@/lib/supabase';
-import { useEscrowSelection } from '@/hooks/use-escrow-selection';
-import { useEscrowActions } from '@/hooks/use-escrow-actions';
 import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  ExternalLink,
+  MessageCircle,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { UnreadBadge } from '@/components/chat/UnreadBadge';
+import {
+  ErrorState,
   EscrowDetailsModal,
   LoadingState,
-  ErrorState,
 } from '@/components/escrow';
-import { UnreadBadge } from '@/components/chat/UnreadBadge';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { useUnreadCount } from '@/hooks/use-chat';
+import { useEscrowActions } from '@/hooks/use-escrow-actions';
+import { useEscrowSelection } from '@/hooks/use-escrow-selection';
+import { useIndexedEscrows } from '@/hooks/use-indexed-escrows';
 import { formatAmount } from '@/lib/dashboard-utils';
-import { getTrustlineName } from '@/utils/getTrustline';
 import {
-  canReportPayment,
   canConfirmPayment,
   canDeposit,
   canReleaseFunds,
+  canReportPayment,
 } from '@/lib/escrow-utils';
-import type { Escrow } from '@pacto-p2p/types';
+import { supabase } from '@/lib/supabase';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
+import { getTrustlineName } from '@/utils/getTrustline';
 
 type RoleTab = 'buyer' | 'seller';
 type StatusTab = 'all' | 'active' | 'completed' | 'disputed';
@@ -44,7 +49,8 @@ export default function EscrowsPage() {
   const { user } = useAuth();
   const { address } = useGlobalAuthenticationStore();
   const { unreadByEngagementId } = useUnreadCount(user?.id ?? null);
-  const { selectedEscrow, selectEscrow, clearSelectedEscrow } = useEscrowSelection();
+  const { selectedEscrow, selectEscrow, clearSelectedEscrow } =
+    useEscrowSelection();
   const {
     isReportPaymentLoading,
     isCancelEscrowLoading,
@@ -67,17 +73,28 @@ export default function EscrowsPage() {
   // Scope the backend-served snapshots to the role selected by the tab,
   // matching the user's wallet address (previously done server-side).
   const escrows = useMemo(
-    () =>
-      address ? allEscrows.filter((e) => e.roles[role] === address) : [],
+    () => (address ? allEscrows.filter((e) => e.roles[role] === address) : []),
     [allEscrows, address, role]
   );
 
-  const engagementIds = useMemo(() => escrows.map((e) => e.engagementId), [escrows]);
+  const engagementIds = useMemo(
+    () => escrows.map((e) => e.engagementId),
+    [escrows]
+  );
 
-  const { data: platformData = { fiatCurrencyMap: {} as Record<string, string>, pactoIds: new Set<string>() } } = useQuery({
+  const {
+    data: platformData = {
+      fiatCurrencyMap: {} as Record<string, string>,
+      pactoIds: new Set<string>(),
+    },
+  } = useQuery({
     queryKey: ['trades-platform-data', engagementIds],
     queryFn: async () => {
-      if (engagementIds.length === 0) return { fiatCurrencyMap: {} as Record<string, string>, pactoIds: new Set<string>() };
+      if (engagementIds.length === 0)
+        return {
+          fiatCurrencyMap: {} as Record<string, string>,
+          pactoIds: new Set<string>(),
+        };
       const { data } = await supabase
         .from('escrows')
         .select('engagement_id, trades(fiat_currency)')
@@ -106,15 +123,24 @@ export default function EscrowsPage() {
     [escrows, pactoIds]
   );
 
-  const counts = useMemo(() => ({
-    all: pactoEscrows.length,
-    active: pactoEscrows.filter((e) => getEscrowStatus(e) === 'active').length,
-    completed: pactoEscrows.filter((e) => getEscrowStatus(e) === 'completed').length,
-    disputed: pactoEscrows.filter((e) => getEscrowStatus(e) === 'disputed').length,
-  }), [pactoEscrows]);
+  const counts = useMemo(
+    () => ({
+      all: pactoEscrows.length,
+      active: pactoEscrows.filter((e) => getEscrowStatus(e) === 'active')
+        .length,
+      completed: pactoEscrows.filter((e) => getEscrowStatus(e) === 'completed')
+        .length,
+      disputed: pactoEscrows.filter((e) => getEscrowStatus(e) === 'disputed')
+        .length,
+    }),
+    [pactoEscrows]
+  );
 
-  const filtered = useMemo(() =>
-    statusTab === 'all' ? pactoEscrows : pactoEscrows.filter((e) => getEscrowStatus(e) === statusTab),
+  const filtered = useMemo(
+    () =>
+      statusTab === 'all'
+        ? pactoEscrows
+        : pactoEscrows.filter((e) => getEscrowStatus(e) === statusTab),
     [pactoEscrows, statusTab]
   );
 
@@ -123,8 +149,10 @@ export default function EscrowsPage() {
     setIsEscrowModalOpen(true);
   };
 
-  const onReportPayment = async (escrow: Escrow) => handleReportPayment(escrow, { evidence: '' });
-  const onConfirmPayment = async (escrow: Escrow) => handleConfirmPayment(escrow);
+  const onReportPayment = async (escrow: Escrow) =>
+    handleReportPayment(escrow, { evidence: '' });
+  const onConfirmPayment = async (escrow: Escrow) =>
+    handleConfirmPayment(escrow);
   const onDeposit = async (escrow: Escrow) => handleDeposit(escrow);
   const onDisputeEscrow = async (escrow: Escrow) => handleDisputeEscrow(escrow);
   const onReleaseFunds = async (escrow: Escrow) => handleReleaseFunds(escrow);
@@ -171,12 +199,14 @@ export default function EscrowsPage() {
 
       {/* Status filter tabs */}
       <div className="flex gap-1 border-b border-white/[0.06] pb-0">
-        {([
-          { key: 'all', label: 'All' },
-          { key: 'active', label: 'In Progress' },
-          { key: 'completed', label: 'Completed' },
-          { key: 'disputed', label: 'Disputed' },
-        ] as { key: StatusTab; label: string }[]).map(({ key, label }) => (
+        {(
+          [
+            { key: 'all', label: 'All' },
+            { key: 'active', label: 'In Progress' },
+            { key: 'completed', label: 'Completed' },
+            { key: 'disputed', label: 'Disputed' },
+          ] as { key: StatusTab; label: string }[]
+        ).map(({ key, label }) => (
           <button
             key={key}
             type="button"
@@ -189,9 +219,13 @@ export default function EscrowsPage() {
           >
             {label}
             {counts[key] > 0 && (
-              <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
-                statusTab === key ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/[0.08] text-muted-foreground'
-              }`}>
+              <span
+                className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
+                  statusTab === key
+                    ? 'bg-emerald-500/20 text-emerald-300'
+                    : 'bg-white/[0.08] text-muted-foreground'
+                }`}
+              >
                 {counts[key]}
               </span>
             )}
@@ -207,57 +241,92 @@ export default function EscrowsPage() {
           <>
             {/* Table header */}
             <div className="hidden sm:grid grid-cols-[2fr_1.2fr_1fr_1fr_1fr_100px_64px] gap-6 px-5 py-3 border-b border-white/[0.06]">
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">Order</p>
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide pl-10">Counterparty</p>
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">Balance</p>
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-4">Status</p>
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-4">Needed</p>
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-6">Action</p>
-              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">Viewer</p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">
+                Order
+              </p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide pl-10">
+                Counterparty
+              </p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">
+                Balance
+              </p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-4">
+                Status
+              </p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-4">
+                Needed
+              </p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide -ml-6">
+                Action
+              </p>
+              <p className="text-xs text-muted-foreground/60 uppercase tracking-wide">
+                Viewer
+              </p>
             </div>
 
             {/* Rows */}
             {filtered.map((escrow, i) => {
               const token = getTrustlineName(escrow.trustline.address);
-              const isCompleted = escrow.flags?.resolved || escrow.flags?.released;
+              const isCompleted =
+                escrow.flags?.resolved || escrow.flags?.released;
               const isDisputed = escrow.flags?.disputed;
-              const counterparty = roleTab === 'buyer' ? escrow.roles.approver : escrow.roles.serviceProvider;
+              const counterparty =
+                roleTab === 'buyer'
+                  ? escrow.roles.approver
+                  : escrow.roles.serviceProvider;
               const unread = unreadByEngagementId[escrow.engagementId] ?? 0;
               const fiatCurrency = fiatCurrencyMap[escrow.engagementId];
-              const tradeLabel = fiatCurrency ? `${token}/${fiatCurrency} P2P Trade` : `${token} P2P Trade`;
+              const tradeLabel = fiatCurrency
+                ? `${token}/${fiatCurrency} P2P Trade`
+                : `${token} P2P Trade`;
 
               const actionNeeded = (() => {
-                if (canDeposit(escrow, roleTab)) return { label: 'Deposit needed', color: 'text-orange-400' };
-                if (canReportPayment(escrow, roleTab)) return { label: 'Pay now', color: 'text-blue-400' };
-                if (canConfirmPayment(escrow, roleTab)) return { label: 'Confirm receipt', color: 'text-blue-400' };
-                if (canReleaseFunds(escrow, roleTab)) return { label: 'Release funds', color: 'text-emerald-400' };
+                if (canDeposit(escrow, roleTab))
+                  return { label: 'Deposit needed', color: 'text-orange-400' };
+                if (canReportPayment(escrow, roleTab))
+                  return { label: 'Pay now', color: 'text-blue-400' };
+                if (canConfirmPayment(escrow, roleTab))
+                  return { label: 'Confirm receipt', color: 'text-blue-400' };
+                if (canReleaseFunds(escrow, roleTab))
+                  return { label: 'Release funds', color: 'text-emerald-400' };
                 return null;
               })();
 
               const statusStyles = isCompleted
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                 : isDisputed
-                ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+                  ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                  : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
 
-              const statusLabel = isCompleted ? 'Completed' : isDisputed ? 'Disputed' : 'In Progress';
+              const statusLabel = isCompleted
+                ? 'Completed'
+                : isDisputed
+                  ? 'Disputed'
+                  : 'In Progress';
 
               return (
                 <div
                   key={escrow.engagementId}
                   className={`grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_1fr_1fr_1fr_100px_64px] gap-6 items-center px-5 py-4 hover:bg-white/[0.03] transition-colors ${
-                    i < filtered.length - 1 ? 'border-b border-white/[0.05]' : ''
+                    i < filtered.length - 1
+                      ? 'border-b border-white/[0.05]'
+                      : ''
                   }`}
                 >
                   {/* Order */}
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      roleTab === 'buyer' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'
-                    }`}>
-                      {roleTab === 'buyer'
-                        ? <ArrowDownLeft className="w-4 h-4" />
-                        : <ArrowUpRight className="w-4 h-4" />
-                      }
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        roleTab === 'buyer'
+                          ? 'bg-blue-500/10 text-blue-400'
+                          : 'bg-emerald-500/10 text-emerald-400'
+                      }`}
+                    >
+                      {roleTab === 'buyer' ? (
+                        <ArrowDownLeft className="w-4 h-4" />
+                      ) : (
+                        <ArrowUpRight className="w-4 h-4" />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -284,7 +353,9 @@ export default function EscrowsPage() {
 
                   {/* Counterparty */}
                   <div className="pl-12">
-                    <p className="text-xs text-muted-foreground sm:hidden mb-0.5">Counterparty</p>
+                    <p className="text-xs text-muted-foreground sm:hidden mb-0.5">
+                      Counterparty
+                    </p>
                     <p className="font-mono text-xs text-foreground">
                       {counterparty.slice(0, 6)}…{counterparty.slice(-4)}
                     </p>
@@ -292,7 +363,9 @@ export default function EscrowsPage() {
 
                   {/* Balance */}
                   <div>
-                    <p className="text-xs text-muted-foreground sm:hidden mb-0.5">Balance</p>
+                    <p className="text-xs text-muted-foreground sm:hidden mb-0.5">
+                      Balance
+                    </p>
                     <p className="font-mono text-xs text-foreground">
                       {formatAmount(escrow.balance ?? 0)} {token}
                     </p>
@@ -300,7 +373,9 @@ export default function EscrowsPage() {
 
                   {/* Status */}
                   <div className="-ml-8">
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${statusStyles}`}>
+                    <span
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${statusStyles}`}
+                    >
                       {statusLabel}
                     </span>
                   </div>
@@ -308,11 +383,15 @@ export default function EscrowsPage() {
                   {/* Needed */}
                   <div className="-ml-4">
                     {actionNeeded && !isCompleted && !isDisputed ? (
-                      <span className={`text-xs font-medium ${actionNeeded.color}`}>
+                      <span
+                        className={`text-xs font-medium ${actionNeeded.color}`}
+                      >
                         {actionNeeded.label}
                       </span>
                     ) : (
-                      <span className="text-xs text-muted-foreground/30">—</span>
+                      <span className="text-xs text-muted-foreground/30">
+                        —
+                      </span>
                     )}
                   </div>
 
@@ -337,7 +416,10 @@ export default function EscrowsPage() {
                         className="text-muted-foreground hover:text-emerald-400 px-2 h-8"
                         onClick={(e) => {
                           e.stopPropagation();
-                          window.open(`https://viewer.trustlesswork.com/${escrow.contractId}`, '_blank');
+                          window.open(
+                            `https://viewer.trustlesswork.com/${escrow.contractId}`,
+                            '_blank'
+                          );
                         }}
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -374,7 +456,13 @@ export default function EscrowsPage() {
   );
 }
 
-function EmptyTableState({ roleTab, statusTab }: { roleTab: RoleTab; statusTab: StatusTab }) {
+function EmptyTableState({
+  roleTab,
+  statusTab,
+}: {
+  roleTab: RoleTab;
+  statusTab: StatusTab;
+}) {
   const messages: Record<StatusTab, string> = {
     all: `No ${roleTab} orders yet`,
     active: 'No orders in progress',

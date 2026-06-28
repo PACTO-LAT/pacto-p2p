@@ -2,7 +2,7 @@
 
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MarketStats as MarketStatsType } from '@/lib/types/marketplace';
+import type { MarketStats as MarketStatsType } from '@/lib/types/marketplace';
 
 interface MarketStatsProps {
   stats: MarketStatsType;
@@ -11,9 +11,16 @@ interface MarketStatsProps {
 function ChangeBadge({ value, suffix }: { value: number; suffix: string }) {
   const positive = value >= 0;
   return (
-    <p className={`text-sm flex items-center mt-1 ${positive ? 'text-emerald-500' : 'text-red-500'}`}>
-      {positive ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
-      {positive ? '+' : ''}{value}% {suffix}
+    <p
+      className={`text-sm flex items-center mt-1 ${positive ? 'text-emerald-500' : 'text-red-500'}`}
+    >
+      {positive ? (
+        <TrendingUp className="w-4 h-4 mr-1" />
+      ) : (
+        <TrendingDown className="w-4 h-4 mr-1" />
+      )}
+      {positive ? '+' : ''}
+      {value}% {suffix}
     </p>
   );
 }
@@ -28,8 +35,13 @@ export function MarketStats({ stats }: MarketStatsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-foreground">{stats.activeListings}</div>
-          <ChangeBadge value={stats.activeListingsChange} suffix="vs last week" />
+          <div className="text-3xl font-bold text-foreground">
+            {stats.activeListings}
+          </div>
+          <ChangeBadge
+            value={stats.activeListingsChange}
+            suffix="vs last week"
+          />
         </CardContent>
       </Card>
 
@@ -41,7 +53,10 @@ export function MarketStats({ stats }: MarketStatsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-foreground">
-            ${stats.totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+            $
+            {stats.totalVolume24h.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
           </div>
           <ChangeBadge value={stats.volumeChange} suffix="vs yesterday" />
         </CardContent>
@@ -55,7 +70,10 @@ export function MarketStats({ stats }: MarketStatsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-foreground">
-            ${stats.avgTradeSize.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+            $
+            {stats.avgTradeSize.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
           </div>
           <ChangeBadge value={stats.tradeSizeChange} suffix="vs last week" />
         </CardContent>

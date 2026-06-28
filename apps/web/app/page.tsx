@@ -1,5 +1,6 @@
 'use client';
 
+import Aurora from '@/components/Aurora';
 import {
   AssetsSection,
   BuildersSection,
@@ -11,7 +12,6 @@ import {
   HeroSection,
   HowItWorksSection,
 } from '@/components/landing';
-import Aurora from '@/components/Aurora';
 
 export default function HomePage() {
   return (

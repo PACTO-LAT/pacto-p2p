@@ -1,9 +1,9 @@
-import type {
-  MarketplaceListing,
-  ListingFilters,
-} from '@/lib/types/marketplace';
-import type { DbListing } from '@/lib/types/db';
 import type { User } from '@/lib/types';
+import type { DbListing } from '@/lib/types/db';
+import type {
+  ListingFilters,
+  MarketplaceListing,
+} from '@/lib/types/marketplace';
 
 export function filterListings(
   listings: MarketplaceListing[],
@@ -36,13 +36,17 @@ export function getMarketStats(listings: MarketplaceListing[]) {
   const ms24h = 24 * 60 * 60 * 1000;
 
   // Split listings by age
-  const thisWeek = listings.filter((l) => now - new Date(l.created).getTime() < ms7d);
+  const thisWeek = listings.filter(
+    (l) => now - new Date(l.created).getTime() < ms7d
+  );
   const lastWeek = listings.filter((l) => {
     const age = now - new Date(l.created).getTime();
     return age >= ms7d && age < ms7d * 2;
   });
 
-  const last24h = listings.filter((l) => now - new Date(l.created).getTime() < ms24h);
+  const last24h = listings.filter(
+    (l) => now - new Date(l.created).getTime() < ms24h
+  );
   const prev24h = listings.filter((l) => {
     const age = now - new Date(l.created).getTime();
     return age >= ms24h && age < ms24h * 2;
@@ -55,7 +59,8 @@ export function getMarketStats(listings: MarketplaceListing[]) {
   const avgCurrent = listings.length > 0 ? totalValue / listings.length : 0;
   const avgLastWeek =
     lastWeek.length > 0
-      ? lastWeek.reduce((sum, l) => sum + l.amount * l.rate, 0) / lastWeek.length
+      ? lastWeek.reduce((sum, l) => sum + l.amount * l.rate, 0) /
+        lastWeek.length
       : 0;
 
   return {
@@ -80,7 +85,11 @@ export function mapDbListingToMarketplace(
     rate: Number(listing.rate),
     fiatCurrency: listing.fiat_currency,
     paymentMethod: listing.payment_method,
-    seller: listing.seller_address || user?.stellar_address || user?.email || listing.user_id,
+    seller:
+      listing.seller_address ||
+      user?.stellar_address ||
+      user?.email ||
+      listing.user_id,
     buyer: '',
     reputation: user?.reputation_score ?? 0,
     trades: user?.total_trades ?? 0,
@@ -89,7 +98,10 @@ export function mapDbListingToMarketplace(
     description: listing.description || '',
     avatarUrl: user?.avatar_url,
     fullName: user?.full_name,
-    amountRemaining: listing.amount_remaining != null ? Number(listing.amount_remaining) : Number(listing.amount),
+    amountRemaining:
+      listing.amount_remaining != null
+        ? Number(listing.amount_remaining)
+        : Number(listing.amount),
     creatorUserId: listing.user_id,
   };
 }
@@ -121,7 +133,9 @@ export function toCreateListingData(input: UIListingFormInput) {
 
   const totalFiat = amount * rate;
   const minAmount = input.minAmount ? Number.parseFloat(input.minAmount) : 0;
-  const maxAmount = input.maxAmount ? Number.parseFloat(input.maxAmount) : totalFiat;
+  const maxAmount = input.maxAmount
+    ? Number.parseFloat(input.maxAmount)
+    : totalFiat;
 
   return {
     type: input.type,

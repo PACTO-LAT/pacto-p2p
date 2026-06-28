@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { TRUSTLINES } from '@/utils/constants/trustlines';
+import { useState } from 'react';
 import { TokenIcon } from '@/components/shared/TokenIcon';
+import { TRUSTLINES } from '@/utils/constants/trustlines';
 
 const AVAILABLE = TRUSTLINES.filter((t) => !!t.address);
 

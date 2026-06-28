@@ -1,7 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type Resolver } from 'react-hook-form';
+import { countries as countriesData } from 'countries-list';
+import { X } from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type Resolver, useForm } from 'react-hook-form';
 import { sileo } from 'sileo';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -15,13 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { useUpsertMerchantProfile } from '@/hooks/useMerchant';
-import type { Merchant } from '@/lib/types/merchant';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { useWallet } from '@/hooks/use-wallet';
-import { useAuth } from '@/hooks/use-auth';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -29,12 +27,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/use-auth';
+import { useWallet } from '@/hooks/use-wallet';
+import { useUpsertMerchantProfile } from '@/hooks/useMerchant';
 import { supabase } from '@/lib/supabase';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
-import Image from 'next/image';
-import { countries as countriesData } from 'countries-list';
+import type { Merchant } from '@/lib/types/merchant';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 const schema = z.object({
   display_name: z.string().min(2, 'Display name is required'),

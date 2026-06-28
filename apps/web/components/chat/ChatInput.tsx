@@ -1,13 +1,13 @@
 'use client';
 
+import { Paperclip, Send, X } from 'lucide-react';
 import {
+  type ChangeEvent,
+  type KeyboardEvent,
   useCallback,
   useRef,
   useState,
-  type KeyboardEvent,
-  type ChangeEvent,
 } from 'react';
-import { Paperclip, Send, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -97,7 +97,9 @@ export function ChatInput({
               className="h-12 w-12 object-cover rounded"
             />
           ) : (
-            <span className="text-muted-foreground">📎 {preview.file.name}</span>
+            <span className="text-muted-foreground">
+              📎 {preview.file.name}
+            </span>
           )}
           <button
             type="button"

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { AdminService } from '@/lib/services/admin';
 import { requireAdmin } from '@/lib/utils/require-admin';
 
@@ -13,7 +13,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const { action, reason } = await request.json();
-    
+
     const auditContext = {
       adminUserId: auth.userId,
       ipAddress: auth.ipAddress,
@@ -21,7 +21,7 @@ export async function PATCH(
       reason,
     };
 
-    let data;
+    let data: unknown;
     if (action === 'approve') {
       data = await AdminService.approveMerchant(id, auditContext);
     } else if (action === 'reject') {
@@ -31,7 +31,7 @@ export async function PATCH(
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-    
+
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(

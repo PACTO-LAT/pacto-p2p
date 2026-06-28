@@ -1,7 +1,15 @@
-import { Suspense } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import {
+  BadgesGridSkeleton,
+  KpiCardsSkeleton,
+  ListingsTableSkeleton,
+  MerchantHeroSkeleton,
+  SpeedHistogramSkeleton,
+  VolumeChartSkeleton,
+} from '@/app/m/[slug]/_components/MerchantSkeletons';
 import { BadgeGrid } from '@/components/merchant/BadgeGrid';
 import { KpiCards } from '@/components/merchant/KpiCards';
 import { ListingsTable } from '@/components/merchant/ListingsTable';
@@ -19,14 +27,6 @@ import type {
   SpeedBucket,
   VolumePoint,
 } from '@/lib/types/merchant';
-import {
-  BadgesGridSkeleton,
-  KpiCardsSkeleton,
-  ListingsTableSkeleton,
-  MerchantHeroSkeleton,
-  SpeedHistogramSkeleton,
-  VolumeChartSkeleton,
-} from '@/app/m/[slug]/_components/MerchantSkeletons';
 
 export default async function Page({
   params,

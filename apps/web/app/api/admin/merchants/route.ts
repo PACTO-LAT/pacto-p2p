@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { AdminService } from '@/lib/services/admin';
 import { requireAdmin } from '@/lib/utils/require-admin';
 

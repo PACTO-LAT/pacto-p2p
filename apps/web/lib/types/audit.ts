@@ -15,15 +15,15 @@ export interface AuditLogEntry {
   };
 }
 
-export type AuditAction = 
+export type AuditAction =
   | 'merchant_approved'
-  | 'merchant_rejected' 
+  | 'merchant_rejected'
   | 'merchant_revoked'
   | 'token_minted'
   | 'token_burned'
   | 'dispute_resolved';
 
-export type AuditTargetType = 
+export type AuditTargetType =
   | 'merchant'
   | 'token_operation'
   | 'escrow'

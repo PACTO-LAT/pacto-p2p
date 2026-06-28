@@ -1,4 +1,4 @@
-import { Escrow } from '@/lib/types/escrow';
+import type { Escrow } from '@/lib/types/escrow';
 
 const DEFAULT_ESCROW_CANCELLATION_GRACE_HOURS = 24;
 
@@ -100,7 +100,11 @@ export function canCancel(
   userRole: 'buyer' | 'seller'
 ): boolean {
   if (userRole !== 'buyer') return false;
-  if (escrow.flags?.disputed || escrow.flags?.resolved || escrow.flags?.released) {
+  if (
+    escrow.flags?.disputed ||
+    escrow.flags?.resolved ||
+    escrow.flags?.released
+  ) {
     return false;
   }
   if (escrow.balance !== 0) return false;

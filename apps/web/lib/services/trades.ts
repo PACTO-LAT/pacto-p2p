@@ -1,6 +1,6 @@
+import type { Escrow } from '@pacto-p2p/types';
 import { supabase } from '@/lib/supabase';
 import type { DashboardListing } from '@/lib/types';
-import type { Escrow } from '@pacto-p2p/types';
 import { getTrustlineName } from '@/utils/getTrustline';
 
 export interface DbTrade {
@@ -109,7 +109,9 @@ export class TradesService {
 
     const { data, error } = await supabase
       .from('escrows')
-      .select('id, engagement_id, contract_id, created_at, cancelled_at, status')
+      .select(
+        'id, engagement_id, contract_id, created_at, cancelled_at, status'
+      )
       .in('engagement_id', engagementIds);
 
     if (error) throw new Error(error.message);
@@ -135,9 +137,10 @@ export class TradesService {
     }
 
     const engagementIds = escrows.map((escrow) => escrow.engagementId);
-    const existingStates = await this.getEscrowStatesByEngagementIds(engagementIds);
+    const existingStates =
+      await TradesService.getEscrowStatesByEngagementIds(engagementIds);
     const orphanedEscrows = escrows.filter(
-      escrow => !existingStates.has(escrow.engagementId)
+      (escrow) => !existingStates.has(escrow.engagementId)
     );
 
     if (orphanedEscrows.length === 0) {
@@ -147,7 +150,7 @@ export class TradesService {
     const listingIds = Array.from(
       new Set(
         orphanedEscrows
-          .map(escrow => inferListingIdFromEngagementId(escrow.engagementId))
+          .map((escrow) => inferListingIdFromEngagementId(escrow.engagementId))
           .filter((value): value is string => Boolean(value))
       )
     );
@@ -160,21 +163,23 @@ export class TradesService {
       )
     );
 
-    const [{ data: listingRows, error: listingError }, { data: userRows, error: userError }] =
-      await Promise.all([
-        listingIds.length > 0
-          ? supabase
-              .from('listings')
-              .select('id, rate, fiat_currency, payment_method')
-              .in('id', listingIds)
-          : Promise.resolve({ data: [], error: null }),
-        stellarAddresses.length > 0
-          ? supabase
-              .from('users')
-              .select('id, stellar_address')
-              .in('stellar_address', stellarAddresses)
-          : Promise.resolve({ data: [], error: null }),
-      ]);
+    const [
+      { data: listingRows, error: listingError },
+      { data: userRows, error: userError },
+    ] = await Promise.all([
+      listingIds.length > 0
+        ? supabase
+            .from('listings')
+            .select('id, rate, fiat_currency, payment_method')
+            .in('id', listingIds)
+        : Promise.resolve({ data: [], error: null }),
+      stellarAddresses.length > 0
+        ? supabase
+            .from('users')
+            .select('id, stellar_address')
+            .in('stellar_address', stellarAddresses)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
 
     if (listingError) throw new Error(listingError.message);
     if (userError) throw new Error(userError.message);
@@ -196,17 +201,23 @@ export class TradesService {
       const seller = usersByAddress.get(escrow.roles.approver);
 
       if (!listing || !buyer || !seller) {
-        console.warn('Skipping orphaned escrow recovery due to missing platform data', {
-          engagementId: escrow.engagementId,
-          listingId,
-          hasListing: Boolean(listing),
-          hasBuyer: Boolean(buyer),
-          hasSeller: Boolean(seller),
-        });
+        console.warn(
+          'Skipping orphaned escrow recovery due to missing platform data',
+          {
+            engagementId: escrow.engagementId,
+            listingId,
+            hasListing: Boolean(listing),
+            hasBuyer: Boolean(buyer),
+            hasSeller: Boolean(seller),
+          }
+        );
         continue;
       }
 
-      const fiatAmount = calculateFiatAmount(Number(escrow.amount), Number(listing.rate));
+      const fiatAmount = calculateFiatAmount(
+        Number(escrow.amount),
+        Number(listing.rate)
+      );
       const token = getTrustlineName(escrow.trustline.address);
 
       const { data: escrowRow, error: escrowError } = await supabase
@@ -243,19 +254,21 @@ export class TradesService {
       }
 
       if (!existingTrade) {
-        const { error: tradeInsertError } = await supabase.from('trades').insert({
-          escrow_id: escrowRow.id,
-          listing_id: listing.id,
-          buyer_id: buyer.id,
-          seller_id: seller.id,
-          token,
-          token_amount: escrow.amount,
-          fiat_amount: fiatAmount,
-          fiat_currency: listing.fiat_currency,
-          rate: listing.rate,
-          payment_method: listing.payment_method,
-          status: 'active',
-        });
+        const { error: tradeInsertError } = await supabase
+          .from('trades')
+          .insert({
+            escrow_id: escrowRow.id,
+            listing_id: listing.id,
+            buyer_id: buyer.id,
+            seller_id: seller.id,
+            token,
+            token_amount: escrow.amount,
+            fiat_amount: fiatAmount,
+            fiat_currency: listing.fiat_currency,
+            rate: listing.rate,
+            payment_method: listing.payment_method,
+            status: 'active',
+          });
 
         if (tradeInsertError) {
           throw new Error(tradeInsertError.message);
@@ -293,7 +306,7 @@ export class TradesService {
   }
 
   static async cancelUnfundedEscrow(engagementId: string): Promise<void> {
-    const escrow = await this.getEscrowByEngagementId(engagementId);
+    const escrow = await TradesService.getEscrowByEngagementId(engagementId);
 
     if (!escrow?.id) {
       throw new Error('Escrow record not found in Supabase.');
@@ -310,9 +323,9 @@ export class TradesService {
 
     if (escrowUpdateError) throw new Error(escrowUpdateError.message);
 
-    const trade = await this.getTradeByEscrowId(engagementId);
+    const trade = await TradesService.getTradeByEscrowId(engagementId);
     if (trade?.id) {
-      await this.updateTrade(trade.id, {
+      await TradesService.updateTrade(trade.id, {
         status: 'cancelled',
         completed_at: cancelledAt,
       });
@@ -336,7 +349,8 @@ export class TradesService {
 
     if (fetchError) throw new Error(fetchError.message);
 
-    const currentHashes = (escrow?.transaction_hashes as EscrowTransactionHashes) ?? {};
+    const currentHashes =
+      (escrow?.transaction_hashes as EscrowTransactionHashes) ?? {};
     const updatedHashes = { ...currentHashes, [action]: txHash };
 
     // Update the escrow with new transaction hash
@@ -370,7 +384,9 @@ export class TradesService {
   /**
    * Gets a trade by engagement ID (via escrow lookup)
    */
-  static async getTradeByEscrowId(engagementId: string): Promise<DbTrade | null> {
+  static async getTradeByEscrowId(
+    engagementId: string
+  ): Promise<DbTrade | null> {
     const { data: escrow, error: escrowError } = await supabase
       .from('escrows')
       .select('id')

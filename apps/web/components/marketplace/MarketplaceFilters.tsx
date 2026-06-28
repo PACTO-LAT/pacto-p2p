@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ListingFilters } from '@/lib/types/marketplace';
+import type { ListingFilters } from '@/lib/types/marketplace';
 
 interface MarketplaceFiltersProps {
   filters: ListingFilters;
@@ -44,10 +44,7 @@ export function MarketplaceFilters({
             className="w-full h-9 pl-9 pr-3 rounded-lg bg-white/[0.04] border border-white/[0.07] text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-white/[0.15] transition-colors"
           />
         </div>
-        <Select
-          value={filters.selectedToken}
-          onValueChange={handleTokenChange}
-        >
+        <Select value={filters.selectedToken} onValueChange={handleTokenChange}>
           <SelectTrigger className="w-full sm:w-40 h-9 bg-white/[0.04] border-white/[0.07] text-sm">
             <SelectValue placeholder="Token" />
           </SelectTrigger>

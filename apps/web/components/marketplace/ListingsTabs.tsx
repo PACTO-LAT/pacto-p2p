@@ -1,7 +1,7 @@
 'use client';
 
-import { FC, ReactNode } from 'react';
 import { ShoppingCart } from 'lucide-react';
+import type { FC, ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import type { MarketplaceListing } from '@/lib/types/marketplace';
 import { ListingCard } from './ListingCard';

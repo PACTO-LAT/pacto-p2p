@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import {
   FormControl,
@@ -16,7 +16,11 @@ import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schem
 const PAYMENT_METHODS = [
   { value: 'SINPE', label: 'SINPE', description: 'Costa Rica' },
   { value: 'SPEI', label: 'SPEI', description: 'Mexico' },
-  { value: 'Bank Transfer', label: 'Bank Transfer', description: 'International' },
+  {
+    value: 'Bank Transfer',
+    label: 'Bank Transfer',
+    description: 'International',
+  },
   { value: 'Cash Deposit', label: 'Cash Deposit', description: 'In person' },
 ];
 
@@ -26,13 +30,19 @@ export function PaymentLimitsStep() {
   const methodRef = useRef<HTMLDivElement>(null);
 
   const type = useWatch({ control: form.control, name: 'type' });
-  const fiatCurrency = useWatch({ control: form.control, name: 'fiatCurrency' });
+  const fiatCurrency = useWatch({
+    control: form.control,
+    name: 'fiatCurrency',
+  });
   const amount = useWatch({ control: form.control, name: 'amount' });
   const rate = useWatch({ control: form.control, name: 'rate' });
   const isSell = type === 'sell';
 
   const totalFiat =
-    amount && rate && !Number.isNaN(Number(amount)) && !Number.isNaN(Number(rate))
+    amount &&
+    rate &&
+    !Number.isNaN(Number(amount)) &&
+    !Number.isNaN(Number(rate))
       ? Number(amount) * Number(rate)
       : null;
 
@@ -54,7 +64,9 @@ export function PaymentLimitsStep() {
         name="paymentMethod"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{isSell ? 'How buyers will pay you' : 'How you will pay sellers'}</FormLabel>
+            <FormLabel>
+              {isSell ? 'How buyers will pay you' : 'How you will pay sellers'}
+            </FormLabel>
             <FormControl>
               <div ref={methodRef} className="relative">
                 <button
@@ -63,9 +75,14 @@ export function PaymentLimitsStep() {
                   className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none hover:border-ring transition-colors"
                 >
                   {field.value ? (
-                    <span>{PAYMENT_METHODS.find((m) => m.value === field.value)?.label ?? field.value}</span>
+                    <span>
+                      {PAYMENT_METHODS.find((m) => m.value === field.value)
+                        ?.label ?? field.value}
+                    </span>
                   ) : (
-                    <span className="text-muted-foreground">Select payment method</span>
+                    <span className="text-muted-foreground">
+                      Select payment method
+                    </span>
                   )}
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </button>
@@ -84,7 +101,9 @@ export function PaymentLimitsStep() {
                         }`}
                       >
                         <span className="font-medium">{m.label}</span>
-                        <span className="text-muted-foreground text-xs">{m.description}</span>
+                        <span className="text-muted-foreground text-xs">
+                          {m.description}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -118,7 +137,9 @@ export function PaymentLimitsStep() {
             name="minAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs text-muted-foreground">Min (Optional)</FormLabel>
+                <FormLabel className="text-xs text-muted-foreground">
+                  Min (Optional)
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -136,7 +157,9 @@ export function PaymentLimitsStep() {
             name="maxAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs text-muted-foreground">Max (Optional)</FormLabel>
+                <FormLabel className="text-xs text-muted-foreground">
+                  Max (Optional)
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -144,7 +167,10 @@ export function PaymentLimitsStep() {
                     max={totalFiat ?? undefined}
                     {...field}
                     onChange={(e) => {
-                      if (totalFiat !== null && Number(e.target.value) > totalFiat) {
+                      if (
+                        totalFiat !== null &&
+                        Number(e.target.value) > totalFiat
+                      ) {
                         field.onChange(String(totalFiat));
                       } else {
                         field.onChange(e.target.value);

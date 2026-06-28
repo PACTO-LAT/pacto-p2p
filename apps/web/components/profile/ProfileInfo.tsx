@@ -8,8 +8,9 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
+import { useCallback, useRef, useState } from 'react';
+import { sileo } from 'sileo';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,11 +24,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { sileo } from 'sileo';
-import { supabase } from '@/lib/supabase';
-
-import type { ProfileData } from './types';
 import { fieldValidators } from '@/lib/schemas/profile-validation.schema';
+import { supabase } from '@/lib/supabase';
+import type { ProfileData } from './types';
 
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE_MB = 5;

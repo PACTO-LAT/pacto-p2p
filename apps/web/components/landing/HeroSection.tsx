@@ -3,11 +3,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-
-import WaitlistDialog from '@/components/marketing/WaitlistDialog';
-import { Button } from '@/components/ui/button';
-import RotatingText from '@/components/RotatingText';
 import { MacbookScrollDemo } from '@/components/landing/MacbookScrollDemo';
+import WaitlistDialog from '@/components/marketing/WaitlistDialog';
+import RotatingText from '@/components/RotatingText';
+import { Button } from '@/components/ui/button';
 
 export function HeroSection() {
   const reducedMotion = useReducedMotion();

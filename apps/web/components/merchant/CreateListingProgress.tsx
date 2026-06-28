@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 const STEP_LABELS = ['Type & Asset', 'Pricing', 'Payment', 'Review'] as const;
 

@@ -1,11 +1,9 @@
 'use client';
 
 import { Settings } from 'lucide-react';
-import { Suspense, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 import { sileo } from 'sileo';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   MerchantSection,
   NotificationSettings,
@@ -15,10 +13,12 @@ import {
   SecuritySettings,
 } from '@/components/profile';
 import type { UserData } from '@/components/profile/types';
-import type { User } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
-import { EnhancedAuthService } from '@/lib/services/enhanced-auth.service';
 import { validateProfileUpdate } from '@/lib/schemas/profile-validation.schema';
+import { EnhancedAuthService } from '@/lib/services/enhanced-auth.service';
+import type { User } from '@/lib/types';
 
 const TAB_TRIGGER_CLASS =
   'bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap';

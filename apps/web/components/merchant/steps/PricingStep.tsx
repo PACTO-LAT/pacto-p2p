@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
 import { Calculator, ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import {
   FormControl,
@@ -28,7 +28,10 @@ export function PricingStep() {
   const rate = useWatch({ control: form.control, name: 'rate' });
   const token = useWatch({ control: form.control, name: 'token' });
   const type = useWatch({ control: form.control, name: 'type' });
-  const fiatCurrency = useWatch({ control: form.control, name: 'fiatCurrency' });
+  const fiatCurrency = useWatch({
+    control: form.control,
+    name: 'fiatCurrency',
+  });
   const isSell = type === 'sell';
 
   const total =
@@ -41,19 +44,24 @@ export function PricingStep() {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (currencyRef.current && !currencyRef.current.contains(e.target as Node)) {
+      if (
+        currencyRef.current &&
+        !currencyRef.current.contains(e.target as Node)
+      ) {
         setCurrencyOpen(false);
       }
     }
-    if (currencyOpen) document.addEventListener('mousedown', handleClickOutside);
+    if (currencyOpen)
+      document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [currencyOpen]);
 
-  const rateLabel = token && fiatCurrency
-    ? `Price per 1 ${token} (${fiatCurrency})`
-    : token
-      ? `Price per 1 ${token}`
-      : 'Price per Token';
+  const rateLabel =
+    token && fiatCurrency
+      ? `Price per 1 ${token} (${fiatCurrency})`
+      : token
+        ? `Price per 1 ${token}`
+        : 'Price per Token';
 
   const rateHint = isSell
     ? 'How much fiat you will receive per token'
@@ -79,10 +87,13 @@ export function PricingStep() {
                   >
                     {field.value ? (
                       <span>
-                        {CURRENCIES.find((c) => c.value === field.value)?.label ?? field.value}
+                        {CURRENCIES.find((c) => c.value === field.value)
+                          ?.label ?? field.value}
                       </span>
                     ) : (
-                      <span className="text-muted-foreground">Select currency</span>
+                      <span className="text-muted-foreground">
+                        Select currency
+                      </span>
                     )}
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </button>
@@ -101,7 +112,9 @@ export function PricingStep() {
                           }`}
                         >
                           <span className="font-medium">{c.label}</span>
-                          <span className="text-muted-foreground text-xs">{c.description}</span>
+                          <span className="text-muted-foreground text-xs">
+                            {c.description}
+                          </span>
                         </button>
                       ))}
                     </div>

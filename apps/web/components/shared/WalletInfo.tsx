@@ -12,11 +12,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
+import { useWallet } from '@/hooks/use-wallet';
+import { AuthService } from '@/lib/services/auth';
 import { cn } from '@/lib/utils';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
-import { useWallet } from '@/hooks/use-wallet';
-import { useAuth } from '@/hooks/use-auth';
-import { AuthService } from '@/lib/services/auth';
 
 interface WalletInfoProps {
   showDetails?: boolean;

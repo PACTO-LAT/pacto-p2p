@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { ReportPaymentData } from '@/lib/types/escrow';
+import type { ReportPaymentData } from '@/lib/types/escrow';
 
 interface ReportPaymentModalProps {
   open: boolean;

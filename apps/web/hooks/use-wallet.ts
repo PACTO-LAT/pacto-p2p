@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { KitEventType } from '@creit-tech/stellar-wallets-kit/types';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 import {
+  getInitializationError,
   initializeWalletKit,
   isWalletKitInitialized,
-  getInitializationError,
 } from '@/lib/wallet';
 import useGlobalAuthenticationStore from '@/store/wallet.store';
 

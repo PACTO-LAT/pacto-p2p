@@ -1,6 +1,6 @@
+import { supabase } from '@/lib/supabase';
 import type { CreateListingData } from '@/lib/types';
 import type { DbListing } from '@/lib/types/db';
-import { supabase } from '@/lib/supabase';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ListingsService {

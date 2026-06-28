@@ -1,19 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { sileo } from 'sileo';
+import { TokenIcon } from '@/components/shared/TokenIcon';
+import { TradeTypeBadge } from '@/components/shared/TradeTypeBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { TokenIcon } from '@/components/shared/TokenIcon';
-import { TradeTypeBadge } from '@/components/shared/TradeTypeBadge';
-import { formatAmount, formatDate } from '@/lib/dashboard-utils';
-import { MarketplaceListing } from '@/lib/types/marketplace';
-import useGlobalAuthenticationStore from '@/store/wallet.store';
 import { useAuth } from '@/hooks/use-auth';
 import { useDeleteListing } from '@/hooks/use-listings';
+import { formatAmount, formatDate } from '@/lib/dashboard-utils';
+import type { MarketplaceListing } from '@/lib/types/marketplace';
+import useGlobalAuthenticationStore from '@/store/wallet.store';
 
 interface ListingCardProps {
   listing: MarketplaceListing;
@@ -67,11 +67,12 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                     <span className="text-xl font-semibold text-muted-foreground">
                       {listing.token}
                     </span>
-                    {listing.amountRemaining != null && listing.amountRemaining < listing.amount && (
-                      <span className="text-sm text-muted-foreground">
-                        of {formatAmount(listing.amount)} total
-                      </span>
-                    )}
+                    {listing.amountRemaining != null &&
+                      listing.amountRemaining < listing.amount && (
+                        <span className="text-sm text-muted-foreground">
+                          of {formatAmount(listing.amount)} total
+                        </span>
+                      )}
                   </div>
                   <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                     <div>
@@ -144,7 +145,9 @@ export function ListingCard({ listing, onTrade }: ListingCardProps) {
                   Total Value
                 </p>
                 <p className="text-3xl font-bold text-foreground">
-                  {formatAmount((listing.amountRemaining ?? listing.amount) * listing.rate)}
+                  {formatAmount(
+                    (listing.amountRemaining ?? listing.amount) * listing.rate
+                  )}
                 </p>
                 <p className="text-lg font-semibold text-muted-foreground">
                   {listing.fiatCurrency}

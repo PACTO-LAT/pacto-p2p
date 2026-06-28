@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -7,7 +8,6 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useRouter } from 'next/navigation';
 import { AuthService } from '@/lib/services/auth';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/types';

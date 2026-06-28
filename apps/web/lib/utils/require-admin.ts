@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase';
 
 /**
@@ -9,7 +9,9 @@ import { createAdminClient } from '@/lib/supabase';
  */
 export async function requireAdmin(
   request: NextRequest
-): Promise<{ userId: string; ipAddress?: string; userAgent?: string } | NextResponse> {
+): Promise<
+  { userId: string; ipAddress?: string; userAgent?: string } | NextResponse
+> {
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.replace('Bearer ', '');
 
@@ -42,12 +44,12 @@ export async function requireAdmin(
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     undefined;
-  
+
   const userAgent = request.headers.get('user-agent') || undefined;
 
-  return { 
+  return {
     userId: user.id,
     ipAddress,
-    userAgent
+    userAgent,
   };
 }

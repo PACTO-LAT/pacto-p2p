@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { AuditService } from '@/lib/services/audit';
+import type { AuditAction, AuditTargetType } from '@/lib/types/audit';
 import { requireAdmin } from '@/lib/utils/require-admin';
 
 export async function GET(request: NextRequest) {
@@ -18,15 +19,15 @@ export async function GET(request: NextRequest) {
     const [logs, total] = await Promise.all([
       AuditService.getAuditLogs({
         adminUserId,
-        action: action as any,
-        targetType: targetType as any,
+        action: action as AuditAction | undefined,
+        targetType: targetType as AuditTargetType | undefined,
         limit,
         offset,
       }),
       AuditService.getAuditLogsCount({
         adminUserId,
-        action: action as any,
-        targetType: targetType as any,
+        action: action as AuditAction | undefined,
+        targetType: targetType as AuditTargetType | undefined,
       }),
     ]);
 
