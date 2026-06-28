@@ -1,8 +1,8 @@
 'use client';
 
-import { TrendingUp, Users, LayoutList, CheckCircle } from 'lucide-react';
+import { CheckCircle, LayoutList, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlatformStats as PlatformStatsType } from '@/lib/types/admin';
+import type { PlatformStats as PlatformStatsType } from '@/lib/types/admin';
 
 interface PlatformStatsProps {
   stats: PlatformStatsType;
@@ -22,7 +22,6 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           <div className="text-2xl font-bold text-foreground">
             {stats.totalUsers.toLocaleString()}
           </div>
-          <p className="text-sm text-emerald-500 mt-1">+12% this month</p>
         </CardContent>
       </Card>
 
@@ -37,7 +36,6 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           <div className="text-2xl font-bold text-foreground">
             {stats.activeListings}
           </div>
-          <p className="text-sm text-blue-600 mt-1">Across all tokens</p>
         </CardContent>
       </Card>
 
@@ -52,7 +50,6 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           <div className="text-2xl font-bold text-foreground">
             ${stats.totalVolume.toLocaleString()}
           </div>
-          <p className="text-sm text-emerald-500 mt-1">+25% this week</p>
         </CardContent>
       </Card>
 
@@ -67,7 +64,6 @@ export function PlatformStats({ stats }: PlatformStatsProps) {
           <div className="text-2xl font-bold text-foreground">
             {stats.completedTrades}
           </div>
-          <p className="text-sm text-gray-600 mt-1">98.5% success rate</p>
         </CardContent>
       </Card>
     </div>

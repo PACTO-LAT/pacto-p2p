@@ -55,19 +55,6 @@ export interface EscrowMilestone {
   created_at: string;
 }
 
-export interface TokenOperation {
-  id: string;
-  operation_type: 'mint' | 'burn';
-  token: string;
-  amount: number;
-  stellar_address: string;
-  transaction_hash?: string;
-  memo?: string;
-  status: 'pending' | 'completed' | 'failed';
-  created_by: string;
-  created_at: string;
-}
-
 export interface CreateListingData {
   type: 'buy' | 'sell';
   token: string;
@@ -82,8 +69,8 @@ export interface CreateListingData {
 
 export interface CreateEscrowData {
   listing: CreateListingData; // Using the existing CreateListingData interface
-  buyer_id: string;   // Stellar address — used for on-chain escrow
-  seller_id: string;  // Stellar address — used for on-chain escrow
+  buyer_id: string; // Stellar address — used for on-chain escrow
+  seller_id: string; // Stellar address — used for on-chain escrow
   buyer_uuid?: string; // Supabase user UUID — used for DB inserts
   seller_uuid?: string; // Supabase user UUID — used for DB inserts
   token: string;
