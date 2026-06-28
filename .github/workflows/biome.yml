@@ -1,0 +1,38 @@
+name: Biome
+
+# Gate only the files changed in each PR (not the whole repo). Pre-existing
+# lint/format debt in untouched files does not block; new or modified code in
+# apps/web must be clean (format + lint).
+on:
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/biome.yml'
+
+jobs:
+  biome:
+    name: Lint changed files (apps/web)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so Biome can diff against the PR base commit.
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Biome (changed files only)
+        working-directory: apps/web
+        run: >-
+          npx --no-install @biomejs/biome ci
+          --changed
+          --since=${{ github.event.pull_request.base.sha }}
+          .
