@@ -50,8 +50,7 @@ export function MarketplaceFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Tokens</SelectItem>
-            <SelectItem value="CRCX">CRCX</SelectItem>
-            <SelectItem value="MXNX">MXNX</SelectItem>
+            <SelectItem value="XLM">XLM</SelectItem>
             <SelectItem value="USDC">USDC</SelectItem>
           </SelectContent>
         </Select>

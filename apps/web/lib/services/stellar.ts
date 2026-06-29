@@ -12,8 +12,7 @@ export class StellarService {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const mockBalances: Record<string, number> = {
-      CRCX: 1250.5,
-      MXNX: 890.25,
+      XLM: 1250.5,
       USDC: 500.0,
     };
 

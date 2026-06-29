@@ -108,7 +108,7 @@ export function mapDbListingToMarketplace(
 
 export type UIListingFormInput = {
   type: 'buy' | 'sell';
-  token: string; // token code like USDC/CRCX
+  token: string; // token code like USDC/XLM
   amount: string; // numeric string
   rate: string; // numeric string
   fiatCurrency: string;

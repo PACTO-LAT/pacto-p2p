@@ -6,7 +6,7 @@ const howItWorks = [
   {
     step: '1',
     title: 'Browse OTC Listings',
-    description: 'Find offers to buy or sell stablecoins like CRCX or USDC.',
+    description: 'Find offers to buy or sell assets like XLM or USDC.',
   },
   {
     step: '2',
