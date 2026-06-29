@@ -36,18 +36,4 @@ export const TRUSTLINES = [
       process.env.NEXT_PUBLIC_XLM_SAC_ADDRESS ||
       'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
   },
-  {
-    name: 'CRCX',
-    issuer: process.env.NEXT_PUBLIC_CRCX_ISSUER_ADDRESS || '', // TODO: Add CRCX testnet issuer address
-    symbol: 'CRCX',
-    decimals: 100,
-    address: process.env.NEXT_PUBLIC_CRCX_ISSUER_ADDRESS || '',
-  },
-  {
-    name: 'MXNX',
-    issuer: process.env.NEXT_PUBLIC_MXNX_ISSUER_ADDRESS || '',
-    symbol: 'MXNX',
-    decimals: 100,
-    address: process.env.NEXT_PUBLIC_MXNX_ISSUER_ADDRESS || '',
-  },
 ];

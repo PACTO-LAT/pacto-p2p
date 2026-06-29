@@ -8,18 +8,11 @@ export interface SupportedAsset {
 
 const DEFAULT_SUPPORTED_ASSETS: SupportedAsset[] = [
   {
-    symbol: 'CRCX',
-    name: 'Costa Rican Colón Token',
-    region: 'Costa Rica',
-    paymentMethods: 'SINPE',
-    color: 'bg-green-500',
-  },
-  {
-    symbol: 'MXNX',
-    name: 'Mexican Peso Token',
-    region: 'Mexico',
-    paymentMethods: 'SPEI, OXXO (coming)',
-    color: 'bg-red-500',
+    symbol: 'XLM',
+    name: 'Stellar Lumens',
+    region: 'Global',
+    paymentMethods: 'Varies',
+    color: 'bg-slate-500',
   },
   {
     symbol: 'USDC',

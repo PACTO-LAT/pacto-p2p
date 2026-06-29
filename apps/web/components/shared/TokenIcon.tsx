@@ -19,8 +19,6 @@ const sizeClasses = {
 const fallbackColor: Record<string, string> = {
   USDC: 'bg-blue-600',
   XLM: 'bg-slate-500',
-  CRCX: 'bg-green-500',
-  MXNX: 'bg-red-500',
 };
 
 export function TokenIcon({ token, size = 'md', className }: TokenIconProps) {

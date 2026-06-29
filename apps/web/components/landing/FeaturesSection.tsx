@@ -13,7 +13,7 @@ const paymentMethods = [
   { name: 'Nequi', country: 'CO' },
 ];
 
-const tokens = ['CRCX', 'MXNX', 'USDC'];
+const tokens = ['XLM', 'USDC'];
 
 const countries = [
   { flag: '🇨🇷', code: 'cr' },

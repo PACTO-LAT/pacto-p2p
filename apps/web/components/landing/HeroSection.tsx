@@ -58,9 +58,9 @@ export function HeroSection() {
           className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto leading-relaxed hero-subtitle"
           variants={shouldAnimate ? itemAnimation : {}}
         >
-          A decentralized OTC platform for Stellar stablecoins like{' '}
+          A decentralized OTC platform for Stellar assets like{' '}
           <RotatingText
-            texts={['CRCX', 'MXNX', 'USDC']}
+            texts={['XLM', 'USDC']}
             mainClassName="inline-flex items-center text-white font-semibold"
             staggerFrom="last"
             initial={{ y: '100%', opacity: 0 }}

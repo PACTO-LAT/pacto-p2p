@@ -4,7 +4,7 @@
 
 **A decentralized OTC (Over-The-Counter) platform for Stellar stablecoins**
 
-Enabling peer-to-peer trading of CRCX, MXNX, and USDC using regional payment rails like SINPE and SPEI.
+Enabling peer-to-peer trading of XLM and USDC using regional payment rails like SINPE and SPEI.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
@@ -29,8 +29,7 @@ Pacto P2P is a non-custodial trading platform that connects buyers and sellers o
 
 ### Supported Assets
 
-- **CRCX** - Costa Rican Colon Token
-- **MXNX** - Mexican Peso Token
+- **XLM** - Stellar Lumens (Global, native asset)
 - **USDC** - USD Coin (Global, various payment methods)
 
 ## Quick Start
@@ -288,7 +287,7 @@ pacto-p2p/
 1. Navigate to "Listings" in the dashboard
 2. Click "New Listing"
 3. Fill in the trade details:
-   - Token type (CRCX, MXNX, USDC)
+   - Token type (XLM, USDC)
    - Amount and rate
    - Payment method
    - Description
