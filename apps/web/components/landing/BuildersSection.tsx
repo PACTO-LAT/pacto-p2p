@@ -104,14 +104,15 @@ export function BuildersSection() {
             className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-white bg-clip-text text-transparent"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            For Builders & Issuers
+            P2P Infrastructure for Your App
           </motion.h2>
           <motion.p
             className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
             variants={shouldAnimate ? itemAnimation : {}}
           >
-            Want to add your own stablecoin or corridor? Integrate with our
-            platform in minutes, not months.
+            Want to add peer-to-peer trading to your product? Drop our P2P
+            infrastructure — escrow, payments, and trading — into your app in
+            minutes, not months.
           </motion.p>
         </motion.div>
 
@@ -132,23 +133,23 @@ export function BuildersSection() {
               {[
                 {
                   step: '1',
-                  title: 'Plug in Your Token',
+                  title: 'Drop in the SDK',
                   description:
-                    'Add your stablecoin via a simple configuration file. Support for any Stellar-based asset.',
+                    'Add peer-to-peer trading to your app with a simple config. Works with any Stellar-based asset.',
                   icon: Package,
                 },
                 {
                   step: '2',
                   title: 'Use Our Escrow Engine',
                   description:
-                    'Leverage Trustless Work, our battle-tested Stellar-based escrow system.',
+                    'Every trade is secured by Trustless Work, our battle-tested Stellar escrow — no contracts to write.',
                   icon: ShieldCheck,
                 },
                 {
                   step: '3',
                   title: 'Add Payment Methods',
                   description:
-                    'Integrate your preferred fiat payment rails and start trading immediately.',
+                    'Connect your fiat payment rails and let your users trade peer-to-peer right away.',
                   icon: CreditCard,
                 },
               ].map((item, index) => (
@@ -215,7 +216,7 @@ export function BuildersSection() {
               loopDelay={6000}
             >
               <TypingAnimation className="text-muted-foreground">
-                &gt; npx pacto init my-stablecoin
+                &gt; npx pacto init my-app
               </TypingAnimation>
 
               <AnimatedSpan className="text-emerald-500">
@@ -235,7 +236,7 @@ export function BuildersSection() {
               </AnimatedSpan>
 
               <AnimatedSpan className="text-emerald-500">
-                ✔ Validating token configuration
+                ✔ Wiring up the P2P trading flow
               </AnimatedSpan>
 
               <AnimatedSpan className="h-2">{'\u00A0'}</AnimatedSpan>
@@ -259,7 +260,7 @@ export function BuildersSection() {
               <AnimatedSpan className="h-2">{'\u00A0'}</AnimatedSpan>
 
               <TypingAnimation className="text-emerald-400">
-                Success! Your stablecoin is ready to trade.
+                Success! P2P trading is live in your app.
               </TypingAnimation>
 
               <TypingAnimation className="text-muted-foreground">
