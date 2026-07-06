@@ -23,7 +23,7 @@ export function KpiCards({ kpis }: { kpis: MerchantKpis }) {
       icon: <Wallet className="h-4 w-4 text-emerald-500" />,
     },
     {
-      label: '30d Volume',
+      label: '30d Volume (USD)',
       value: `$${kpis.volume_30d.toLocaleString()}`,
       icon: <TrendingUp className="h-4 w-4 text-emerald-500" />,
     },

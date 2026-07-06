@@ -61,6 +61,26 @@ function mapRowToMerchant(row: MerchantRow): Merchant {
   };
 }
 
+type TradeVolumeRow = {
+  fiat_amount: string | number;
+  fiat_amount_usd?: string | number | null;
+  fiat_currency?: string | null;
+};
+
+function tradeUsdAmount(row: TradeVolumeRow): number {
+  const usd = Number(row.fiat_amount_usd);
+  if (Number.isFinite(usd) && usd > 0) {
+    return usd;
+  }
+  if (row.fiat_currency === 'USD') {
+    const amount = Number(row.fiat_amount);
+    if (Number.isFinite(amount) && amount > 0) {
+      return amount;
+    }
+  }
+  return 0;
+}
+
 function slugify(input: string): string {
   return input
     .toLowerCase()
@@ -259,7 +279,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
           .eq('seller_id', merchant.user_id),
         supabase
           .from('trades')
-          .select('fiat_amount')
+          .select('fiat_amount, fiat_amount_usd, fiat_currency')
           .eq('status', 'completed')
           .eq('seller_id', merchant.user_id)
           .gte('created_at', thirtyDaysAgo.toISOString()),
@@ -277,8 +297,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
     const completed = completedRes.count ?? 0;
     const disputed = disputedRes.count ?? 0;
     const volume_30d = (volumeRes.data ?? []).reduce(
-      (acc: number, curr: { fiat_amount: string | number }) =>
-        acc + Number(curr.fiat_amount),
+      (acc: number, curr: TradeVolumeRow) => acc + tradeUsdAmount(curr),
       0
     );
 
@@ -318,7 +337,7 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
 
     const { data, error } = await supabase
       .from('trades')
-      .select('created_at, fiat_amount')
+      .select('created_at, fiat_amount, fiat_amount_usd, fiat_currency')
       .eq('status', 'completed')
       .eq('seller_id', merchant.user_id)
       .order('created_at', { ascending: true });
@@ -328,7 +347,10 @@ export const merchantSupabaseAdapter: MerchantAdapter = {
     const seriesMap = new Map<string, number>();
     data.forEach((row) => {
       const date = row.created_at.split('T')[0];
-      seriesMap.set(date, (seriesMap.get(date) ?? 0) + Number(row.fiat_amount));
+      seriesMap.set(
+        date,
+        (seriesMap.get(date) ?? 0) + tradeUsdAmount(row as TradeVolumeRow)
+      );
     });
 
     return Array.from(seriesMap.entries()).map(([date, volume]) => ({

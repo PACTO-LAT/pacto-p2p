@@ -21,7 +21,8 @@ export interface MerchantStats {
   dispute_rate: number;
 }
 
-const TRADE_COLUMNS = 'status, fiat_amount, completed_at, buyer_id, seller_id';
+const TRADE_COLUMNS =
+  'status, fiat_amount, fiat_amount_usd, fiat_currency, completed_at, buyer_id, seller_id';
 
 @Injectable()
 export class StatsService {

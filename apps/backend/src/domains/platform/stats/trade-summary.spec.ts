@@ -10,6 +10,8 @@ function t(partial: Partial<TradeRow>): TradeRow {
   return {
     status: 'completed',
     fiat_amount: 100,
+    fiat_amount_usd: null,
+    fiat_currency: 'USD',
     completed_at: new Date(NOW - day).toISOString(),
     buyer_id: 'b',
     seller_id: 's',
@@ -83,5 +85,33 @@ describe('summarizeTrades', () => {
       t({ status: 'disputed' }),
     ];
     expect(summarizeTrades(input, NOW)).toEqual(summarizeTrades(input, NOW));
+  });
+
+  it('sums mixed-currency volume in USD', () => {
+    const s = summarizeTrades(
+      [
+        t({
+          status: 'completed',
+          fiat_amount: 100_000,
+          fiat_amount_usd: 196,
+          fiat_currency: 'CRC',
+        }),
+        t({
+          status: 'completed',
+          fiat_amount: 1000,
+          fiat_amount_usd: 53.5,
+          fiat_currency: 'MXN',
+        }),
+        t({
+          status: 'completed',
+          fiat_amount: 100,
+          fiat_amount_usd: null,
+          fiat_currency: 'USD',
+        }),
+      ],
+      NOW
+    );
+    expect(s.completed).toBe(3);
+    expect(s.volume).toBeCloseTo(349.5, 5);
   });
 });
