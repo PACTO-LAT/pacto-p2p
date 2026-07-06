@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { PaymentMethodId } from '@/lib/payment-methods';
 
 /**
  * ISO 3166-1 alpha-2 country codes validation
@@ -24,11 +25,22 @@ const usernameRegex = /^[a-zA-Z0-9]([a-zA-Z0-9_-]{1,48}[a-zA-Z0-9])?$/;
  */
 const stellarAddressRegex = /^G[A-Z2-7]{55}$/;
 
+const paymentMethodIdSchema = z.enum([
+  'sinpe',
+  'spei',
+  'pix',
+  'nequi',
+  'pse',
+  'daviplata',
+  'mercado_pago',
+  'bank_transfer',
+] satisfies [PaymentMethodId, ...PaymentMethodId[]]);
+
 /**
  * Bank account schema for payment methods
  */
 const bankAccountSchema = z.object({
-  bank_iban: z.string().optional(),
+  bank_identifier: z.string().optional(),
   bank_name: z.string().optional(),
   bank_account_holder: z.string().optional(),
 });
@@ -37,8 +49,8 @@ const bankAccountSchema = z.object({
  * Payment methods schema
  */
 export const paymentMethodsSchema = z.object({
-  sinpe_number: z.string().optional(),
-  preferred_method: z.enum(['sinpe', 'bank_transfer']).default('sinpe'),
+  preferred_method: paymentMethodIdSchema.default('bank_transfer'),
+  method_details: z.record(z.string(), z.string().optional()).default({}),
   bank_accounts: z.array(bankAccountSchema).default([]),
 });
 

@@ -84,19 +84,23 @@ function EnhancedProfilePageInner() {
           const pm =
             baseUser?.payment_methods ?? localOverrides?.payment_methods;
           const defaultPm = {
-            sinpe_number: '',
-            preferred_method: 'sinpe' as const,
+            preferred_method: 'bank_transfer' as const,
+            method_details: {},
             bank_accounts: [
-              { bank_iban: '', bank_name: '', bank_account_holder: '' },
+              {
+                bank_identifier: '',
+                bank_name: '',
+                bank_account_holder: '',
+              },
             ],
           };
           if (!pm) return defaultPm;
           return {
-            sinpe_number: pm.sinpe_number ?? '',
-            preferred_method: pm.preferred_method ?? 'sinpe',
+            preferred_method: pm.preferred_method ?? 'bank_transfer',
+            method_details: pm.method_details ?? {},
             bank_accounts: Array.isArray(pm.bank_accounts)
               ? pm.bank_accounts.map((b) => ({
-                  bank_iban: b.bank_iban ?? '',
+                  bank_identifier: b.bank_identifier ?? '',
                   bank_name: b.bank_name ?? '',
                   bank_account_holder: b.bank_account_holder ?? '',
                 }))
@@ -338,6 +342,7 @@ function EnhancedProfilePageInner() {
           {/* Payments Tab */}
           <TabsContent value="payments" className="space-y-4 sm:space-y-6">
             <PaymentMethods
+              country={hydratedUserData.country}
               paymentMethods={hydratedUserData.payment_methods}
               isEditing={isEditing}
               onPaymentMethodsChange={handlePaymentMethodsChange}

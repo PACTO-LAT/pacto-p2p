@@ -17,11 +17,13 @@ export interface ProfileStatsData {
   created_at: string;
 }
 
+import type { PaymentMethodId } from '@/lib/payment-methods';
+
 export interface PaymentMethodsData {
-  sinpe_number: string;
-  preferred_method: 'sinpe' | 'bank_transfer';
+  preferred_method: PaymentMethodId;
+  method_details: Partial<Record<PaymentMethodId, string>>;
   bank_accounts: Array<{
-    bank_iban: string;
+    bank_identifier: string;
     bank_name: string;
     bank_account_holder: string;
   }>;
