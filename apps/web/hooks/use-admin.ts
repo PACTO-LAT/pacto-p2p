@@ -101,6 +101,57 @@ export function useRevokeMerchant() {
   });
 }
 
+export type AdminUserRow = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  username: string | null;
+  country: string | null;
+  kyc_status: 'verified' | 'pending' | 'rejected' | null;
+  kyc_provider: string | null;
+  kyc_verified_at: string | null;
+  created_at: string;
+};
+
+export function useAdminUsers(kycStatus?: string) {
+  return useQuery({
+    queryKey: ['admin', 'users', kycStatus],
+    queryFn: async () => {
+      const params =
+        kycStatus && kycStatus !== 'all' ? `?kyc_status=${kycStatus}` : '';
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/admin/users${params}`, { headers });
+      if (!res.ok) throw new Error('Failed to fetch users');
+      return res.json() as Promise<AdminUserRow[]>;
+    },
+  });
+}
+
+export function useUpdateUserKycStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      kyc_status,
+    }: {
+      id: string;
+      kyc_status: 'verified' | 'pending' | 'rejected';
+    }) => {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ kyc_status }),
+      });
+      if (!res.ok) throw new Error('Failed to update KYC status');
+      return res.json() as Promise<AdminUserRow>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+  });
+}
+
 export function useAuditLogs({
   adminUserId,
   action,

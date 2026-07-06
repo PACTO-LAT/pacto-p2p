@@ -115,6 +115,7 @@ export function ProfileInfo({
     new Set()
   );
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isStartingKyc, setIsStartingKyc] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   /**
@@ -332,6 +333,36 @@ export function ProfileInfo({
     }
   }, [userData, onUserDataChange, onAvatarRemoved]);
 
+  const handleCompleteKyc = async () => {
+    setIsStartingKyc(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const res = await fetch('/api/kyc/session', {
+        method: 'POST',
+        headers: {
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
+        },
+      });
+      const data = (await res.json().catch(() => null)) as {
+        url?: string;
+        error?: string;
+      } | null;
+      if (!res.ok || !data?.url) {
+        sileo.error({ title: 'Failed to start identity verification' });
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      sileo.error({ title: 'Failed to start identity verification' });
+    } finally {
+      setIsStartingKyc(false);
+    }
+  };
+
   const getKycStatusBadge = () => {
     switch (userData.kyc_status) {
       case 'verified':
@@ -508,8 +539,21 @@ export function ProfileInfo({
             <div className="flex items-center gap-2">
               {getKycStatusBadge()}
               {userData.kyc_status !== 'verified' && (
-                <Button variant="link" size="sm" className="p-0 h-auto">
-                  Complete KYC
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="p-0 h-auto"
+                  onClick={handleCompleteKyc}
+                  disabled={isStartingKyc}
+                >
+                  {isStartingKyc ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Starting...
+                    </>
+                  ) : (
+                    'Complete KYC'
+                  )}
                 </Button>
               )}
             </div>

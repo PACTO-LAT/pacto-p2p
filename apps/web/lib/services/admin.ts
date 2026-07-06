@@ -220,4 +220,57 @@ export class AdminService {
 
     return data;
   }
+
+  static async getUsers(kycStatus?: string) {
+    const supabase = createAdminClient();
+    let query = supabase
+      .from('users')
+      .select(
+        'id, email, full_name, username, country, kyc_status, kyc_provider, kyc_verified_at, created_at'
+      )
+      .order('created_at', { ascending: false })
+      .limit(200);
+
+    if (kycStatus && kycStatus !== 'all') {
+      if (kycStatus === 'pending') {
+        query = query.or('kyc_status.eq.pending,kyc_status.is.null');
+      } else {
+        query = query.eq('kyc_status', kycStatus);
+      }
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  }
+
+  static async updateUserKycStatus(
+    userId: string,
+    kycStatus: 'verified' | 'pending' | 'rejected'
+  ) {
+    const supabase = createAdminClient();
+    const now = new Date().toISOString();
+    const update: Record<string, unknown> = {
+      kyc_status: kycStatus,
+      updated_at: now,
+    };
+
+    if (kycStatus === 'verified') {
+      update.kyc_verified_at = now;
+    } else {
+      update.kyc_verified_at = null;
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(update)
+      .eq('id', userId)
+      .select(
+        'id, email, full_name, username, country, kyc_status, kyc_provider, kyc_verified_at, created_at'
+      )
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
 }
