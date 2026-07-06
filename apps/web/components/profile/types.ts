@@ -27,18 +27,6 @@ export interface PaymentMethodsData {
   }>;
 }
 
-export interface NotificationSettingsData {
-  email_trades: boolean;
-  email_escrows: boolean;
-  push_notifications: boolean;
-  sms_notifications: boolean;
-}
-
-export interface SecuritySettingsData {
-  two_factor_enabled: boolean;
-  login_notifications: boolean;
-}
-
 export interface UserData {
   id: string;
   email: string;
@@ -54,7 +42,5 @@ export interface UserData {
   total_trades: number;
   total_volume: number;
   created_at: string;
-  notifications: NotificationSettingsData;
-  security: SecuritySettingsData;
   payment_methods: PaymentMethodsData;
 }

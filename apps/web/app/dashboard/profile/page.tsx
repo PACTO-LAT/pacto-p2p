@@ -6,11 +6,9 @@ import { Suspense, useCallback, useMemo, useState } from 'react';
 import { sileo } from 'sileo';
 import {
   MerchantSection,
-  NotificationSettings,
   PaymentMethods,
   ProfileInfo,
   ProfileStats,
-  SecuritySettings,
 } from '@/components/profile';
 import type { UserData } from '@/components/profile/types';
 import { Button } from '@/components/ui/button';
@@ -23,7 +21,7 @@ import type { User } from '@/lib/types';
 const TAB_TRIGGER_CLASS =
   'bg-card/60 hover:bg-card/80 active:bg-card/90 text-muted-foreground hover:text-foreground data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-emerald-600 transition-all duration-200 rounded-md px-4 py-1.5 text-sm font-medium border border-transparent cursor-pointer whitespace-nowrap';
 
-const VALID_TABS = ['profile', 'payments', 'merchant', 'settings', 'security'];
+const VALID_TABS = ['profile', 'payments', 'merchant'];
 
 function EnhancedProfilePageInner() {
   const searchParams = useSearchParams();
@@ -31,6 +29,7 @@ function EnhancedProfilePageInner() {
     ? (searchParams.get('tab') as string)
     : 'profile';
 
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -81,22 +80,6 @@ function EnhancedProfilePageInner() {
           baseUser?.created_at ||
           localOverrides?.created_at ||
           new Date().toISOString(),
-        notifications: (() => {
-          const n = baseUser?.notifications ?? localOverrides?.notifications;
-          return {
-            email_trades: n?.email_trades ?? true,
-            email_escrows: n?.email_escrows ?? true,
-            push_notifications: n?.push_notifications ?? true,
-            sms_notifications: n?.sms_notifications ?? false,
-          };
-        })(),
-        security: (() => {
-          const s = baseUser?.security ?? localOverrides?.security;
-          return {
-            two_factor_enabled: s?.two_factor_enabled ?? false,
-            login_notifications: s?.login_notifications ?? true,
-          };
-        })(),
         payment_methods: (() => {
           const pm =
             baseUser?.payment_methods ?? localOverrides?.payment_methods;
@@ -152,8 +135,6 @@ function EnhancedProfilePageInner() {
         phone: hydratedUserData.phone,
         country: hydratedUserData.country,
         kyc_status: hydratedUserData.kyc_status,
-        notifications: hydratedUserData.notifications,
-        security: hydratedUserData.security,
         payment_methods: hydratedUserData.payment_methods,
         stellar_address: hydratedUserData.stellar_address,
       } as const;
@@ -213,16 +194,6 @@ function EnhancedProfilePageInner() {
     setUserData({ ...(hydratedUserData as UserData), ...newData });
   };
 
-  const handleNotificationsChange = (
-    notifications: UserData['notifications']
-  ) => {
-    setUserData({ ...(hydratedUserData as UserData), notifications });
-  };
-
-  const handleSecurityChange = (security: UserData['security']) => {
-    setUserData({ ...(hydratedUserData as UserData), security });
-  };
-
   const handlePaymentMethodsChange = (
     payment_methods: UserData['payment_methods']
   ) => {
@@ -232,7 +203,11 @@ function EnhancedProfilePageInner() {
   const isReady = !authLoading && !!hydratedUserData;
 
   return (
-    <Tabs defaultValue={initialTab} className="space-y-3 sm:space-y-4">
+    <Tabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="space-y-3 sm:space-y-4"
+    >
       {/* Header row: title left | tabs center | button right */}
       <div className="flex flex-col gap-3 sm:grid sm:grid-cols-3 sm:items-center">
         <div>
@@ -256,18 +231,13 @@ function EnhancedProfilePageInner() {
               <TabsTrigger value="merchant" className={TAB_TRIGGER_CLASS}>
                 Merchant
               </TabsTrigger>
-              <TabsTrigger value="settings" className={TAB_TRIGGER_CLASS}>
-                Notifications
-              </TabsTrigger>
-              <TabsTrigger value="security" className={TAB_TRIGGER_CLASS}>
-                Security
-              </TabsTrigger>
             </TabsList>
           )}
         </div>
 
         <div className="h-9 flex items-center justify-end gap-2">
           {isReady &&
+            activeTab === 'profile' &&
             (isEditing ? (
               <>
                 <Button
@@ -371,22 +341,6 @@ function EnhancedProfilePageInner() {
               paymentMethods={hydratedUserData.payment_methods}
               isEditing={isEditing}
               onPaymentMethodsChange={handlePaymentMethodsChange}
-            />
-          </TabsContent>
-
-          {/* Notifications Tab */}
-          <TabsContent value="settings" className="space-y-4 sm:space-y-6">
-            <NotificationSettings
-              notifications={hydratedUserData.notifications}
-              onNotificationsChange={handleNotificationsChange}
-            />
-          </TabsContent>
-
-          {/* Security Tab */}
-          <TabsContent value="security" className="space-y-4 sm:space-y-6">
-            <SecuritySettings
-              security={hydratedUserData.security}
-              onSecurityChange={handleSecurityChange}
             />
           </TabsContent>
 

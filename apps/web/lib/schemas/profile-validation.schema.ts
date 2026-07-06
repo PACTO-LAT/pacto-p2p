@@ -25,24 +25,6 @@ const usernameRegex = /^[a-zA-Z0-9]([a-zA-Z0-9_-]{1,48}[a-zA-Z0-9])?$/;
 const stellarAddressRegex = /^G[A-Z2-7]{55}$/;
 
 /**
- * Notification settings schema
- */
-export const notificationsSchema = z.object({
-  email_trades: z.boolean().default(true),
-  email_escrows: z.boolean().default(true),
-  push_notifications: z.boolean().default(true),
-  sms_notifications: z.boolean().default(false),
-});
-
-/**
- * Security settings schema
- */
-export const securitySchema = z.object({
-  two_factor_enabled: z.boolean().default(false),
-  login_notifications: z.boolean().default(true),
-});
-
-/**
  * Bank account schema for payment methods
  */
 const bankAccountSchema = z.object({
@@ -135,8 +117,6 @@ export const profileUpdateSchema = z.object({
   kyc_status: z.enum(['pending', 'verified', 'rejected']).optional(),
 
   // JSONB Fields
-  notifications: notificationsSchema.optional(),
-  security: securitySchema.optional(),
   payment_methods: paymentMethodsSchema.optional(),
 });
 
@@ -152,8 +132,6 @@ export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 export type PartialProfileUpdateInput = z.infer<
   typeof partialProfileUpdateSchema
 >;
-export type NotificationsSettings = z.infer<typeof notificationsSchema>;
-export type SecuritySettings = z.infer<typeof securitySchema>;
 export type PaymentMethodsSettings = z.infer<typeof paymentMethodsSchema>;
 
 /**

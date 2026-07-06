@@ -9,8 +9,6 @@ export function normalizeUserFromDb(
 ): User | null {
   if (!raw || typeof raw !== 'object') return null;
 
-  const notifications = normalizeNotifications(raw.notifications);
-  const security = normalizeSecurity(raw.security);
   const payment_methods = normalizePaymentMethods(raw.payment_methods);
 
   return {
@@ -31,8 +29,6 @@ export function normalizeUserFromDb(
     country: raw.country ? String(raw.country) : undefined,
     kyc_status: normalizeKycStatus(raw.kyc_status),
     user_type: normalizeUserType(raw.user_type),
-    notifications,
-    security,
     payment_methods,
     created_at: raw.created_at
       ? String(raw.created_at)
@@ -40,42 +36,6 @@ export function normalizeUserFromDb(
     updated_at: raw.updated_at
       ? String(raw.updated_at)
       : new Date().toISOString(),
-  };
-}
-
-function normalizeNotifications(v: unknown): User['notifications'] {
-  if (!v || typeof v !== 'object') {
-    return {
-      email_trades: true,
-      email_escrows: true,
-      push_notifications: true,
-      sms_notifications: false,
-    };
-  }
-  const o = v as Record<string, unknown>;
-  return {
-    email_trades: Boolean(o.email_trades ?? o.email ?? true),
-    email_escrows: Boolean(o.email_escrows ?? o.email ?? true),
-    push_notifications: Boolean(o.push_notifications ?? o.push ?? true),
-    sms_notifications: Boolean(o.sms_notifications ?? o.sms ?? false),
-  };
-}
-
-function normalizeSecurity(v: unknown): User['security'] {
-  if (!v || typeof v !== 'object') {
-    return {
-      two_factor_enabled: false,
-      login_notifications: true,
-    };
-  }
-  const o = v as Record<string, unknown>;
-  return {
-    two_factor_enabled: Boolean(
-      o.two_factor_enabled ?? o.twoFactorEnabled ?? false
-    ),
-    login_notifications: Boolean(
-      o.login_notifications ?? o.loginNotifications ?? true
-    ),
   };
 }
 

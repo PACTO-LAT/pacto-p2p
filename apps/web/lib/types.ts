@@ -22,16 +22,6 @@ export interface User {
   country?: string;
   kyc_status?: 'pending' | 'verified' | 'rejected';
   user_type?: 'user' | 'merchant' | 'admin';
-  notifications?: {
-    email_trades: boolean;
-    email_escrows: boolean;
-    push_notifications: boolean;
-    sms_notifications: boolean;
-  };
-  security?: {
-    two_factor_enabled: boolean;
-    login_notifications: boolean;
-  };
   payment_methods?: {
     sinpe_number?: string;
     preferred_method?: 'sinpe' | 'bank_transfer';
