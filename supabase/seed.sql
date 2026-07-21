@@ -630,7 +630,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- ---------------------------------------------------------------------------
 INSERT INTO waitlist_submissions (
   id, name, email, company, role, country, source, use_case, notes,
-  otp, otp_expires_at, verified_at
+  verified_at
 )
 VALUES
   (
@@ -643,8 +643,6 @@ VALUES
     'website',
     'Corporate treasury management',
     'Interested in bulk trading',
-    NULL,
-    NULL,
     NOW() - INTERVAL '5 days'
   ),
   (
@@ -657,8 +655,6 @@ VALUES
     'referral',
     'Personal trading',
     'Referred by Alice',
-    '123456',
-    NOW() + INTERVAL '1 hour',
     NULL
   ),
   (
@@ -671,8 +667,6 @@ VALUES
     'social',
     'Business payments',
     'Looking for payment solutions',
-    NULL,
-    NULL,
     NULL
   )
 ON CONFLICT (email) DO UPDATE SET
@@ -683,8 +677,6 @@ ON CONFLICT (email) DO UPDATE SET
   source = EXCLUDED.source,
   use_case = EXCLUDED.use_case,
   notes = EXCLUDED.notes,
-  otp = EXCLUDED.otp,
-  otp_expires_at = EXCLUDED.otp_expires_at,
   verified_at = EXCLUDED.verified_at;
 
 -- ---------------------------------------------------------------------------

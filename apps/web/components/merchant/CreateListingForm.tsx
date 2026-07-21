@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ import {
   toCreateListingData,
   type UIListingFormInput,
 } from '@/lib/marketplace-utils';
+import { getListingPaymentMethodOptions } from '@/lib/payment-methods';
 import {
   LISTING_FORM_DEFAULT_VALUES,
   type ListingFormValues,
@@ -40,6 +42,39 @@ import { useMeMerchant } from '../../hooks/useMerchant';
 
 export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
   const { data: merchant, isLoading: merchantLoading } = useMeMerchant();
+  const form = useForm<ListingFormValues>({
+    resolver: zodResolver(listingFormSchema) as Resolver<ListingFormValues>,
+    defaultValues: LISTING_FORM_DEFAULT_VALUES,
+  });
+  const createListing = useCreateListing();
+  const { user } = useAuth();
+  const watchedFiatCurrency = form.watch('fiatCurrency');
+  const watchedPaymentMethod = form.watch('paymentMethod');
+  const paymentMethodOptions =
+    getListingPaymentMethodOptions(watchedFiatCurrency);
+
+  useEffect(() => {
+    if (
+      watchedPaymentMethod &&
+      !paymentMethodOptions.some(
+        (option) => option.label === watchedPaymentMethod
+      )
+    ) {
+      form.setValue('paymentMethod', '');
+    }
+  }, [watchedPaymentMethod, paymentMethodOptions, form]);
+
+  async function onSubmit(values: ListingFormValues) {
+    if (!user?.id) {
+      sileo.error({ title: 'Connect your wallet first' });
+      return;
+    }
+    const listingData = toCreateListingData(values as UIListingFormInput);
+    await createListing.mutateAsync({ userId: user.id, listingData });
+    sileo.success({ title: 'Listing created' });
+    form.reset();
+    onCreated?.();
+  }
 
   if (merchantLoading) {
     return (
@@ -63,26 +98,6 @@ export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
         </Link>
       </Card>
     );
-  }
-
-  const form = useForm<ListingFormValues>({
-    resolver: zodResolver(listingFormSchema) as Resolver<ListingFormValues>,
-    defaultValues: LISTING_FORM_DEFAULT_VALUES,
-  });
-
-  const createListing = useCreateListing();
-  const { user } = useAuth();
-
-  async function onSubmit(values: ListingFormValues) {
-    if (!user?.id) {
-      sileo.error({ title: 'Connect your wallet first' });
-      return;
-    }
-    const listingData = toCreateListingData(values as UIListingFormInput);
-    await createListing.mutateAsync({ userId: user.id, listingData });
-    sileo.success({ title: 'Listing created' });
-    form.reset();
-    onCreated?.();
   }
 
   return (
@@ -191,6 +206,15 @@ export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
                           CRC - Costa Rican Colón
                         </SelectItem>
                         <SelectItem value="MXN">MXN - Mexican Peso</SelectItem>
+                        <SelectItem value="BRL">
+                          BRL - Brazilian Real
+                        </SelectItem>
+                        <SelectItem value="COP">
+                          COP - Colombian Peso
+                        </SelectItem>
+                        <SelectItem value="ARS">
+                          ARS - Argentine Peso
+                        </SelectItem>
                         <SelectItem value="USD">USD - US Dollar</SelectItem>
                       </SelectContent>
                     </Select>
@@ -213,12 +237,11 @@ export function CreateListingForm({ onCreated }: { onCreated?: () => void }) {
                       <SelectValue placeholder="Select payment method" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SINPE">SINPE (Costa Rica)</SelectItem>
-                      <SelectItem value="SPEI">SPEI (Mexico)</SelectItem>
-                      <SelectItem value="Bank Transfer">
-                        Bank Transfer
-                      </SelectItem>
-                      <SelectItem value="Cash Deposit">Cash Deposit</SelectItem>
+                      {paymentMethodOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.label}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>

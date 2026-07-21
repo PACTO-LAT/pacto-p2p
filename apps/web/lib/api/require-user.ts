@@ -9,7 +9,7 @@ import { createAdminClient } from '@/lib/supabase';
  */
 export async function requireUser(
   request: NextRequest
-): Promise<{ id: string } | NextResponse> {
+): Promise<{ id: string; email: string | undefined } | NextResponse> {
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.replace('Bearer ', '');
 
@@ -27,5 +27,5 @@ export async function requireUser(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  return { id: user.id };
+  return { id: user.id, email: user.email ?? undefined };
 }

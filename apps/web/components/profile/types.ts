@@ -17,26 +17,16 @@ export interface ProfileStatsData {
   created_at: string;
 }
 
+import type { PaymentMethodId } from '@/lib/payment-methods';
+
 export interface PaymentMethodsData {
-  sinpe_number: string;
-  preferred_method: 'sinpe' | 'bank_transfer';
+  preferred_method: PaymentMethodId;
+  method_details: Partial<Record<PaymentMethodId, string>>;
   bank_accounts: Array<{
-    bank_iban: string;
+    bank_identifier: string;
     bank_name: string;
     bank_account_holder: string;
   }>;
-}
-
-export interface NotificationSettingsData {
-  email_trades: boolean;
-  email_escrows: boolean;
-  push_notifications: boolean;
-  sms_notifications: boolean;
-}
-
-export interface SecuritySettingsData {
-  two_factor_enabled: boolean;
-  login_notifications: boolean;
 }
 
 export interface UserData {
@@ -54,7 +44,5 @@ export interface UserData {
   total_trades: number;
   total_volume: number;
   created_at: string;
-  notifications: NotificationSettingsData;
-  security: SecuritySettingsData;
   payment_methods: PaymentMethodsData;
 }

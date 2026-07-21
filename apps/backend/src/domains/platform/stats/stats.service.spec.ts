@@ -54,6 +54,8 @@ describe('StatsService.recomputeForUser', () => {
     Array.from({ length: n }, () => ({
       status: 'completed',
       fiat_amount: 100,
+      fiat_amount_usd: 100,
+      fiat_currency: 'USD',
       completed_at: '2026-06-25T00:00:00Z',
       buyer_id: 'other',
       seller_id: 'u1',

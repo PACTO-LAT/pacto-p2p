@@ -1,7 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { sileo } from 'sileo';
 import { z } from 'zod';
@@ -26,12 +27,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from '@/components/ui/input-otp';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -39,6 +34,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 
 const waitlistSchema = z.object({
@@ -59,14 +55,40 @@ type WaitlistDialogProps = {
   triggerText?: string;
 };
 
-export function WaitlistDialog({
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      />
+    </svg>
+  );
+}
+
+function WaitlistDialogInner({
   triggerClassName,
   triggerText = 'Join the waitlist',
 }: WaitlistDialogProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const confirmHandled = useRef(false);
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<'form' | 'otp'>('form');
+  const [step, setStep] = useState<'form' | 'verify'>('form');
   const [pendingEmail, setPendingEmail] = useState('');
-  const [otp, setOtp] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const form = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
@@ -80,6 +102,75 @@ export function WaitlistDialog({
       notes: '',
     },
   });
+
+  useEffect(() => {
+    if (searchParams.get('waitlist_confirm') !== '1') return;
+    if (confirmHandled.current) return;
+
+    let cancelled = false;
+
+    async function confirmWaitlist(accessToken: string) {
+      if (confirmHandled.current || cancelled) return;
+      confirmHandled.current = true;
+
+      try {
+        const res = await fetch('/api/waitlist/confirm', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await res.json();
+
+        if (res.ok && data?.ok) {
+          sileo.success({
+            title: "You're on the waitlist — email verified",
+          });
+        } else if (res.status === 404) {
+          sileo.error({
+            title: 'Waitlist entry not found',
+            description:
+              'Please join the waitlist first, then verify with Google using the same email.',
+          });
+        } else {
+          sileo.error({
+            title: 'Verification failed',
+            description: data?.error || 'Please try again.',
+          });
+        }
+      } catch (e) {
+        const message = e instanceof Error ? e.message : 'Unknown error';
+        sileo.error({ title: 'Verification failed', description: message });
+      } finally {
+        router.replace('/', { scroll: false });
+      }
+    }
+
+    async function attemptConfirm() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        await confirmWaitlist(session.access_token);
+        return;
+      }
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.access_token) {
+          subscription.unsubscribe();
+          void confirmWaitlist(session.access_token);
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+
+    const cleanupPromise = attemptConfirm();
+    return () => {
+      cancelled = true;
+      void cleanupPromise.then((cleanup) => cleanup?.());
+    };
+  }, [searchParams, router]);
 
   async function onSubmit(values: WaitlistFormValues) {
     try {
@@ -98,47 +189,27 @@ export function WaitlistDialog({
       }
 
       setPendingEmail(values.email);
-      setStep('otp');
-      sileo.success({
-        title: 'Check your email for a verification code',
-        description: 'Enter the 6-digit code to confirm your registration.',
-      });
+      setStep('verify');
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Unknown error';
       sileo.error({ title: 'Unexpected error', description: message });
     }
   }
 
-  async function onVerifyOtp() {
-    if (!pendingEmail || otp.length !== 6) return;
+  async function onVerifyWithGoogle() {
+    setIsGoogleLoading(true);
     try {
-      const res = await fetch('/api/waitlist/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: pendingEmail, otp }),
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/?waitlist_confirm=1`,
+        },
       });
-      const data = await res.json();
-      if (!res.ok) {
-        sileo.error({
-          title: 'Invalid or expired code',
-          description: data?.error || 'Try again or request a new code.',
-        });
-        return;
-      }
-      sileo.success({
-        title: 'You are on the waitlist!',
-        description: 'Verification complete. We’ll reach out as slots open up.',
-      });
-      setTimeout(() => {
-        setOpen(false);
-        setStep('form');
-        setOtp('');
-        setPendingEmail('');
-        form.reset();
-      }, 1200);
+      if (error) throw error;
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Unknown error';
-      sileo.error({ title: 'Unexpected error', description: message });
+      const message = e instanceof Error ? e.message : 'Google sign-in failed';
+      sileo.error({ title: message });
+      setIsGoogleLoading(false);
     }
   }
 
@@ -316,75 +387,47 @@ export function WaitlistDialog({
           </Form>
         ) : (
           <div className="space-y-6">
-            <div>
-              <div className="text-sm text-muted-foreground mb-2">
-                We sent a 6-digit code to
-              </div>
-              <div className="font-medium">{pendingEmail}</div>
-            </div>
-            <div className="flex justify-center">
-              <InputOTP
-                maxLength={6}
-                value={otp}
-                onChange={setOtp}
-                containerClassName="gap-2"
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot
-                    index={0}
-                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
-                  />
-                  <InputOTPSlot
-                    index={1}
-                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
-                  />
-                  <InputOTPSlot
-                    index={2}
-                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
-                  />
-                </InputOTPGroup>
-                <InputOTPSeparator />
-                <InputOTPGroup>
-                  <InputOTPSlot
-                    index={3}
-                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
-                  />
-                  <InputOTPSlot
-                    index={4}
-                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
-                  />
-                  <InputOTPSlot
-                    index={5}
-                    className="h-12 w-12 text-lg md:h-14 md:w-14 md:text-xl"
-                  />
-                </InputOTPGroup>
-              </InputOTP>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Verify your email by signing in with Google. Use the same Google
+                account as{' '}
+                <span className="font-medium text-foreground">
+                  {pendingEmail}
+                </span>
+                .
+              </p>
             </div>
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 className="btn-waitlist text-accent !h-11 !py-1"
-                onClick={() => {
-                  setStep('form');
-                  setOtp('');
-                }}
+                onClick={() => setStep('form')}
               >
                 Back
               </Button>
               <Button
                 type="button"
                 className="btn-primary !h-11 !py-1"
-                disabled={otp.length !== 6}
-                onClick={onVerifyOtp}
+                disabled={isGoogleLoading}
+                onClick={onVerifyWithGoogle}
               >
-                Verify
+                <GoogleIcon className="mr-2 h-4 w-4" />
+                {isGoogleLoading ? 'Redirecting…' : 'Verify with Google'}
               </Button>
             </DialogFooter>
           </div>
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function WaitlistDialog(props: WaitlistDialogProps) {
+  return (
+    <Suspense fallback={null}>
+      <WaitlistDialogInner {...props} />
+    </Suspense>
   );
 }
 

@@ -7,6 +7,8 @@
 //   Trustline,
 // } from "@trustless-work/escrow";
 
+import type { PaymentMethodId } from '@/lib/payment-methods';
+
 export interface User {
   id: string;
   email: string;
@@ -22,21 +24,11 @@ export interface User {
   country?: string;
   kyc_status?: 'pending' | 'verified' | 'rejected';
   user_type?: 'user' | 'merchant' | 'admin';
-  notifications?: {
-    email_trades: boolean;
-    email_escrows: boolean;
-    push_notifications: boolean;
-    sms_notifications: boolean;
-  };
-  security?: {
-    two_factor_enabled: boolean;
-    login_notifications: boolean;
-  };
   payment_methods?: {
-    sinpe_number?: string;
-    preferred_method?: 'sinpe' | 'bank_transfer';
+    preferred_method?: PaymentMethodId;
+    method_details?: Partial<Record<PaymentMethodId, string>>;
     bank_accounts?: {
-      bank_iban?: string;
+      bank_identifier?: string;
       bank_name?: string;
       bank_account_holder?: string;
     }[];

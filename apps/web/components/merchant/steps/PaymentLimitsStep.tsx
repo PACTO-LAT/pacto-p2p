@@ -11,18 +11,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { getListingPaymentMethodOptions } from '@/lib/payment-methods';
 import type { ListingFormValues } from '@/lib/schemas/listing/listing-form-schema';
-
-const PAYMENT_METHODS = [
-  { value: 'SINPE', label: 'SINPE', description: 'Costa Rica' },
-  { value: 'SPEI', label: 'SPEI', description: 'Mexico' },
-  {
-    value: 'Bank Transfer',
-    label: 'Bank Transfer',
-    description: 'International',
-  },
-  { value: 'Cash Deposit', label: 'Cash Deposit', description: 'In person' },
-];
 
 export function PaymentLimitsStep() {
   const form = useFormContext<ListingFormValues>();
@@ -34,9 +24,26 @@ export function PaymentLimitsStep() {
     control: form.control,
     name: 'fiatCurrency',
   });
+  const paymentMethod = useWatch({
+    control: form.control,
+    name: 'paymentMethod',
+  });
   const amount = useWatch({ control: form.control, name: 'amount' });
   const rate = useWatch({ control: form.control, name: 'rate' });
   const isSell = type === 'sell';
+
+  const paymentMethodOptions = getListingPaymentMethodOptions(
+    fiatCurrency ?? ''
+  );
+
+  useEffect(() => {
+    if (
+      paymentMethod &&
+      !paymentMethodOptions.some((option) => option.label === paymentMethod)
+    ) {
+      form.setValue('paymentMethod', '');
+    }
+  }, [paymentMethod, paymentMethodOptions, form]);
 
   const totalFiat =
     amount &&
@@ -76,8 +83,9 @@ export function PaymentLimitsStep() {
                 >
                   {field.value ? (
                     <span>
-                      {PAYMENT_METHODS.find((m) => m.value === field.value)
-                        ?.label ?? field.value}
+                      {paymentMethodOptions.find(
+                        (option) => option.label === field.value
+                      )?.label ?? field.value}
                     </span>
                   ) : (
                     <span className="text-muted-foreground">
@@ -88,22 +96,21 @@ export function PaymentLimitsStep() {
                 </button>
                 {methodOpen && (
                   <div className="absolute top-full left-0 z-50 mt-1 w-full rounded-md border border-border bg-background shadow-lg overflow-hidden">
-                    {PAYMENT_METHODS.map((m) => (
+                    {paymentMethodOptions.map((option) => (
                       <button
-                        key={m.value}
+                        key={option.id}
                         type="button"
                         onClick={() => {
-                          field.onChange(m.value);
+                          field.onChange(option.label);
                           setMethodOpen(false);
                         }}
                         className={`w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-muted/50 transition-colors ${
-                          field.value === m.value ? 'bg-emerald-500/10' : ''
+                          field.value === option.label
+                            ? 'bg-emerald-500/10'
+                            : ''
                         }`}
                       >
-                        <span className="font-medium">{m.label}</span>
-                        <span className="text-muted-foreground text-xs">
-                          {m.description}
-                        </span>
+                        <span className="font-medium">{option.label}</span>
                       </button>
                     ))}
                   </div>

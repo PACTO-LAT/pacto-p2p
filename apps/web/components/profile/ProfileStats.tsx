@@ -51,7 +51,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
         <Separator />
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-muted-foreground">
-            Total Volume
+            Total Volume (USD)
           </span>
           <span className="text-sm font-medium text-foreground">
             ${total_volume.toLocaleString()}

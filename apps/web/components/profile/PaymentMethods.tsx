@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, CheckCircle, CreditCard } from 'lucide-react';
+import { CreditCard, Info } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,19 +13,89 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import {
+  getCountryConfig,
+  PAYMENT_METHODS,
+  type PaymentMethodId,
+} from '@/lib/payment-methods';
 import type { PaymentMethodsData } from './types';
 
 interface PaymentMethodsProps {
+  country: string;
   paymentMethods: PaymentMethodsData;
   isEditing: boolean;
   onPaymentMethodsChange: (data: PaymentMethodsData) => void;
 }
 
 export function PaymentMethods({
+  country,
   paymentMethods,
   isEditing,
   onPaymentMethodsChange,
 }: PaymentMethodsProps) {
+  const config = getCountryConfig(country);
+
+  if (!config) {
+    return (
+      <Card className="feature-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <CreditCard className="w-5 h-5 text-emerald-400" />
+            Payment Methods
+          </CardTitle>
+          <CardDescription>
+            Configure your payment methods to receive money
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-3 rounded-lg border border-border/60 bg-muted/30 p-4">
+            <Info className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Set your country in the Profile tab first to configure payment
+              methods for your region.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const instantMethods = config.methods
+    .filter((methodId) => PAYMENT_METHODS[methodId].kind === 'instant')
+    .map((methodId) => PAYMENT_METHODS[methodId]);
+
+  const emptyBankAccount = {
+    bank_identifier: '',
+    bank_name: '',
+    bank_account_holder: '',
+  };
+
+  const bankAccounts =
+    paymentMethods.bank_accounts.length > 0
+      ? paymentMethods.bank_accounts
+      : [emptyBankAccount];
+
+  const updateBankAccounts = (
+    updater: (
+      accounts: PaymentMethodsData['bank_accounts']
+    ) => PaymentMethodsData['bank_accounts']
+  ) => {
+    onPaymentMethodsChange({
+      ...paymentMethods,
+      bank_accounts: updater(bankAccounts),
+    });
+  };
+
+  const updateMethodDetail = (methodId: PaymentMethodId, value: string) => {
+    onPaymentMethodsChange({
+      ...paymentMethods,
+      method_details: {
+        ...paymentMethods.method_details,
+        [methodId]: value,
+      },
+    });
+  };
+
   return (
     <Card className="feature-card">
       <CardHeader>
@@ -34,71 +104,59 @@ export function PaymentMethods({
           Payment Methods
         </CardTitle>
         <CardDescription>
-          Configure your payment methods to receive money
+          Configure your payment methods to receive money in{' '}
+          {config.countryName}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* SINPE Mobile */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-foreground">
-              SINPE Mobile
-            </h3>
-            <Badge variant="secondary" className="glass-effect-light">
-              Costa Rica
-            </Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label
-                htmlFor="sinpe_number"
-                className="text-sm font-medium text-muted-foreground"
-              >
-                Phone Number
-              </Label>
-              <Input
-                id="sinpe_number"
-                type="tel"
-                value={paymentMethods.sinpe_number}
-                onChange={(e) =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    sinpe_number: e.target.value,
-                  })
-                }
-                disabled={!isEditing}
-                placeholder="+506 1234 5678"
-                className="glass-effect-light"
-              />
-              <p className="text-xs text-muted-foreground">
-                Number registered in SINPE Mobile to receive transfers
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-muted-foreground">
-                Status
-              </Label>
+        {instantMethods.map((method, index) => (
+          <div key={method.id}>
+            {index > 0 && <Separator className="mb-6" />}
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Verified
+                <h3 className="text-lg font-semibold text-foreground">
+                  {method.label}
+                </h3>
+                <Badge variant="secondary" className="glass-effect-light">
+                  {config.countryName}
                 </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Instant
+                </Badge>
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor={`method_detail_${method.id}`}
+                  className="text-sm font-medium text-muted-foreground"
+                >
+                  {method.detailLabel}
+                </Label>
+                <Input
+                  id={`method_detail_${method.id}`}
+                  type={method.detailLabel === 'Phone Number' ? 'tel' : 'text'}
+                  value={paymentMethods.method_details[method.id] ?? ''}
+                  onChange={(e) =>
+                    updateMethodDetail(method.id, e.target.value)
+                  }
+                  disabled={!isEditing}
+                  placeholder={method.detailPlaceholder}
+                  className="glass-effect-light"
+                />
               </div>
             </div>
           </div>
-        </div>
+        ))}
 
-        <Separator />
+        {instantMethods.length > 0 && <Separator />}
 
-        {/* Bank Transfer - Multiple Accounts */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold text-foreground">
-                Bank Transfer
+                {PAYMENT_METHODS.bank_transfer.label}
               </h3>
               <Badge variant="secondary" className="glass-effect-light">
-                International
+                {config.countryName}
               </Badge>
             </div>
             {isEditing && (
@@ -106,13 +164,10 @@ export function PaymentMethods({
                 variant="secondary"
                 size="sm"
                 onClick={() =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    bank_accounts: [
-                      ...paymentMethods.bank_accounts,
-                      { bank_iban: '', bank_name: '', bank_account_holder: '' },
-                    ],
-                  })
+                  updateBankAccounts((accounts) => [
+                    ...accounts,
+                    emptyBankAccount,
+                  ])
                 }
               >
                 Add bank account
@@ -120,37 +175,35 @@ export function PaymentMethods({
             )}
           </div>
 
-          {paymentMethods.bank_accounts.map((acct, idx) => (
+          {bankAccounts.map((acct, idx) => (
             <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              // biome-ignore lint/suspicious/noArrayIndexKey: bank account list has no stable id
               key={idx}
               className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-md p-4"
             >
               <div className="space-y-2">
                 <Label
-                  htmlFor={`bank_iban_${idx}`}
+                  htmlFor={`bank_identifier_${idx}`}
                   className="text-sm font-medium text-muted-foreground"
                 >
-                  IBAN Number
+                  {config.bankIdentifier.label}
                 </Label>
                 <Input
-                  id={`bank_iban_${idx}`}
-                  value={acct.bank_iban}
+                  id={`bank_identifier_${idx}`}
+                  value={acct.bank_identifier}
                   onChange={(e) =>
-                    onPaymentMethodsChange({
-                      ...paymentMethods,
-                      bank_accounts: paymentMethods.bank_accounts.map((a, i) =>
-                        i === idx ? { ...a, bank_iban: e.target.value } : a
-                      ),
-                    })
+                    updateBankAccounts((accounts) =>
+                      accounts.map((a, i) =>
+                        i === idx
+                          ? { ...a, bank_identifier: e.target.value }
+                          : a
+                      )
+                    )
                   }
                   disabled={!isEditing}
-                  placeholder="CR05015202001026284066"
+                  placeholder={config.bankIdentifier.placeholder}
                   className="font-mono glass-effect-light"
                 />
-                <p className="text-xs text-muted-foreground">
-                  International IBAN code of your bank account
-                </p>
               </div>
               <div className="space-y-2">
                 <Label
@@ -163,15 +216,14 @@ export function PaymentMethods({
                   id={`bank_name_${idx}`}
                   value={acct.bank_name}
                   onChange={(e) =>
-                    onPaymentMethodsChange({
-                      ...paymentMethods,
-                      bank_accounts: paymentMethods.bank_accounts.map((a, i) =>
+                    updateBankAccounts((accounts) =>
+                      accounts.map((a, i) =>
                         i === idx ? { ...a, bank_name: e.target.value } : a
-                      ),
-                    })
+                      )
+                    )
                   }
                   disabled={!isEditing}
-                  placeholder="National Bank of Costa Rica"
+                  placeholder="Your bank name"
                   className="glass-effect-light"
                 />
               </div>
@@ -186,14 +238,13 @@ export function PaymentMethods({
                   id={`bank_holder_${idx}`}
                   value={acct.bank_account_holder}
                   onChange={(e) =>
-                    onPaymentMethodsChange({
-                      ...paymentMethods,
-                      bank_accounts: paymentMethods.bank_accounts.map((a, i) =>
+                    updateBankAccounts((accounts) =>
+                      accounts.map((a, i) =>
                         i === idx
                           ? { ...a, bank_account_holder: e.target.value }
                           : a
-                      ),
-                    })
+                      )
+                    )
                   }
                   disabled={!isEditing}
                   placeholder="John Doe"
@@ -203,113 +254,69 @@ export function PaymentMethods({
                   Must match exactly with the name on your bank account
                 </p>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Status
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                      <AlertCircle className="w-3 h-3 mr-1" />
-                      Pending
-                    </Badge>
-                    <Button variant="link" size="sm" className="p-0 h-auto">
-                      Verify
-                    </Button>
-                  </div>
-                </div>
-                {isEditing && paymentMethods.bank_accounts.length > 1 && (
+              {isEditing && bankAccounts.length > 1 && (
+                <div className="flex items-end justify-end md:col-span-2">
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={() =>
-                      onPaymentMethodsChange({
-                        ...paymentMethods,
-                        bank_accounts: paymentMethods.bank_accounts.filter(
-                          (_, i) => i !== idx
-                        ),
-                      })
+                      updateBankAccounts((accounts) =>
+                        accounts.filter((_, i) => i !== idx)
+                      )
                     }
                   >
                     Remove
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         <Separator />
 
-        {/* Preferred Method */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-foreground">
             Preferred Method
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="preferred_sinpe"
-                name="preferred_method"
-                value="sinpe"
-                checked={paymentMethods.preferred_method === 'sinpe'}
-                onChange={(e) =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    preferred_method: e.target.value as
-                      | 'sinpe'
-                      | 'bank_transfer',
-                  })
-                }
-                disabled={!isEditing}
-                className="w-4 h-4"
-              />
-              <Label
-                htmlFor="preferred_sinpe"
-                className="flex items-center gap-2"
-              >
-                SINPE Mobile
-                <Badge variant="outline" className="text-xs">
-                  Instant
-                </Badge>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="preferred_bank"
-                name="preferred_method"
-                value="bank_transfer"
-                checked={paymentMethods.preferred_method === 'bank_transfer'}
-                onChange={(e) =>
-                  onPaymentMethodsChange({
-                    ...paymentMethods,
-                    preferred_method: e.target.value as
-                      | 'sinpe'
-                      | 'bank_transfer',
-                  })
-                }
-                disabled={!isEditing}
-                className="w-4 h-4"
-              />
-              <Label
-                htmlFor="preferred_bank"
-                className="flex items-center gap-2"
-              >
-                Bank Transfer
-                <Badge variant="outline" className="text-xs">
-                  1-3 days
-                </Badge>
-              </Label>
-            </div>
+            {config.methods.map((methodId) => {
+              const method = PAYMENT_METHODS[methodId];
+              return (
+                <div key={methodId} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id={`preferred_${methodId}`}
+                    name="preferred_method"
+                    value={methodId}
+                    checked={paymentMethods.preferred_method === methodId}
+                    onChange={() =>
+                      onPaymentMethodsChange({
+                        ...paymentMethods,
+                        preferred_method: methodId,
+                      })
+                    }
+                    disabled={!isEditing}
+                    className="w-4 h-4"
+                  />
+                  <Label
+                    htmlFor={`preferred_${methodId}`}
+                    className="flex items-center gap-2"
+                  >
+                    {method.label}
+                    <Badge variant="outline" className="text-xs">
+                      {method.kind === 'instant' ? 'Instant' : '1-3 days'}
+                    </Badge>
+                  </Label>
+                </div>
+              );
+            })}
           </div>
           <p className="text-sm text-muted-foreground">
             This will be the payment method shown by default in your listings
           </p>
         </div>
 
-        {/* Important Information */}
         <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
           <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
             Important Information
@@ -317,8 +324,7 @@ export function PaymentMethods({
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
             <li>• Verify that all information is correct before saving</li>
             <li>• Payment methods must be in your name for greater security</li>
-            <li>• SINPE Mobile is only available in Costa Rica</li>
-            <li>• Bank transfers may take 1-3 days business days</li>
+            <li>• Bank transfers may take 1-3 business days</li>
           </ul>
         </div>
       </CardContent>

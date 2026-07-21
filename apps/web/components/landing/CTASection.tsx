@@ -140,7 +140,7 @@ export function CTASection() {
             <div className="flex items-center justify-center gap-8 opacity-60">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                <span className="text-sm">No KYC Required</span>
+                <span className="text-sm">Fast identity verification</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>

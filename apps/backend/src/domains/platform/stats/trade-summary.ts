@@ -1,9 +1,25 @@
 export interface TradeRow {
   status: string;
   fiat_amount: number | string;
+  fiat_amount_usd: number | string | null;
+  fiat_currency: string | null;
   completed_at: string | null;
   buyer_id: string | null;
   seller_id: string | null;
+}
+
+function tradeUsdVolume(tr: TradeRow): number {
+  const usd = Number(tr.fiat_amount_usd);
+  if (Number.isFinite(usd) && usd > 0) {
+    return usd;
+  }
+  if (tr.fiat_currency === 'USD') {
+    const amount = Number(tr.fiat_amount);
+    if (Number.isFinite(amount) && amount > 0) {
+      return amount;
+    }
+  }
+  return 0;
 }
 
 export interface TradeSummary {
@@ -34,7 +50,7 @@ export function summarizeTrades(trades: TradeRow[], now: number): TradeSummary {
     switch (tr.status) {
       case 'completed': {
         completed += 1;
-        volume += amount;
+        volume += tradeUsdVolume(tr);
         if (tr.completed_at) {
           const ms = Date.parse(tr.completed_at);
           if (
