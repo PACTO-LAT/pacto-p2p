@@ -456,7 +456,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-Made with care by the Pacto P2P team
+Made with care by the Pacto P2P team.
 
 [Documentation](./docs/) • [Contributing](./CONTRIBUTING.md) • [Issues](https://github.com/PACTO-LAT/pacto-p2p/issues)
 
